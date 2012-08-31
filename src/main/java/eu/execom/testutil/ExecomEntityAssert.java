@@ -98,18 +98,4 @@ public interface ExecomEntityAssert<T> {
      */
     public <X> void assertObject(final String message, final X actual, final IProperty... excludes);
 
-    /**
-     * Initialize entity types.
-     */
-    public abstract void initEntityTypes();
-
-    /**
-     * Initialize complex types.
-     */
-    public abstract void initComplexTypes();
-
-    /**
-     * Initialize ignored types.
-     */
-    public abstract void initIgnoredTypes();
 }

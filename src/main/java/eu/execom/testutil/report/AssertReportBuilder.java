@@ -34,8 +34,10 @@ public class AssertReportBuilder {
     private static final String IGNORED_TYPE = "Type  %s is ignored type.";
     private static final String LIST_SIZE = "list size ";
     private static final String UNINVOKABLE_METHOD = "Method: %s cannot be invoked.";
-    private static final String REPOSITORY_FAILURE_NO_ENTITY_IN_DB = "-> Entity %s doesn't exist in DB any more but is not asserted in test.";
-    private static final String REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED = "-> Entity %s is created in system after last snapshot but hasnt been asserted in test.";
+    private static final String REPOSITORY_FAILURE_NO_ENTITY_IN_DB = "-> Entity %s doesn't exist in DB any more "
+            + "but is not asserted in test.";
+    private static final String REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED = "-> Entity %s is created in system after "
+            + "last snapshot but hasnt been asserted in test.";
 
     private final StringBuilder builder;
     private Integer assertDepth;
@@ -85,8 +87,11 @@ public class AssertReportBuilder {
      *            value
      * @param type
      *            type of comment
+     * 
+     * @param <T>
+     *            generic type
      */
-    public <X> void addComment(final String propertyName, final String comment, final X expected, final X actual,
+    public <T> void addComment(final String propertyName, final String comment, final T expected, final T actual,
             final CommentType type) {
         switch (type) {
         case FAIL:
@@ -95,6 +100,8 @@ public class AssertReportBuilder {
         case SUCCESS:
             addComment(propertyName, comment + " expected: " + expected + " and was: " + actual, type);
             break;
+        default:
+            throw new IllegalStateException("Unsupported CommentyType: " + type);
         }
     }
 
@@ -227,10 +234,15 @@ public class AssertReportBuilder {
     /**
      * Reports ignore type.
      * 
-     * @param fieldName
-     *            - name of the field
+     * @param expected
+     *            object
+     * @param actual
+     *            object
+     * 
+     * @param <T>
+     *            generic type
      */
-    public <X> void reportIgnoredType(final X expected, final X actual) {
+    public <T> void reportIgnoredType(final T expected, final T actual) {
         String fieldName;
         if (expected != null) {
             fieldName = expected.getClass().getSimpleName();
@@ -265,6 +277,9 @@ public class AssertReportBuilder {
      *            - Id of actual entity
      * @param assertResult
      *            - assert result
+     * 
+     * @param <ID>
+     *            type of entity identification object
      */
     public <ID> void reportEntityAssert(final ID expectedId, final ID actualId, final boolean assertResult) {
 
@@ -292,11 +307,15 @@ public class AssertReportBuilder {
      * Reports failure when entity in current snapshot doesn't have matching entity in before snapshot and isn't
      * asserted in test.
      * 
-     * @param propertyName
-     *            - property name
+     * 
+     * @param entities
+     *            list of non asserted entities
+     * 
+     * @param <T>
+     *            generic type
      */
-    public <X> void reportEntityIsntAsserted(final List<X> entities) {
-        for (final X entity : entities) {
+    public <T> void reportEntityIsntAsserted(final List<T> entities) {
+        for (final T entity : entities) {
             builder.append(NEW_LINE + NEW_LINE);
             builder.append(String.format(REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED, entity.toString()));
         }
@@ -360,10 +379,10 @@ public class AssertReportBuilder {
     }
 
     /**
-     * Appends message
+     * Appends message.
      * 
      * @param message
-     *            - message for appending
+     *            message for appending
      */
     public void append(final String message) {
         builder.append(message);

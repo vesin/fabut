@@ -45,16 +45,19 @@ public abstract class Property implements IProperty {
     }
 
     /**
-     * Create {@link ChangedProperty} with provided parameters
+     * Create {@link ChangedProperty} with provided parameters.
      * 
      * @param path
      *            property path.
      * @param expectedValue
      *            expected values
      * @return created object.
+     * 
+     * @param <T>
+     *            generic type
      */
-    public static <X> ChangedProperty<X> change(final String path, final X expectedValue) {
-        return new ChangedProperty<X>(path, expectedValue);
+    public static <T> ChangedProperty<T> change(final String path, final T expectedValue) {
+        return new ChangedProperty<T>(path, expectedValue);
     }
 
     /**

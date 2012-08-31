@@ -34,29 +34,15 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Nikola Trkulja
  * @param <EntityType>
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class AbstractExecomEntityAssert<EntityType> extends Assert implements ExecomEntityAssert<EntityType> {
 
     protected static final String EMPTY_STRING = "";
     private static final String GET_ID = "getId";
     private static final String DOT = ".";
 
-    private final List<Class<?>> entityTypes;
-    // Unnecessary list, should be removed and detection of complex type should be done using reflection
-    private final List<Class<?>> complexTypes;
-    private final List<Class<?>> ignoredTypes;
-
     public AbstractExecomEntityAssert() {
         super();
-
-        entityTypes = new ArrayList<Class<?>>();
-        complexTypes = new ArrayList<Class<?>>();
-        ignoredTypes = new ArrayList<Class<?>>();
-
-        initEntityTypes();
-        initComplexTypes();
-        initIgnoredTypes();
-
     }
 
     @Override
@@ -339,7 +325,7 @@ public abstract class AbstractExecomEntityAssert<EntityType> extends Assert impl
             final boolean isProperty) {
 
         // assert ignored types
-        if (ReflectionUtil.isIgnoredType(expected, actual, ignoredTypes)) {
+        if (ReflectionUtil.isIgnoredType(expected, actual, getIgnoredTypes())) {
             report.reportIgnoredType(expected, actual);
             return true;
         }
@@ -351,7 +337,7 @@ public abstract class AbstractExecomEntityAssert<EntityType> extends Assert impl
         }
 
         // assert entities
-        if (ReflectionUtil.isEntityType(expected, entityTypes)) {
+        if (ReflectionUtil.isEntityType(expected, getEntityTypes())) {
             if (isProperty) {
                 return assertEntityById(report, propertyName, expected, actual);
             } else {
@@ -365,7 +351,7 @@ public abstract class AbstractExecomEntityAssert<EntityType> extends Assert impl
         }
 
         // assert complex type
-        if (ReflectionUtil.isComplexType(expected, complexTypes)) {
+        if (ReflectionUtil.isComplexType(expected, getComplexTypes())) {
             return assertBySubproperty(propertyName, report, expected, actual, excludedProperties, nodesList);
         }
 
@@ -580,7 +566,8 @@ public abstract class AbstractExecomEntityAssert<EntityType> extends Assert impl
             if (ReflectionUtil.isGetMethod(object, method)) {
                 // complex or entity type get methods inside object come last in
                 // list
-                if (complexTypes.contains(method.getReturnType()) || entityTypes.contains(method.getReturnType())) {
+                if (getComplexTypes().contains(method.getReturnType())
+                        || getEntityTypes().contains(method.getReturnType())) {
                     getMethodsComplexType.add(method);
                 } else {
                     getMethods.add(method);
@@ -617,17 +604,26 @@ public abstract class AbstractExecomEntityAssert<EntityType> extends Assert impl
         return ReferenceCheckType.COMPLEX_ASSERT;
     }
 
-    public List<Class<?>> getEntityTypes() {
-        return entityTypes;
-    }
+    /**
+     * Get list of entity types.
+     * 
+     * @return {@link List} of entity types, if there is not any empty list should be returned
+     */
+    public abstract List<Class<?>> getEntityTypes();
 
-    public List<Class<?>> getComplexTypes() {
-        return complexTypes;
-    }
+    /**
+     * Get list of complex types.
+     * 
+     * @return {@link List} of complex types, if there is not any empty list should be returned
+     */
+    public abstract List<Class<?>> getComplexTypes();
 
-    public List<Class<?>> getIgnoredTypes() {
-        return ignoredTypes;
-    }
+    /**
+     * Get list of ignored types.
+     * 
+     * @return {@link List} of ignored types, if there is not any empty list should be returned
+     */
+    public abstract List<Class<?>> getIgnoredTypes();
 
     /**
      * After assert object.
@@ -640,7 +636,7 @@ public abstract class AbstractExecomEntityAssert<EntityType> extends Assert impl
      *            - is object subproperty
      */
     protected <X> void afterAssertObject(final X object, final boolean isSubproperty) {
-        if (ReflectionUtil.isEntityType(object, entityTypes)) {
+        if (ReflectionUtil.isEntityType(object, getEntityTypes())) {
             afterAssertEntity(object, isSubproperty);
         }
     }

@@ -20,6 +20,9 @@ public interface IsomorphicGraph {
      * @param expected
      *            - expected object
      * @return - <code>true</code> if {@link IsomorphicGraph} contains specified pair
+     * 
+     * @param <T>
+     *            generic type
      */
     <T> boolean containsPair(T actual, T expected);
 
@@ -30,7 +33,8 @@ public interface IsomorphicGraph {
      *            - actual object
      * @param expected
      *            - expected object
-     * @return <code>True</code> if pair was successfully added to object graph, if not, returns <code>false</code>.
+     * @param <T>
+     *            generic type s
      */
     <T> void addPair(T actual, T expected);
 
@@ -40,6 +44,8 @@ public interface IsomorphicGraph {
      * @param actual
      *            - object
      * @return - expected pair object
+     * @param <T>
+     *            generic type
      */
     <T> T getExpected(T actual);
 
@@ -49,6 +55,9 @@ public interface IsomorphicGraph {
      * @param expected
      *            - expected object
      * @return - actual pair object
+     * 
+     * @param <T>
+     *            generic type
      */
     <T> T getActual(T expected);
 
@@ -58,6 +67,8 @@ public interface IsomorphicGraph {
      * @param actual
      *            - actual object
      * @return - <code>true</code> if {@link IsomorphicGraph} contains actual object, <code>false</code> otherwise
+     * @param <T>
+     *            generic type
      */
     <T> boolean containsActual(T actual);
 
@@ -67,14 +78,14 @@ public interface IsomorphicGraph {
      * @param expected
      *            - expected object
      * @return - <code>true</code> if {@link IsomorphicGraph} contains expected object, <code>false</code> otherwise
+     * @param <T>
+     *            generic type
      */
     <T> boolean containsExpected(T expected);
 
     /**
      * For two specified objects check if any or both are contained in node list graph.
      * 
-     * @param <T>
-     *            the generic type
      * @param expected
      *            the expected
      * @param actual
@@ -82,6 +93,8 @@ public interface IsomorphicGraph {
      * @return - if graph contains object pair return {@link NodeCheckType}.CONTAINS_PAIR, if and only if one of the
      *         nodes is contained in nodes list return {@link NodeCheckType}.SINGLE_NODE, otherwise it is new pair and
      *         return {@link NodeCheckType}.NEW_PAIR.
+     * @param <T>
+     *            generic type
      */
     <T> NodeCheckType nodeCheck(T expected, T actual);
 }

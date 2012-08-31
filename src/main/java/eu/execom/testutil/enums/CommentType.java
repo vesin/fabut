@@ -24,6 +24,12 @@ public enum CommentType {
 
     private final String mark;
 
+    /**
+     * Comment type constructor with mark parameter.
+     * 
+     * @param mark
+     *            mark of comment type.
+     */
     private CommentType(final String mark) {
         this.mark = mark;
     }

@@ -116,7 +116,7 @@ public class ReflectionUtil {
      * Check if specified class is contained in ignored types.
      * 
      * @param type
-     *            - unidentified type
+     *            unidentified type
      * @return <code>true</code> if specified class is contained in ignored types, <code>false</code> otherwise.
      */
     public static <X> boolean isIgnoredType(final X object, final List<Class<?>> ignoredTypes) {

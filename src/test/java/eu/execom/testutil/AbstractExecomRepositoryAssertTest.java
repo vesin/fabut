@@ -20,6 +20,40 @@ public abstract class AbstractExecomRepositoryAssertTest extends AbstractExecomR
     private List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
     private List<EntityTierTwoType> list2 = new ArrayList<EntityTierTwoType>();
 
+    private final List<Class<?>> entityTypes;
+    private final List<Class<?>> complexTypes;
+    private final List<Class<?>> ignoredTypes;
+
+    public AbstractExecomRepositoryAssertTest() {
+        super();
+
+        entityTypes = new ArrayList<Class<?>>();
+        entityTypes.add(EntityTierTwoType.class);
+        entityTypes.add(EntityTierOneType.class);
+
+        complexTypes = new ArrayList<Class<?>>();
+        complexTypes.add(EntityTierTwoType.class);
+        complexTypes.add(EntityTierOneType.class);
+
+        ignoredTypes = new ArrayList<Class<?>>();
+
+    }
+
+    @Override
+    public List<Class<?>> getIgnoredTypes() {
+        return ignoredTypes;
+    }
+
+    @Override
+    public List<Class<?>> getComplexTypes() {
+        return complexTypes;
+    }
+
+    @Override
+    public List<Class<?>> getEntityTypes() {
+        return entityTypes;
+    }
+
     @Override
     protected List<?> findAll(final Class<?> entityClass) {
         if (entityClass == EntityTierOneType.class) {
@@ -41,22 +75,6 @@ public abstract class AbstractExecomRepositoryAssertTest extends AbstractExecomR
             }
         }
         return null;
-    }
-
-    @Override
-    public void initEntityTypes() {
-        getEntityTypes().add(EntityTierOneType.class);
-        getEntityTypes().add(EntityTierTwoType.class);
-    }
-
-    @Override
-    public void initComplexTypes() {
-        getComplexTypes().add(EntityTierTwoType.class);
-        getComplexTypes().add(EntityTierOneType.class);
-    }
-
-    @Override
-    public void initIgnoredTypes() {
     }
 
     @Override

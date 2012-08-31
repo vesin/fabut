@@ -13,6 +13,14 @@ public class IsomorphicNodePair<T> {
 
     private final T actual, expected;
 
+    /**
+     * Isomorphic node pair constructor with..
+     * 
+     * @param expected
+     *            object
+     * @param actual
+     *            object
+     */
     public IsomorphicNodePair(final T expected, final T actual) {
         this.actual = actual;
         this.expected = expected;
@@ -36,11 +44,10 @@ public class IsomorphicNodePair<T> {
         return expected;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(final Object arg0) {
         try {
-            final IsomorphicNodePair node = (IsomorphicNodePair) arg0;
+            final IsomorphicNodePair<?> node = (IsomorphicNodePair<?>) arg0;
             return node.getActual() == actual && node.getExpected() == expected;
         } catch (final Exception e) {
             return false;

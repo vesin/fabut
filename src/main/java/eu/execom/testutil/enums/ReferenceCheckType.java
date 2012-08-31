@@ -3,6 +3,8 @@ package eu.execom.testutil.enums;
 /**
  * Return result for reference check.
  * 
+ * TODO add comment, for what we need this entity
+ * 
  * @author Dusko Vesin
  * @author Nikola Olah
  * @author Bojan Babic

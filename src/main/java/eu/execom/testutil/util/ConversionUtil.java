@@ -11,7 +11,14 @@ import java.util.List;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public class ConversionUtil {
+public final class ConversionUtil {
+
+    /**
+     * Private Conversion util constructor.
+     */
+    private ConversionUtil() {
+        super();
+    }
 
     /**
      * Creates a {@link LinkedList} from specified varargs.
@@ -19,6 +26,9 @@ public class ConversionUtil {
      * @param excludes
      *            - varargs parameters
      * @return list of objects of class X
+     * 
+     * @param <X>
+     *            generic type
      */
     public static <X> List<X> createListFromArray(final X... excludes) {
         final List<X> list = new LinkedList<X>();

@@ -13,10 +13,13 @@ import eu.execom.testutil.enums.NodeCheckType;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class NodesList implements IsomorphicGraph {
     private final List<IsomorphicNodePair> isomorphicNodes;
 
+    /**
+     * Default constructor.
+     */
     public NodesList() {
         isomorphicNodes = new LinkedList<IsomorphicNodePair>();
     }

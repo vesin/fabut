@@ -311,6 +311,7 @@ public class ReflectionUtilTest extends Assert {
     public void testIsIgnoredTypeFalse() {
         // assert
         assertFalse(ReflectionUtil.isIgnoredType(new Object().getClass(), new ArrayList<Class<?>>()));
+
     }
 
     /**

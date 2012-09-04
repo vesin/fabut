@@ -150,23 +150,23 @@ public final class ReflectionUtil {
      * Checks if object is ignored type.
      * 
      * 
-     * @param firstClass
+     * @param firstObject
      *            that is checked
-     * @param secondClass
+     * @param secondObject
      *            that is checked
      * @param ignoredTypes
      *            list of ignored type
      * @return <code>true</code> if type of expected or actual is ignored type, <code>false</code> otherwise.
      */
-    public static boolean isIgnoredType(final Class<?> firstClass, final Class<?> secondClass,
+    public static boolean isIgnoredType(final Object firstObject, final Object secondObject,
             final List<Class<?>> ignoredTypes) {
 
-        if (secondClass != null) {
-            return isIgnoredType(secondClass, ignoredTypes);
+        if (secondObject != null) {
+            return isIgnoredType(secondObject.getClass(), ignoredTypes);
         }
 
-        if (firstClass != null) {
-            return isIgnoredType(firstClass, ignoredTypes);
+        if (firstObject != null) {
+            return isIgnoredType(firstObject.getClass(), ignoredTypes);
         }
 
         return false;

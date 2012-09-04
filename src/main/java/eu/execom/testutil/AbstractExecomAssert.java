@@ -357,7 +357,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
             final boolean isProperty) {
 
         // assert ignored types
-        if (ReflectionUtil.isIgnoredType(expected.getClass(), actual.getClass(), ignoredTypes)) {
+        if (ReflectionUtil.isIgnoredType(expected, actual, ignoredTypes)) {
             report.reportIgnoredType(expected, actual);
             return true;
         }

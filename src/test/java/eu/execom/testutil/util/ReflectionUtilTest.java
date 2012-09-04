@@ -347,6 +347,6 @@ public class ReflectionUtilTest extends Assert {
         ignoredTypes.add(IgnoredType.class);
 
         // assert
-        assertTrue(ReflectionUtil.isIgnoredType(null, new IgnoredType().getClass(), ignoredTypes));
+        assertTrue(ReflectionUtil.isIgnoredType(null, new IgnoredType(), ignoredTypes));
     }
 }

@@ -1,6 +1,5 @@
 package eu.execom.testutil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import eu.execom.testutil.model.A;
@@ -32,20 +31,23 @@ import eu.execom.testutil.model.Type;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class AbstractExecomEntityAssertTest extends AbstractExecomEntityAssert<Type> {
+public abstract class AbstractExecomEntityAssertTest extends AbstractExecomAssert<Type> {
 
-    private final List<Class<?>> entityTypes;
-    private final List<Class<?>> complexTypes;
-    private final List<Class<?>> ignoredTypes;
-
+    /**
+     * Default constructor.
+     */
     public AbstractExecomEntityAssertTest() {
         super();
+    }
 
-        entityTypes = new ArrayList<Class<?>>();
-        entityTypes.add(EntityTierTwoType.class);
-        entityTypes.add(EntityTierOneType.class);
+    @Override
+    protected void initIgnoredTypes(final List<Class<?>> ignoredTypes) {
+        ignoredTypes.add(IgnoredType.class);
+    }
 
-        complexTypes = new ArrayList<Class<?>>();
+    @Override
+    protected void initComplexTypes(final List<Class<?>> complexTypes) {
+
         complexTypes.add(A.class);
         complexTypes.add(B.class);
         complexTypes.add(C.class);
@@ -64,31 +66,17 @@ public abstract class AbstractExecomEntityAssertTest extends AbstractExecomEntit
         complexTypes.add(DoubleLink.class);
         complexTypes.add(Start.class);
 
-        ignoredTypes = new ArrayList<Class<?>>();
-        ignoredTypes.add(IgnoredType.class);
+    }
 
+    @Override
+    protected void initEntityList(final List<Class<?>> entityTypes) {
+        entityTypes.add(EntityTierTwoType.class);
+        entityTypes.add(EntityTierOneType.class);
     }
 
     @Override
     protected <T> void customAssertEquals(final T actual, final T expected) {
         assertEquals(expected, actual);
-    }
-
-    @Override
-    public List<Class<?>> getEntityTypes() {
-        return entityTypes;
-    }
-
-    @Override
-    public List<Class<?>> getComplexTypes() {
-
-        return complexTypes;
-    }
-
-    @Override
-    public List<Class<?>> getIgnoredTypes() {
-
-        return ignoredTypes;
     }
 
     @Override

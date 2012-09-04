@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import eu.execom.testutil.AbstractExecomEntityAssert;
+import eu.execom.testutil.AbstractExecomAssert;
 import eu.execom.testutil.enums.NodeCheckType;
 import eu.execom.testutil.model.TierOneType;
 
@@ -171,7 +171,7 @@ public class NodesListTest extends Assert {
     }
 
     /**
-     * Test for checkIfContains of {@link AbstractExecomEntityAssert} when object pair is contained in list.
+     * Test for checkIfContains of {@link AbstractExecomAssert} when object pair is contained in list.
      */
     @Test
     public void testCheckIfContainsTrue() {
@@ -189,7 +189,7 @@ public class NodesListTest extends Assert {
     }
 
     /**
-     * Test for checkIfContains of {@link AbstractExecomEntityAssert} when one of object nodes from object pair is
+     * Test for checkIfContains of {@link AbstractExecomAssert} when one of object nodes from object pair is
      * contained in list.
      */
     @Test
@@ -210,7 +210,7 @@ public class NodesListTest extends Assert {
     }
 
     /**
-     * Test for checkIfContains of {@link AbstractExecomEntityAssert} when object pair is not contained in list.
+     * Test for checkIfContains of {@link AbstractExecomAssert} when object pair is not contained in list.
      */
     @Test
     public void testCheckIfContainsNull() {

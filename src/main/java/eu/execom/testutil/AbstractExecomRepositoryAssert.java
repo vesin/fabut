@@ -17,8 +17,8 @@ import eu.execom.testutil.report.AssertReportBuilder;
 import eu.execom.testutil.util.ReflectionUtil;
 
 /**
- * ExeCom test util class. Extends {@link AbstractExecomEntityAssert} with possibility to assert entire repository (DB
- * ...) . TODO think of better comment.
+ * ExeCom test util class. Extends {@link AbstractExecomAssert} with possibility to assert entire repository (DB ...) .
+ * TODO think of better comment.
  * 
  * @param <EntityType>
  *            Entity type that all tested entities must implement.
@@ -29,12 +29,14 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-@SuppressWarnings({ "unchecked" })
-public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> extends
-        AbstractExecomEntityAssert<EntityType> implements ExecomRepositoryAssert<EntityType, EntityId> {
+@SuppressWarnings({"unchecked"})
+public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> extends AbstractExecomAssert<EntityType>
+        implements ExecomRepositoryAssert<EntityType, EntityId> {
 
+    /** The Constant SET_METHOD_PREFIX. */
     protected static final String SET_METHOD_PREFIX = "set";
 
+    /** The db snapshot. */
     private final Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> dbSnapshot;
 
     /**
@@ -58,7 +60,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     @Override
     public void ignoreEntity(final EntityType actual) {
 
-        if (ReflectionUtil.isEntityType(actual, getEntityTypes())) {
+        if (ReflectionUtil.isEntityType(actual.getClass(), entityTypes)) {
             markAsserted(actual);
         }
 
@@ -66,7 +68,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
 
     @Override
     protected final <X> void afterAssertEntity(final X object, final boolean isProperty) {
-        if (ReflectionUtil.isEntityType(object, getEntityTypes()) && !isProperty) {
+        if (ReflectionUtil.isEntityType(object.getClass(), entityTypes) && !isProperty) {
             markAsserted((EntityType) object);
         }
     };
@@ -109,7 +111,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Initialize database snapshot.
      */
     private void initDbSnapshot() {
-        for (final Class<?> entityType : getEntityTypes()) {
+        for (final Class<?> entityType : entityTypes) {
             getDbSnapshot().put(entityType, new HashMap<EntityId, CopyAssert<EntityType>>());
         }
     }
@@ -129,7 +131,9 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Mark entity bean as asserted in db snapshot map. Go trough all its supper classes and if its possible assert it.
      * 
      * @param entity
+     *            the entity
      * @param actualType
+     *            the actual type
      * @return <code>true</code> if entity is successfully asserted else return <code>false</code>.
      */
     protected boolean markAsAsserted(final EntityType entity, final Class<?> actualType) {
@@ -158,7 +162,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Takes current database snapshot and saves it.
      */
     protected void takeSnapshot() {
-        initDbSnapshot();
         for (final Entry<Class<?>, Map<EntityId, CopyAssert<EntityType>>> enties : dbSnapshot.entrySet()) {
             final List<EntityType> findAll = (List<EntityType>) findAll(enties.getKey());
             for (final EntityType abstractEntity : findAll) {
@@ -186,14 +189,16 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Asserts all entities of same type in current snapshot with ones from before snapshot.
      * 
+     * @param <X>
+     *            type of the entities
      * @param beforeEntities
-     *            - entities from before snapshot
+     *            entities from before snapshot
      * @param afterEntities
-     *            - entities from current snapshot
+     *            entities from current snapshot
      * @param report
-     *            - report builder
-     * @return - <code>true</code> if all entities from before snapshot are asserted with entities from current
-     *         snapshot, <code>false</code> otherwise
+     *            report builder
+     * @return <code>true</code> if all entities from before snapshot are asserted with entities from current snapshot,
+     *         <code>false</code> otherwise
      */
     protected <X extends EntityType> boolean assertByEntity(final Map<EntityId, CopyAssert<X>> beforeEntities,
             final List<X> afterEntities, final AssertReportBuilder report) {
@@ -214,15 +219,17 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Validates entity by checking if entity is already asserted if not, then checks if entity from before snapshot has
      * its match in current snapshot.
      * 
+     * @param <X>
+     *            type of the entities
      * @param ids
-     *            - asserted entity ids
+     *            asserted entity ids
      * @param beforeEntry
-     *            - entity from before snapshot
+     *            entity from before snapshot
      * @param afterEntities
-     *            - entities from current snapshot
+     *            entities from current snapshot
      * @param report
-     *            - report builder
-     * @return - <code>true</code> if entity from before snapshot is already asserted or if it has match in current
+     *            report builder
+     * @return <code>true</code> if entity from before snapshot is already asserted or if it has match in current
      *         snapshot and is asserted with it, <code>false</code> otherwise
      */
     protected <X extends EntityType> boolean validateEntry(final List<EntityId> ids,
@@ -247,15 +254,17 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     }
 
     /**
-     * Calls assertObjects of {@link AbstractExecomEntityAssert} to assert two entities.
+     * Calls assertObjects of {@link AbstractExecomAssert} to assert two entities.
      * 
+     * @param <X>
+     *            the generic type
      * @param beforeEntity
-     *            - entity from before snapshot
+     *            entity from before snapshot
      * @param afterEntity
-     *            - entity from current snapshot
+     *            entity from current snapshot
      * @param report
-     *            - report builder
-     * @return - <code>true</code> if entities are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
+     *            report builder
+     * @return <code>true</code> if entities are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
      *         <code>false</code> otherwise
      */
     protected <X extends EntityType> boolean assertEntities(final X beforeEntity, final X afterEntity,
@@ -272,11 +281,13 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Pops entity from list of entities and returns it.
      * 
+     * @param <X>
+     *            entity type
      * @param id
-     *            - id of the desired entity
+     *            id of the desired entity
      * @param afterEntities
-     *            - list of entities
-     * @return - entity with specified id
+     *            list of entities
+     * @return entity with specified id
      */
     protected <X extends EntityType> X popEntityFromList(final EntityId id, final List<X> afterEntities) {
         final Iterator<X> iterator = afterEntities.iterator();
@@ -293,11 +304,13 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Removes all entities from list of entities from current snapshot with matching id in list of ids.
      * 
+     * @param <X>
+     *            type of entity
      * @param ids
-     *            - list of ids
+     *            list of ids
      * @param afterEntities
-     *            - entities from current snapshot
-     * @return - <code>true</code> if all entities from current snapshot have matching id in list of ids,
+     *            entities from current snapshot
+     * @return <code>true</code> if all entities from current snapshot have matching id in list of ids,
      *         <code>false</code> otherwise
      */
     protected <X extends EntityType> boolean removeAfterEntitites(final List<EntityId> ids, final List<X> afterEntities) {
@@ -314,7 +327,8 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Find all entities of type entity class in DB.
      * 
      * @param entityClass
-     * @return
+     *            the entity class
+     * @return the list
      */
     protected abstract List<?> findAll(Class<?> entityClass);
 
@@ -322,16 +336,21 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Find specific entity of type entity class and with specific id in DB.
      * 
      * @param entityClass
-     * @return
+     *            the entity class
+     * @param id
+     *            the id
+     * @return the entity type
      */
     protected abstract EntityType findById(Class<?> entityClass, EntityId id);
 
     /**
      * Create copy of specified object and return its copy.
      * 
+     * @param <T>
+     *            type of the object
      * @param object
-     *            - object for copying
-     * @return - copied object
+     *            object for copying
+     * @return copied object
      */
     protected <T> T createCopy(final T object) {
         if (object == null) {
@@ -349,9 +368,11 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Creates a copy of specified list.
      * 
+     * @param <T>
+     *            type objects in the list
      * @param list
-     *            - list for copying
-     * @return - copied list
+     *            list for copying
+     * @return copied list
      */
     protected <T> List<T> copyList(final List<T> list) {
         return new ArrayList<T>(list);
@@ -361,20 +382,22 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Creates a copy of specified object by creating instance with reflection and fills it using get and set method of
      * a class.
      * 
-     * @param abstractEntity
-     *            - entity for copying
-     * @return - copied entity
+     * @param <T>
+     *            type of the object
+     * @param object
+     *            object for copying
+     * @return copied entity
      */
-    private <T> T createCopyObject(final T abstractEntity) {
+    private <T> T createCopyObject(final T object) {
 
-        final T copy = createEmptyCopyOf(abstractEntity);
+        final T copy = createEmptyCopyOf(object);
 
-        final Class<?> classObject = abstractEntity.getClass();
+        final Class<?> classObject = object.getClass();
         for (final Method method : classObject.getMethods()) {
 
-            if (ReflectionUtil.isGetMethod(abstractEntity, method) && method.getParameterAnnotations().length == 0) {
+            if (ReflectionUtil.isGetMethod(object.getClass(), method) && method.getParameterAnnotations().length == 0) {
                 final String propertyName = ReflectionUtil.getFieldName(method);
-                final Object propertyForCopying = getPropertyForCopying(abstractEntity, method);
+                final Object propertyForCopying = getPropertyForCopying(object, method);
                 final Object copiedProperty = copyProperty(propertyForCopying);
                 invokeSetMethod(method, classObject, propertyName, copy, copiedProperty);
             }
@@ -385,15 +408,17 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Gets property for copying using reflection.
      * 
-     * @param abstractEntity
-     *            - property's parent
+     * @param <T>
+     *            type of the object
+     * @param object
+     *            property's parent
      * @param method
-     *            - get method for property
-     * @return - property
+     *            get method for property
+     * @return property
      */
-    protected <T> Object getPropertyForCopying(final T abstractEntity, final Method method) {
+    protected <T> Object getPropertyForCopying(final T object, final Method method) {
         try {
-            return method.invoke(abstractEntity);
+            return method.invoke(object);
         } catch (final Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -405,8 +430,8 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Copies property.
      * 
      * @param propertyForCopying
-     *            - property for copying
-     * @return - copied property
+     *            property for copying
+     * @return copied property
      */
     protected Object copyProperty(final Object propertyForCopying) {
         if (propertyForCopying == null) {
@@ -414,7 +439,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             return null;
         }
 
-        if (ReflectionUtil.isComplexType(propertyForCopying.getClass(), getComplexTypes())) {
+        if (ReflectionUtil.isComplexType(propertyForCopying.getClass(), complexTypes)) {
             // its complex object, we need its copy
             return createCopyObject(propertyForCopying);
         }
@@ -430,26 +455,28 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     }
 
     /**
-     * Invokes specified set method via reflection to set property to copy object.
+     * Invokes specified set method via reflection to set property to object.
      * 
+     * @param <T>
+     *            object type
      * @param method
-     *            - get method for property
+     *            get method for property
      * @param classObject
-     *            - parent class for property
+     *            parent class for property
      * @param propertyName
-     *            - property name
-     * @param copy
-     *            - copied parent object
+     *            property name
+     * @param object
+     *            copied parent object
      * @param copiedProperty
-     *            - copied property
+     *            copied property
      */
     protected <T> void invokeSetMethod(final Method method, final Class<?> classObject, final String propertyName,
-            final T copy, final Object copiedProperty) {
+            final T object, final Object copiedProperty) {
         Method setMethod = null;
         try {
             setMethod = classObject.getMethod(SET_METHOD_PREFIX + StringUtils.capitalize(propertyName),
                     method.getReturnType());
-            setMethod.invoke(copy, copiedProperty);
+            setMethod.invoke(object, copiedProperty);
         } catch (final Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -459,9 +486,11 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Creates empty copy of object using reflection to call default constructor.
      * 
+     * @param <T>
+     *            type of copied object
      * @param object
-     *            - object for copying
-     * @return - copied empty instance of specified object or <code>null</code> if default constructor can not be called
+     *            object for copying
+     * @return copied empty instance of specified object or <code>null</code> if default constructor can not be called
      */
     protected <T> T createEmptyCopyOf(final T object) {
         try {

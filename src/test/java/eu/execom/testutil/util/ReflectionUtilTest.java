@@ -45,7 +45,7 @@ public class ReflectionUtilTest extends Assert {
         // setup
         final Method method = NoGetMethodsType.class.getMethod("property");
         // method
-        final boolean isGetMethod = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST), method);
+        final boolean isGetMethod = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST).getClass(), method);
         // assert
         assertFalse(isGetMethod);
     }
@@ -61,7 +61,7 @@ public class ReflectionUtilTest extends Assert {
         // setup
         final Method method = NoGetMethodsType.class.getMethod("getString");
         // method
-        final boolean isGetMethod = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST), method);
+        final boolean isGetMethod = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST).getClass(), method);
         // assert
         assertFalse(isGetMethod);
     }
@@ -77,7 +77,7 @@ public class ReflectionUtilTest extends Assert {
         // setup
         final Method method = TierOneType.class.getMethod(GET_PROPERTY);
         // method
-        final boolean isGetMetod = ReflectionUtil.isGetMethod(new TierOneType(TEST), method);
+        final boolean isGetMetod = ReflectionUtil.isGetMethod(new TierOneType(TEST).getClass(), method);
         // assert
         assertTrue(isGetMetod);
     }
@@ -94,7 +94,7 @@ public class ReflectionUtilTest extends Assert {
         // setup
         final Method method = NoGetMethodsType.class.getMethod(PROPERTY);
         // method
-        final boolean isGetMethod = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST), method);
+        final boolean isGetMethod = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST).getClass(), method);
         // assert
         assertFalse(isGetMethod);
     }
@@ -112,7 +112,7 @@ public class ReflectionUtilTest extends Assert {
         final Method method = NoGetMethodsType.class.getMethod(IS_NOT_BOOLEAN_PROPERTY);
 
         // method
-        final boolean isGetMethod = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST), method);
+        final boolean isGetMethod = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST).getClass(), method);
 
         // assert
         assertFalse(isGetMethod);
@@ -131,7 +131,7 @@ public class ReflectionUtilTest extends Assert {
         final Method method = NoGetMethodsType.class.getMethod(IS_FIELD);
 
         // method
-        final boolean assertValue = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST), method);
+        final boolean assertValue = ReflectionUtil.isGetMethod(new NoGetMethodsType(TEST).getClass(), method);
 
         // assert
         assertFalse(assertValue);
@@ -149,7 +149,7 @@ public class ReflectionUtilTest extends Assert {
         final Method method = BooleanFieldType.class.getMethod(IS_PROPERTY);
 
         // method
-        final boolean isGetMethod = ReflectionUtil.isGetMethod(new BooleanFieldType(true), method);
+        final boolean isGetMethod = ReflectionUtil.isGetMethod(new BooleanFieldType(true).getClass(), method);
 
         // assert
         assertTrue(isGetMethod);
@@ -257,7 +257,7 @@ public class ReflectionUtilTest extends Assert {
         entityTypes.add(EntityTierOneType.class);
 
         // assert
-        assertTrue(ReflectionUtil.isEntityType(new EntityTierOneType(), entityTypes));
+        assertTrue(ReflectionUtil.isEntityType(new EntityTierOneType().getClass(), entityTypes));
     }
 
     /**
@@ -266,7 +266,7 @@ public class ReflectionUtilTest extends Assert {
     @Test
     public void testIsEntityTypeFalse() {
         // assert
-        assertFalse(ReflectionUtil.isEntityType(new TierOneType(), new ArrayList<Class<?>>()));
+        assertFalse(ReflectionUtil.isEntityType(new TierOneType().getClass(), new ArrayList<Class<?>>()));
     }
 
     /**
@@ -279,7 +279,7 @@ public class ReflectionUtilTest extends Assert {
         complexTypes.add(TierOneType.class);
 
         // assert
-        assertTrue(ReflectionUtil.isComplexType(new TierOneType(), complexTypes));
+        assertTrue(ReflectionUtil.isComplexType(new TierOneType().getClass(), complexTypes));
     }
 
     /**
@@ -288,7 +288,7 @@ public class ReflectionUtilTest extends Assert {
     @Test
     public void testIsComplexTypeFalse() {
         // assert
-        assertFalse(ReflectionUtil.isComplexType(new Object(), new ArrayList<Class<?>>()));
+        assertFalse(ReflectionUtil.isComplexType(new Object().getClass(), new ArrayList<Class<?>>()));
     }
 
     /**
@@ -301,7 +301,7 @@ public class ReflectionUtilTest extends Assert {
         ignoredTypes.add(IgnoredType.class);
 
         // assert
-        assertTrue(ReflectionUtil.isIgnoredType(new IgnoredType(), ignoredTypes));
+        assertTrue(ReflectionUtil.isIgnoredType(new IgnoredType().getClass(), ignoredTypes));
     }
 
     /**
@@ -310,7 +310,7 @@ public class ReflectionUtilTest extends Assert {
     @Test
     public void testIsIgnoredTypeFalse() {
         // assert
-        assertFalse(ReflectionUtil.isIgnoredType(new Object(), new ArrayList<Class<?>>()));
+        assertFalse(ReflectionUtil.isIgnoredType(new Object().getClass(), new ArrayList<Class<?>>()));
     }
 
     /**
@@ -332,7 +332,7 @@ public class ReflectionUtilTest extends Assert {
         ignoredTypes.add(IgnoredType.class);
 
         // assert
-        assertTrue(ReflectionUtil.isIgnoredType(new IgnoredType(), ignoredTypes));
+        assertTrue(ReflectionUtil.isIgnoredType(new IgnoredType().getClass(), ignoredTypes));
 
     }
 
@@ -346,6 +346,6 @@ public class ReflectionUtilTest extends Assert {
         ignoredTypes.add(IgnoredType.class);
 
         // assert
-        assertTrue(ReflectionUtil.isIgnoredType(null, new IgnoredType(), ignoredTypes));
+        assertTrue(ReflectionUtil.isIgnoredType(null, new IgnoredType().getClass(), ignoredTypes));
     }
 }

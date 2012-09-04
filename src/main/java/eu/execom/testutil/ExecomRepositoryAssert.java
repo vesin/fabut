@@ -19,7 +19,7 @@ import eu.execom.testutil.property.IProperty;
  * @param <EntityIdType>
  *            - type of entity id -
  */
-public interface ExecomRepositoryAssert<EntityType, EntityIdType> extends ExecomEntityAssert<EntityType> {
+public interface ExecomRepositoryAssert<EntityType, EntityIdType> extends EntityAssert<EntityType> {
 
     /**
      * Marks entity as deleted in current snapshot.

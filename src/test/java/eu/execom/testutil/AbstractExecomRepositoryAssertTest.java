@@ -20,38 +20,21 @@ public abstract class AbstractExecomRepositoryAssertTest extends AbstractExecomR
     private List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
     private List<EntityTierTwoType> list2 = new ArrayList<EntityTierTwoType>();
 
-    private final List<Class<?>> entityTypes;
-    private final List<Class<?>> complexTypes;
-    private final List<Class<?>> ignoredTypes;
-
-    public AbstractExecomRepositoryAssertTest() {
-        super();
-
-        entityTypes = new ArrayList<Class<?>>();
-        entityTypes.add(EntityTierTwoType.class);
-        entityTypes.add(EntityTierOneType.class);
-
-        complexTypes = new ArrayList<Class<?>>();
+    @Override
+    protected void initComplexTypes(final List<Class<?>> complexTypes) {
         complexTypes.add(EntityTierTwoType.class);
         complexTypes.add(EntityTierOneType.class);
-
-        ignoredTypes = new ArrayList<Class<?>>();
-
     }
 
     @Override
-    public List<Class<?>> getIgnoredTypes() {
-        return ignoredTypes;
+    protected void initEntityList(final List<Class<?>> entityTypes) {
+        entityTypes.add(EntityTierTwoType.class);
+        entityTypes.add(EntityTierOneType.class);
     }
 
     @Override
-    public List<Class<?>> getComplexTypes() {
-        return complexTypes;
-    }
+    protected void initIgnoredTypes(final List<Class<?>> ignoredTypes) {
 
-    @Override
-    public List<Class<?>> getEntityTypes() {
-        return entityTypes;
     }
 
     @Override

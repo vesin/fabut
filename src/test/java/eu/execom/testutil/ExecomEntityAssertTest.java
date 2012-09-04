@@ -36,7 +36,7 @@ import eu.execom.testutil.property.Property;
 import eu.execom.testutil.report.AssertReportBuilder;
 
 /**
- * Tests methods from {@link AbstractExecomEntityAssert}.
+ * Tests methods from {@link AbstractExecomAssert}.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -476,7 +476,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link AbstractExecomEntityAssert} when actual is pointing to itself.
+     * Test for disassembleObject of {@link AbstractExecomAssert} when actual is pointing to itself.
      */
     @Test
     public void testDisassembleObjectTrivialGraphEqual() {
@@ -494,7 +494,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link AbstractExecomEntityAssert} when actual and expected object nodes are
+     * Test for disassembleObject of {@link AbstractExecomAssert} when actual and expected object nodes are
      * contained in nodes list.
      */
     @Test
@@ -514,7 +514,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for disassembledOBject of {@link AbstractExecomEntityAssert} when actual and expected are null.
+     * Test for disassembledOBject of {@link AbstractExecomAssert} when actual and expected are null.
      */
     @Test
     public void testDisassembleObjectBothNull() {
@@ -545,7 +545,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link AbstractExecomEntityAssert} when getting reference to field via
+     * Test for disassembleObject of {@link AbstractExecomAssert} when getting reference to field via
      * {@link Method}'s method invoke and it trows exception.
      */
     @Test
@@ -559,7 +559,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomEntityAssert} when actual and expected values are nulls.
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual and expected values are nulls.
      */
     @Test
     public void testAssertChangedPropertyBothNulls() {
@@ -572,7 +572,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomEntityAssert} when actual or expected is exclusive null.
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual or expected is exclusive null.
      */
     @Test
     public void testAssertChangedPropertyExclusive() {
@@ -588,7 +588,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomEntityAssert} when actual is instance of complex class.
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is instance of complex class.
      */
     @Test
     public void testAssertChangedPropertyComplexType() {
@@ -605,7 +605,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomEntityAssert} when actual is ignored type.
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is ignored type.
      */
     @Test
     public void testAssertChangedPropertyIgnoredType() {
@@ -622,7 +622,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomEntityAssert} when actual is type unknown to test util and
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is type unknown to test util and
      * its considered to be primitive.Actual is not equal to expected.
      */
     @Test
@@ -640,7 +640,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomEntityAssert} when actual is type unknown to test util and
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is type unknown to test util and
      * its considered to be primitive. Actual is not equal to expected.
      */
     @Test
@@ -658,7 +658,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomEntityAssert} when actual is entity type.
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is entity type.
      */
     @Test
     public void testAssertChangedPropertyEntityType() {
@@ -675,7 +675,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomEntityAssert} when actual list and expected list are
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual list and expected list are
      * equal.
      */
     @Test
@@ -697,7 +697,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertEntityTypes of {@link AbstractExecomEntityAssert} when actual and expected are equal entity types.
+     * Test for assertEntityTypes of {@link AbstractExecomAssert} when actual and expected are equal entity types.
      */
     @Test
     public void testAssertEntityTypesBothEntities() {
@@ -714,7 +714,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertEntityTypes of {@link AbstractExecomEntityAssert} when actual and expected are not entity types.
+     * Test for assertEntityTypes of {@link AbstractExecomAssert} when actual and expected are not entity types.
      */
     @Test
     @Ignore
@@ -732,7 +732,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertEntityTypes of {@link AbstractExecomEntityAssert} when actual is not entity type.
+     * Test for assertEntityTypes of {@link AbstractExecomAssert} when actual is not entity type.
      */
     @Test
     public void testAssertEntityTypesActualNotEntity() {
@@ -749,7 +749,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertEntityTypes of {@link AbstractExecomEntityAssert} when expected is not entity type.
+     * Test for assertEntityTypes of {@link AbstractExecomAssert} when expected is not entity type.
      */
     @Test
     public void testAssertEntityTypesExpectedNotEntity() {
@@ -766,7 +766,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomEntityAssert} when expected property is {@link NotNullProperty}
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NotNullProperty}
      * and actual is not null.
      */
     @Test
@@ -781,7 +781,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomEntityAssert} when expected property is {@link NotNullProperty}
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NotNullProperty}
      * and actual is null.
      */
     @Test
@@ -795,7 +795,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomEntityAssert} when expected property is {@link NullProperty}
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NullProperty}
      * and actual is null.
      */
     @Test
@@ -809,7 +809,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomEntityAssert} when expected property is {@link NullProperty}
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NullProperty}
      * and actual is not null.
      */
     @Test
@@ -823,7 +823,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomEntityAssert} when expected property is {@link IgnoreProperty}.
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link IgnoreProperty}.
      */
     @Test
     public void testAssertPropertiesIgnoreProperty() {
@@ -837,7 +837,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertList of {@link AbstractExecomEntityAssert} when actual list has different size than expected list.
+     * Test for assertList of {@link AbstractExecomAssert} when actual list has different size than expected list.
      */
     @Test
     public void testAssertListNotEqualSize() {
@@ -857,7 +857,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertList of {@link AbstractExecomEntityAssert} when actual list is equal to expected list.
+     * Test for assertList of {@link AbstractExecomAssert} when actual list is equal to expected list.
      */
     @Test
     public void testAssertListEqual() {
@@ -878,7 +878,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for assertList of {@link AbstractExecomEntityAssert} when actual list is equal to expected list.
+     * Test for assertList of {@link AbstractExecomAssert} when actual list is equal to expected list.
      */
     @Test
     public void testAssertListNotEqual() {
@@ -899,7 +899,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomEntityAssert} when object properties match
+     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when object properties match
      * specified properties.
      */
     @Test
@@ -914,7 +914,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomEntityAssert} when object properties don't match
+     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when object properties don't match
      * specified properties.
      */
     @Test
@@ -932,7 +932,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomEntityAssert} when specified property's path
+     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when specified property's path
      * doesn't match object's field path.
      */
     @Test
@@ -950,7 +950,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for preListAssert of {@link AbstractExecomEntityAssert} when expected and actual list are nulls.
+     * Test for preListAssert of {@link AbstractExecomAssert} when expected and actual list are nulls.
      */
     @Test
     public void testPreListForAssertNull() {
@@ -962,7 +962,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for preListAssert of {@link AbstractExecomEntityAssert} when expected is null and actual is not.
+     * Test for preListAssert of {@link AbstractExecomAssert} when expected is null and actual is not.
      */
     @Test
     public void testPreListForAssertExclusiveNull() {
@@ -974,7 +974,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for getIdValue of {@link AbstractExecomEntityAssert} when specified type is entity.
+     * Test for getIdValue of {@link AbstractExecomAssert} when specified type is entity.
      */
     @Test
     public void testGetIdValueEntity() {
@@ -989,7 +989,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for getIdValue of {@link AbstractExecomEntityAssert} when specified type is unknown type.
+     * Test for getIdValue of {@link AbstractExecomAssert} when specified type is unknown type.
      */
     @Test
     public void testGetIdValueUknownType() {
@@ -1003,7 +1003,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for removeParentQualificationForProperties of {@link AbstractExecomEntityAssert}.
+     * Test for removeParentQualificationForProperties of {@link AbstractExecomAssert}.
      */
     @Test
     public void testRemoveParentQualificationForProperty() {
@@ -1023,7 +1023,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for generateNewProperty of {@link AbstractExecomEntityAssert} when property for that field already exists.
+     * Test for generateNewProperty of {@link AbstractExecomAssert} when property for that field already exists.
      */
     @Test
     public void testGeneratePropertyFromListOfExcluded() {
@@ -1042,7 +1042,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for generateNewProperty of {@link AbstractExecomEntityAssert} when specified field needs to be wrapped
+     * Test for generateNewProperty of {@link AbstractExecomAssert} when specified field needs to be wrapped
      * inside new ChangedProperty.
      */
     @Test
@@ -1064,7 +1064,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for popProperty of {@link AbstractExecomEntityAssert} when specified property's path matches specified path.
+     * Test for popProperty of {@link AbstractExecomAssert} when specified property's path matches specified path.
      */
     @Test
     public void testPopPropertyEqualPath() {
@@ -1081,7 +1081,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for popProperty of {@link AbstractExecomEntityAssert} when there are no properties in the list.
+     * Test for popProperty of {@link AbstractExecomAssert} when there are no properties in the list.
      */
     @Test
     public void testPopPropertyNoProperties() {
@@ -1096,7 +1096,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for popProperty of {@link AbstractExecomEntityAssert} when specified property's path doesn't match specified
+     * Test for popProperty of {@link AbstractExecomAssert} when specified property's path doesn't match specified
      * path.
      */
     @Test
@@ -1113,7 +1113,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for getObjectGetMethods of {@link AbstractExecomEntityAssert} when has one real get method.
+     * Test for getObjectGetMethods of {@link AbstractExecomAssert} when has one real get method.
      */
     @Test
     public void testGetObjectGetMethodsTierOneType() {
@@ -1126,7 +1126,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for getObjectGetMethods of {@link AbstractExecomEntityAssert} when class has no real get methods.
+     * Test for getObjectGetMethods of {@link AbstractExecomAssert} when class has no real get methods.
      */
     @Test
     public void testGetObjectGetMethodsNoGetMethodsType() {
@@ -1137,7 +1137,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for getObjectGetMethods of {@link AbstractExecomEntityAssert} if it impose ordering of get methods for
+     * Test for getObjectGetMethods of {@link AbstractExecomAssert} if it impose ordering of get methods for
      * complex or entity types come last in list.
      * 
      * @throws Exception
@@ -1155,7 +1155,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for checkForNull of {@link AbstractExecomEntityAssert} with two null objects.
+     * Test for checkForNull of {@link AbstractExecomAssert} with two null objects.
      */
     @Test
     public void testCheckForNullsTrueNull() {
@@ -1167,7 +1167,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for checkForNulls of {@link AbstractExecomEntityAssert} with two same references.
+     * Test for checkForNulls of {@link AbstractExecomAssert} with two same references.
      */
     @Test
     public void testCheckForNullsTrueNotNull() {
@@ -1182,7 +1182,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for checkForNulls of {@link AbstractExecomEntityAssert} with one object null and one not null, both cases.
+     * Test for checkForNulls of {@link AbstractExecomAssert} with one object null and one not null, both cases.
      */
     @Test
     public void testCheckForNullsFalse() {
@@ -1196,7 +1196,7 @@ public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
     }
 
     /**
-     * Test for checkForNulls of {@link AbstractExecomEntityAssert} with both objects not null.
+     * Test for checkForNulls of {@link AbstractExecomAssert} with both objects not null.
      */
     @Test
     public void testCheckForNullsNull() {

@@ -44,7 +44,7 @@ import eu.execom.testutil.report.AssertReportBuilder;
  * @author Nikola Trkulja
  */
 @SuppressWarnings("rawtypes")
-public class ExecomEntityAssertTest extends AbstractExecomEntityAssertTest {
+public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     private static final String EMPTY_STRING = "";
     private static final String TEST = "test";
     private static final String DOT = ".";

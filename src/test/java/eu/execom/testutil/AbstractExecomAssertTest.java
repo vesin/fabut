@@ -31,12 +31,12 @@ import eu.execom.testutil.model.Type;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class AbstractExecomEntityAssertTest extends AbstractExecomAssert<Type> {
+public abstract class AbstractExecomAssertTest extends AbstractExecomAssert<Type> {
 
     /**
      * Default constructor.
      */
-    public AbstractExecomEntityAssertTest() {
+    public AbstractExecomAssertTest() {
         super();
     }
 

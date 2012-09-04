@@ -1,0 +1,7 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Tue Sep 04 10:38:12 CEST 2012
+testutil-2.3.0-SNAPSHOT-sources.jar>=
+testutil-2.3.0-SNAPSHOT.jar>=
+testutil-2.3.0-SNAPSHOT-javadoc.jar>=
+testutil-2.3.0-SNAPSHOT-tests.jar>=
+testutil-2.3.0-SNAPSHOT.pom>=

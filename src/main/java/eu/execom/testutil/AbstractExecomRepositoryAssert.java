@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 
 import junit.framework.Assert;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.report.AssertReportBuilder;

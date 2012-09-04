@@ -8,7 +8,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import eu.execom.testutil.enums.CommentType;
 import eu.execom.testutil.enums.NodeCheckType;

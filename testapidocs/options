@@ -1,0 +1,26 @@
+-classpath
+'/Users/dvesin/Development/Projects/Execom/testutil/target/classes:/Users/dvesin/Development/Projects/Execom/testutil/target/test-classes:/Users/dvesin/.m2/repository/org/apache/commons/commons-lang3/3.1/commons-lang3-3.1.jar:/Users/dvesin/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:/Users/dvesin/.m2/repository/junit/junit/4.10/junit-4.10.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'/Users/dvesin/Development/Projects/Execom/testutil/src/test/java'
+-author
+-bottom
+'Copyright &#169; 2012 <a href="www.execom.eu">Execom</a>. All Rights Reserved.'
+-charset
+'UTF-8'
+-d
+'/Users/dvesin/Development/Projects/Execom/testutil/target/site/testapidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'Execom Test Utill 2.3.0-SNAPSHOT Test API'
+-link
+'../apidocs'
+-link
+'http://java.sun.com/javase/6/docs/api'
+-use
+-version
+-windowtitle
+'Execom Test Utill 2.3.0-SNAPSHOT Test API'

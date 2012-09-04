@@ -68,7 +68,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertObjectNoGetMethodsType() {
         // setup
         final NoGetMethodsType noGetMethodsType = new NoGetMethodsType(TEST);
-        final ChangedProperty<String> jokerProperty = Property.change(NoGetMethodsType.PROPERTY, TEST + TEST);
+        final ChangedProperty<String> jokerProperty = Property.changed(NoGetMethodsType.PROPERTY, TEST + TEST);
 
         // method
         assertObject(EMPTY_STRING, noGetMethodsType, jokerProperty);
@@ -146,7 +146,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.ignore(TierOneType.PROPERTY));
+        assertObject(EMPTY_STRING, tierOneType, Property.ignored(TierOneType.PROPERTY));
     }
 
     /**
@@ -159,7 +159,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(null);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.change(TierOneType.PROPERTY, null));
+        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, null));
     }
 
     /**
@@ -172,7 +172,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(null);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.change(TierOneType.PROPERTY, TEST));
+        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, TEST));
     }
 
     /**
@@ -185,7 +185,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.change(TierOneType.PROPERTY, null));
+        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, null));
     }
 
     /**
@@ -198,7 +198,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.change(TierOneType.PROPERTY, TEST));
+        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, TEST));
     }
 
     /**
@@ -211,7 +211,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.change(TierOneType.PROPERTY, TEST + TEST));
+        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, TEST + TEST));
     }
 
     /**
@@ -222,7 +222,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         // setup
         final TierTwoTypeWithIgnoreProperty tierTwoTypeWithIgnoreProperty = new TierTwoTypeWithIgnoreProperty(
                 new IgnoredType());
-        final ChangedProperty<IgnoredType> jokerProperty = Property.change(TierTwoTypeWithIgnoreProperty.IGNORED_TYPE,
+        final ChangedProperty<IgnoredType> jokerProperty = Property.changed(TierTwoTypeWithIgnoreProperty.IGNORED_TYPE,
                 new IgnoredType());
 
         // method
@@ -243,7 +243,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                Property.change(TierTwoTypeWithListProperty.PROPERTY, jokerList));
+                Property.changed(TierTwoTypeWithListProperty.PROPERTY, jokerList));
     }
 
     /**
@@ -263,7 +263,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                Property.change(TierTwoTypeWithListProperty.PROPERTY, expectedList));
+                Property.changed(TierTwoTypeWithListProperty.PROPERTY, expectedList));
     }
 
     /**
@@ -283,7 +283,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                Property.change(TierTwoTypeWithListProperty.PROPERTY, expectedList));
+                Property.changed(TierTwoTypeWithListProperty.PROPERTY, expectedList));
     }
 
     /**
@@ -364,7 +364,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
                 + TEST), TEST);
 
         // method
-        assertObjects(expected, actual, Property.ignore(TierTwoType.PROPERTY + DOT + TierOneType.PROPERTY));
+        assertObjects(expected, actual, Property.ignored(TierTwoType.PROPERTY + DOT + TierOneType.PROPERTY));
     }
 
     /**
@@ -406,7 +406,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType actual = new TierOneType(TEST);
 
         // method
-        assertObject(actual, Property.change(TierOneType.PROPERTY, TEST));
+        assertObject(actual, Property.changed(TierOneType.PROPERTY, TEST));
     }
 
     /**
@@ -418,8 +418,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
 
         // method
-        assertObject(actual, Property.change(EntityTierOneType.PROPERTY, TEST),
-                Property.change(EntityTierOneType.ID, 1));
+        assertObject(actual, Property.changed(EntityTierOneType.PROPERTY, TEST),
+                Property.changed(EntityTierOneType.ID, 1));
     }
 
     /**
@@ -431,7 +431,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
 
         // method
-        assertObject(actual, Property.change(EntityTierOneType.ID, 1));
+        assertObject(actual, Property.changed(EntityTierOneType.ID, 1));
     }
 
     /**
@@ -829,7 +829,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertPropertiesIgnoreProperty() {
         // method
         final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
-                Property.ignore(TierOneType.PROPERTY), new TierOneType(TEST), "", new ArrayList<IProperty>(), null,
+                Property.ignored(TierOneType.PROPERTY), new TierOneType(TEST), "", new ArrayList<IProperty>(), null,
                 true);
 
         // assert
@@ -906,7 +906,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testPreAssertObjectWithPropertiesEqual() {
         // setup
         final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.change(TierOneType.PROPERTY, "ninja"));
+        properties.add(Property.changed(TierOneType.PROPERTY, "ninja"));
 
         // method
         preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType("ninja"), properties);
@@ -921,7 +921,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testPreAssertObjectWithPropertiesNotEqual() {
         // setup
         final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.change(TierOneType.PROPERTY, TEST));
+        properties.add(Property.changed(TierOneType.PROPERTY, TEST));
 
         // method
         final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST
@@ -939,7 +939,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testPreAssertObjectWithPropertiesBadProperties() {
         // setup
         final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.change(TEST, TEST));
+        properties.add(Property.changed(TEST, TEST));
 
         // method
         final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST),

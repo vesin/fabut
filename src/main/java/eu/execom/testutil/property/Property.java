@@ -56,7 +56,7 @@ public abstract class Property implements IProperty {
      * @param <T>
      *            generic type
      */
-    public static <T> ChangedProperty<T> change(final String path, final T expectedValue) {
+    public static <T> ChangedProperty<T> changed(final String path, final T expectedValue) {
         return new ChangedProperty<T>(path, expectedValue);
     }
 
@@ -67,7 +67,7 @@ public abstract class Property implements IProperty {
      *            property path.
      * @return created object.
      */
-    public static IgnoreProperty ignore(final String path) {
+    public static IgnoreProperty ignored(final String path) {
         return new IgnoreProperty(path);
     }
 

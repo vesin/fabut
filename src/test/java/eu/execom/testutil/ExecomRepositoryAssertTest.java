@@ -820,7 +820,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         // method
         takeSnapshot();
         expected.setProperty(TEST + TEST);
-        assertEntityWithSnapshot(expected, Property.change(EntityTierOneType.PROPERTY, TEST + TEST));
+        assertEntityWithSnapshot(expected, Property.changed(EntityTierOneType.PROPERTY, TEST + TEST));
     }
 
 }

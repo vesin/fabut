@@ -568,7 +568,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         if (property != null) {
             return property;
         }
-        return Property.change(propertyPath, field);
+        return Property.changed(propertyPath, field);
     }
 
     /**

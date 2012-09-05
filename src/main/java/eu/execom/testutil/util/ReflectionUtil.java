@@ -117,7 +117,13 @@ public final class ReflectionUtil {
      * @return <code>true</code> if specified class is contained in entity types, <code>false</code> otherwise.
      */
     public static boolean isEntityType(final Class<?> object, final List<Class<?>> entityTypes) {
-        return entityTypes.contains(object);
+
+        final boolean isEntity = entityTypes.contains(object);
+
+        // necessary tweek for hibernate beans witch in some cases are fetched as proxy objects
+        final boolean isSuperClassEntity = entityTypes.contains(object.getSuperclass());
+
+        return isEntity || isSuperClassEntity;
     }
 
     /**

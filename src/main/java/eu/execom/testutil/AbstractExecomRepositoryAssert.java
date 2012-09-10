@@ -49,7 +49,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     }
 
     @Override
-    public void markEntityAsDeleted(final EntityType actual) {
+    public void assertEntityAsDeleted(final EntityType actual) {
 
         ignoreEntity(actual);
 
@@ -111,6 +111,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Initialize database snapshot.
      */
     private void initDbSnapshot() {
+        dbSnapshot.clear();
         for (final Class<?> entityType : entityTypes) {
             getDbSnapshot().put(entityType, new HashMap<EntityId, CopyAssert<EntityType>>());
         }
@@ -162,6 +163,8 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * Takes current database snapshot and saves it.
      */
     protected void takeSnapshot() {
+        initDbSnapshot();
+
         for (final Entry<Class<?>, Map<EntityId, CopyAssert<EntityType>>> enties : dbSnapshot.entrySet()) {
             final List<EntityType> findAll = (List<EntityType>) findAll(enties.getKey());
             for (final EntityType abstractEntity : findAll) {

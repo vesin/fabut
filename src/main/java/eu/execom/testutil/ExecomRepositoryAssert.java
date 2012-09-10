@@ -27,7 +27,7 @@ public interface ExecomRepositoryAssert<EntityType, EntityIdType> extends Entity
      * @param actual
      *            - actual entity
      */
-    void markEntityAsDeleted(final EntityType actual);
+    void assertEntityAsDeleted(final EntityType actual);
 
     /**
      * Sets entity to ignored when asserting snapshots.

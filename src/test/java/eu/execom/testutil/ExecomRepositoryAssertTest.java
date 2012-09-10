@@ -309,7 +309,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
      * Test for markEntityAsDeleted of {@link AbstractExecomRepositoryAssert} when entity is marked as deleted.
      */
     @Test
-    public void testMarkEntityAsDeletedEntity() {
+    public void testAssertEntityAsDeletedEntity() {
         // setup
         final List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
         list1.add(new EntityTierOneType(TEST, 1));
@@ -324,7 +324,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         setList1(list2);
 
         // method
-        markEntityAsDeleted(actual);
+        assertEntityAsDeleted(actual);
         assertDbState();
     }
 
@@ -332,10 +332,10 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
      * Test for markEntityAsDeleted of {@link AbstractExecomRepositoryAssert} when specified object is not entity.
      */
     @Test
-    public void testMarkAsDeletedNotEntity() {
+    public void testAssertAsDeletedNotEntity() {
         // method
         takeSnapshot();
-        markEntityAsDeleted(new TierOneType());
+        assertEntityAsDeleted(new TierOneType());
     }
 
     /**

@@ -1,5 +1,7 @@
 package eu.execom.testutil.report;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import eu.execom.testutil.enums.CommentType;
@@ -30,10 +32,10 @@ public class AssertReportBuilder {
     private static final String PROPERTY_WRONG_REFERENCE = "Property:  %s of class:  %s has wrong reference.";
     private static final String PROPERTY_GOOD_REFERENCE = "Property:  %s of class:  %s has good reference.";
     private static final String ASSERT_LIST = "Assert object at index  %s of list  %s.";
-    private static final String NO_PROPERTY_FOR_FIELD = "There was no property for field:  %s of class:  %s";
+    private static final String NO_PROPERTY_FOR_FIELD = "There was no property for field:  %s of class:  %s, with value: %s";
     private static final String IGNORED_TYPE = "Type  %s is ignored type.";
     private static final String LIST_SIZE = "list size ";
-    private static final String UNINVOKABLE_METHOD = "Method: %s cannot be invoked.";
+    private static final String UNINVOKABLE_METHOD = "There is no method: %s in actual class: %s (expected class was: %s).";
     private static final String REPOSITORY_FAILURE_NO_ENTITY_IN_DB = "-> Entity %s doesn't exist in DB any more "
             + "but is not asserted in test.";
     private static final String REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED = "-> Entity %s is created in system after "
@@ -41,14 +43,17 @@ public class AssertReportBuilder {
 
     private final StringBuilder builder;
     private Integer assertDepth;
+    private final List<String> messageParts;
+    private int failedMessagePosition;
 
     /**
      * Default constructor.
      */
     public AssertReportBuilder() {
-
         builder = new StringBuilder();
         assertDepth = 0;
+        messageParts = new ArrayList<String>();
+        failedMessagePosition = 0;
     }
 
     /**
@@ -58,10 +63,10 @@ public class AssertReportBuilder {
      *            initial message
      */
     public AssertReportBuilder(final String message) {
-
         this();
-        builder.append(message);
-        builder.append(NEW_LINE);
+        messageParts.add(message.length() > 0 ? "\n" + message : message);
+        failedMessagePosition = 1;
+
     }
 
     /**
@@ -71,6 +76,9 @@ public class AssertReportBuilder {
      */
     public String getMessage() {
 
+        for (final String part : messageParts) {
+            builder.append(part);
+        }
         return builder.toString();
     }
 
@@ -117,20 +125,49 @@ public class AssertReportBuilder {
      */
     public void addComment(final String propertyName, final String comment, final CommentType type) {
 
-        builder.append(NEW_LINE);
+        final StringBuilder part = new StringBuilder(builder.toString());
+        builder.setLength(0);
+        part.append(NEW_LINE);
         for (int i = 0; i <= assertDepth; i++) {
             if (i == assertDepth) {
-                builder.append(type.getMark());
-                builder.append(ARROW);
+                part.append(type.getMark());
+                part.append(ARROW);
             } else {
-                builder.append(TAB);
+                part.append(TAB);
             }
         }
 
-        builder.append(propertyName);
-        builder.append(": ");
-        builder.append(comment);
+        part.append(propertyName);
+        part.append(": ");
+        part.append(comment);
+        if (type == CommentType.FAIL) {
+            messageParts.add(failedMessagePosition, part.toString());
+        } else {
+            messageParts.add(part.toString());
+        }
 
+    }
+
+    /**
+     * Reports fail due to different types
+     * 
+     * @param propertyName
+     *            name of property
+     * @param comment
+     *            to be added
+     * @param expected
+     *            value
+     * @param actual
+     *            value
+     * @param <T>
+     *            generic type
+     */
+    public <T> void addDifferentTypeComment(final String propertyName, final String comment, final T expected,
+            final T actual) {
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
+        part.append("type expected: " + expected.getClass().getSimpleName() + " but was: "
+                + actual.getClass().getSimpleName());
+        messageParts.add(failedMessagePosition, part.toString());
     }
 
     /**
@@ -151,13 +188,20 @@ public class AssertReportBuilder {
      * 
      * @param fieldName
      *            - name of the field
-     * @param className
+     * @param field
      *            - class of the field
      */
-    public void addNoPropertyForFieldComment(final String fieldName, final String className) {
+    public <T> void addNoPropertyForFieldComment(final String fieldName, Method method, final T actual) {
 
-        indentNewLine(CommentType.FAIL);
-        builder.append(String.format(NO_PROPERTY_FOR_FIELD, fieldName, className));
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
+        Object field = null;
+        try {
+            field = method.invoke(actual);
+        } catch (final Exception e) {
+            field = EMPTY_STRING;
+        }
+        part.append(String.format(NO_PROPERTY_FOR_FIELD, fieldName, field.getClass().getSimpleName(), field.toString()));
+        messageParts.add(failedMessagePosition, part.toString());
     }
 
     /**
@@ -170,12 +214,15 @@ public class AssertReportBuilder {
      */
     public void reportNotNullProperty(final String fieldName, final boolean assertResult) {
 
+        final StringBuilder part = new StringBuilder(EMPTY_STRING);
         if (assertResult) {
-            indentNewLine(CommentType.SUCCESS);
-            builder.append(String.format(NOT_NULL_PROPERTY_SUCCESS, fieldName));
+            part.append(indentNewLine(CommentType.SUCCESS));
+            part.append(String.format(NOT_NULL_PROPERTY_SUCCESS, fieldName));
+            messageParts.add(part.toString());
         } else {
-            indentNewLine(CommentType.FAIL);
-            builder.append(String.format(NOT_NULL_PROPERTY_FAIL, fieldName));
+            part.append(indentNewLine(CommentType.FAIL));
+            part.append(String.format(NOT_NULL_PROPERTY_FAIL, fieldName));
+            messageParts.add(failedMessagePosition, part.toString());
         }
     }
 
@@ -189,12 +236,15 @@ public class AssertReportBuilder {
      */
     public void reportNullProperty(final String fieldName, final boolean assertResult) {
 
+        final StringBuilder part = new StringBuilder(EMPTY_STRING);
         if (assertResult) {
-            indentNewLine(CommentType.SUCCESS);
-            builder.append(String.format(NULL_PROPERTY_SUCCESS, fieldName));
+            part.append(indentNewLine(CommentType.SUCCESS));
+            part.append(String.format(NULL_PROPERTY_SUCCESS, fieldName));
+            messageParts.add(part.toString());
         } else {
-            indentNewLine(CommentType.FAIL);
-            builder.append(String.format(NULL_PROPERTY_FAIL, fieldName));
+            part.append(indentNewLine(CommentType.FAIL));
+            part.append(String.format(NULL_PROPERTY_FAIL, fieldName));
+            messageParts.add(failedMessagePosition, part.toString());
         }
     }
 
@@ -206,8 +256,9 @@ public class AssertReportBuilder {
      */
     public void reportIgnoreProperty(final String fieldName) {
 
-        indentNewLine(CommentType.SUCCESS);
-        builder.append(String.format(IGNORE_PROPERTY, fieldName));
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.SUCCESS));
+        part.append(String.format(IGNORE_PROPERTY, fieldName));
+        messageParts.add(part.toString());
     }
 
     /**
@@ -222,12 +273,16 @@ public class AssertReportBuilder {
      */
     public void reportPointsTo(final String fieldName, final Class<?> fieldClass, final boolean assertResult) {
 
-        if (!assertResult) {
-            indentNewLine(CommentType.FAIL);
-            builder.append(String.format(PROPERTY_WRONG_REFERENCE, fieldName, fieldClass.getSimpleName()));
+        final StringBuilder part = new StringBuilder(EMPTY_STRING);
+
+        if (assertResult) {
+            part.append(indentNewLine(CommentType.SUCCESS));
+            part.append(String.format(PROPERTY_GOOD_REFERENCE, fieldName, fieldClass.getSimpleName()));
+            messageParts.add(part.toString());
         } else {
-            indentNewLine(CommentType.SUCCESS);
-            builder.append(String.format(PROPERTY_GOOD_REFERENCE, fieldName, fieldClass.getSimpleName()));
+            part.append(indentNewLine(CommentType.FAIL));
+            part.append(String.format(PROPERTY_WRONG_REFERENCE, fieldName, fieldClass.getSimpleName()));
+            messageParts.add(failedMessagePosition, part.toString());
         }
     }
 
@@ -250,8 +305,9 @@ public class AssertReportBuilder {
             fieldName = actual.getClass().getSimpleName();
         }
 
-        indentNewLine(CommentType.SUCCESS);
-        builder.append(String.format(IGNORED_TYPE, fieldName));
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.SUCCESS));
+        part.append(String.format(IGNORED_TYPE, fieldName));
+        messageParts.add(part.toString());
     }
 
     /**
@@ -263,8 +319,7 @@ public class AssertReportBuilder {
      *            - index of the element in the list beeing asserted
      */
     public void reportAssertingListElement(final String listName, final int index) {
-
-        indentNewLine(CommentType.LIST);
+        builder.append(indentNewLine(CommentType.LIST));
         builder.append(String.format(ASSERT_LIST, index, listName));
     }
 
@@ -282,7 +337,6 @@ public class AssertReportBuilder {
      *            type of entity identification object
      */
     public <ID> void reportEntityAssert(final ID expectedId, final ID actualId, final boolean assertResult) {
-
         increaseDepth();
         final String stringExpectedId = expectedId != null ? expectedId.toString() : null;
         final String stringActualId = actualId != null ? actualId.toString() : null;
@@ -299,8 +353,9 @@ public class AssertReportBuilder {
      *            - property name
      */
     public void reportNoEntityFailure(final String propertyName) {
-        builder.append(NEW_LINE + NEW_LINE);
-        builder.append(String.format(REPOSITORY_FAILURE_NO_ENTITY_IN_DB, propertyName));
+        final StringBuilder part = new StringBuilder(NEW_LINE + NEW_LINE);
+        part.append(String.format(REPOSITORY_FAILURE_NO_ENTITY_IN_DB, propertyName));
+        messageParts.add(failedMessagePosition, part.toString());
     }
 
     /**
@@ -315,10 +370,12 @@ public class AssertReportBuilder {
      *            generic type
      */
     public <T> void reportEntityIsntAsserted(final List<T> entities) {
+        final StringBuilder part = new StringBuilder(EMPTY_STRING);
         for (final T entity : entities) {
-            builder.append(NEW_LINE + NEW_LINE);
-            builder.append(String.format(REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED, entity.toString()));
+            part.append(NEW_LINE + NEW_LINE);
+            part.append(String.format(REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED, entity.toString()));
         }
+        messageParts.add(part.toString());
     }
 
     /**
@@ -327,10 +384,11 @@ public class AssertReportBuilder {
      * @param methodName
      *            - name of the method
      */
-    public void reportUninvokableMethod(final String methodName) {
+    public void reportUninvokableMethod(final String methodName, final String expectedClass, final String actualClass) {
 
-        indentNewLine(CommentType.FAIL);
-        builder.append(String.format(UNINVOKABLE_METHOD, methodName));
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
+        part.append(String.format(UNINVOKABLE_METHOD, methodName, actualClass, expectedClass));
+        messageParts.add(failedMessagePosition, part.toString());
     }
 
     /**
@@ -339,17 +397,18 @@ public class AssertReportBuilder {
      * @param type
      *            - type of comment
      */
-    protected void indentNewLine(final CommentType type) {
+    protected String indentNewLine(final CommentType type) {
 
-        builder.append(NEW_LINE);
+        final StringBuilder part = new StringBuilder(NEW_LINE);
         for (int i = 0; i <= assertDepth; i++) {
             if (i == assertDepth) {
-                builder.append(type.getMark());
-                builder.append(ARROW);
+                part.append(type.getMark());
+                part.append(ARROW);
             } else {
-                builder.append(TAB);
+                part.append(TAB);
             }
         }
+        return part.toString();
     }
 
     /**
@@ -385,7 +444,7 @@ public class AssertReportBuilder {
      *            message for appending
      */
     public void append(final String message) {
-        builder.append(message);
+        messageParts.add(message);
     }
 
 }

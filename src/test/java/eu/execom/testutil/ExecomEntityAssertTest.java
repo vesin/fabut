@@ -444,7 +444,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierTwoType expected = new EntityTierTwoType(TEST, 1, new EntityTierOneType(TEST, 10));
 
         // method
-        assertObjects(actual, expected);
+        assertObjects(expected, actual);
     }
 
     /**
@@ -459,7 +459,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierTwoType expected = new EntityTierTwoType(TEST, 1, new EntityTierOneType(TEST + TEST, 10));
 
         // method
-        assertObjects(actual, expected);
+        assertObjects(expected, actual);
     }
 
     /**
@@ -472,7 +472,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierTwoType expected = new EntityTierTwoType(TEST, 10, new EntityTierOneType(TEST, 20));
 
         // method
-        assertObjects(actual, expected);
+        assertObjects(expected, actual);
     }
 
     /**
@@ -494,8 +494,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link AbstractExecomAssert} when actual and expected object nodes are
-     * contained in nodes list.
+     * Test for disassembleObject of {@link AbstractExecomAssert} when actual and expected object nodes are contained in
+     * nodes list.
      */
     @Test
     public void testDisassembleObjectNodePairInList() {
@@ -503,10 +503,10 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final Object actual = new Object();
         final Object expected = new Object();
         final NodesList nodesList = new NodesList();
-        nodesList.addPair(actual, expected);
+        nodesList.addPair(expected, actual);
 
         // method
-        final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), nodesList);
 
         // assert
@@ -537,7 +537,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         expected.setB(new B(new C(expected)));
 
         // method
-        final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), nodesList);
 
         // assert
@@ -545,8 +545,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link AbstractExecomAssert} when getting reference to field via
-     * {@link Method}'s method invoke and it trows exception.
+     * Test for disassembleObject of {@link AbstractExecomAssert} when getting reference to field via {@link Method}'s
+     * method invoke and it trows exception.
      */
     @Test
     public void testDisassembleObject() {
@@ -597,7 +597,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType expected = new TierOneType(TEST);
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), new NodesList(), true);
 
         // assert
@@ -614,7 +614,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final IgnoredType expected = new IgnoredType();
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), new NodesList(), true);
 
         // assert
@@ -622,8 +622,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is type unknown to test util and
-     * its considered to be primitive.Actual is not equal to expected.
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is type unknown to test util and its
+     * considered to be primitive.Actual is not equal to expected.
      */
     @Test
     public void testAssertChangedPropertyPrimitiveTypeTrue() {
@@ -632,7 +632,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final String expected = TEST;
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), new NodesList(), true);
 
         // assert
@@ -640,8 +640,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is type unknown to test util and
-     * its considered to be primitive. Actual is not equal to expected.
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is type unknown to test util and its
+     * considered to be primitive. Actual is not equal to expected.
      */
     @Test
     public void testAssertChangedPropertyPrimitiveTypeFalse() {
@@ -650,7 +650,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final String expected = TEST + TEST;
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), new NodesList(), true);
 
         // assert
@@ -667,7 +667,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType expected = new EntityTierOneType(TEST, 1);
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 null, null, true);
 
         // assert
@@ -675,8 +675,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual list and expected list are
-     * equal.
+     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual list and expected list are equal.
      */
     @Test
     public void testAssertChangedPropertyListTypeEqual() {
@@ -689,7 +688,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         expected.add(TEST);
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new LinkedList<IProperty>(), null, true);
 
         // assert
@@ -724,7 +723,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final UnknownType expected = new UnknownType();
 
         // method
-        final boolean assertValues = assertEntityById(new AssertReportBuilder(), EMPTY_STRING, actual, expected);
+        final boolean assertValues = assertEntityById(new AssertReportBuilder(), EMPTY_STRING, expected, actual);
 
         // assert
         assertFalse(assertValues);
@@ -741,7 +740,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType expected = new EntityTierOneType(TEST, 1);
 
         // method
-        final boolean assertValues = assertEntityById(new AssertReportBuilder(), EMPTY_STRING, actual, expected);
+        final boolean assertValues = assertEntityById(new AssertReportBuilder(), EMPTY_STRING, expected, actual);
 
         // assert
         assertFalse(assertValues);
@@ -758,7 +757,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final UnknownType expected = new UnknownType();
 
         // method
-        final boolean assertValues = assertEntityById(new AssertReportBuilder(), EMPTY_STRING, actual, expected);
+        final boolean assertValues = assertEntityById(new AssertReportBuilder(), EMPTY_STRING, expected, actual);
 
         // assert
         assertFalse(assertValues);
@@ -766,8 +765,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NotNullProperty}
-     * and actual is not null.
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NotNullProperty} and
+     * actual is not null.
      */
     @Test
     public void testAssertPropertiesNotNullPropertyTrue() {
@@ -781,8 +780,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NotNullProperty}
-     * and actual is null.
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NotNullProperty} and
+     * actual is null.
      */
     @Test
     public void testAssertPropertiesNotNullPropertyFalse() {
@@ -795,8 +794,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NullProperty}
-     * and actual is null.
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NullProperty} and
+     * actual is null.
      */
     @Test
     public void testAssertPropertiesNullPropertyTrue() {
@@ -809,8 +808,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NullProperty}
-     * and actual is not null.
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NullProperty} and
+     * actual is not null.
      */
     @Test
     public void testAssertPropertiesNullPropertyFalse() {
@@ -849,7 +848,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         expected.add(TEST);
 
         // method
-        final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), new NodesList(), false);
 
         // assert
@@ -870,7 +869,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         expected.add(TEST);
 
         // method
-        final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), new NodesList(), false);
 
         // assert
@@ -891,7 +890,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         expected.add(TEST);
 
         // method
-        final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), actual, expected,
+        final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
                 new ArrayList<IProperty>(), new NodesList(), false);
 
         // assert
@@ -899,8 +898,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when object properties match
-     * specified properties.
+     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when object properties match specified
+     * properties.
      */
     @Test
     public void testPreAssertObjectWithPropertiesEqual() {
@@ -932,8 +931,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when specified property's path
-     * doesn't match object's field path.
+     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when specified property's path doesn't
+     * match object's field path.
      */
     @Test
     public void testPreAssertObjectWithPropertiesBadProperties() {
@@ -1042,8 +1041,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for generateNewProperty of {@link AbstractExecomAssert} when specified field needs to be wrapped
-     * inside new ChangedProperty.
+     * Test for generateNewProperty of {@link AbstractExecomAssert} when specified field needs to be wrapped inside new
+     * ChangedProperty.
      */
     @Test
     public void testGeneratePropertyCreateNew() {
@@ -1096,8 +1095,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for popProperty of {@link AbstractExecomAssert} when specified property's path doesn't match specified
-     * path.
+     * Test for popProperty of {@link AbstractExecomAssert} when specified property's path doesn't match specified path.
      */
     @Test
     public void testPopPropertyNotEqualPath() {
@@ -1137,8 +1135,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for getObjectGetMethods of {@link AbstractExecomAssert} if it impose ordering of get methods for
-     * complex or entity types come last in list.
+     * Test for getObjectGetMethods of {@link AbstractExecomAssert} if it impose ordering of get methods for complex or
+     * entity types come last in list.
      * 
      * @throws Exception
      */
@@ -1207,5 +1205,4 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         // assert
         assertEquals(ReferenceCheckType.COMPLEX_ASSERT, assertValue);
     }
-
 }

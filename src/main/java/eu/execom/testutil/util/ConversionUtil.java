@@ -37,5 +37,4 @@ public final class ConversionUtil {
         }
         return list;
     }
-
 }

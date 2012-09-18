@@ -70,8 +70,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     @Override
-    public <X> void assertObjects(final List<X> actual, final X... expecteds) {
-        assertObjects(actual, ConversionUtil.createListFromArray(expecteds));
+    public <X> void assertObjects(final List<X> expected, final X... actuals) {
+        assertObjects(expected, ConversionUtil.createListFromArray(actuals));
     }
 
     @Override
@@ -198,7 +198,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
             if (property == null) {
                 // there is no matching property for field, log that in report,
                 // assert fails
-                report.addNoPropertyForFieldComment(fieldName, method.getDeclaringClass().getName());
+                report.addNoPropertyForFieldComment(fieldName, method, actual);
                 assertResult = false;
             } else {
                 // try to assert field and property
@@ -206,7 +206,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
                     assertResult &= assertProperties(fieldName, report, property, method.invoke(actual), EMPTY_STRING,
                             properties, new NodesList(), true);
                 } catch (final Exception e) {
-                    report.reportUninvokableMethod(method.getName());
+                    report.reportUninvokableMethod(method.getName(), method.getDeclaringClass().getSimpleName(), actual
+                            .getClass().getSimpleName());
                     assertResult = false;
                 }
             }
@@ -265,7 +266,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
                 t &= assertProperties(fieldName, report, property, getMethod.invoke(actual), fieldName, properties,
                         nodesList, true);
             } catch (final Exception e) {
-                report.reportUninvokableMethod(getMethod.getName());
+                report.reportUninvokableMethod(getMethod.getName(), expected.getClass().getSimpleName(), actual
+                        .getClass().getSimpleName());
                 t = false;
             }
         }

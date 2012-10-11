@@ -26,7 +26,7 @@ public class AssertReportBuilder {
 
     private static final String NOT_NULL_PROPERTY_SUCCESS = "%s: expected not null property and was not null";
     private static final String NOT_NULL_PROPERTY_FAIL = "%s: expected not null property, but was null";
-    private static final String NULL_PROPERTY_FAIL = ": expected null property, but was not null";
+    private static final String NULL_PROPERTY_FAIL = "%s: expected null property, but was not null";
     private static final String NULL_PROPERTY_SUCCESS = "%s: expected null property and was null";
     private static final String IGNORE_PROPERTY = "%s: is ignore property";
     private static final String PROPERTY_WRONG_REFERENCE = "Property:  %s of class:  %s has wrong reference.";
@@ -191,7 +191,7 @@ public class AssertReportBuilder {
      * @param field
      *            - class of the field
      */
-    public <T> void addNoPropertyForFieldComment(final String fieldName, Method method, final T actual) {
+    public <T> void addNoPropertyForFieldComment(final String fieldName, final Method method, final T actual) {
 
         final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
         Object field = null;

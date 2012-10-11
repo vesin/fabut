@@ -4,7 +4,7 @@
 	<groupId>eu.execom</groupId>
 	<artifactId>testutil</artifactId>
 	<name>Execom Test Utill</name>
-	<version>2.3.2</version>
+	<version>2.3.3</version>
 	<description>Testing tool that helps developers to write better tests.</description>
 	<ciManagement>
 		<system>GIT</system>

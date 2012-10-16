@@ -200,7 +200,8 @@ public class AssertReportBuilder {
         } catch (final Exception e) {
             field = EMPTY_STRING;
         }
-        part.append(String.format(NO_PROPERTY_FOR_FIELD, fieldName, field.getClass().getSimpleName(), field.toString()));
+        part.append(String.format(NO_PROPERTY_FOR_FIELD, fieldName, method.getReturnType().getSimpleName(),
+                field == null ? null : field.toString()));
         messageParts.add(failedMessagePosition, part.toString());
     }
 

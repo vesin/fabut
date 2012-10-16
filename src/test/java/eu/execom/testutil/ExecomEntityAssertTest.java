@@ -931,6 +931,23 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
+     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when there is no property for field and
+     * field value is null.
+     */
+    @Test
+    public void testPreAssertObjectWithPropertiesMethodReturnsNull() {
+        // setup
+        final List<IProperty> properties = new ArrayList<IProperty>();
+
+        // method
+        final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(null),
+                properties);
+
+        // assert
+        assertFalse(assertValue);
+    }
+
+    /**
      * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when specified property's path doesn't
      * match object's field path.
      */

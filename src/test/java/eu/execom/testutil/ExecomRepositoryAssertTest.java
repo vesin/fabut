@@ -444,6 +444,26 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
+     * Test for afterAssertEntity of {@link AbstractExecomRepositoryAssert} when specified object is entity and it is
+     * not property of another entity but its id is <code>null</code>.
+     */
+    @Test
+    public void testAfterAssertEntityWithoutID() {
+        // setup
+        final List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
+        list1.add(new EntityTierOneType(TEST, 1));
+        list1.add(new EntityTierOneType(TEST, 2));
+        setList1(list1);
+
+        final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
+        takeSnapshot();
+
+        // method
+        afterAssertEntity(actual, false);
+        assertDbState();
+    }
+
+    /**
      * Test for createEmptyCopyOf of {@link AbstractExecomRepositoryAssert} when specified object has default
      * constructor.
      */

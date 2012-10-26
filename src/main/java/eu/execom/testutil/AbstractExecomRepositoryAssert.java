@@ -68,7 +68,8 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
 
     @Override
     protected final <X> void afterAssertEntity(final X object, final boolean isProperty) {
-        if (ReflectionUtil.isEntityType(object.getClass(), entityTypes) && !isProperty) {
+        if (ReflectionUtil.isEntityType(object.getClass(), entityTypes) && !isProperty
+                && getIdValue((EntityType) object) != null) {
             markAsserted((EntityType) object);
         }
     };

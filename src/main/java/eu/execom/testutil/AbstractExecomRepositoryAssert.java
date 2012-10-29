@@ -204,7 +204,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if all entities from before snapshot are asserted with entities from current snapshot,
      *         <code>false</code> otherwise
      */
-    protected <X extends EntityType> boolean assertByEntity(final Map<EntityId, CopyAssert<X>> beforeEntities,
+    <X extends EntityType> boolean assertByEntity(final Map<EntityId, CopyAssert<X>> beforeEntities,
             final List<X> afterEntities, final AssertReportBuilder report) {
 
         boolean ok = true;
@@ -236,7 +236,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if entity from before snapshot is already asserted or if it has match in current
      *         snapshot and is asserted with it, <code>false</code> otherwise
      */
-    protected <X extends EntityType> boolean validateEntry(final List<EntityId> ids,
+    <X extends EntityType> boolean validateEntry(final List<EntityId> ids,
             final Entry<EntityId, CopyAssert<X>> beforeEntry, final List<X> afterEntities,
             final AssertReportBuilder report) {
 
@@ -271,7 +271,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if entities are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
      *         <code>false</code> otherwise
      */
-    protected <X extends EntityType> boolean assertEntities(final X beforeEntity, final X afterEntity,
+    <X extends EntityType> boolean assertEntities(final X beforeEntity, final X afterEntity,
             final AssertReportBuilder report) {
         try {
             assertObjects(beforeEntity, afterEntity);
@@ -293,7 +293,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            list of entities
      * @return entity with specified id
      */
-    protected <X extends EntityType> X popEntityFromList(final EntityId id, final List<X> afterEntities) {
+    <X extends EntityType> X popEntityFromList(final EntityId id, final List<X> afterEntities) {
         final Iterator<X> iterator = afterEntities.iterator();
         while (iterator.hasNext()) {
             final X entity = iterator.next();
@@ -317,7 +317,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if all entities from current snapshot have matching id in list of ids,
      *         <code>false</code> otherwise
      */
-    protected <X extends EntityType> boolean removeAfterEntitites(final List<EntityId> ids, final List<X> afterEntities) {
+    <X extends EntityType> boolean removeAfterEntitites(final List<EntityId> ids, final List<X> afterEntities) {
         final Iterator<X> iterator = afterEntities.iterator();
         while (iterator.hasNext()) {
             if (ids.contains(getIdValue(iterator.next()))) {
@@ -356,7 +356,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            object for copying
      * @return copied object
      */
-    protected <T> T createCopy(final T object) {
+    <T> T createCopy(final T object) {
         if (object == null) {
             return null;
         }
@@ -378,7 +378,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            list for copying
      * @return copied list
      */
-    protected <T> List<T> copyList(final List<T> list) {
+    <T> List<T> copyList(final List<T> list) {
         return new ArrayList<T>(list);
     }
 
@@ -420,7 +420,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            get method for property
      * @return property
      */
-    protected <T> Object getPropertyForCopying(final T object, final Method method) {
+    <T> Object getPropertyForCopying(final T object, final Method method) {
         try {
             return method.invoke(object);
         } catch (final Exception e) {
@@ -437,7 +437,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            property for copying
      * @return copied property
      */
-    protected Object copyProperty(final Object propertyForCopying) {
+    Object copyProperty(final Object propertyForCopying) {
         if (propertyForCopying == null) {
             // its null we shouldn't do anything
             return null;
@@ -474,7 +474,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @param copiedProperty
      *            copied property
      */
-    protected <T> void invokeSetMethod(final Method method, final Class<?> classObject, final String propertyName,
+    <T> void invokeSetMethod(final Method method, final Class<?> classObject, final String propertyName,
             final T object, final Object copiedProperty) {
         Method setMethod = null;
         try {
@@ -496,7 +496,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            object for copying
      * @return copied empty instance of specified object or <code>null</code> if default constructor can not be called
      */
-    protected <T> T createEmptyCopyOf(final T object) {
+    <T> T createEmptyCopyOf(final T object) {
         try {
             return (T) object.getClass().getConstructor().newInstance();
         } catch (final Exception e) {

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.execom.testutil.enums.ReferenceCheckType;
@@ -721,24 +720,6 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // assert
         assertTrue(assertValues);
-
-    }
-
-    /**
-     * Test for assertEntityTypes of {@link AbstractExecomAssert} when actual and expected are not entity types.
-     */
-    @Test
-    @Ignore
-    public void testAssertEntityTypesBothEntity() {
-        // setup
-        final UnknownType actual = new UnknownType();
-        final UnknownType expected = new UnknownType();
-
-        // method
-        final boolean assertValues = assertEntityById(new AssertReportBuilder(), EMPTY_STRING, expected, actual);
-
-        // assert
-        assertFalse(assertValues);
 
     }
 

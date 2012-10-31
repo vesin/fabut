@@ -16,7 +16,6 @@ import eu.execom.testutil.model.EntityTierOneType;
 import eu.execom.testutil.model.EntityTierThreeType;
 import eu.execom.testutil.model.EntityTierTwoType;
 import eu.execom.testutil.model.NoGetMethodsType;
-import eu.execom.testutil.model.Start;
 import eu.execom.testutil.model.TierOneType;
 import eu.execom.testutil.model.TierTwoType;
 import eu.execom.testutil.model.Type;
@@ -96,11 +95,6 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
 
         // method
         assertDbState();
-    }
-
-    @Test
-    public void test() {
-        assertObjects(new Start(), new TierOneType());
     }
 
     /**

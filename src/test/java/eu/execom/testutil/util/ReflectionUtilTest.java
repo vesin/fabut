@@ -15,6 +15,7 @@ import eu.execom.testutil.model.EntityTierOneType;
 import eu.execom.testutil.model.IgnoredType;
 import eu.execom.testutil.model.NoGetMethodsType;
 import eu.execom.testutil.model.TierOneType;
+import eu.execom.testutil.model.UnknownType;
 
 /**
  * Tests for {@link ReflectionUtil}.
@@ -348,5 +349,34 @@ public class ReflectionUtilTest extends Assert {
 
         // assert
         assertTrue(ReflectionUtil.isIgnoredType(null, new IgnoredType(), ignoredTypes));
+    }
+
+    /**
+     * Test for getIdValue of {@link ReflectionUtil} when specified type is entity.
+     */
+    @Test
+    public void testGetIdValueEntity() {
+        // setup
+        final EntityTierOneType entityTierOneType = new EntityTierOneType(TEST, 1);
+
+        // method
+        final Integer id = (Integer) ReflectionUtil.getIdValue(entityTierOneType);
+
+        // assert
+        assertEquals(1, id.intValue());
+    }
+
+    /**
+     * Test for getIdValue of {@link ReflectionUtil} when specified type is unknown type.
+     */
+    @Test
+    public void testGetIdValueUknownType() {
+        // setup
+        final UnknownType unknownType = new UnknownType();
+        // method
+        final Integer id = (Integer) ReflectionUtil.getIdValue(unknownType);
+
+        // assert
+        assertNull(id);
     }
 }

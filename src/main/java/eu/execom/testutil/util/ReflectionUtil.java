@@ -22,6 +22,9 @@ public final class ReflectionUtil {
     /** The Constant IS_METHOD_PREFIX. */
     private static final String IS_METHOD_PREFIX = "is";
 
+    /** The Constant GET_ID. */
+    private static final String GET_ID = "getId";
+
     /**
      * Instantiates a new reflection util.
      */
@@ -176,6 +179,27 @@ public final class ReflectionUtil {
         }
 
         return false;
+    }
+
+    /**
+     * Gets entity's id value.
+     * 
+     * @param <X>
+     *            type of entity
+     * @param <Id>
+     *            entities id type
+     * @param entity
+     *            - entity from which id is taken
+     * @return {@link Number} if specified entity id field and matching get method, <code>null</code> otherwise.
+     */
+    @SuppressWarnings("unchecked")
+    public static <X, Id> Id getIdValue(final X entity) {
+        try {
+            final Method method = entity.getClass().getMethod(GET_ID);
+            return (Id) method.invoke(entity);
+        } catch (final Exception e) {
+            return null;
+        }
     }
 
 }

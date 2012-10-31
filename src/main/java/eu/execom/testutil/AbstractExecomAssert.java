@@ -41,9 +41,6 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     /** The Constant EMPTY_STRING. */
     protected static final String EMPTY_STRING = "";
 
-    /** The Constant GET_ID. */
-    private static final String GET_ID = "getId";
-
     /** The Constant DOT. */
     private static final String DOT = ".";
 
@@ -96,7 +93,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     public <X> void assertObjects(final String message, final X expected, final X actual,
             final List<IProperty> excludedProperties) {
         final AssertReportBuilder report = new AssertReportBuilder(message);
-        if (!assertChangedProperty(EMPTY_STRING, report, expected, actual, excludedProperties, new NodesList(), false)) {
+        if (!(isSameInstance(expected, actual) || assertChangedProperty(EMPTY_STRING, report, expected, actual,
+                excludedProperties, new NodesList(), false))) {
             throw new AssertionError(report.getMessage());
         }
         afterAssertObject(actual, false);
@@ -356,7 +354,6 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     <X> boolean assertChangedProperty(final String propertyName, final AssertReportBuilder report, final X expected,
             final X actual, final List<IProperty> excludedProperties, final NodesList nodesList,
             final boolean isProperty) {
-
         // assert ignored types
         if (ReflectionUtil.isIgnoredType(expected, actual, ignoredTypes)) {
             report.reportIgnoredType(expected, actual);
@@ -494,8 +491,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     <X, Id> boolean assertEntityById(final AssertReportBuilder report, final String propertyName, final X expected,
             final X actual) {
 
-        final Id expectedId = getIdValue(expected);
-        final Id actualId = getIdValue(actual);
+        final Id expectedId = ReflectionUtil.getIdValue(expected);
+        final Id actualId = ReflectionUtil.getIdValue(actual);
 
         boolean ok = true;
         try {
@@ -506,26 +503,6 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         }
         report.reportEntityAssert(expectedId, actualId, ok);
         return ok;
-    }
-
-    /**
-     * Gets entity's id value.
-     * 
-     * @param <X>
-     *            type of entity
-     * @param <Id>
-     *            entities id type
-     * @param entity
-     *            - entity from which id is taken
-     * @return {@link Number} if specified entity id field and matching get method, <code>null</code> otherwise.
-     */
-    <X, Id> Id getIdValue(final X entity) {
-        try {
-            final Method method = entity.getClass().getMethod(GET_ID);
-            return (Id) method.invoke(entity);
-        } catch (final Exception e) {
-            return null;
-        }
     }
 
     /**
@@ -672,6 +649,21 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         if (ReflectionUtil.isEntityType(object.getClass(), entityTypes)) {
             afterAssertEntity(object, isSubproperty);
         }
+    }
+
+    /**
+     * Checks if is same instance.
+     * 
+     * @param <X>
+     *            the generic type
+     * @param expected
+     *            the expected
+     * @param actual
+     *            the actual
+     * @return <code>true</code> if expected is same instance as actual, <code>false</code> otherwise.
+     */
+    <X> boolean isSameInstance(final X expected, final X actual) {
+        return expected == actual;
     }
 
     /**

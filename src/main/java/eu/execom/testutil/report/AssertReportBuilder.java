@@ -40,6 +40,7 @@ public class AssertReportBuilder {
             + "but is not asserted in test.";
     private static final String REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED = "-> Entity %s is created in system after "
             + "last snapshot but hasnt been asserted in test.";
+    private static final String REPOSITORY_ENTITY_ASSERT_FAIL = "-> Expected entity: <<%s>> but was: <<%s>>, of %s.";
 
     private final StringBuilder builder;
     private Integer assertDepth;
@@ -376,6 +377,24 @@ public class AssertReportBuilder {
             part.append(NEW_LINE + NEW_LINE);
             part.append(String.format(REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED, entity.toString()));
         }
+        messageParts.add(part.toString());
+    }
+
+    /**
+     * Report repository entity assert fail.
+     * 
+     * @param <T>
+     *            the generic type
+     * @param beforeEntity
+     *            the before entity
+     * @param afterEntity
+     *            the after entity
+     */
+    public <T> void reportRepositoryEntityAssertFail(final T beforeEntity, final T afterEntity) {
+        final StringBuilder part = new StringBuilder();
+        part.append(NEW_LINE);
+        part.append(String.format(REPOSITORY_ENTITY_ASSERT_FAIL, beforeEntity.toString(), afterEntity.toString(),
+                afterEntity.getClass()));
         messageParts.add(part.toString());
     }
 

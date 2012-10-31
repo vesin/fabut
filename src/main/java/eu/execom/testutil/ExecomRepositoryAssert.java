@@ -3,8 +3,6 @@
  */
 package eu.execom.testutil;
 
-import java.util.Map;
-
 import eu.execom.testutil.property.IProperty;
 
 /**
@@ -63,10 +61,4 @@ public interface ExecomRepositoryAssert<EntityType, EntityIdType> extends Entity
      */
     <X extends EntityType> void assertEntityWithSnapshot(String message, final X actual, final IProperty... properties);
 
-    /**
-     * Gets the db snapshot.
-     * 
-     * @return the db snapshot
-     */
-    Map<Class<?>, Map<EntityIdType, CopyAssert<EntityType>>> getDbSnapshot();
 }

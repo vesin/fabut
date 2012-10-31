@@ -368,6 +368,18 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
+     * Test for assertObjects with expected and actual same instance.
+     */
+    @Test
+    public void testAssertObjectsSameInstances() {
+        // setup
+        final TierOneType tierOneType = new TierOneType();
+
+        // method
+        assertObjects(tierOneType, tierOneType);
+    }
+
+    /**
      * Test for assertObjects with two {@link TierSixType} when complex object depth is six.
      */
     @Test(expected = AssertionError.class)
@@ -990,35 +1002,6 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for getIdValue of {@link AbstractExecomAssert} when specified type is entity.
-     */
-    @Test
-    public void testGetIdValueEntity() {
-        // setup
-        final EntityTierOneType entityTierOneType = new EntityTierOneType(TEST, 1);
-
-        // method
-        final Integer id = (Integer) getIdValue(entityTierOneType);
-
-        // assert
-        assertEquals(1, id.intValue());
-    }
-
-    /**
-     * Test for getIdValue of {@link AbstractExecomAssert} when specified type is unknown type.
-     */
-    @Test
-    public void testGetIdValueUknownType() {
-        // setup
-        final UnknownType unknownType = new UnknownType();
-        // method
-        final Integer id = (Integer) getIdValue(unknownType);
-
-        // assert
-        assertNull(id);
-    }
-
-    /**
      * Test for removeParentQualificationForProperties of {@link AbstractExecomAssert}.
      */
     @Test
@@ -1221,5 +1204,36 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // assert
         assertEquals(ReferenceCheckType.COMPLEX_ASSERT, assertValue);
+    }
+
+    /**
+     * Test for isSameInstance when instances are the same.
+     */
+    @Test
+    public void testIsSameInstanceTrue() {
+        // setup
+        final TierOneType tierOneType = new TierOneType();
+
+        // method
+        final boolean result = isSameInstance(tierOneType, tierOneType);
+
+        // assert
+        assertTrue(result);
+    }
+
+    /**
+     * Test for isSameInstance when instances are not the same.
+     */
+    @Test
+    public void testIsSameInstanceFalse() {
+        // setup
+        final TierOneType tierOneType1 = new TierOneType();
+        final TierOneType tierOneType2 = new TierOneType();
+
+        // method
+        final boolean result = isSameInstance(tierOneType1, tierOneType2);
+
+        // assert
+        assertFalse(result);
     }
 }

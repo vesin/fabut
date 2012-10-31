@@ -53,7 +53,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
 
         ignoreEntity(actual);
 
-        final EntityType findById = findById(actual.getClass(), (EntityId) getIdValue(actual));
+        final EntityType findById = findById(actual.getClass(), (EntityId) ReflectionUtil.getIdValue(actual));
         Assert.assertNull(findById);
     }
 
@@ -69,13 +69,12 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     @Override
     protected final <X> void afterAssertEntity(final X object, final boolean isProperty) {
         if (ReflectionUtil.isEntityType(object.getClass(), entityTypes) && !isProperty
-                && getIdValue((EntityType) object) != null) {
+                && ReflectionUtil.getIdValue((EntityType) object) != null) {
             markAsserted((EntityType) object);
         }
     };
 
-    @Override
-    public Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> getDbSnapshot() {
+    Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> getDbSnapshot() {
         return dbSnapshot;
     }
 
@@ -88,7 +87,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     public <X extends EntityType> void assertEntityWithSnapshot(final String message, final X actual,
             final IProperty... properties) {
 
-        final EntityId id = getIdValue(actual);
+        final EntityId id = ReflectionUtil.getIdValue(actual);
         Assert.assertNotNull("Entity id can't be null " + actual, id);
 
         final Map<EntityId, CopyAssert<EntityType>> map = dbSnapshot.get(actual.getClass());
@@ -140,7 +139,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      */
     protected boolean markAsAsserted(final EntityType entity, final Class<?> actualType) {
 
-        final EntityId id = getIdValue(entity);
+        final EntityId id = ReflectionUtil.getIdValue(entity);
         Assert.assertNotNull("Entity id can't be null " + entity, id);
 
         final Map<EntityId, CopyAssert<EntityType>> map = dbSnapshot.get(actualType);
@@ -150,7 +149,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             CopyAssert<EntityType> copyAssert = map.get(id);
             if (copyAssert == null) {
                 copyAssert = new CopyAssert<EntityType>(createCopy(entity));
-                map.put((EntityId) getIdValue(entity), copyAssert);
+                map.put((EntityId) ReflectionUtil.getIdValue(entity), copyAssert);
             }
             copyAssert.setAsserted(true);
         }
@@ -169,7 +168,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         for (final Entry<Class<?>, Map<EntityId, CopyAssert<EntityType>>> enties : dbSnapshot.entrySet()) {
             final List<EntityType> findAll = (List<EntityType>) findAll(enties.getKey());
             for (final EntityType abstractEntity : findAll) {
-                enties.getValue().put((EntityId) getIdValue(abstractEntity),
+                enties.getValue().put((EntityId) ReflectionUtil.getIdValue(abstractEntity),
                         new CopyAssert<EntityType>(createCopy(abstractEntity)));
             }
         }
@@ -254,7 +253,10 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         }
 
         ids.add(beforeEntry.getKey());
-        return assertEntities(beforeAssertEntity.getEntity(), afterEntity, report);
+
+        final boolean assertResult = assertEntities(beforeAssertEntity.getEntity(), afterEntity, report);
+
+        return assertResult;
     }
 
     /**
@@ -277,6 +279,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             assertObjects(beforeEntity, afterEntity);
             return true;
         } catch (final AssertionError e) {
+            report.reportRepositoryEntityAssertFail(beforeEntity, afterEntity);
             report.append(e.getMessage());
             return false;
         }
@@ -297,7 +300,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         final Iterator<X> iterator = afterEntities.iterator();
         while (iterator.hasNext()) {
             final X entity = iterator.next();
-            if (getIdValue(entity).equals(id)) {
+            if (ReflectionUtil.getIdValue(entity).equals(id)) {
                 iterator.remove();
                 return entity;
             }
@@ -320,7 +323,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     <X extends EntityType> boolean removeAfterEntitites(final List<EntityId> ids, final List<X> afterEntities) {
         final Iterator<X> iterator = afterEntities.iterator();
         while (iterator.hasNext()) {
-            if (ids.contains(getIdValue(iterator.next()))) {
+            if (ids.contains(ReflectionUtil.getIdValue(iterator.next()))) {
                 iterator.remove();
             }
         }

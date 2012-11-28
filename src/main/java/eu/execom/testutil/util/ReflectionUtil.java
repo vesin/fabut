@@ -2,6 +2,7 @@ package eu.execom.testutil.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -200,6 +201,58 @@ public final class ReflectionUtil {
         } catch (final Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Extracts all "real" get methods for object of class X in a list and returns them. "Real" get methods are those
+     * methods who have matching property in the class with the name equal to get method's name uncapitalized and
+     * without "get" prefix.
+     * 
+     * @param <X>
+     *            the generic type
+     * @param object
+     *            instance of class X
+     * @param complexTypes
+     *            the complex types
+     * @param entityTypes
+     *            the entity types
+     * @return {@link List} of real "get" methods of class X
+     */
+    public static <X> List<Method> getObjectGetMethods(final X object, final List<Class<?>> complexTypes,
+            final List<Class<?>> entityTypes) {
+
+        final List<Method> getMethods = new ArrayList<Method>();
+        final List<Method> getMethodsComplexType = new ArrayList<Method>();
+
+        final Method[] allMethods = object.getClass().getMethods();
+        for (final Method method : allMethods) {
+            if (ReflectionUtil.isGetMethod(object.getClass(), method)) {
+                // complex or entity type get methods inside object come last in
+                // list
+                if (complexTypes.contains(method.getReturnType()) || entityTypes.contains(method.getReturnType())) {
+                    getMethodsComplexType.add(method);
+                } else {
+                    getMethods.add(method);
+                }
+            }
+        }
+        getMethods.addAll(getMethodsComplexType);
+        return getMethods;
+    }
+
+    /**
+     * Gets the object get method named.
+     * 
+     * @param <X>
+     *            the generic type
+     * @param methodName
+     *            the method name
+     * @param object
+     *            the object
+     * @return the object get method named
+     */
+    public static <X> Method getObjectGetMethodNamed(final String methodName, final X object) throws Exception {
+        return object.getClass().getMethod(methodName);
     }
 
 }

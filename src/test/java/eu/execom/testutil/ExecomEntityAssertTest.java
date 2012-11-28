@@ -1092,48 +1092,6 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for getObjectGetMethods of {@link AbstractExecomAssert} when has one real get method.
-     */
-    @Test
-    public void testGetObjectGetMethodsTierOneType() {
-        // method
-        final List<Method> methods = getObjectGetMethods(new TierOneType(TEST));
-        final Method method = methods.get(0);
-        // assert
-        assertEquals(1, methods.size());
-        assertEquals("getProperty", method.getName());
-    }
-
-    /**
-     * Test for getObjectGetMethods of {@link AbstractExecomAssert} when class has no real get methods.
-     */
-    @Test
-    public void testGetObjectGetMethodsNoGetMethodsType() {
-        // method
-        final List<Method> methods = getObjectGetMethods(new NoGetMethodsType(TEST));
-        // assert
-        assertEquals(0, methods.size());
-    }
-
-    /**
-     * Test for getObjectGetMethods of {@link AbstractExecomAssert} if it impose ordering of get methods for complex or
-     * entity types come last in list.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGetObjectGetMethodsCheckOrdering() throws Exception {
-        // setup
-        final Method getSubProperty = EntityTierTwoType.class.getMethod("getSubProperty");
-
-        // method
-        final List<Method> methods = getObjectGetMethods(new EntityTierTwoType(TEST, 10, new EntityTierOneType(TEST, 5)));
-
-        // assert
-        assertEquals(getSubProperty.getName(), methods.get(2).getName());
-    }
-
-    /**
      * Test for checkForNull of {@link AbstractExecomAssert} with two null objects.
      */
     @Test

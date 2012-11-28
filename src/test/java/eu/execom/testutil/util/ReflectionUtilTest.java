@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import eu.execom.testutil.model.BooleanFieldType;
 import eu.execom.testutil.model.EntityTierOneType;
+import eu.execom.testutil.model.EntityTierTwoType;
 import eu.execom.testutil.model.IgnoredType;
 import eu.execom.testutil.model.NoGetMethodsType;
 import eu.execom.testutil.model.TierOneType;
@@ -379,4 +380,77 @@ public class ReflectionUtilTest extends Assert {
         // assert
         assertNull(id);
     }
+
+    /**
+     * Test for getObjectGetMethods when has one real get method.
+     */
+    @Test
+    public void testGetObjectGetMethodsTierOneType() {
+        // method
+        final List<Method> methods = ReflectionUtil.getObjectGetMethods(new TierOneType(TEST),
+                new ArrayList<Class<?>>(), new ArrayList<Class<?>>());
+        final Method method = methods.get(0);
+        // assert
+        assertEquals(1, methods.size());
+        assertEquals("getProperty", method.getName());
+    }
+
+    /**
+     * Test for getObjectGetMethods when class has no real get methods.
+     */
+    @Test
+    public void testGetObjectGetMethodsNoGetMethodsType() {
+        // method
+        final List<Method> methods = ReflectionUtil.getObjectGetMethods(new NoGetMethodsType(TEST),
+                new ArrayList<Class<?>>(), new ArrayList<Class<?>>());
+        // assert
+        assertEquals(0, methods.size());
+    }
+
+    /**
+     * Test for getObjectGetMethods if it impose ordering of get methods for complex or entity types come last in list.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGetObjectGetMethodsCheckOrdering() throws Exception {
+        // setup
+        final Method getSubProperty = EntityTierTwoType.class.getMethod("getSubProperty");
+        final List<Class<?>> entityTypes = new ArrayList<Class<?>>();
+        entityTypes.add(EntityTierTwoType.class);
+        entityTypes.add(EntityTierOneType.class);
+
+        // method
+        final List<Method> methods = ReflectionUtil.getObjectGetMethods(new EntityTierTwoType(TEST, 10,
+                new EntityTierOneType(TEST, 5)), new ArrayList<Class<?>>(), entityTypes);
+
+        // assert
+        assertEquals(getSubProperty.getName(), methods.get(2).getName());
+    }
+
+    @Test
+    public void testGetObjectGetMethodNamed() throws Exception {
+        // setup
+        final String methodName = "getProperty";
+        final TierOneType tierOneType = new TierOneType(PROPERTY);
+        final Method expectedGetMethod = tierOneType.getClass().getMethod(methodName);
+
+        // method
+        final Method actualGetMethod = ReflectionUtil.getObjectGetMethodNamed(methodName, tierOneType);
+
+        // assert
+        assertEquals(expectedGetMethod.getName(), actualGetMethod.getName());
+        assertEquals(expectedGetMethod.getParameterTypes().length, actualGetMethod.getParameterTypes().length);
+    }
+
+    @Test(expected = NoSuchMethodException.class)
+    public void testGetObjectGetMethodNamedNoGetMethod() throws Exception {
+        // setup
+        final String methodName = "getProperty";
+        final NoGetMethodsType noGetMethodsType = new NoGetMethodsType();
+
+        // method
+        ReflectionUtil.getObjectGetMethodNamed(methodName, noGetMethodsType);
+    }
+
 }

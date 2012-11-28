@@ -23,6 +23,7 @@ import eu.execom.testutil.model.UnknownEntityType;
 import eu.execom.testutil.model.UnknownType;
 import eu.execom.testutil.property.Property;
 import eu.execom.testutil.report.AssertReportBuilder;
+import eu.execom.testutil.util.ReflectionUtil;
 
 /**
  * Tests for {@link AbstractExecomRepositoryAssert}.
@@ -543,7 +544,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     @Test
     public void testIvokeSetMethodSuccess() {
         // setup
-        final Method method = getObjectGetMethods(new TierOneType()).get(0);
+        final Method method = ReflectionUtil.getObjectGetMethods(new TierOneType(), complexTypes, entityTypes).get(0);
         final Class<?> classObject = TierOneType.class;
         final String propertyName = PROPERTY;
         final TierOneType copy = new TierOneType();
@@ -563,7 +564,8 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     @Test(expected = AssertionFailedError.class)
     public void testIvokeSetMethodNull() {
         // setup
-        final Method method = getObjectGetMethods(new TierTwoType(new TierOneType())).get(0);
+        final Method method = ReflectionUtil.getObjectGetMethods(new TierTwoType(new TierOneType()), complexTypes,
+                entityTypes).get(0);
         final Class<?> classObject = TierTwoType.class;
         final String propertyName = PROPERTY;
         final TierTwoType copy = new TierTwoType(new TierOneType());
@@ -645,7 +647,8 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     @Test
     public void testGetPropertyForCopyingCanInvoke() {
         // setup
-        final Method method = getObjectGetMethods(new EntityTierOneType()).get(1);
+        final Method method = ReflectionUtil.getObjectGetMethods(new EntityTierOneType(), complexTypes, entityTypes)
+                .get(1);
 
         // method
         final String property = (String) getPropertyForCopying(new EntityTierOneType(TEST, 1), method);
@@ -662,7 +665,8 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     @Test(expected = AssertionFailedError.class)
     public void testGetPropertyForCopyingCantInvoke() {
         // setup
-        final Method method = getObjectGetMethods(new EntityTierOneType()).get(1);
+        final Method method = ReflectionUtil.getObjectGetMethods(new EntityTierOneType(), complexTypes, entityTypes)
+                .get(1);
 
         // method
         final String property = (String) getPropertyForCopying(null, method);

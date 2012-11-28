@@ -185,7 +185,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     <X> boolean preAssertObjectWithProperties(final AssertReportBuilder report, final X actual,
             final List<IProperty> properties) {
 
-        final List<Method> methods = getObjectGetMethods(actual);
+        final List<Method> methods = ReflectionUtil.getObjectGetMethods(actual, complexTypes, entityTypes);
 
         boolean assertResult = true;
         for (final Method method : methods) {
@@ -249,21 +249,22 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         }
 
         nodesList.addPair(expected, actual);
-        final List<Method> getMethods = getObjectGetMethods(expected);
+        final List<Method> getMethods = ReflectionUtil.getObjectGetMethods(expected, complexTypes, entityTypes);
 
         report.increaseDepth();
         boolean t = true;
-        for (final Method getMethod : getMethods) {
+        for (final Method expectedGetMethod : getMethods) {
             try {
-                final String fieldName = ReflectionUtil.getFieldName(getMethod);
-                final IProperty property = obtainProperty(getMethod.invoke(expected), fieldName, properties);
-
+                final String fieldName = ReflectionUtil.getFieldName(expectedGetMethod);
+                final IProperty property = obtainProperty(expectedGetMethod.invoke(expected), fieldName, properties);
+                final Method actualGetMethod = ReflectionUtil.getObjectGetMethodNamed(expectedGetMethod.getName(),
+                        actual);
                 // get actual field value by invoking its get method via
                 // reflection
-                t &= assertProperties(fieldName, report, property, getMethod.invoke(actual), fieldName, properties,
-                        nodesList, true);
+                t &= assertProperties(fieldName, report, property, actualGetMethod.invoke(actual), fieldName,
+                        properties, nodesList, true);
             } catch (final Exception e) {
-                report.reportUninvokableMethod(getMethod.getName(), expected.getClass().getSimpleName(), actual
+                report.reportUninvokableMethod(expectedGetMethod.getName(), expected.getClass().getSimpleName(), actual
                         .getClass().getSimpleName());
                 t = false;
             }
@@ -569,38 +570,6 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
             }
         }
         return null;
-    }
-
-    /**
-     * Extracts all "real" get methods for object of class X in a list and returns them. "Real" get methods are those
-     * methods who have matching property in the class with the name equal to get method's name uncapitalized and
-     * without "get" prefix.
-     * 
-     * @param <X>
-     *            the generic type
-     * @param object
-     *            instance of class X
-     * @return {@link List} of real "get" methods of class X
-     */
-    <X> List<Method> getObjectGetMethods(final X object) {
-
-        final List<Method> getMethods = new ArrayList<Method>();
-        final List<Method> getMethodsComplexType = new ArrayList<Method>();
-
-        final Method[] allMethods = object.getClass().getMethods();
-        for (final Method method : allMethods) {
-            if (ReflectionUtil.isGetMethod(object.getClass(), method)) {
-                // complex or entity type get methods inside object come last in
-                // list
-                if (complexTypes.contains(method.getReturnType()) || entityTypes.contains(method.getReturnType())) {
-                    getMethodsComplexType.add(method);
-                } else {
-                    getMethods.add(method);
-                }
-            }
-        }
-        getMethods.addAll(getMethodsComplexType);
-        return getMethods;
     }
 
     /**

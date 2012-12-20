@@ -10,6 +10,11 @@ package eu.execom.testutil.property;
  */
 public class NullProperty extends Property {
 
+    @Override
+    public IProperty getCopy() {
+        return new NullProperty(getPath());
+    }
+
     /**
      * Null property default constructor.
      * 
@@ -18,11 +23,6 @@ public class NullProperty extends Property {
      */
     protected NullProperty(final String path) {
         super(path);
-    }
-
-    @Override
-    public IProperty getCopy() {
-        return new NullProperty(getPath());
     }
 
 }

@@ -40,4 +40,5 @@ public class ChangedProperty<T> extends Property {
     public IProperty getCopy() {
         return new ChangedProperty<T>(getPath(), expectedValue);
     }
+
 }

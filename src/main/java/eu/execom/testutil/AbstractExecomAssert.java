@@ -141,6 +141,30 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     /**
+     * Init list of entity types.
+     * 
+     * @param entityTypes
+     *            list of entity types
+     */
+    protected abstract void initEntityList(List<Class<?>> entityTypes);
+
+    /**
+     * Init list of complex types.
+     * 
+     * @param complexTypes
+     *            list of complex types
+     */
+    protected abstract void initComplexTypes(List<Class<?>> complexTypes);
+
+    /**
+     * Init list of ignored types.
+     * 
+     * @param ignoredTypes
+     *            list of ignored types
+     */
+    protected abstract void initIgnoredTypes(List<Class<?>> ignoredTypes);
+
+    /**
      * Checks if list asserting can be performed and does asserting if it can be performed.
      * 
      * @param <X>
@@ -634,29 +658,5 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     <X> boolean isSameInstance(final X expected, final X actual) {
         return expected == actual;
     }
-
-    /**
-     * Init list of entity types.
-     * 
-     * @param entityTypes
-     *            list of entity types
-     */
-    protected abstract void initEntityList(List<Class<?>> entityTypes);
-
-    /**
-     * Init list of complex types.
-     * 
-     * @param complexTypes
-     *            list of complex types
-     */
-    protected abstract void initComplexTypes(List<Class<?>> complexTypes);
-
-    /**
-     * Init list of ignored types.
-     * 
-     * @param ignoredTypes
-     *            list of ignored types
-     */
-    protected abstract void initIgnoredTypes(List<Class<?>> ignoredTypes);
 
 }

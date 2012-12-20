@@ -11,6 +11,11 @@ package eu.execom.testutil.property;
  */
 public class IgnoreProperty extends Property {
 
+    @Override
+    public IProperty getCopy() {
+        return new IgnoreProperty(getPath());
+    }
+
     /**
      * Ignore property default constructor.
      * 
@@ -19,11 +24,6 @@ public class IgnoreProperty extends Property {
      */
     protected IgnoreProperty(final String path) {
         super(path);
-    }
-
-    @Override
-    public IProperty getCopy() {
-        return new IgnoreProperty(getPath());
     }
 
 }

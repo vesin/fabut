@@ -10,6 +10,11 @@ package eu.execom.testutil.property;
  */
 public class NotNullProperty extends Property {
 
+    @Override
+    public IProperty getCopy() {
+        return new NotNullProperty(getPath());
+    }
+
     /**
      * Not null property default constructor.
      * 
@@ -20,8 +25,4 @@ public class NotNullProperty extends Property {
         super(path);
     }
 
-    @Override
-    public IProperty getCopy() {
-        return new NotNullProperty(getPath());
-    }
 }

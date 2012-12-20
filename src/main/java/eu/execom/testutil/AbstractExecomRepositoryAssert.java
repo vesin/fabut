@@ -30,6 +30,7 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"unchecked"})
+// FIXME arrange methods
 public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> extends AbstractExecomAssert<EntityType>
         implements ExecomRepositoryAssert<EntityType, EntityId> {
 
@@ -72,7 +73,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
                 && ReflectionUtil.getIdValue((EntityType) object) != null) {
             markAsserted((EntityType) object);
         }
-    };
+    }
 
     Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> getDbSnapshot() {
         return dbSnapshot;
@@ -81,7 +82,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     @Override
     public <X extends EntityType> void assertEntityWithSnapshot(final X actual, final IProperty... properties) {
         assertEntityWithSnapshot(EMPTY_STRING, actual, properties);
-    };
+    }
 
     @Override
     public <X extends EntityType> void assertEntityWithSnapshot(final String message, final X actual,
@@ -105,7 +106,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             Assert.fail("Type of entity is not supported  " + actual.getClass());
         }
 
-    };
+    }
 
     /**
      * Initialize database snapshot.
@@ -381,6 +382,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            list for copying
      * @return copied list
      */
+    // FIXME add shallow in the name of the method or create list of copy objects
     <T> List<T> copyList(final List<T> list) {
         return new ArrayList<T>(list);
     }

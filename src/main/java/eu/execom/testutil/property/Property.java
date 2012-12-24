@@ -1,5 +1,8 @@
 package eu.execom.testutil.property;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Abstract property definition that contains path to some property that is used.
  * 
@@ -8,7 +11,7 @@ package eu.execom.testutil.property;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class Property implements IProperty {
+public abstract class Property implements ISingleProperty {
 
     private String path;
 
@@ -40,7 +43,7 @@ public abstract class Property implements IProperty {
 
     @Override
     public boolean equals(final Object obj) {
-        final IProperty property = (IProperty) obj;
+        final ISingleProperty property = (ISingleProperty) obj;
         return path.equalsIgnoreCase(property.getPath());
     }
 
@@ -67,8 +70,14 @@ public abstract class Property implements IProperty {
      *            property path.
      * @return created object.
      */
-    public static IgnoreProperty ignored(final String path) {
-        return new IgnoreProperty(path);
+    public static MultiProperty ignored(final String... paths) {
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+
+        for (final String path : paths) {
+            properties.add(new IgnoreProperty(path));
+        }
+
+        return new MultiProperty(properties);
     }
 
     /**
@@ -78,8 +87,14 @@ public abstract class Property implements IProperty {
      *            property path.
      * @return created object.
      */
-    public static NotNullProperty notNull(final String path) {
-        return new NotNullProperty(path);
+    public static MultiProperty notNull(final String... paths) {
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+
+        for (final String path : paths) {
+            properties.add(new NotNullProperty(path));
+        }
+
+        return new MultiProperty(properties);
     }
 
     /**
@@ -89,7 +104,13 @@ public abstract class Property implements IProperty {
      *            property path.
      * @return created object.
      */
-    public static NullProperty nulll(final String path) {
-        return new NullProperty(path);
+    public static MultiProperty nulll(final String... paths) {
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+
+        for (final String path : paths) {
+            properties.add(new NullProperty(path));
+        }
+
+        return new MultiProperty(properties);
     }
 }

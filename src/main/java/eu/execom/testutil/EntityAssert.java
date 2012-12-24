@@ -3,6 +3,7 @@ package eu.execom.testutil;
 import java.util.List;
 
 import eu.execom.testutil.property.IProperty;
+import eu.execom.testutil.property.ISingleProperty;
 
 /**
  * Interface for object assertion.
@@ -68,7 +69,7 @@ public interface EntityAssert<T> {
      *            type of asserted object
      */
     <X> void assertObjects(final String message, final X expected, final X actual,
-            final List<IProperty> excludedProperties);
+            final List<ISingleProperty> excludedProperties);
 
     /**
      * Asserts two objects using array of properties who exclude properties from expected object.

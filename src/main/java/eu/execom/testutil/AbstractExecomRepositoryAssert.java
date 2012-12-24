@@ -12,7 +12,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.lang3.StringUtils;
 
-import eu.execom.testutil.property.IProperty;
+import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.report.AssertReportBuilder;
 import eu.execom.testutil.util.ReflectionUtil;
 
@@ -79,13 +79,13 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     }
 
     @Override
-    public <X extends EntityType> void assertEntityWithSnapshot(final X actual, final IProperty... properties) {
+    public <X extends EntityType> void assertEntityWithSnapshot(final X actual, final ISingleProperty... properties) {
         assertEntityWithSnapshot(EMPTY_STRING, actual, properties);
     };
 
     @Override
     public <X extends EntityType> void assertEntityWithSnapshot(final String message, final X actual,
-            final IProperty... properties) {
+            final ISingleProperty... properties) {
 
         final EntityId id = ReflectionUtil.getIdValue(actual);
         Assert.assertNotNull("Entity id can't be null " + actual, id);
@@ -427,7 +427,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         try {
             return method.invoke(object);
         } catch (final Exception e) {
-            e.printStackTrace();
             fail(e.getMessage());
         }
         return null;
@@ -485,7 +484,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
                     method.getReturnType());
             setMethod.invoke(object, copiedProperty);
         } catch (final Exception e) {
-            e.printStackTrace();
             fail(e.getMessage());
         }
     }

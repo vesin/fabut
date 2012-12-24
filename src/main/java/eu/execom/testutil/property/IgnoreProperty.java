@@ -22,7 +22,7 @@ public class IgnoreProperty extends Property {
     }
 
     @Override
-    public IProperty getCopy() {
+    public ISingleProperty getCopy() {
         return new IgnoreProperty(getPath());
     }
 

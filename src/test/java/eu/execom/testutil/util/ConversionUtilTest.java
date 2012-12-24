@@ -6,7 +6,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import eu.execom.testutil.property.IProperty;
+import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
 import eu.execom.testutil.property.Property;
@@ -30,8 +30,8 @@ public class ConversionUtilTest extends Assert {
     @Test
     public void testCreateListFromVarargsTwoProperties() {
         // setup
-        final NullProperty nullProperty = Property.nulll(TEST);
-        final NotNullProperty notNullProperty = Property.notNull(TEST);
+        final NullProperty nullProperty = (NullProperty) Property.nulll(TEST).getProperties().get(0);
+        final NotNullProperty notNullProperty = (NotNullProperty) Property.notNull(TEST).getProperties().get(0);
 
         // method
         final List<Property> properties = ConversionUtil.createListFromArray(nullProperty, notNullProperty);
@@ -48,7 +48,7 @@ public class ConversionUtilTest extends Assert {
     @Test
     public void testCreateListFromVarargsNoProperties() {
         // method
-        final List<IProperty> properties = ConversionUtil.createListFromArray();
+        final List<ISingleProperty> properties = ConversionUtil.createListFromArray();
 
         // assert
         assertEquals(0, properties.size());

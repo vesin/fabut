@@ -10,26 +10,4 @@ package eu.execom.testutil.property;
  */
 public interface IProperty {
 
-    /**
-     * Get property path.
-     * 
-     * @return path.
-     */
-    String getPath();
-
-    /**
-     * Set property path.
-     * 
-     * @param path
-     *            of property.
-     */
-    void setPath(String path);
-
-    /**
-     * Get copy of of property.
-     * 
-     * @return Property copy.
-     */
-    IProperty getCopy();
-
 }

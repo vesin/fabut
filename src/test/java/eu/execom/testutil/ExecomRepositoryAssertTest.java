@@ -21,7 +21,7 @@ import eu.execom.testutil.model.TierTwoType;
 import eu.execom.testutil.model.Type;
 import eu.execom.testutil.model.UnknownEntityType;
 import eu.execom.testutil.model.UnknownType;
-import eu.execom.testutil.property.Property;
+import eu.execom.testutil.property.PropertyFactory;
 import eu.execom.testutil.report.AssertReportBuilder;
 import eu.execom.testutil.util.ReflectionUtil;
 
@@ -844,7 +844,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         // method
         takeSnapshot();
         expected.setProperty(TEST + TEST);
-        assertEntityWithSnapshot(expected, Property.changed(EntityTierOneType.PROPERTY, TEST + TEST));
+        assertEntityWithSnapshot(expected, PropertyFactory.changed(EntityTierOneType.PROPERTY, TEST + TEST));
     }
 
 }

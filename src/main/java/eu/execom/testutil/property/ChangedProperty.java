@@ -1,7 +1,7 @@
 package eu.execom.testutil.property;
 
 /**
- * {@link Property} extension with focus on new value of the property..
+ * {@link AbstractProperty} extension with focus on new value of the property..
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -10,7 +10,7 @@ package eu.execom.testutil.property;
  * @param <T>
  *            property type
  */
-public class ChangedProperty<T> extends Property {
+public class ChangedProperty<T> extends AbstractProperty {
 
     private final T expectedValue;
 
@@ -37,7 +37,7 @@ public class ChangedProperty<T> extends Property {
     }
 
     @Override
-    public IProperty getCopy() {
+    public ISingleProperty getCopy() {
         return new ChangedProperty<T>(getPath(), expectedValue);
     }
 }

@@ -27,11 +27,11 @@ import eu.execom.testutil.model.TierTwoTypeWithListProperty;
 import eu.execom.testutil.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.testutil.model.UnknownType;
 import eu.execom.testutil.property.ChangedProperty;
-import eu.execom.testutil.property.IProperty;
+import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.property.IgnoreProperty;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
-import eu.execom.testutil.property.Property;
+import eu.execom.testutil.property.PropertyFactory;
 import eu.execom.testutil.report.AssertReportBuilder;
 
 /**
@@ -67,7 +67,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertObjectNoGetMethodsType() {
         // setup
         final NoGetMethodsType noGetMethodsType = new NoGetMethodsType(TEST);
-        final ChangedProperty<String> jokerProperty = Property.changed(NoGetMethodsType.PROPERTY, TEST + TEST);
+        final ChangedProperty<String> jokerProperty = PropertyFactory.changed(NoGetMethodsType.PROPERTY, TEST + TEST);
 
         // method
         assertObject(EMPTY_STRING, noGetMethodsType, jokerProperty);
@@ -95,7 +95,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(null);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.notNull(TierOneType.PROPERTY));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.notNull(TierOneType.PROPERTY));
     }
 
     /**
@@ -107,7 +107,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.notNull(TierOneType.PROPERTY));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.notNull(TierOneType.PROPERTY));
 
     }
 
@@ -121,7 +121,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.nulll(TierOneType.PROPERTY));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.nulll(TierOneType.PROPERTY));
     }
 
     /**
@@ -133,7 +133,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(null);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.nulll(TierOneType.PROPERTY));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.nulll(TierOneType.PROPERTY));
     }
 
     /**
@@ -145,7 +145,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.ignored(TierOneType.PROPERTY));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.ignored(TierOneType.PROPERTY));
     }
 
     /**
@@ -158,7 +158,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(null);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, null));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, null));
     }
 
     /**
@@ -171,7 +171,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(null);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, TEST));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, TEST));
     }
 
     /**
@@ -184,7 +184,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, null));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, null));
     }
 
     /**
@@ -197,7 +197,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, TEST));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, TEST));
     }
 
     /**
@@ -210,7 +210,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, Property.changed(TierOneType.PROPERTY, TEST + TEST));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, TEST + TEST));
     }
 
     /**
@@ -221,8 +221,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         // setup
         final TierTwoTypeWithIgnoreProperty tierTwoTypeWithIgnoreProperty = new TierTwoTypeWithIgnoreProperty(
                 new IgnoredType());
-        final ChangedProperty<IgnoredType> jokerProperty = Property.changed(TierTwoTypeWithIgnoreProperty.IGNORED_TYPE,
-                new IgnoredType());
+        final ChangedProperty<IgnoredType> jokerProperty = PropertyFactory.changed(
+                TierTwoTypeWithIgnoreProperty.IGNORED_TYPE, new IgnoredType());
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithIgnoreProperty, jokerProperty);
@@ -242,7 +242,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                Property.changed(TierTwoTypeWithListProperty.PROPERTY, jokerList));
+                PropertyFactory.changed(TierTwoTypeWithListProperty.PROPERTY, jokerList));
     }
 
     /**
@@ -262,7 +262,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                Property.changed(TierTwoTypeWithListProperty.PROPERTY, expectedList));
+                PropertyFactory.changed(TierTwoTypeWithListProperty.PROPERTY, expectedList));
     }
 
     /**
@@ -282,7 +282,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                Property.changed(TierTwoTypeWithListProperty.PROPERTY, expectedList));
+                PropertyFactory.changed(TierTwoTypeWithListProperty.PROPERTY, expectedList));
     }
 
     /**
@@ -363,7 +363,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
                 + TEST), TEST);
 
         // method
-        assertObjects(expected, actual, Property.ignored(TierTwoType.PROPERTY + DOT + TierOneType.PROPERTY));
+        assertObjects(expected, actual, PropertyFactory.ignored(TierTwoType.PROPERTY + DOT + TierOneType.PROPERTY));
     }
 
     /**
@@ -417,7 +417,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType actual = new TierOneType(TEST);
 
         // method
-        assertObject(actual, Property.changed(TierOneType.PROPERTY, TEST));
+        assertObject(actual, PropertyFactory.changed(TierOneType.PROPERTY, TEST));
     }
 
     /**
@@ -429,8 +429,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
 
         // method
-        assertObject(actual, Property.changed(EntityTierOneType.PROPERTY, TEST),
-                Property.changed(EntityTierOneType.ID, 1));
+        assertObject(actual, PropertyFactory.changed(EntityTierOneType.PROPERTY, TEST),
+                PropertyFactory.changed(EntityTierOneType.ID, 1));
     }
 
     /**
@@ -442,7 +442,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
 
         // method
-        assertObject(actual, Property.changed(EntityTierOneType.ID, 1));
+        assertObject(actual, PropertyFactory.changed(EntityTierOneType.ID, 1));
     }
 
     /**
@@ -498,7 +498,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), nodesList);
+                new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -518,7 +518,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), nodesList);
+                new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -549,7 +549,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), nodesList);
+                new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -563,7 +563,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testDisassembleObject() {
         // method
         final boolean t = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), new TierOneType(TEST),
-                new UnknownType(), new LinkedList<IProperty>(), new NodesList());
+                new UnknownType(), new LinkedList<ISingleProperty>(), new NodesList());
 
         // assert
         assertFalse(t);
@@ -576,7 +576,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertChangedPropertyBothNulls() {
         // method
         final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), null, null,
-                new ArrayList<IProperty>(), new NodesList(), true);
+                new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertTrue(assertValue);
@@ -589,9 +589,9 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertChangedPropertyExclusive() {
         // method
         final boolean assertValue1 = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), null, new Object(),
-                new ArrayList<IProperty>(), new NodesList(), true);
+                new ArrayList<ISingleProperty>(), new NodesList(), true);
         final boolean assertValue2 = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new Object(), null,
-                new ArrayList<IProperty>(), new NodesList(), true);
+                new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertFalse(assertValue1);
@@ -609,7 +609,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), new NodesList(), true);
+                new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertTrue(assertValue);
@@ -626,7 +626,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), new NodesList(), true);
+                new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertTrue(assertValue);
@@ -644,7 +644,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), new NodesList(), true);
+                new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertTrue(assertValue);
@@ -662,7 +662,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), new NodesList(), true);
+                new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertFalse(assertValue);
@@ -700,7 +700,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new LinkedList<IProperty>(), null, true);
+                new LinkedList<ISingleProperty>(), null, true);
 
         // assert
         assertTrue(assertValue);
@@ -765,8 +765,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertPropertiesNotNullPropertyTrue() {
         // method
         final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
-                Property.notNull(TierOneType.PROPERTY), new TierOneType(TEST), "", new ArrayList<IProperty>(), null,
-                true);
+                PropertyFactory.notNull(TierOneType.PROPERTY), new TierOneType(TEST), "",
+                new ArrayList<ISingleProperty>(), null, true);
 
         // assert
         assertTrue(assertValue);
@@ -780,7 +780,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertPropertiesNotNullPropertyFalse() {
         // method
         final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
-                Property.notNull(TierOneType.PROPERTY), null, "", new ArrayList<IProperty>(), null, true);
+                PropertyFactory.notNull(TierOneType.PROPERTY), null, "", new ArrayList<ISingleProperty>(), null, true);
 
         // assert
         assertFalse(assertValue);
@@ -794,7 +794,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertPropertiesNullPropertyTrue() {
         // method
         final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
-                Property.nulll(TierOneType.PROPERTY), null, "", new ArrayList<IProperty>(), null, true);
+                PropertyFactory.nulll(TierOneType.PROPERTY), null, "", new ArrayList<ISingleProperty>(), null, true);
 
         // assert
         assertTrue(assertValue);
@@ -808,7 +808,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertPropertiesNullPropertyFalse() {
         // method
         final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
-                Property.nulll(TierOneType.PROPERTY), new TierOneType(TEST), "", new ArrayList<IProperty>(), null, true);
+                PropertyFactory.nulll(TierOneType.PROPERTY), new TierOneType(TEST), "",
+                new ArrayList<ISingleProperty>(), null, true);
 
         // assert
         assertFalse(assertValue);
@@ -821,8 +822,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertPropertiesIgnoreProperty() {
         // method
         final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
-                Property.ignored(TierOneType.PROPERTY), new TierOneType(TEST), "", new ArrayList<IProperty>(), null,
-                true);
+                PropertyFactory.ignored(TierOneType.PROPERTY), new TierOneType(TEST), "",
+                new ArrayList<ISingleProperty>(), null, true);
 
         // assert
         assertTrue(assertValue);
@@ -842,7 +843,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), new NodesList(), false);
+                new ArrayList<ISingleProperty>(), new NodesList(), false);
 
         // assert
         assertFalse(assertValue);
@@ -863,7 +864,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), new NodesList(), false);
+                new ArrayList<ISingleProperty>(), new NodesList(), false);
 
         // assert
         assertTrue(assertValue);
@@ -884,7 +885,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertList(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<IProperty>(), new NodesList(), false);
+                new ArrayList<ISingleProperty>(), new NodesList(), false);
 
         // assert
         assertFalse(assertValue);
@@ -897,8 +898,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testPreAssertObjectWithPropertiesEqual() {
         // setup
-        final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.changed(TierOneType.PROPERTY, "ninja"));
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+        properties.add(PropertyFactory.changed(TierOneType.PROPERTY, "ninja"));
 
         // method
         preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType("ninja"), properties);
@@ -912,8 +913,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testPreAssertObjectWithPropertiesNotEqual() {
         // setup
-        final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.changed(TierOneType.PROPERTY, TEST));
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+        properties.add(PropertyFactory.changed(TierOneType.PROPERTY, TEST));
 
         // method
         final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST
@@ -930,7 +931,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testPreAssertObjectWithPropertiesMethodReturnsNull() {
         // setup
-        final List<IProperty> properties = new ArrayList<IProperty>();
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
 
         // method
         final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(null),
@@ -947,8 +948,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testPreAssertObjectWithPropertiesBadProperties() {
         // setup
-        final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.changed(TEST, TEST));
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+        properties.add(PropertyFactory.changed(TEST, TEST));
 
         // method
         final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST),
@@ -988,13 +989,13 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testRemoveParentQualificationForProperty() {
         // setup
-        final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.notNull("parent.id"));
-        properties.add(Property.notNull("parent.name"));
-        properties.add(Property.notNull("parent.lastname"));
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+        properties.add(PropertyFactory.notNull("parent.id"));
+        properties.add(PropertyFactory.notNull("parent.name"));
+        properties.add(PropertyFactory.notNull("parent.lastname"));
 
         // method
-        final List<IProperty> unqualifiedProperties = removeParentQualificationForProperties("parent", properties);
+        final List<ISingleProperty> unqualifiedProperties = removeParentQualificationForProperties("parent", properties);
 
         // assert
         assertEquals("id", unqualifiedProperties.get(0).getPath());
@@ -1009,12 +1010,12 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testGeneratePropertyFromListOfExcluded() {
         // setup
         final TierOneType tierOneType = new TierOneType(TEST);
-        final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.notNull(TierOneType.PROPERTY));
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+        properties.add(PropertyFactory.notNull(TierOneType.PROPERTY));
         final int numProperties = properties.size();
 
         // method
-        final IProperty property = obtainProperty(tierOneType, TierOneType.PROPERTY, properties);
+        final ISingleProperty property = obtainProperty(tierOneType, TierOneType.PROPERTY, properties);
 
         // assert
         assertEquals(TierOneType.PROPERTY, property.getPath());
@@ -1029,8 +1030,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testGeneratePropertyCreateNew() {
         // setup
         final TierOneType tierOneType = new TierOneType(TEST);
-        final List<IProperty> properties = new ArrayList<IProperty>();
-        properties.add(Property.notNull(TEST));
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+        properties.add(PropertyFactory.notNull(TEST));
         final int numProperties = properties.size();
 
         // method
@@ -1049,11 +1050,11 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testPopPropertyEqualPath() {
         // setup
-        final List<IProperty> properties = new LinkedList<IProperty>();
-        properties.add(Property.nulll(TEST));
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(PropertyFactory.nulll(TEST));
 
         // method
-        final IProperty property = getPropertyFromList(TEST, properties);
+        final ISingleProperty property = getPropertyFromList(TEST, properties);
 
         // assert
         assertEquals(TEST, property.getPath());
@@ -1066,10 +1067,10 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testPopPropertyNoProperties() {
         // setup
-        final List<IProperty> properties = new LinkedList<IProperty>();
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
 
         // method
-        final IProperty property = getPropertyFromList(TEST, properties);
+        final ISingleProperty property = getPropertyFromList(TEST, properties);
 
         // assert
         assertEquals(null, property);
@@ -1081,11 +1082,11 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testPopPropertyNotEqualPath() {
         // setup
-        final List<IProperty> properties = new LinkedList<IProperty>();
-        properties.add(Property.nulll(TEST));
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(PropertyFactory.nulll(TEST));
 
         // method
-        final IProperty property = getPropertyFromList(TEST + TEST, properties);
+        final ISingleProperty property = getPropertyFromList(TEST + TEST, properties);
 
         // assert
         assertEquals(null, property);

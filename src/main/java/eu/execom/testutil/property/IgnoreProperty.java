@@ -1,7 +1,7 @@
 package eu.execom.testutil.property;
 
 /**
- * The Class IgnoreProperty. {@link Property} extension with limited functionality only to mark property as ignored for
+ * The Class IgnoreProperty. {@link AbstractProperty} extension with limited functionality only to mark property as ignored for
  * testing.
  * 
  * @author Dusko Vesin
@@ -9,7 +9,7 @@ package eu.execom.testutil.property;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public class IgnoreProperty extends Property {
+public class IgnoreProperty extends AbstractProperty {
 
     /**
      * Ignore property default constructor.
@@ -22,7 +22,7 @@ public class IgnoreProperty extends Property {
     }
 
     @Override
-    public IProperty getCopy() {
+    public ISingleProperty getCopy() {
         return new IgnoreProperty(getPath());
     }
 

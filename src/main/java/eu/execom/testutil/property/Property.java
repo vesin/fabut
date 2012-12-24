@@ -92,4 +92,5 @@ public abstract class Property implements IProperty {
     public static NullProperty nulll(final String path) {
         return new NullProperty(path);
     }
+
 }

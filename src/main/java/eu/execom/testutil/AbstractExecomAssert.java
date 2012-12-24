@@ -646,7 +646,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      * @param properties
      *            array/arrays of properties
      */
-    final protected ISingleProperty[] extractProperties(final IProperty... properties) {
+    ISingleProperty[] extractProperties(final IProperty... properties) {
         final ArrayList<ISingleProperty> list = new ArrayList<ISingleProperty>();
 
         for (final IProperty property : properties) {
@@ -657,6 +657,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
             }
         }
 
+        // TODO(ppetkovic) change size of this array to match size of the list, so ArrayList doesn't instance new array
+        // to put elements
         final ISingleProperty[] array = new ISingleProperty[] {};
         return list.toArray(array);
     }

@@ -1233,6 +1233,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         assertEquals(notNullMultiProp.getProperties().size() + ignoredMultiProp.getProperties().size(),
                 singlePropArray.length);
 
+        // TODO(ppetkovic) change to accessing by index so its more readable
         for (int i = 0; i < multiPropArray.length; i++) {
             for (int j = 0; j < ((IMultiProperty) multiPropArray[i]).getProperties().size(); j++) {
                 assertEquals(((IMultiProperty) multiPropArray[i]).getProperties().get(j).getPath(), singlePropArray[i

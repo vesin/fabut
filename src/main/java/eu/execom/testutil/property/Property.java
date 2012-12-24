@@ -11,6 +11,8 @@ import java.util.List;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
+// TODO(ppetkovic) restore old ignore, nulll and notNull methods to return single properties aswell so we have single
+// and multi properties implemenations for all, test should exist for all methods
 public abstract class Property implements ISingleProperty {
 
     private String path;

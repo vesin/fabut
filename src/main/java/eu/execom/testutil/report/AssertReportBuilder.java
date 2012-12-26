@@ -41,6 +41,7 @@ public class AssertReportBuilder {
     private static final String REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED = "-> Entity %s is created in system after "
             + "last snapshot but hasnt been asserted in test.";
     private static final String REPOSITORY_ENTITY_ASSERT_FAIL = "-> Expected entity: <<%s>> but was: <<%s>>, of %s.";
+    private static final String NULL_REFERENCE_ASSERT = "Trying to assert null object reference.";
 
     private final StringBuilder builder;
     private Integer assertDepth;
@@ -408,6 +409,20 @@ public class AssertReportBuilder {
 
         final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
         part.append(String.format(UNINVOKABLE_METHOD, methodName, actualClass, expectedClass));
+        messageParts.add(failedMessagePosition, part.toString());
+    }
+
+    /**
+     * Reports fail due to passing null object reference for asserting.
+     * 
+     * @param actual
+     *            object reference for asserting
+     */
+    public void addNullReferenceAssertComment() {
+
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
+
+        part.append(String.format(NULL_REFERENCE_ASSERT));
         messageParts.add(failedMessagePosition, part.toString());
     }
 

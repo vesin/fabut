@@ -448,6 +448,18 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
+     * Test for assertObject when null object reference is passed.
+     */
+    @Test(expected = AssertionError.class)
+    public void testAssertObjectWithNullReference() {
+        // setup
+        final EntityTierOneType actual = null;
+
+        // method
+        assertObject(actual, PropertyFactory.changed(EntityTierOneType.ID, 1));
+    }
+
+    /**
      * Test for assertObjects with two {@link EntityTierTwoType} when all values are equal.
      */
     @Test

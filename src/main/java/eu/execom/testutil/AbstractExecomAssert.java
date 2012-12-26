@@ -188,6 +188,11 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     <X> boolean preAssertObjectWithProperties(final AssertReportBuilder report, final X actual,
             final List<ISingleProperty> properties) {
 
+        if (actual == null) {
+            report.addNullReferenceAssertComment();
+            return false;
+        }
+
         final List<Method> methods = ReflectionUtil.getObjectGetMethods(actual, complexTypes, entityTypes);
 
         boolean assertResult = true;

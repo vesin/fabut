@@ -1,7 +1,7 @@
 package eu.execom.testutil.property;
 
 /**
- * {@link AbstractProperty} extension with focus on new value of the property..
+ * {@link Property} extension with focus on new value of the property..
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -10,7 +10,7 @@ package eu.execom.testutil.property;
  * @param <T>
  *            property type
  */
-public class ChangedProperty<T> extends AbstractProperty {
+public class ChangedProperty<T> extends Property {
 
     private final T expectedValue;
 

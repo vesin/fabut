@@ -1,7 +1,7 @@
 package eu.execom.testutil.property;
 
 /**
- * SingleProperty interface.
+ * Single property interface.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah

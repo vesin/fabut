@@ -1,5 +1,6 @@
 package eu.execom.testutil.property;
 
+
 /**
  * Abstract property definition that contains path to some property that is used.
  * 
@@ -8,7 +9,7 @@ package eu.execom.testutil.property;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class AbstractProperty implements ISingleProperty {
+public abstract class Property implements ISingleProperty {
 
     private String path;
 
@@ -18,7 +19,7 @@ public abstract class AbstractProperty implements ISingleProperty {
      * @param path
      *            property path
      */
-    public AbstractProperty(final String path) {
+    public Property(final String path) {
         this.path = path;
     }
 

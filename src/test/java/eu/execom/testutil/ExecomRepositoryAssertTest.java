@@ -673,7 +673,6 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
 
         // assert
         assertNull(property);
-
     }
 
     /**

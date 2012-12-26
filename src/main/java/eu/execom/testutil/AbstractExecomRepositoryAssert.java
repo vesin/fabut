@@ -427,7 +427,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         try {
             return method.invoke(object);
         } catch (final Exception e) {
-            e.printStackTrace();
             fail(e.getMessage());
         }
         return null;
@@ -485,7 +484,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
                     method.getReturnType());
             setMethod.invoke(object, copiedProperty);
         } catch (final Exception e) {
-            e.printStackTrace();
             fail(e.getMessage());
         }
     }

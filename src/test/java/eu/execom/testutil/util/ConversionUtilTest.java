@@ -6,10 +6,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import eu.execom.testutil.property.AbstractProperty;
 import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
+import eu.execom.testutil.property.Property;
 import eu.execom.testutil.property.PropertyFactory;
 
 /**
@@ -35,7 +35,7 @@ public class ConversionUtilTest extends Assert {
         final NotNullProperty notNullProperty = PropertyFactory.notNull(TEST);
 
         // method
-        final List<AbstractProperty> properties = ConversionUtil.createListFromArray(nullProperty, notNullProperty);
+        final List<Property> properties = ConversionUtil.createListFromArray(nullProperty, notNullProperty);
 
         // assert
         assertEquals(2, properties.size());

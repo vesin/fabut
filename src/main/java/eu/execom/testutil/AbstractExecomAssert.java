@@ -15,6 +15,8 @@ import eu.execom.testutil.enums.NodeCheckType;
 import eu.execom.testutil.enums.ReferenceCheckType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.property.ChangedProperty;
+import eu.execom.testutil.property.IMultiProperty;
+import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.property.IgnoreProperty;
 import eu.execom.testutil.property.NotNullProperty;
@@ -80,14 +82,13 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     @Override
-    public <X> void assertObjects(final X expected, final X actual, final ISingleProperty... excludes) {
+    public <X> void assertObjects(final X expected, final X actual, final IProperty... excludes) {
         assertObjects(EMPTY_STRING, expected, actual, excludes);
     }
 
     @Override
-    public <X> void assertObjects(final String message, final X expected, final X actual,
-            final ISingleProperty... excludes) {
-        assertObjects(message, expected, actual, ConversionUtil.createListFromArray(excludes));
+    public <X> void assertObjects(final String message, final X expected, final X actual, final IProperty... excludes) {
+        assertObjects(message, expected, actual, ConversionUtil.createListFromArray(extractProperties(excludes)));
     }
 
     @Override
@@ -102,14 +103,15 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     @Override
-    public <X> void assertObject(final X actual, final ISingleProperty... excludes) {
+    public <X> void assertObject(final X actual, final IProperty... excludes) {
         assertObject(EMPTY_STRING, actual, excludes);
     }
 
     @Override
-    public <X> void assertObject(final String message, final X actual, final ISingleProperty... excludes) {
+    public <X> void assertObject(final String message, final X actual, final IProperty... excludes) {
         final AssertReportBuilder report = new AssertReportBuilder(message);
-        if (!preAssertObjectWithProperties(report, actual, ConversionUtil.createListFromArray(excludes))) {
+        if (!preAssertObjectWithProperties(report, actual,
+                ConversionUtil.createListFromArray(extractProperties(excludes)))) {
             throw new AssertionError(report.getMessage());
         }
         afterAssertObject(actual, false);
@@ -636,6 +638,27 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      */
     <X> boolean isSameInstance(final X expected, final X actual) {
         return expected == actual;
+    }
+
+    /**
+     * Extract properties and merge them into an array.
+     * 
+     * @param properties
+     *            array/arrays of properties
+     */
+    ISingleProperty[] extractProperties(final IProperty... properties) {
+        final ArrayList<ISingleProperty> list = new ArrayList<ISingleProperty>();
+
+        for (final IProperty property : properties) {
+            if (property instanceof ISingleProperty) {
+                list.add((ISingleProperty) property);
+            } else {
+                list.addAll(((IMultiProperty) property).getProperties());
+            }
+        }
+
+        final ISingleProperty[] array = new ISingleProperty[list.size()];
+        return list.toArray(array);
     }
 
     /**

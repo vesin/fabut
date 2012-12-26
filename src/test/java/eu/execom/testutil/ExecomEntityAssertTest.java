@@ -27,6 +27,8 @@ import eu.execom.testutil.model.TierTwoTypeWithListProperty;
 import eu.execom.testutil.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.testutil.model.UnknownType;
 import eu.execom.testutil.property.ChangedProperty;
+import eu.execom.testutil.property.IMultiProperty;
+import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.property.IgnoreProperty;
 import eu.execom.testutil.property.NotNullProperty;
@@ -990,6 +992,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testRemoveParentQualificationForProperty() {
         // setup
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+
         properties.add(PropertyFactory.notNull("parent.id"));
         properties.add(PropertyFactory.notNull("parent.name"));
         properties.add(PropertyFactory.notNull("parent.lastname"));
@@ -1176,4 +1179,92 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         // assert
         assertFalse(result);
     }
+
+    /**
+     * Test for extractProperties when parameters are of types {@link ISingleProperty} and {@link IMultiProperty}.
+     */
+    @Test
+    public void testExtractPropertiesMixed() {
+        // method
+        final ISingleProperty[] propArray = extractProperties(PropertyFactory.changed(EntityTierOneType.PROPERTY, ""),
+                PropertyFactory.notNull(EntityTierOneType.ID, EntityTierOneType.PROPERTY));
+
+        // assert
+        assertEquals(3, propArray.length);
+        assertEquals(EntityTierOneType.PROPERTY, propArray[0].getPath());
+        assertEquals(EntityTierOneType.ID, propArray[1].getPath());
+        assertEquals(EntityTierOneType.PROPERTY, propArray[2].getPath());
+    }
+
+    /**
+     * Test for extractProperties when all passed parameters are of type {@link ISingleProperty}.
+     */
+    @Test
+    public void testExtractPropertiesAllISingleProperty() {
+        // setup
+        final IProperty[] propArray = new ISingleProperty[] {PropertyFactory.changed(EntityTierOneType.PROPERTY, ""),
+                PropertyFactory.changed(EntityTierOneType.ID, 0)};
+
+        // method
+        final ISingleProperty[] singlePropArray = extractProperties(propArray);
+
+        // assert
+        assertEquals(propArray.length, singlePropArray.length);
+        for (int i = 0; i < propArray.length; i++) {
+            assertEquals(((ISingleProperty) propArray[i]).getPath(), singlePropArray[i].getPath());
+        }
+    }
+
+    /**
+     * Test for extractProperties when all passed parameters are of type {@link IMultiProperty}.
+     */
+    @Test
+    public void testExtractPropertiesAllIMultiProperty() {
+        // setup
+        final IMultiProperty notNullMultiProp = PropertyFactory.notNull(EntityTierOneType.PROPERTY,
+                EntityTierOneType.ID);
+        final IMultiProperty ignoredMultiProp = PropertyFactory.ignored(EntityTierOneType.PROPERTY,
+                EntityTierOneType.ID);
+        final IProperty[] multiPropArray = new IMultiProperty[] {notNullMultiProp, ignoredMultiProp};
+
+        // method
+        final ISingleProperty[] singlePropArray = extractProperties(multiPropArray);
+
+        // assert
+        assertEquals(notNullMultiProp.getProperties().size() + ignoredMultiProp.getProperties().size(),
+                singlePropArray.length);
+        assertEquals(notNullMultiProp.getProperties().get(0).getPath(), singlePropArray[0].getPath());
+        assertEquals(notNullMultiProp.getProperties().get(1).getPath(), singlePropArray[1].getPath());
+        assertEquals(ignoredMultiProp.getProperties().get(0).getPath(), singlePropArray[2].getPath());
+        assertEquals(ignoredMultiProp.getProperties().get(1).getPath(), singlePropArray[3].getPath());
+    }
+
+    /**
+     * Test for assertObject with parameters of type {@link IMultiProperty}.
+     */
+    @Test
+    public void testAssertObjectMultiProperty() {
+        // setup
+        final EntityTierOneType entity = new EntityTierOneType(TEST, new Integer(0));
+
+        // method
+        assertObject(EMPTY_STRING, entity, PropertyFactory.notNull(EntityTierOneType.PROPERTY, EntityTierOneType.ID));
+    }
+
+    /**
+     * Test for assertObjects with parameters of type {@link IMultiProperty}.
+     */
+    @Test
+    public void testAssertObjectsMultiProperty() {
+        // setup
+        final TierTwoTypeWithPrimitiveProperty actual = new TierTwoTypeWithPrimitiveProperty(new TierOneType(TEST),
+                TEST);
+        final TierTwoTypeWithPrimitiveProperty expected = new TierTwoTypeWithPrimitiveProperty(new TierOneType(TEST
+                + TEST), TEST + TEST);
+
+        // method
+        assertObjects(expected, actual, PropertyFactory.ignored(TierTwoType.PROPERTY + DOT + TierOneType.PROPERTY,
+                TierTwoTypeWithPrimitiveProperty.PROPERTY2));
+    }
+
 }

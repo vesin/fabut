@@ -2,6 +2,7 @@ package eu.execom.testutil;
 
 import java.util.List;
 
+import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
 
 /**
@@ -51,7 +52,7 @@ public interface EntityAssert<T> {
      * @param <X>
      *            type of asserted object
      */
-    <X> void assertObjects(final X expected, final X actual, final ISingleProperty... excludes);
+    <X> void assertObjects(final X expected, final X actual, final IProperty... excludes);
 
     /**
      * Asserts two objects using list of properties who exclude properties from expected object.
@@ -84,7 +85,7 @@ public interface EntityAssert<T> {
      * @param <X>
      *            type of asserted object
      */
-    <X> void assertObjects(final String message, final X expected, final X actual, final ISingleProperty... excludes);
+    <X> void assertObjects(final String message, final X expected, final X actual, final IProperty... excludes);
 
     /**
      * Asserts object with array of properties.
@@ -96,7 +97,7 @@ public interface EntityAssert<T> {
      * @param <X>
      *            type of asserted object
      */
-    <X> void assertObject(final X actual, final ISingleProperty... excludes);
+    <X> void assertObject(final X actual, final IProperty... excludes);
 
     /**
      * Asserts object with array of properties.
@@ -110,6 +111,6 @@ public interface EntityAssert<T> {
      * @param <X>
      *            type of asserted object
      */
-    <X> void assertObject(final String message, final X actual, final ISingleProperty... excludes);
+    <X> void assertObject(final String message, final X actual, final IProperty... excludes);
 
 }

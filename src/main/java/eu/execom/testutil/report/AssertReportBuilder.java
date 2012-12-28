@@ -175,14 +175,16 @@ public class AssertReportBuilder {
     /**
      * Reports fail due to different list sizes.
      * 
+     * @param propertyName
+     *            name of list property
      * @param expectedSize
      *            - expected list's size
      * @param actualSize
      *            - actual list's size
      */
-    public void addListDifferentSizeComment(final int expectedSize, final int actualSize) {
+    public void addListDifferentSizeComment(final String propertyName, final int expectedSize, final int actualSize) {
 
-        addComment(EMPTY_STRING, LIST_SIZE, expectedSize, actualSize, CommentType.FAIL);
+        addComment(propertyName, LIST_SIZE, expectedSize, actualSize, CommentType.FAIL);
     }
 
     /**

@@ -461,7 +461,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         final int expectedSize = expected.size();
         final int actualSize = actual.size();
         if (expectedSize != actualSize) {
-            report.addListDifferentSizeComment(expectedSize, actualSize);
+            report.addListDifferentSizeComment(propertyName, expectedSize, actualSize);
             return false;
         }
 

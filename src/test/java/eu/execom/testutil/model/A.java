@@ -8,13 +8,19 @@ package eu.execom.testutil.model;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public class A {
+public class A extends Type {
 
     /** The b. */
     private B b;
 
     /** The property. */
-    private final String property;
+    private String property;
+
+    /**
+     * Instantiates a new a.
+     */
+    public A() {
+    }
 
     /**
      * Instantiates a new a.
@@ -55,4 +61,10 @@ public class A {
         return property;
     }
 
+    /**
+     * Sets the property.
+     */
+    public void setProperty(final String property) {
+        this.property = property;
+    }
 }

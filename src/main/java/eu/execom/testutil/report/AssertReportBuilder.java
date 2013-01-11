@@ -42,6 +42,8 @@ public class AssertReportBuilder {
             + "last snapshot but hasnt been asserted in test.";
     private static final String REPOSITORY_ENTITY_ASSERT_FAIL = "-> Expected entity: <<%s>> but was: <<%s>>, of %s.";
     private static final String NULL_REFERENCE_ASSERT = "Trying to assert null object reference.";
+    private static final String PARAMETERS_ASSERT_FAIL = "-> Expected parameter: <<%s>> but was: <<%s>>, of %s.";
+    private static final String NO_VALID_COPY = "There is no public default constructor, or there is no matching public set method for field which have corresponding get method, in class: %s.";
 
     private final StringBuilder builder;
     private Integer assertDepth;
@@ -446,6 +448,36 @@ public class AssertReportBuilder {
             }
         }
         return part.toString();
+    }
+
+    /**
+     * Report parameters assert fail.
+     * 
+     * @param beforeParameter
+     *            the before parameter
+     * @param afterParameter
+     *            the after parameter
+     */
+    public void reportParametersAssertFail(final Object beforeParameter, final Object afterParameter) {
+        final StringBuilder part = new StringBuilder();
+        part.append(NEW_LINE);
+        part.append(String.format(PARAMETERS_ASSERT_FAIL, beforeParameter.toString(), afterParameter.toString(),
+                afterParameter.getClass()));
+        messageParts.add(part.toString());
+    }
+
+    /**
+     * Reports fail due to passing null object reference for asserting.
+     * 
+     * @param original
+     *            parameter for copying
+     */
+    public void reportNoValidCopy(final Object original) {
+
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
+
+        part.append(String.format(NO_VALID_COPY, original.getClass().getSimpleName()));
+        messageParts.add(failedMessagePosition, part.toString());
     }
 
     /**

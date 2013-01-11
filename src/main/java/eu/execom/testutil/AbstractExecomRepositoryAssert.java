@@ -12,6 +12,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.lang3.StringUtils;
 
+import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.report.AssertReportBuilder;
 import eu.execom.testutil.util.ReflectionUtil;
@@ -39,6 +40,12 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /** The db snapshot. */
     private final Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> dbSnapshot;
 
+    /** Parameters passed into method. */
+    private final List<Object> parameters;
+
+    /** Snapshot of parameters passed into method. */
+    private final List<Object> parametersSnapshot;
+
     /**
      * Default constructor.
      */
@@ -46,6 +53,8 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         super();
         dbSnapshot = new HashMap<Class<?>, Map<EntityId, CopyAssert<EntityType>>>();
         initDbSnapshot();
+        parameters = new ArrayList<Object>();
+        parametersSnapshot = new ArrayList<Object>();
     }
 
     @Override
@@ -78,6 +87,14 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         return dbSnapshot;
     }
 
+    List<Object> getParameters() {
+        return parameters;
+    }
+
+    List<Object> getParametersSnapshot() {
+        return parametersSnapshot;
+    }
+
     @Override
     public <X extends EntityType> void assertEntityWithSnapshot(final X actual, final ISingleProperty... properties) {
         assertEntityWithSnapshot(EMPTY_STRING, actual, properties);
@@ -97,7 +114,12 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             final CopyAssert<EntityType> copyAssert = map.get(id);
             if (copyAssert != null) {
                 final EntityType expected = copyAssert.getEntity();
-                assertObjects(message, expected, actual, properties);
+                // TODO
+                if (expected != null) {
+                    assertObjects(message, expected, actual, properties);
+                } else {
+                    // report.reportNoValidCopy();
+                }
             } else {
                 Assert.fail("Entity doesn't exist in snapshot  " + actual);
             }
@@ -115,6 +137,14 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         for (final Class<?> entityType : entityTypes) {
             getDbSnapshot().put(entityType, new HashMap<EntityId, CopyAssert<EntityType>>());
         }
+    }
+
+    /**
+     * Initialize parameters snapshot.
+     */
+    private void initParametersSnapshot() {
+        parameters.clear();
+        parametersSnapshot.clear();
     }
 
     /**
@@ -175,6 +205,21 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     };
 
     /**
+     * Takes current parameters snapshot and original parameters, and saves them.
+     * 
+     * @param parameters
+     *            array of parameters
+     */
+    protected void takeSnapshot(final Object... parameters) {
+        initParametersSnapshot();
+
+        for (final Object object : parameters) {
+            this.parameters.add(object);
+            parametersSnapshot.add(createCopy(object));
+        }
+    };
+
+    /**
      * Asserts current database snapshot with one previously taken.
      */
     protected void assertDbState() {
@@ -187,6 +232,38 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         if (!ok) {
             throw new AssertionError(report.getMessage());
         }
+    }
+
+    /**
+     * Asserts current parameters states with snapshot previously taken.
+     */
+    protected void assertParametersState() {
+        boolean ok = true;
+        final AssertReportBuilder report = new AssertReportBuilder();
+        Object copy;
+
+        for (int i = 0; i < parameters.size(); i++) {
+            copy = parametersSnapshot.get(i);
+            if (copy != null) {
+                ok &= assertParameters(copy, parameters.get(i), report);
+            } else {
+                report.reportNoValidCopy(parameters.get(i));
+                ok = false;
+                break;
+            }
+        }
+
+        if (!ok) {
+            throw new AssertionError(report.getMessage());
+        }
+    }
+
+    /**
+     * Asserts all previously taken snapshots.
+     */
+    protected void assertSnapshots() {
+        assertDbState();
+        assertParametersState();
     }
 
     /**
@@ -245,18 +322,20 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         if (beforeAssertEntity.isAsserted()) {
             return true;
         }
-
+        // TODO
         if (afterEntity == null) {
             report.reportNoEntityFailure(beforeAssertEntity.getEntity().toString());
             return false;
-
         }
 
+        if (beforeAssertEntity.getEntity() == null) {
+            report.reportNoValidCopy(afterEntity);
+            return false;
+        }
+        //
         ids.add(beforeEntry.getKey());
 
-        final boolean assertResult = assertEntities(beforeAssertEntity.getEntity(), afterEntity, report);
-
-        return assertResult;
+        return assertEntities(beforeAssertEntity.getEntity(), afterEntity, report);
     }
 
     /**
@@ -331,6 +410,29 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     }
 
     /**
+     * Calls assertObjects of {@link AbstractExecomAssert} to assert two parameters.
+     * 
+     * @param beforeParameter
+     *            parameter from snapshot
+     * @param afterParameter
+     *            current parameter
+     * @param report
+     *            report builder
+     * @return <code>true</code> if parameters are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
+     *         <code>false</code> otherwise
+     */
+    boolean assertParameters(final Object beforeParameter, final Object afterParameter, final AssertReportBuilder report) {
+        try {
+            assertObjects(beforeParameter, afterParameter);
+            return true;
+        } catch (final AssertionError e) {
+            report.reportParametersAssertFail(beforeParameter, afterParameter);
+            report.append(e.getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Find all entities of type entity class in DB.
      * 
      * @param entityClass
@@ -369,7 +471,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             return (T) copyList(list);
         }
 
-        return createCopyObject(object);
+        return createCopyObject(object, new NodesList());
     }
 
     /**
@@ -393,11 +495,22 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            type of the object
      * @param object
      *            object for copying
+     * @param nodes
+     *            list of objects that had been copied
      * @return copied entity
      */
-    private <T> T createCopyObject(final T object) {
+    private <T> T createCopyObject(final T object, final NodesList nodes) {
 
-        final T copy = createEmptyCopyOf(object);
+        T copy = nodes.getExpected(object);
+        if (copy != null) {
+            return copy;
+        }
+
+        copy = createEmptyCopyOf(object);
+        if (copy == null) {
+            return copy;
+        }
+        nodes.addPair(copy, object);
 
         final Class<?> classObject = object.getClass();
         for (final Method method : classObject.getMethods()) {
@@ -405,8 +518,10 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             if (ReflectionUtil.isGetMethod(object.getClass(), method) && method.getParameterAnnotations().length == 0) {
                 final String propertyName = ReflectionUtil.getFieldName(method);
                 final Object propertyForCopying = getPropertyForCopying(object, method);
-                final Object copiedProperty = copyProperty(propertyForCopying);
-                invokeSetMethod(method, classObject, propertyName, copy, copiedProperty);
+                final Object copiedProperty = copyProperty(propertyForCopying, nodes);
+                if (!invokeSetMethod(method, classObject, propertyName, copy, copiedProperty)) {
+                    return null;
+                }
             }
         }
         return copy;
@@ -437,9 +552,11 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * 
      * @param propertyForCopying
      *            property for copying
+     * @param nodes
+     *            list of objects that had been copied
      * @return copied property
      */
-    Object copyProperty(final Object propertyForCopying) {
+    Object copyProperty(final Object propertyForCopying, final NodesList nodes) {
         if (propertyForCopying == null) {
             // its null we shouldn't do anything
             return null;
@@ -447,7 +564,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
 
         if (ReflectionUtil.isComplexType(propertyForCopying.getClass(), complexTypes)) {
             // its complex object, we need its copy
-            return createCopyObject(propertyForCopying);
+            return createCopyObject(propertyForCopying, nodes);
         }
 
         if (ReflectionUtil.isListType(propertyForCopying)) {
@@ -475,16 +592,20 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            copied parent object
      * @param copiedProperty
      *            copied property
+     * @return <code>true</code> if set method exists and it's successfully invoked, otherwise <code>false</code>.
      */
-    <T> void invokeSetMethod(final Method method, final Class<?> classObject, final String propertyName,
+    <T> boolean invokeSetMethod(final Method method, final Class<?> classObject, final String propertyName,
             final T object, final Object copiedProperty) {
         Method setMethod = null;
+
         try {
             setMethod = classObject.getMethod(SET_METHOD_PREFIX + StringUtils.capitalize(propertyName),
                     method.getReturnType());
             setMethod.invoke(object, copiedProperty);
+            return true;
         } catch (final Exception e) {
             fail(e.getMessage());
+            return false;
         }
     }
 

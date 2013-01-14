@@ -191,6 +191,29 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
+     * Test for validateEntry of {@link AbstractExecomRepositoryAssert} when specified element has no valid match in
+     * before entities.
+     */
+    @Test
+    public void testValidateEntryNoValidCopy() {
+        // setup
+        final List<Integer> ids = new ArrayList<Integer>();
+        final Map<Integer, CopyAssert<EntityTierOneType>> beforeEntities = new HashMap<Integer, CopyAssert<EntityTierOneType>>();
+        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(null);
+        beforeEntities.put(1, copyAssert);
+        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
+
+        boolean assertValue = false;
+        for (final Entry<Integer, CopyAssert<EntityTierOneType>> beforeEntry : beforeEntities.entrySet()) {
+            // method
+            assertValue = validateEntry(ids, beforeEntry, afterEntities, new AssertReportBuilder());
+        }
+
+        // assert
+        assertFalse(assertValue);
+    }
+
+    /**
      * Test for assertEntities of {@link AbstractExecomRepositoryAssert} when two entities are equal.
      */
     @Test
@@ -946,22 +969,4 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         assertEquals(a.getB().getC().getA().getProperty(), aCopy.getB().getC().getA().getProperty());
     }
 
-    /**
-     * Test for assertParametersState of {@link AbstractExecomRepositoryAssert} when before snapshot matches after
-     * parameters state.
-     */
-    // @Test
-    public void testAssertParametersStateCyclicTrue() {
-        // setup
-        final A a = new A();
-        a.setProperty(PROPERTY);
-        a.setB(new B(new C(a)));
-
-        takeSnapshot(a);
-
-        a.setProperty(TEST);
-
-        // method
-        assertParametersState();
-    }
 }

@@ -114,11 +114,11 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             final CopyAssert<EntityType> copyAssert = map.get(id);
             if (copyAssert != null) {
                 final EntityType expected = copyAssert.getEntity();
-                // TODO
                 if (expected != null) {
                     assertObjects(message, expected, actual, properties);
                 } else {
-                    // report.reportNoValidCopy();
+                    Assert.fail("There is no valid copy in snapshot for entity of class "
+                            + actual.getClass().getSimpleName());
                 }
             } else {
                 Assert.fail("Entity doesn't exist in snapshot  " + actual);
@@ -322,17 +322,17 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         if (beforeAssertEntity.isAsserted()) {
             return true;
         }
-        // TODO
-        if (afterEntity == null) {
-            report.reportNoEntityFailure(beforeAssertEntity.getEntity().toString());
-            return false;
-        }
 
         if (beforeAssertEntity.getEntity() == null) {
             report.reportNoValidCopy(afterEntity);
             return false;
         }
-        //
+
+        if (afterEntity == null) {
+            report.reportNoEntityFailure(beforeAssertEntity.getEntity().toString());
+            return false;
+        }
+
         ids.add(beforeEntry.getKey());
 
         return assertEntities(beforeAssertEntity.getEntity(), afterEntity, report);

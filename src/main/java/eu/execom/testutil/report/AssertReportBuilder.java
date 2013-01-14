@@ -476,7 +476,7 @@ public class AssertReportBuilder {
 
         final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
 
-        part.append(String.format(NO_VALID_COPY, original.getClass().getSimpleName()));
+        part.append(String.format(NO_VALID_COPY, original == null ? EMPTY_STRING : original.getClass().getSimpleName()));
         messageParts.add(failedMessagePosition, part.toString());
     }
 

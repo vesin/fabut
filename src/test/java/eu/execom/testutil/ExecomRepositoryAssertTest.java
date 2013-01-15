@@ -19,6 +19,7 @@ import eu.execom.testutil.model.C;
 import eu.execom.testutil.model.EntityTierOneType;
 import eu.execom.testutil.model.EntityTierThreeType;
 import eu.execom.testutil.model.EntityTierTwoType;
+import eu.execom.testutil.model.NoDefaultConstructorType;
 import eu.execom.testutil.model.NoGetMethodsType;
 import eu.execom.testutil.model.TierOneType;
 import eu.execom.testutil.model.TierTwoType;
@@ -878,7 +879,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
      * parameters state.
      */
     @Test
-    public void testAssertParametersStateTrue() {
+    public void testAssertParametersTrue() {
         // setup
         final EntityTierTwoType entity2 = new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
         final EntityTierThreeType entity3 = new EntityTierThreeType(TEST + TEST, 5, new EntityTierOneType(PROPERTY
@@ -892,7 +893,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         entity3.setSubProperty(new EntityTierOneType(PROPERTY + PROPERTY, 15));
 
         // method
-        assertParametersState();
+        assertParameters();
     }
 
     /**
@@ -900,7 +901,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
      * parameters state.
      */
     @Test(expected = AssertionError.class)
-    public void testAssertParametersStateFalse() {
+    public void testAssertParametersFalse() {
         // setup
         final EntityTierTwoType entity2 = new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
         final EntityTierThreeType entity3 = new EntityTierThreeType(TEST + TEST, 5, new EntityTierOneType(PROPERTY
@@ -914,7 +915,21 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         entity3.getSubProperty().setId(1);
 
         // method
-        assertParametersState();
+        assertParameters();
+    }
+
+    /**
+     * Test for {@link AbstractExecomRepositoryAssert#takeSnapshot(Object...)} when specified object has no default
+     * constructor.
+     */
+    @Test(expected = AssertionError.class)
+    public void testAssertParametersNullCopy() {
+        // setup
+        final NoDefaultConstructorType noDefaultConstructorType = new NoDefaultConstructorType(TEST);
+
+        // method
+        takeSnapshot(noDefaultConstructorType);
+        assertParameters();
     }
 
     /**

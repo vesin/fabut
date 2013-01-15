@@ -202,7 +202,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
                         new CopyAssert<EntityType>(createCopy(abstractEntity)));
             }
         }
-    };
+    }
 
     /**
      * Takes current parameters snapshot and original parameters, and saves them.
@@ -217,7 +217,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             this.parameters.add(object);
             parametersSnapshot.add(createCopy(object));
         }
-    };
+    }
 
     /**
      * Asserts current database snapshot with one previously taken.
@@ -237,7 +237,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Asserts current parameters states with snapshot previously taken.
      */
-    protected void assertParametersState() {
+    void assertParameters() {
         boolean ok = true;
         final AssertReportBuilder report = new AssertReportBuilder();
         Object copy;
@@ -245,13 +245,14 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         for (int i = 0; i < parameters.size(); i++) {
             copy = parametersSnapshot.get(i);
             if (copy != null) {
-                ok &= assertParameters(copy, parameters.get(i), report);
+                ok &= assertParameterPair(copy, parameters.get(i), report);
             } else {
                 report.reportNoValidCopy(parameters.get(i));
                 ok = false;
-                break;
             }
         }
+
+        initParametersSnapshot();
 
         if (!ok) {
             throw new AssertionError(report.getMessage());
@@ -263,7 +264,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      */
     protected void assertSnapshots() {
         assertDbState();
-        assertParametersState();
+        assertParameters();
     }
 
     /**
@@ -421,7 +422,8 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if parameters are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
      *         <code>false</code> otherwise
      */
-    boolean assertParameters(final Object beforeParameter, final Object afterParameter, final AssertReportBuilder report) {
+    boolean assertParameterPair(final Object beforeParameter, final Object afterParameter,
+            final AssertReportBuilder report) {
         try {
             assertObjects(beforeParameter, afterParameter);
             return true;
@@ -622,10 +624,8 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         try {
             return (T) object.getClass().getConstructor().newInstance();
         } catch (final Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+            return null;
         }
-        return null;
     }
 
 }

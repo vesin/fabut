@@ -481,16 +481,6 @@ public class AssertReportBuilder {
     }
 
     /**
-     * Get current depth value.
-     * 
-     * @return depth
-     */
-    public Integer getDepth() {
-
-        return assertDepth;
-    }
-
-    /**
      * Increase depth.
      */
     public void increaseDepth() {

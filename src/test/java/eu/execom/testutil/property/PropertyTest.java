@@ -19,7 +19,7 @@ public class PropertyTest extends AbstractExecomAssertTest {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperty multi = Property.ignored(properties);
+        final MultiProperty multi = PropertyFactory.ignored(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());
@@ -39,7 +39,7 @@ public class PropertyTest extends AbstractExecomAssertTest {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperty multi = Property.nulll(properties);
+        final MultiProperty multi = PropertyFactory.nulll(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());
@@ -59,7 +59,7 @@ public class PropertyTest extends AbstractExecomAssertTest {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperty multi = Property.notNull(properties);
+        final MultiProperty multi = PropertyFactory.notNull(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());

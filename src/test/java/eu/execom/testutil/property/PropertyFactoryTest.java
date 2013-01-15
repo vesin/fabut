@@ -10,6 +10,8 @@ import eu.execom.testutil.model.EntityTierOneType;
  */
 public class PropertyFactoryTest extends AbstractExecomAssertTest {
 
+    private static String TEST = "test";
+
     /**
      * Test for ignored when varargs are passed.
      */
@@ -70,4 +72,56 @@ public class PropertyFactoryTest extends AbstractExecomAssertTest {
         }
     }
 
+    /**
+     * Test for {@link PropertyFactory#notNull(String)}.
+     */
+    @Test
+    public void testNotNull() {
+        // method
+        final NotNullProperty notNullProperty = PropertyFactory.notNull(EntityTierOneType.PROPERTY);
+
+        // assert
+        assertTrue(notNullProperty instanceof NotNullProperty);
+        assertEquals(EntityTierOneType.PROPERTY, notNullProperty.getPath());
+    }
+
+    /**
+     * Test for {@link PropertyFactory#nulll(String)}.
+     */
+    @Test
+    public void testNulll() {
+        // method
+        final NullProperty nullProperty = PropertyFactory.nulll(EntityTierOneType.PROPERTY);
+
+        // assert
+        assertTrue(nullProperty instanceof NullProperty);
+        assertEquals(EntityTierOneType.PROPERTY, nullProperty.getPath());
+    }
+
+    /**
+     * Test for {@link PropertyFactory#ignored(String)}.
+     */
+    @Test
+    public void testIgnored() {
+        // method
+        final IgnoreProperty ignoreProperty = PropertyFactory.ignored(EntityTierOneType.PROPERTY);
+
+        // assert
+        assertTrue(ignoreProperty instanceof IgnoreProperty);
+        assertEquals(EntityTierOneType.PROPERTY, ignoreProperty.getPath());
+    }
+
+    /**
+     * Test for {@link PropertyFactory#changed(String, Object)}
+     */
+    @Test
+    public void testChanged() {
+        // method
+        final ChangedProperty<String> changedProperty = PropertyFactory.changed(EntityTierOneType.PROPERTY, TEST);
+
+        // assert
+        assertTrue(changedProperty instanceof ChangedProperty<?>);
+        assertEquals(TEST, changedProperty.getExpectedValue());
+        assertEquals(EntityTierOneType.PROPERTY, changedProperty.getPath());
+    }
 }

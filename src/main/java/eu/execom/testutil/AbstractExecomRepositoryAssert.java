@@ -76,29 +76,9 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     }
 
     @Override
-    protected final <X> void afterAssertEntity(final X object, final boolean isProperty) {
-        if (ReflectionUtil.isEntityType(object.getClass(), entityTypes) && !isProperty
-                && ReflectionUtil.getIdValue((EntityType) object) != null) {
-            markAsserted((EntityType) object);
-        }
-    };
-
-    Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> getDbSnapshot() {
-        return dbSnapshot;
-    }
-
-    List<Object> getParameters() {
-        return parameters;
-    }
-
-    List<Object> getParametersSnapshot() {
-        return parametersSnapshot;
-    }
-
-    @Override
     public <X extends EntityType> void assertEntityWithSnapshot(final X actual, final ISingleProperty... properties) {
         assertEntityWithSnapshot(EMPTY_STRING, actual, properties);
-    };
+    }
 
     @Override
     public <X extends EntityType> void assertEntityWithSnapshot(final String message, final X actual,
@@ -127,25 +107,35 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
             Assert.fail("Type of entity is not supported  " + actual.getClass());
         }
 
-    };
+    }
 
-    /**
-     * Initialize database snapshot.
-     */
-    private void initDbSnapshot() {
-        dbSnapshot.clear();
-        for (final Class<?> entityType : entityTypes) {
-            getDbSnapshot().put(entityType, new HashMap<EntityId, CopyAssert<EntityType>>());
+    @Override
+    protected final <X> void afterAssertEntity(final X object, final boolean isProperty) {
+        if (ReflectionUtil.isEntityType(object.getClass(), entityTypes) && !isProperty
+                && ReflectionUtil.getIdValue((EntityType) object) != null) {
+            markAsserted((EntityType) object);
         }
     }
 
     /**
-     * Initialize parameters snapshot.
+     * Find all entities of type entity class in DB.
+     * 
+     * @param entityClass
+     *            the entity class
+     * @return the list
      */
-    private void initParametersSnapshot() {
-        parameters.clear();
-        parametersSnapshot.clear();
-    }
+    protected abstract List<?> findAll(Class<?> entityClass);
+
+    /**
+     * Find specific entity of type entity class and with specific id in DB.
+     * 
+     * @param entityClass
+     *            the entity class
+     * @param id
+     *            the id
+     * @return the entity type
+     */
+    protected abstract EntityType findById(Class<?> entityClass, EntityId id);
 
     /**
      * Mark entity bean as asserted.
@@ -235,31 +225,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     }
 
     /**
-     * Asserts current parameters states with snapshot previously taken.
-     */
-    void assertParameters() {
-        boolean ok = true;
-        final AssertReportBuilder report = new AssertReportBuilder();
-        Object copy;
-
-        for (int i = 0; i < parameters.size(); i++) {
-            copy = parametersSnapshot.get(i);
-            if (copy != null) {
-                ok &= assertParameterPair(copy, parameters.get(i), report);
-            } else {
-                report.reportNoValidCopy(parameters.get(i));
-                ok = false;
-            }
-        }
-
-        initParametersSnapshot();
-
-        if (!ok) {
-            throw new AssertionError(report.getMessage());
-        }
-    }
-
-    /**
      * Asserts all previously taken snapshots.
      */
     protected void assertSnapshots() {
@@ -294,6 +259,43 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         ok &= removeAfterEntitites(ids, afterEntities);
         report.reportEntityIsntAsserted(afterEntities);
         return ok;
+    }
+
+    /**
+     * Asserts current parameters states with snapshot previously taken.
+     */
+    void assertParameters() {
+        boolean ok = true;
+        final AssertReportBuilder report = new AssertReportBuilder();
+        Object copy;
+
+        for (int i = 0; i < parameters.size(); i++) {
+            copy = parametersSnapshot.get(i);
+            if (copy != null) {
+                ok &= assertParameterPair(copy, parameters.get(i), report);
+            } else {
+                report.reportNoValidCopy(parameters.get(i));
+                ok = false;
+            }
+        }
+
+        initParametersSnapshot();
+
+        if (!ok) {
+            throw new AssertionError(report.getMessage());
+        }
+    }
+
+    Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> getDbSnapshot() {
+        return dbSnapshot;
+    }
+
+    List<Object> getParameters() {
+        return parameters;
+    }
+
+    List<Object> getParametersSnapshot() {
+        return parametersSnapshot;
     }
 
     /**
@@ -435,26 +437,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     }
 
     /**
-     * Find all entities of type entity class in DB.
-     * 
-     * @param entityClass
-     *            the entity class
-     * @return the list
-     */
-    protected abstract List<?> findAll(Class<?> entityClass);
-
-    /**
-     * Find specific entity of type entity class and with specific id in DB.
-     * 
-     * @param entityClass
-     *            the entity class
-     * @param id
-     *            the id
-     * @return the entity type
-     */
-    protected abstract EntityType findById(Class<?> entityClass, EntityId id);
-
-    /**
      * Create copy of specified object and return its copy.
      * 
      * @param <T>
@@ -487,46 +469,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      */
     <T> List<T> copyList(final List<T> list) {
         return new ArrayList<T>(list);
-    }
-
-    /**
-     * Creates a copy of specified object by creating instance with reflection and fills it using get and set method of
-     * a class.
-     * 
-     * @param <T>
-     *            type of the object
-     * @param object
-     *            object for copying
-     * @param nodes
-     *            list of objects that had been copied
-     * @return copied entity
-     */
-    private <T> T createCopyObject(final T object, final NodesList nodes) {
-
-        T copy = nodes.getExpected(object);
-        if (copy != null) {
-            return copy;
-        }
-
-        copy = createEmptyCopyOf(object);
-        if (copy == null) {
-            return copy;
-        }
-        nodes.addPair(copy, object);
-
-        final Class<?> classObject = object.getClass();
-        for (final Method method : classObject.getMethods()) {
-
-            if (ReflectionUtil.isGetMethod(object.getClass(), method) && method.getParameterAnnotations().length == 0) {
-                final String propertyName = ReflectionUtil.getFieldName(method);
-                final Object propertyForCopying = getPropertyForCopying(object, method);
-                final Object copiedProperty = copyProperty(propertyForCopying, nodes);
-                if (!invokeSetMethod(method, classObject, propertyName, copy, copiedProperty)) {
-                    return null;
-                }
-            }
-        }
-        return copy;
     }
 
     /**
@@ -628,4 +570,61 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         }
     }
 
+    /**
+     * Creates a copy of specified object by creating instance with reflection and fills it using get and set method of
+     * a class.
+     * 
+     * @param <T>
+     *            type of the object
+     * @param object
+     *            object for copying
+     * @param nodes
+     *            list of objects that had been copied
+     * @return copied entity
+     */
+    private <T> T createCopyObject(final T object, final NodesList nodes) {
+
+        T copy = nodes.getExpected(object);
+        if (copy != null) {
+            return copy;
+        }
+
+        copy = createEmptyCopyOf(object);
+        if (copy == null) {
+            return copy;
+        }
+        nodes.addPair(copy, object);
+
+        final Class<?> classObject = object.getClass();
+        for (final Method method : classObject.getMethods()) {
+
+            if (ReflectionUtil.isGetMethod(object.getClass(), method) && method.getParameterAnnotations().length == 0) {
+                final String propertyName = ReflectionUtil.getFieldName(method);
+                final Object propertyForCopying = getPropertyForCopying(object, method);
+                final Object copiedProperty = copyProperty(propertyForCopying, nodes);
+                if (!invokeSetMethod(method, classObject, propertyName, copy, copiedProperty)) {
+                    return null;
+                }
+            }
+        }
+        return copy;
+    }
+
+    /**
+     * Initialize database snapshot.
+     */
+    private void initDbSnapshot() {
+        dbSnapshot.clear();
+        for (final Class<?> entityType : entityTypes) {
+            getDbSnapshot().put(entityType, new HashMap<EntityId, CopyAssert<EntityType>>());
+        }
+    }
+
+    /**
+     * Initialize parameters snapshot.
+     */
+    private void initParametersSnapshot() {
+        parameters.clear();
+        parametersSnapshot.clear();
+    }
 }

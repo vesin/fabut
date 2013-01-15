@@ -3,7 +3,7 @@
  */
 package eu.execom.testutil;
 
-import eu.execom.testutil.property.IProperty;
+import eu.execom.testutil.property.ISingleProperty;
 
 /**
  * The Interface ExecomRepositoryAssert.
@@ -45,7 +45,7 @@ public interface ExecomRepositoryAssert<EntityType, EntityIdType> extends Entity
      * @param properties
      *            the properties
      */
-    <X extends EntityType> void assertEntityWithSnapshot(final X expected, final IProperty... properties);
+    <X extends EntityType> void assertEntityWithSnapshot(final X expected, final ISingleProperty... properties);
 
     /**
      * Assert entity with its state from snapshot using specified array of properties.
@@ -59,6 +59,6 @@ public interface ExecomRepositoryAssert<EntityType, EntityIdType> extends Entity
      * @param properties
      *            the properties
      */
-    <X extends EntityType> void assertEntityWithSnapshot(String message, final X actual, final IProperty... properties);
+    <X extends EntityType> void assertEntityWithSnapshot(String message, final X actual, final ISingleProperty... properties);
 
 }

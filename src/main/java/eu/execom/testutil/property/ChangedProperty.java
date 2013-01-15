@@ -37,7 +37,7 @@ public class ChangedProperty<T> extends Property {
     }
 
     @Override
-    public IProperty getCopy() {
+    public ISingleProperty getCopy() {
         return new ChangedProperty<T>(getPath(), expectedValue);
     }
 }

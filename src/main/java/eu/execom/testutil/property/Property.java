@@ -8,7 +8,7 @@ package eu.execom.testutil.property;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class Property implements IProperty {
+public abstract class Property implements ISingleProperty {
 
     private String path;
 
@@ -40,57 +40,8 @@ public abstract class Property implements IProperty {
 
     @Override
     public boolean equals(final Object obj) {
-        final IProperty property = (IProperty) obj;
+        final ISingleProperty property = (ISingleProperty) obj;
         return path.equalsIgnoreCase(property.getPath());
-    }
-
-    /**
-     * Create {@link ChangedProperty} with provided parameters.
-     * 
-     * @param path
-     *            property path.
-     * @param expectedValue
-     *            expected values
-     * @return created object.
-     * 
-     * @param <T>
-     *            generic type
-     */
-    public static <T> ChangedProperty<T> changed(final String path, final T expectedValue) {
-        return new ChangedProperty<T>(path, expectedValue);
-    }
-
-    /**
-     * Create {@link IgnoreProperty} with provided parameters.
-     * 
-     * @param path
-     *            property path.
-     * @return created object.
-     */
-    public static IgnoreProperty ignored(final String path) {
-        return new IgnoreProperty(path);
-    }
-
-    /**
-     * Create {@link NotNullProperty} with provided parameters.
-     * 
-     * @param path
-     *            property path.
-     * @return created object.
-     */
-    public static NotNullProperty notNull(final String path) {
-        return new NotNullProperty(path);
-    }
-
-    /**
-     * Create {@link NullProperty} with provided parameters.
-     * 
-     * @param path
-     *            property path.
-     * @return created object.
-     */
-    public static NullProperty nulll(final String path) {
-        return new NullProperty(path);
     }
 
 }

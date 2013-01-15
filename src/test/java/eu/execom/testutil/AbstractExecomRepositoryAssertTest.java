@@ -3,6 +3,9 @@ package eu.execom.testutil;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.execom.testutil.model.A;
+import eu.execom.testutil.model.B;
+import eu.execom.testutil.model.C;
 import eu.execom.testutil.model.EntityTierOneType;
 import eu.execom.testutil.model.EntityTierTwoType;
 import eu.execom.testutil.model.Type;
@@ -24,6 +27,9 @@ public abstract class AbstractExecomRepositoryAssertTest extends AbstractExecomR
     protected void initComplexTypes(final List<Class<?>> complexTypes) {
         complexTypes.add(EntityTierTwoType.class);
         complexTypes.add(EntityTierOneType.class);
+        complexTypes.add(A.class);
+        complexTypes.add(B.class);
+        complexTypes.add(C.class);
     }
 
     @Override

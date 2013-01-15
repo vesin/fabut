@@ -15,6 +15,12 @@ public class C {
 
     /**
      * Instantiates a new c.
+     */
+    public C() {
+    }
+
+    /**
+     * Instantiates a new c.
      * 
      * @param a
      *            the a

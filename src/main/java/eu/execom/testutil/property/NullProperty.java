@@ -21,7 +21,7 @@ public class NullProperty extends Property {
     }
 
     @Override
-    public IProperty getCopy() {
+    public ISingleProperty getCopy() {
         return new NullProperty(getPath());
     }
 

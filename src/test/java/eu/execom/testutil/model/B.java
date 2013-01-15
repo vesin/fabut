@@ -15,6 +15,12 @@ public class B {
 
     /**
      * Instantiates a new b.
+     */
+    public B() {
+    }
+
+    /**
+     * Instantiates a new b.
      * 
      * @param c
      *            the c

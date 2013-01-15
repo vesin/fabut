@@ -15,11 +15,13 @@ import eu.execom.testutil.enums.NodeCheckType;
 import eu.execom.testutil.enums.ReferenceCheckType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.property.ChangedProperty;
+import eu.execom.testutil.property.IMultiProperty;
 import eu.execom.testutil.property.IProperty;
+import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.property.IgnoreProperty;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
-import eu.execom.testutil.property.Property;
+import eu.execom.testutil.property.PropertyFactory;
 import eu.execom.testutil.report.AssertReportBuilder;
 import eu.execom.testutil.util.ConversionUtil;
 import eu.execom.testutil.util.ReflectionUtil;
@@ -86,12 +88,12 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
 
     @Override
     public <X> void assertObjects(final String message, final X expected, final X actual, final IProperty... excludes) {
-        assertObjects(message, expected, actual, ConversionUtil.createListFromArray(excludes));
+        assertObjects(message, expected, actual, ConversionUtil.createListFromArray(extractProperties(excludes)));
     }
 
     @Override
     public <X> void assertObjects(final String message, final X expected, final X actual,
-            final List<IProperty> excludedProperties) {
+            final List<ISingleProperty> excludedProperties) {
         final AssertReportBuilder report = new AssertReportBuilder(message);
         if (!(isSameInstance(expected, actual) || assertChangedProperty(EMPTY_STRING, report, expected, actual,
                 excludedProperties, new NodesList(), false))) {
@@ -108,7 +110,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     @Override
     public <X> void assertObject(final String message, final X actual, final IProperty... excludes) {
         final AssertReportBuilder report = new AssertReportBuilder(message);
-        if (!preAssertObjectWithProperties(report, actual, ConversionUtil.createListFromArray(excludes))) {
+        if (!preAssertObjectWithProperties(report, actual,
+                ConversionUtil.createListFromArray(extractProperties(excludes)))) {
             throw new AssertionError(report.getMessage());
         }
         afterAssertObject(actual, false);
@@ -141,6 +144,30 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     /**
+     * Init list of entity types.
+     * 
+     * @param entityTypes
+     *            list of entity types
+     */
+    protected abstract void initEntityList(List<Class<?>> entityTypes);
+
+    /**
+     * Init list of complex types.
+     * 
+     * @param complexTypes
+     *            list of complex types
+     */
+    protected abstract void initComplexTypes(List<Class<?>> complexTypes);
+
+    /**
+     * Init list of ignored types.
+     * 
+     * @param ignoredTypes
+     *            list of ignored types
+     */
+    protected abstract void initIgnoredTypes(List<Class<?>> ignoredTypes);
+
+    /**
      * Checks if list asserting can be performed and does asserting if it can be performed.
      * 
      * @param <X>
@@ -164,7 +191,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         }
 
         nodesList.addPair(expected, actual);
-        return assertList(EMPTY_STRING, report, expected, actual, new ArrayList<IProperty>(), nodesList, false);
+        return assertList(EMPTY_STRING, report, expected, actual, new ArrayList<ISingleProperty>(), nodesList, false);
     }
 
     /**
@@ -183,14 +210,19 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      *         <code>false</code> otherwise.
      */
     <X> boolean preAssertObjectWithProperties(final AssertReportBuilder report, final X actual,
-            final List<IProperty> properties) {
+            final List<ISingleProperty> properties) {
+
+        if (actual == null) {
+            report.addNullReferenceAssertComment();
+            return false;
+        }
 
         final List<Method> methods = ReflectionUtil.getObjectGetMethods(actual, complexTypes, entityTypes);
 
         boolean assertResult = true;
         for (final Method method : methods) {
             final String fieldName = ReflectionUtil.getFieldName(method);
-            final IProperty property = getPropertyFromList(fieldName, properties);
+            final ISingleProperty property = getPropertyFromList(fieldName, properties);
 
             if (property == null) {
                 // there is no matching property for field, log that in report,
@@ -234,7 +266,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      * @return <code>true</code> if actual and expected are null or fully asserted, <code>false</code> otherwise.
      */
     <X> boolean assertBySubproperty(final String propertyName, final AssertReportBuilder report, final X expected,
-            final X actual, final List<IProperty> properties, final NodesList nodesList) {
+            final X actual, final List<ISingleProperty> properties, final NodesList nodesList) {
 
         final ReferenceCheckType referenceCheckType = referenceCheck(report, expected, actual, propertyName);
         if (referenceCheckType != ReferenceCheckType.COMPLEX_ASSERT) {
@@ -256,7 +288,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         for (final Method expectedGetMethod : getMethods) {
             try {
                 final String fieldName = ReflectionUtil.getFieldName(expectedGetMethod);
-                final IProperty property = obtainProperty(expectedGetMethod.invoke(expected), fieldName, properties);
+                final ISingleProperty property = obtainProperty(expectedGetMethod.invoke(expected), fieldName,
+                        properties);
                 final Method actualGetMethod = ReflectionUtil.getObjectGetMethodNamed(expectedGetMethod.getName(),
                         actual);
                 // get actual field value by invoking its get method via
@@ -296,9 +329,9 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      *            is actual property, important for entities
      * @return - <code>true</code> if object is asserted with expected property, <code>false</code> otherwise.
      */
-    <X> boolean assertProperties(final String propertyName, final AssertReportBuilder report, final IProperty expected,
-            final X actual, final String fieldName, final List<IProperty> properties, final NodesList nodesList,
-            final boolean isProperty) {
+    <X> boolean assertProperties(final String propertyName, final AssertReportBuilder report,
+            final ISingleProperty expected, final X actual, final String fieldName,
+            final List<ISingleProperty> properties, final NodesList nodesList, final boolean isProperty) {
 
         removeParentQualificationForProperties(fieldName, properties);
 
@@ -353,7 +386,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      * @return <code>true</code> if actual object is asserted to expected object, <code>false</code> otherwise.
      */
     <X> boolean assertChangedProperty(final String propertyName, final AssertReportBuilder report, final X expected,
-            final X actual, final List<IProperty> excludedProperties, final NodesList nodesList,
+            final X actual, final List<ISingleProperty> excludedProperties, final NodesList nodesList,
             final boolean isProperty) {
         // assert ignored types
         if (ReflectionUtil.isIgnoredType(expected, actual, ignoredTypes)) {
@@ -445,13 +478,14 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      *         from actual list with index <em>i</em>, <code>false</code> otherwise.
      */
     <X> boolean assertList(final String propertyName, final AssertReportBuilder report, final List<X> expected,
-            final List<X> actual, final List<IProperty> properties, final NodesList nodesList, final boolean isProperty) {
+            final List<X> actual, final List<ISingleProperty> properties, final NodesList nodesList,
+            final boolean isProperty) {
 
         // check sizes
         final int expectedSize = expected.size();
         final int actualSize = actual.size();
         if (expectedSize != actualSize) {
-            report.addListDifferentSizeComment(expectedSize, actualSize);
+            report.addListDifferentSizeComment(propertyName, expectedSize, actualSize);
             return false;
         }
 
@@ -463,7 +497,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
             report.reportAssertingListElement(propertyName, i);
             final X expectedElement = expected.get(i);
             final X actualElement = actual.get(i);
-            final IProperty property = obtainProperty(expectedElement, EMPTY_STRING, properties);
+            final ISingleProperty property = obtainProperty(expectedElement, EMPTY_STRING, properties);
             assertResult &= assertProperties(EMPTY_STRING, report, property, actualElement, EMPTY_STRING, properties,
                     nodesList, false);
             afterAssertObject(actual, isProperty);
@@ -515,11 +549,11 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      *            list of excluded properties
      * @return List of properties without specified parent property name
      */
-    List<IProperty> removeParentQualificationForProperties(final String parentPropertyName,
-            final List<IProperty> properties) {
+    List<ISingleProperty> removeParentQualificationForProperties(final String parentPropertyName,
+            final List<ISingleProperty> properties) {
 
         final String parentPrefix = parentPropertyName + DOT;
-        for (final IProperty property : properties) {
+        for (final ISingleProperty property : properties) {
             final String path = StringUtils.removeStart(property.getPath(), parentPrefix);
             property.setPath(path);
         }
@@ -527,8 +561,8 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     /**
-     * Obtains property by following rules: if there is {@link IProperty} in the list of properties matching path with
-     * fieldName, it removes it from the list and returns it. Otherwise, it makes new {@link ChangedProperty} with
+     * Obtains property by following rules: if there is {@link ISingleProperty} in the list of properties matching path
+     * with fieldName, it removes it from the list and returns it. Otherwise, it makes new {@link ChangedProperty} with
      * fieldName as path and value of field.
      * 
      * @param <X>
@@ -541,12 +575,12 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      *            list of excluded properties
      * @return generated property
      */
-    <X> IProperty obtainProperty(final X field, final String propertyPath, final List<IProperty> properties) {
-        final IProperty property = getPropertyFromList(propertyPath, properties);
+    <X> ISingleProperty obtainProperty(final X field, final String propertyPath, final List<ISingleProperty> properties) {
+        final ISingleProperty property = getPropertyFromList(propertyPath, properties);
         if (property != null) {
             return property;
         }
-        return Property.changed(propertyPath, field);
+        return PropertyFactory.changed(propertyPath, field);
     }
 
     /**
@@ -556,14 +590,14 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      *            property path
      * @param properties
      *            list of properties
-     * @return {@link IProperty} if there is property with same path as specified in list of properties,
+     * @return {@link ISingleProperty} if there is property with same path as specified in list of properties,
      *         <code>null</code> otherwise
      */
-    IProperty getPropertyFromList(final String propertyPath, final List<IProperty> properties) {
+    ISingleProperty getPropertyFromList(final String propertyPath, final List<ISingleProperty> properties) {
 
-        final Iterator<IProperty> iterator = properties.iterator();
+        final Iterator<ISingleProperty> iterator = properties.iterator();
         while (iterator.hasNext()) {
-            final IProperty property = iterator.next();
+            final ISingleProperty property = iterator.next();
             if (property.getPath().equalsIgnoreCase(propertyPath)) {
                 iterator.remove();
                 return property;
@@ -636,27 +670,24 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     /**
-     * Init list of entity types.
+     * Extract properties and merge them into an array.
      * 
-     * @param entityTypes
-     *            list of entity types
+     * @param properties
+     *            array/arrays of properties
      */
-    protected abstract void initEntityList(List<Class<?>> entityTypes);
+    ISingleProperty[] extractProperties(final IProperty... properties) {
+        final ArrayList<ISingleProperty> list = new ArrayList<ISingleProperty>();
 
-    /**
-     * Init list of complex types.
-     * 
-     * @param complexTypes
-     *            list of complex types
-     */
-    protected abstract void initComplexTypes(List<Class<?>> complexTypes);
+        for (final IProperty property : properties) {
+            if (property instanceof ISingleProperty) {
+                list.add((ISingleProperty) property);
+            } else {
+                list.addAll(((IMultiProperty) property).getProperties());
+            }
+        }
 
-    /**
-     * Init list of ignored types.
-     * 
-     * @param ignoredTypes
-     *            list of ignored types
-     */
-    protected abstract void initIgnoredTypes(List<Class<?>> ignoredTypes);
+        final ISingleProperty[] array = new ISingleProperty[list.size()];
+        return list.toArray(array);
+    }
 
 }

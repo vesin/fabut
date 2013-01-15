@@ -12,16 +12,21 @@ import junit.framework.AssertionFailedError;
 
 import org.junit.Test;
 
+import eu.execom.testutil.graph.NodesList;
+import eu.execom.testutil.model.A;
+import eu.execom.testutil.model.B;
+import eu.execom.testutil.model.C;
 import eu.execom.testutil.model.EntityTierOneType;
 import eu.execom.testutil.model.EntityTierThreeType;
 import eu.execom.testutil.model.EntityTierTwoType;
+import eu.execom.testutil.model.NoDefaultConstructorType;
 import eu.execom.testutil.model.NoGetMethodsType;
 import eu.execom.testutil.model.TierOneType;
 import eu.execom.testutil.model.TierTwoType;
 import eu.execom.testutil.model.Type;
 import eu.execom.testutil.model.UnknownEntityType;
 import eu.execom.testutil.model.UnknownType;
-import eu.execom.testutil.property.Property;
+import eu.execom.testutil.property.PropertyFactory;
 import eu.execom.testutil.report.AssertReportBuilder;
 import eu.execom.testutil.util.ReflectionUtil;
 
@@ -173,6 +178,29 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         final Map<Integer, CopyAssert<EntityTierOneType>> beforeEntities = new HashMap<Integer, CopyAssert<EntityTierOneType>>();
         final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(new EntityTierOneType(TEST,
                 1));
+        beforeEntities.put(1, copyAssert);
+        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
+
+        boolean assertValue = false;
+        for (final Entry<Integer, CopyAssert<EntityTierOneType>> beforeEntry : beforeEntities.entrySet()) {
+            // method
+            assertValue = validateEntry(ids, beforeEntry, afterEntities, new AssertReportBuilder());
+        }
+
+        // assert
+        assertFalse(assertValue);
+    }
+
+    /**
+     * Test for validateEntry of {@link AbstractExecomRepositoryAssert} when specified element has no valid match in
+     * before entities.
+     */
+    @Test
+    public void testValidateEntryNoValidCopy() {
+        // setup
+        final List<Integer> ids = new ArrayList<Integer>();
+        final Map<Integer, CopyAssert<EntityTierOneType>> beforeEntities = new HashMap<Integer, CopyAssert<EntityTierOneType>>();
+        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(null);
         beforeEntities.put(1, copyAssert);
         final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
 
@@ -581,7 +609,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     @Test
     public void testCopyPropertyNull() {
         // method
-        final Object copy = copyProperty(null);
+        final Object copy = copyProperty(null, null);
 
         // assert
         assertNull(copy);
@@ -595,7 +623,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     public void testCopyPropertyComplexType() {
         // method
         final EntityTierTwoType copy = (EntityTierTwoType) copyProperty(new EntityTierTwoType(TEST, 1,
-                new EntityTierOneType(PROPERTY, 2)));
+                new EntityTierOneType(PROPERTY, 2)), new NodesList());
 
         // assert
         assertNotNull(copy);
@@ -616,7 +644,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         list.add(TEST);
 
         // method
-        final List<String> copy = (List<String>) copyProperty(list);
+        final List<String> copy = (List<String>) copyProperty(list, null);
 
         // assert
         assertNotNull(copy);
@@ -634,7 +662,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         final UnknownType unknownType = new UnknownType();
 
         // method
-        final UnknownType copy = (UnknownType) copyProperty(unknownType);
+        final UnknownType copy = (UnknownType) copyProperty(unknownType, null);
 
         // assert
         assertEquals(unknownType, copy);
@@ -673,7 +701,6 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
 
         // assert
         assertNull(property);
-
     }
 
     /**
@@ -844,7 +871,117 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         // method
         takeSnapshot();
         expected.setProperty(TEST + TEST);
-        assertEntityWithSnapshot(expected, Property.changed(EntityTierOneType.PROPERTY, TEST + TEST));
+        assertEntityWithSnapshot(expected, PropertyFactory.changed(EntityTierOneType.PROPERTY, TEST + TEST));
+    }
+
+    /**
+     * Test for assertParametersState of {@link AbstractExecomRepositoryAssert} when before snapshot matches after
+     * parameters state.
+     */
+    @Test
+    public void testAssertParametersTrue() {
+        // setup
+        final EntityTierTwoType entity2 = new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
+        final EntityTierThreeType entity3 = new EntityTierThreeType(TEST + TEST, 5, new EntityTierOneType(PROPERTY
+                + PROPERTY, 15));
+
+        takeSnapshot(entity2, entity3);
+
+        entity2.setId(new Integer(1));
+        entity2.setProperty(TEST);
+        entity2.getSubProperty().setId(new Integer(10));
+        entity3.setSubProperty(new EntityTierOneType(PROPERTY + PROPERTY, 15));
+
+        // method
+        assertParameters();
+    }
+
+    /**
+     * Test for assertParametersState of {@link AbstractExecomRepositoryAssert} when before snapshot doesn't match after
+     * parameters state.
+     */
+    @Test(expected = AssertionError.class)
+    public void testAssertParametersFalse() {
+        // setup
+        final EntityTierTwoType entity2 = new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
+        final EntityTierThreeType entity3 = new EntityTierThreeType(TEST + TEST, 5, new EntityTierOneType(PROPERTY
+                + PROPERTY, 15));
+
+        takeSnapshot(entity2, entity3);
+
+        entity2.setId(new Integer(2));
+        entity2.getSubProperty().setId(new Integer(15));
+        entity3.setProperty(TEST);
+        entity3.getSubProperty().setId(1);
+
+        // method
+        assertParameters();
+    }
+
+    /**
+     * Test for {@link AbstractExecomRepositoryAssert#takeSnapshot(Object...)} when specified object has no default
+     * constructor.
+     */
+    @Test(expected = AssertionError.class)
+    public void testAssertParametersNullCopy() {
+        // setup
+        final NoDefaultConstructorType noDefaultConstructorType = new NoDefaultConstructorType(TEST);
+
+        // method
+        takeSnapshot(noDefaultConstructorType);
+        assertParameters();
+    }
+
+    /**
+     * Test for takeSnapshot with varargs if it initializes snapshot properly.
+     */
+    @Test
+    public void testTakeSnapshotWithVarargs() {
+        // setup
+        final EntityTierTwoType entity2 = new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
+        final EntityTierThreeType entity3 = new EntityTierThreeType(TEST + TEST, 5, new EntityTierOneType(PROPERTY
+                + PROPERTY, 15));
+
+        // method
+        takeSnapshot(entity2, entity3);
+        final List<Object> parameters = getParameters();
+        final List<Object> parametersSnapshot = getParametersSnapshot();
+
+        // assert
+        assertEquals(parameters.size(), parametersSnapshot.size());
+        assertTrue(parametersSnapshot.get(0) instanceof EntityTierTwoType);
+        assertTrue(parametersSnapshot.get(1) instanceof EntityTierThreeType);
+
+        final EntityTierTwoType assertEntity2 = (EntityTierTwoType) parametersSnapshot.get(0);
+        assertEquals(1, assertEntity2.getId());
+        assertEquals(TEST, assertEntity2.getProperty());
+        assertEquals(new Integer(10), assertEntity2.getSubProperty().getId());
+        assertEquals(PROPERTY, assertEntity2.getSubProperty().getProperty());
+
+        final EntityTierThreeType assertEntity3 = (EntityTierThreeType) parametersSnapshot.get(1);
+        assertEquals(5, assertEntity3.getId());
+        assertEquals(TEST + TEST, assertEntity3.getProperty());
+        assertEquals(new Integer(15), assertEntity3.getSubProperty().getId());
+        assertEquals(PROPERTY + PROPERTY, assertEntity3.getSubProperty().getProperty());
+    }
+
+    /**
+     * Test for createCopy if it properly handles cyclic object references.
+     */
+    @Test
+    public void testCreateCopyCyclic() {
+        // setup
+        final A a = new A();
+        a.setProperty(PROPERTY);
+        a.setB(new B(new C(a)));
+
+        // method
+        final A aCopy = createCopy(a);
+
+        // assert
+        assertEquals(aCopy, aCopy.getB().getC().getA());
+        assertEquals(a.getProperty(), aCopy.getProperty());
+        assertEquals(a.getB().getC().getA().getProperty(), aCopy.getB().getC().getA().getProperty());
     }
 
 }

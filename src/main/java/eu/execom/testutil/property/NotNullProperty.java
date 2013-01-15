@@ -21,7 +21,7 @@ public class NotNullProperty extends Property {
     }
 
     @Override
-    public IProperty getCopy() {
+    public ISingleProperty getCopy() {
         return new NotNullProperty(getPath());
     }
 }

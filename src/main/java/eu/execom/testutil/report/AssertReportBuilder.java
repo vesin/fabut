@@ -41,6 +41,9 @@ public class AssertReportBuilder {
     private static final String REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED = "-> Entity %s is created in system after "
             + "last snapshot but hasnt been asserted in test.";
     private static final String REPOSITORY_ENTITY_ASSERT_FAIL = "-> Expected entity: <<%s>> but was: <<%s>>, of %s.";
+    private static final String NULL_REFERENCE_ASSERT = "Trying to assert null object reference.";
+    private static final String PARAMETERS_ASSERT_FAIL = "-> Expected parameter: <<%s>> but was: <<%s>>, of %s.";
+    private static final String NO_VALID_COPY = "There is no public default constructor, or there is no matching public set method for field which have corresponding get method, in class: %s.";
 
     private final StringBuilder builder;
     private Integer assertDepth;
@@ -174,14 +177,16 @@ public class AssertReportBuilder {
     /**
      * Reports fail due to different list sizes.
      * 
+     * @param propertyName
+     *            name of list property
      * @param expectedSize
      *            - expected list's size
      * @param actualSize
      *            - actual list's size
      */
-    public void addListDifferentSizeComment(final int expectedSize, final int actualSize) {
+    public void addListDifferentSizeComment(final String propertyName, final int expectedSize, final int actualSize) {
 
-        addComment(EMPTY_STRING, LIST_SIZE, expectedSize, actualSize, CommentType.FAIL);
+        addComment(propertyName, LIST_SIZE, expectedSize, actualSize, CommentType.FAIL);
     }
 
     /**
@@ -412,6 +417,20 @@ public class AssertReportBuilder {
     }
 
     /**
+     * Reports fail due to passing null object reference for asserting.
+     * 
+     * @param actual
+     *            object reference for asserting
+     */
+    public void addNullReferenceAssertComment() {
+
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
+
+        part.append(String.format(NULL_REFERENCE_ASSERT));
+        messageParts.add(failedMessagePosition, part.toString());
+    }
+
+    /**
      * Indents new line to assert depth with {@link CommentType}.
      * 
      * @param type
@@ -432,13 +451,33 @@ public class AssertReportBuilder {
     }
 
     /**
-     * Get current depth value.
+     * Report parameters assert fail.
      * 
-     * @return depth
+     * @param beforeParameter
+     *            the before parameter
+     * @param afterParameter
+     *            the after parameter
      */
-    public Integer getDepth() {
+    public void reportParametersAssertFail(final Object beforeParameter, final Object afterParameter) {
+        final StringBuilder part = new StringBuilder();
+        part.append(NEW_LINE);
+        part.append(String.format(PARAMETERS_ASSERT_FAIL, beforeParameter.toString(), afterParameter.toString(),
+                afterParameter.getClass()));
+        messageParts.add(part.toString());
+    }
 
-        return assertDepth;
+    /**
+     * Reports fail due to passing null object reference for asserting.
+     * 
+     * @param original
+     *            parameter for copying
+     */
+    public void reportNoValidCopy(final Object original) {
+
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
+
+        part.append(String.format(NO_VALID_COPY, original == null ? EMPTY_STRING : original.getClass().getSimpleName()));
+        messageParts.add(failedMessagePosition, part.toString());
     }
 
     /**

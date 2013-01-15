@@ -24,5 +24,4 @@ public class NullProperty extends Property {
     public ISingleProperty getCopy() {
         return new NullProperty(getPath());
     }
-
 }

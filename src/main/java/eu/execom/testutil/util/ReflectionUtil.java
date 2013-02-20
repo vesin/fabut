@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import eu.execom.testutil.ITestUtil;
+
 /**
  * Util class for reflection logic needed by testutil.
  * 
@@ -15,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
+@SuppressWarnings("unchecked")
 public final class ReflectionUtil {
 
     /** The Constant GET_METHOD_PREFIX. */
@@ -25,6 +28,15 @@ public final class ReflectionUtil {
 
     /** The Constant GET_ID. */
     private static final String GET_ID = "getId";
+
+    /** The Constant SET_METHOD_PREFIX. */
+    protected static final String SET_METHOD_PREFIX = "set";
+
+    private static final String FIND_ALL = "findAll";
+    private static final String GET_ENTITY_TYPES = "getEntityTypes";
+    private static final String GET_COMPLEX_TYPES = "getComplexTypes";
+    private static final String GET_IGNORED_TYPES = "getIgnoredTypes";
+    private static final String FIND_BY_ID = "findById";
 
     /**
      * Instantiates a new reflection util.
@@ -193,7 +205,6 @@ public final class ReflectionUtil {
      *            - entity from which id is taken
      * @return {@link Number} if specified entity id field and matching get method, <code>null</code> otherwise.
      */
-    @SuppressWarnings("unchecked")
     public static <X, Id> Id getIdValue(final X entity) {
         try {
             final Method method = entity.getClass().getMethod(GET_ID);
@@ -255,4 +266,94 @@ public final class ReflectionUtil {
         return object.getClass().getMethod(methodName);
     }
 
+    public static Method getFindAllMethod(final Class<?> declaringClass) {
+        try {
+            final Object testIntance = declaringClass.newInstance();
+            if (testIntance instanceof ITestUtil) {
+                final Method method = declaringClass.getMethod("findAll", Class.class);
+            } else {
+                throw new IllegalStateException("Test: " + declaringClass.getName() + ", has to implement ITestUtil!");
+            }
+        } catch (final Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // TODO(nolah) refactor his, duplicate code
+    public static List<Class<?>> getEntityTypes(final Class<?> testClass) {
+        final Object testInstance = ReflectionUtil.newInstance(testClass);
+        try {
+            final Method getEntityTypesMethod = testClass.getMethod(GET_ENTITY_TYPES);
+            return (List<Class<?>>) getEntityTypesMethod.invoke(testInstance);
+        } catch (final Exception e) {
+            return null;
+        }
+    }
+
+    public static List<Class<?>> getComplexTypes(final Class<?> testClass) {
+        final Object testInstance = ReflectionUtil.newInstance(testClass);
+        try {
+            final Method getEntityTypesMethod = testClass.getMethod(GET_COMPLEX_TYPES);
+            return (List<Class<?>>) getEntityTypesMethod.invoke(testInstance);
+        } catch (final Exception e) {
+            return null;
+        }
+    }
+
+    public static List<Class<?>> getIgnoredTypes(final Class<?> testClass) {
+        final Object testInstance = ReflectionUtil.newInstance(testClass);
+        try {
+            final Method getEntityTypesMethod = testClass.getMethod(GET_IGNORED_TYPES);
+            return (List<Class<?>>) getEntityTypesMethod.invoke(testInstance);
+        } catch (final Exception e) {
+            return null;
+        }
+    }
+
+    public static Object newInstance(final Class<?> testClass) {
+        try {
+            return testClass.newInstance();
+        } catch (final IllegalAccessException e) {
+            return null;
+        } catch (final InstantiationException e) {
+            throw new IllegalStateException("Test: " + testClass.getSimpleName() + " must have default constructor");
+        }
+    }
+
+    public static Class<?> getTestClassFromStackTrace() {
+        final StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        final String className = stackTraceElements[3].getClassName();
+        try {
+            return Class.forName(className);
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalStateException("Test class: " + className + " not found!");
+        }
+    }
+
+    public static List<?> findAll(final Class<?> testClass, final Class<?> entityClass) {
+        try {
+
+            final Object testInstance = ReflectionUtil.newInstance(testClass);
+            if (testInstance instanceof ITestUtil) {
+                final Method findAll = testClass.getMethod(FIND_ALL, Class.class);
+                return (List<?>) findAll.invoke(testInstance, entityClass);
+            } else {
+                throw new IllegalStateException("NOT INTSTANCE OF ITESTUTIL");
+            }
+        } catch (final Exception e) {
+            throw new IllegalStateException("Method findAll not found");
+        }
+    }
+
+    public static Object findById(final Class<?> testClass, final Class<?> entityClass, final Object id) {
+        final Object testIntstance = ReflectionUtil.newInstance(testClass);
+        try {
+            final Method findById = testClass.getMethod(FIND_BY_ID, entityClass, Object.class);
+            return findById.invoke(testIntstance, entityClass, id);
+        } catch (final Exception e) {
+            throw new IllegalStateException("findById is uninvokable!");
+        }
+    }
 }

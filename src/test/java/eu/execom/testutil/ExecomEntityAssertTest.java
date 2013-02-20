@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import eu.execom.testutil.enums.ReferenceCheckType;
@@ -12,10 +13,13 @@ import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.model.A;
 import eu.execom.testutil.model.B;
 import eu.execom.testutil.model.C;
+import eu.execom.testutil.model.DoubleLink;
 import eu.execom.testutil.model.EntityTierOneType;
 import eu.execom.testutil.model.EntityTierTwoType;
+import eu.execom.testutil.model.IgnoredMethodsType;
 import eu.execom.testutil.model.IgnoredType;
 import eu.execom.testutil.model.NoGetMethodsType;
+import eu.execom.testutil.model.Start;
 import eu.execom.testutil.model.TierFiveType;
 import eu.execom.testutil.model.TierFourType;
 import eu.execom.testutil.model.TierOneType;
@@ -49,6 +53,38 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     private static final String EMPTY_STRING = "";
     private static final String TEST = "test";
     private static final String DOT = ".";
+
+    @Before
+    public void before() {
+        final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
+        entityTypes.add(EntityTierOneType.class);
+        entityTypes.add(EntityTierTwoType.class);
+        setEntityTypes(entityTypes);
+
+        final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
+        complexTypes.add(A.class);
+        complexTypes.add(B.class);
+        complexTypes.add(C.class);
+        complexTypes.add(TierOneType.class);
+        complexTypes.add(TierTwoType.class);
+        complexTypes.add(TierThreeType.class);
+        complexTypes.add(TierFourType.class);
+        complexTypes.add(TierFiveType.class);
+        complexTypes.add(TierSixType.class);
+        complexTypes.add(NoGetMethodsType.class);
+        complexTypes.add(IgnoredMethodsType.class);
+        complexTypes.add(TierTwoTypeWithIgnoreProperty.class);
+        complexTypes.add(TierTwoTypeWithListProperty.class);
+        complexTypes.add(TierTwoTypeWithPrimitiveProperty.class);
+
+        complexTypes.add(DoubleLink.class);
+        complexTypes.add(Start.class);
+        setComplexTypes(complexTypes);
+
+        final List<Class<?>> ignoredTypes = new LinkedList<Class<?>>();
+        ignoredTypes.add(IgnoredType.class);
+        setIgnoredTypes(ignoredTypes);
+    }
 
     /**
      * Test for assertObject if it ignores types added to ignore list.

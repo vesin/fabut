@@ -3,9 +3,8 @@ package eu.execom.testutil;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.execom.testutil.model.A;
-import eu.execom.testutil.model.B;
-import eu.execom.testutil.model.C;
+import org.junit.Assert;
+
 import eu.execom.testutil.model.EntityTierOneType;
 import eu.execom.testutil.model.EntityTierTwoType;
 import eu.execom.testutil.model.Type;
@@ -18,33 +17,17 @@ import eu.execom.testutil.model.Type;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class AbstractExecomRepositoryAssertTest extends AbstractExecomRepositoryAssert<Type, Integer> {
+public class AbstractExecomRepositoryAssertTest extends AbstractExecomRepositoryAssert<Type, Integer> {
     // mock lists
     private List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
     private List<EntityTierTwoType> list2 = new ArrayList<EntityTierTwoType>();
 
-    @Override
-    protected void initComplexTypes(final List<Class<?>> complexTypes) {
-        complexTypes.add(EntityTierTwoType.class);
-        complexTypes.add(EntityTierOneType.class);
-        complexTypes.add(A.class);
-        complexTypes.add(B.class);
-        complexTypes.add(C.class);
-    }
-
-    @Override
-    protected void initEntityList(final List<Class<?>> entityTypes) {
-        entityTypes.add(EntityTierTwoType.class);
-        entityTypes.add(EntityTierOneType.class);
-    }
-
-    @Override
-    protected void initIgnoredTypes(final List<Class<?>> ignoredTypes) {
+    public AbstractExecomRepositoryAssertTest() {
 
     }
 
     @Override
-    protected List<?> findAll(final Class<?> entityClass) {
+    public List<?> findAll(final Class<?> entityClass) {
         if (entityClass == EntityTierOneType.class) {
             return list1;
         }
@@ -55,7 +38,7 @@ public abstract class AbstractExecomRepositoryAssertTest extends AbstractExecomR
     }
 
     @Override
-    protected Type findById(final Class<?> entityClass, final Integer id) {
+    public Object findById(final Class<?> entityClass, final Object id) {
         if (entityClass == EntityTierOneType.class) {
             for (final EntityTierOneType entity : list1) {
                 if (entity.getId() == id) {
@@ -67,8 +50,8 @@ public abstract class AbstractExecomRepositoryAssertTest extends AbstractExecomR
     }
 
     @Override
-    protected <T> void customAssertEquals(final T expected, final T actual) {
-        assertEquals(expected, actual);
+    public void customAssertEquals(final Object expected, final Object actual) {
+        Assert.assertEquals(expected, actual);
     }
 
     public List<EntityTierOneType> getList1() {
@@ -86,5 +69,42 @@ public abstract class AbstractExecomRepositoryAssertTest extends AbstractExecomR
     public void setList2(final List<EntityTierTwoType> list2) {
         this.list2 = list2;
     }
+
+    // @Override
+    // @After
+    // public void afterTest() {
+    // // TestUtilAssert.afterTest();
+    // }
+    //
+    // @Override
+    // @Before
+    // public void beforeTest() {
+    // TestUtilAssert.beforeTest();
+    // }
+    //
+    // @Override
+    // public List<Class<?>> getEntityTypes() {
+    // final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
+    // entityTypes.add(EntityTierTwoType.class);
+    // entityTypes.add(EntityTierOneType.class);
+    // return entityTypes;
+    // }
+    //
+    // @Override
+    // public List<Class<?>> getComplexTypes() {
+    // final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
+    // complexTypes.add(EntityTierTwoType.class);
+    // complexTypes.add(EntityTierOneType.class);
+    // complexTypes.add(A.class);
+    // complexTypes.add(B.class);
+    // complexTypes.add(C.class);
+    // return complexTypes;
+    // }
+    //
+    // @Override
+    // public List<Class<?>> getIgnoredTypes() {
+    // final List<Class<?>> ignoredTypes = new LinkedList<Class<?>>();
+    // return ignoredTypes;
+    // }
 
 }

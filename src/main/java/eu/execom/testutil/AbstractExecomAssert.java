@@ -1,7 +1,6 @@
 package eu.execom.testutil;
 
 import java.lang.reflect.Method;
-import java.nio.channels.IllegalSelectorException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,25 +46,17 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     private static final String DOT = ".";
 
     /** List of entity types that can be persisted. */
-    protected final List<Class<?>> entityTypes;
+    protected List<Class<?>> entityTypes;
     /** List of types that are complex. */
-    protected final List<Class<?>> complexTypes;
+    protected List<Class<?>> complexTypes;
     /** List of types that will be ignored during asserting. */
-    protected final List<Class<?>> ignoredTypes;
+    protected List<Class<?>> ignoredTypes;
 
     /**
      * Instantiates a new abstract execom entity assert.
      */
     public AbstractExecomAssert() {
         super();
-        entityTypes = new ArrayList<Class<?>>();
-        complexTypes = new ArrayList<Class<?>>();
-        ignoredTypes = new ArrayList<Class<?>>();
-
-        initComplexTypes(complexTypes);
-        initEntityList(entityTypes);
-        initIgnoredTypes(ignoredTypes);
-
     }
 
     @Override
@@ -149,7 +140,10 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      * @param entityTypes
      *            list of entity types
      */
-    protected abstract void initEntityList(List<Class<?>> entityTypes);
+    protected void setEntityTypes(final List<Class<?>> entityTypes) {
+        // TODO(nolah) add null pointer checks
+        this.entityTypes = entityTypes;
+    }
 
     /**
      * Init list of complex types.
@@ -157,7 +151,10 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      * @param complexTypes
      *            list of complex types
      */
-    protected abstract void initComplexTypes(List<Class<?>> complexTypes);
+    protected void setComplexTypes(final List<Class<?>> complexTypes) {
+        // TODO(nolah) add null pointer checks
+        this.complexTypes = complexTypes;
+    }
 
     /**
      * Init list of ignored types.
@@ -165,7 +162,10 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
      * @param ignoredTypes
      *            list of ignored types
      */
-    protected abstract void initIgnoredTypes(List<Class<?>> ignoredTypes);
+    protected void setIgnoredTypes(final List<Class<?>> ignoredTypes) {
+        // TODO(nolah) add null pointer checks
+        this.ignoredTypes = ignoredTypes;
+    }
 
     /**
      * Checks if list asserting can be performed and does asserting if it can be performed.
@@ -361,7 +361,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
                     properties, nodesList, isProperty);
         }
 
-        throw new IllegalSelectorException();
+        throw new IllegalStateException();
     }
 
     /**
@@ -418,7 +418,6 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         if (ReflectionUtil.isComplexType(expected.getClass(), complexTypes)) {
             return assertBySubproperty(propertyName, report, expected, actual, excludedProperties, nodesList);
         }
-
         // assert primitives
         return assertPrimitives(report, propertyName, expected, actual);
 
@@ -634,7 +633,6 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
             report.addComment(propertyName, EMPTY_STRING, expected, actual, CommentType.FAIL);
             return ReferenceCheckType.EXCLUSIVE_NULL;
         }
-
         return ReferenceCheckType.COMPLEX_ASSERT;
     }
 

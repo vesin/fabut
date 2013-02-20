@@ -31,15 +31,14 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"unchecked"})
-// FIXME arrange methods
-public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> extends AbstractExecomAssert<EntityType>
-        implements ExecomRepositoryAssert<EntityType, EntityId> {
+public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends AbstractExecomAssert<EntityType> implements
+        ExecomRepositoryAssert<EntityType, EntityId> {
 
     /** The Constant SET_METHOD_PREFIX. */
     protected static final String SET_METHOD_PREFIX = "set";
 
     /** The db snapshot. */
-    private final Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> dbSnapshot;
+    private final Map<Class<?>, Map<EntityId, CopyAssert<Object>>> dbSnapshot;
 
     /** Parameters passed into method. */
     private final List<Object> parameters;
@@ -52,8 +51,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      */
     public AbstractExecomRepositoryAssert() {
         super();
-        dbSnapshot = new HashMap<Class<?>, Map<EntityId, CopyAssert<EntityType>>>();
-        initDbSnapshot();
+        dbSnapshot = new HashMap<Class<?>, Map<EntityId, CopyAssert<Object>>>();
         parameters = new ArrayList<Object>();
         parametersSnapshot = new ArrayList<Object>();
     }
@@ -63,7 +61,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
 
         ignoreEntity(actual);
 
-        final EntityType findById = findById(actual.getClass(), (EntityId) ReflectionUtil.getIdValue(actual));
+        final Object findById = findById(actual.getClass(), ReflectionUtil.getIdValue(actual));
         Assert.assertNull(findById);
     }
 
@@ -88,13 +86,13 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         final EntityId id = ReflectionUtil.getIdValue(actual);
         Assert.assertNotNull("Entity id can't be null " + actual, id);
 
-        final Map<EntityId, CopyAssert<EntityType>> map = dbSnapshot.get(actual.getClass());
+        final Map<EntityId, CopyAssert<Object>> map = dbSnapshot.get(actual.getClass());
         final boolean isTypeSupported = map != null;
 
         if (isTypeSupported) {
-            final CopyAssert<EntityType> copyAssert = map.get(id);
+            final CopyAssert<Object> copyAssert = map.get(id);
             if (copyAssert != null) {
-                final EntityType expected = copyAssert.getEntity();
+                final Object expected = copyAssert.getEntity();
                 if (expected != null) {
                     assertObjects(message, expected, actual, properties);
                 } else {
@@ -125,7 +123,9 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            the entity class
      * @return the list
      */
-    protected abstract List<?> findAll(Class<?> entityClass);
+    protected List<?> findAll(final Class<?> entityClass) {
+        return TestUtilAssert.findAll(entityClass);
+    }
 
     /**
      * Find specific entity of type entity class and with specific id in DB.
@@ -136,7 +136,9 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            the id
      * @return the entity type
      */
-    protected abstract EntityType findById(Class<?> entityClass, EntityId id);
+    protected Object findById(final Class<?> entityClass, final Object id) {
+        return TestUtilAssert.findById(entityClass, id);
+    }
 
     /**
      * Mark entity bean as asserted.
@@ -162,14 +164,13 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
 
         final EntityId id = ReflectionUtil.getIdValue(entity);
         Assert.assertNotNull("Entity id can't be null " + entity, id);
-
-        final Map<EntityId, CopyAssert<EntityType>> map = dbSnapshot.get(actualType);
+        final Map<EntityId, CopyAssert<Object>> map = dbSnapshot.get(actualType);
         final boolean isTypeSupported = map != null;
 
         if (isTypeSupported) {
-            CopyAssert<EntityType> copyAssert = map.get(id);
+            CopyAssert<Object> copyAssert = map.get(id);
             if (copyAssert == null) {
-                copyAssert = new CopyAssert<EntityType>(createCopy(entity));
+                copyAssert = new CopyAssert<Object>(createCopy(entity));
                 map.put((EntityId) ReflectionUtil.getIdValue(entity), copyAssert);
             }
             copyAssert.setAsserted(true);
@@ -183,14 +184,13 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Takes current database snapshot and saves it.
      */
-    protected void takeSnapshot() {
+    public void takeSnapshot() {
         initDbSnapshot();
-
-        for (final Entry<Class<?>, Map<EntityId, CopyAssert<EntityType>>> enties : dbSnapshot.entrySet()) {
-            final List<EntityType> findAll = (List<EntityType>) findAll(enties.getKey());
-            for (final EntityType abstractEntity : findAll) {
+        for (final Entry<Class<?>, Map<EntityId, CopyAssert<Object>>> enties : dbSnapshot.entrySet()) {
+            final List<?> findAll = findAll(enties.getKey());
+            for (final Object abstractEntity : findAll) {
                 enties.getValue().put((EntityId) ReflectionUtil.getIdValue(abstractEntity),
-                        new CopyAssert<EntityType>(createCopy(abstractEntity)));
+                        new CopyAssert<Object>(createCopy(abstractEntity)));
             }
         }
     }
@@ -213,11 +213,11 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Asserts current database snapshot with one previously taken.
      */
-    protected void assertDbState() {
+    public void assertDbState() {
         boolean ok = true;
         final AssertReportBuilder report = new AssertReportBuilder();
-        for (final Entry<Class<?>, Map<EntityId, CopyAssert<EntityType>>> entry : dbSnapshot.entrySet()) {
-            final List<EntityType> afterEnitities = (List<EntityType>) findAll(entry.getKey());
+        for (final Entry<Class<?>, Map<EntityId, CopyAssert<Object>>> entry : dbSnapshot.entrySet()) {
+            final List<Object> afterEnitities = (List<Object>) findAll(entry.getKey());
             ok &= assertByEntity(entry.getValue(), afterEnitities, report);
         }
         if (!ok) {
@@ -247,16 +247,14 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if all entities from before snapshot are asserted with entities from current snapshot,
      *         <code>false</code> otherwise
      */
-    <X extends EntityType> boolean assertByEntity(final Map<EntityId, CopyAssert<X>> beforeEntities,
-            final List<X> afterEntities, final AssertReportBuilder report) {
+    <X> boolean assertByEntity(final Map<EntityId, CopyAssert<X>> beforeEntities, final List<X> afterEntities,
+            final AssertReportBuilder report) {
 
         boolean ok = true;
         final List<EntityId> ids = new ArrayList<EntityId>();
-
         for (final Entry<EntityId, CopyAssert<X>> beforeEntry : beforeEntities.entrySet()) {
             ok &= validateEntry(ids, beforeEntry, afterEntities, report);
         }
-
         ok &= removeAfterEntitites(ids, afterEntities);
         report.reportEntityIsntAsserted(afterEntities);
         return ok;
@@ -268,10 +266,9 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     void assertParameters() {
         boolean ok = true;
         final AssertReportBuilder report = new AssertReportBuilder();
-        Object copy;
 
         for (int i = 0; i < parameters.size(); i++) {
-            copy = parametersSnapshot.get(i);
+            final Object copy = parametersSnapshot.get(i);
             if (copy != null) {
                 ok &= assertParameterPair(copy, parameters.get(i), report);
             } else {
@@ -287,7 +284,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         }
     }
 
-    Map<Class<?>, Map<EntityId, CopyAssert<EntityType>>> getDbSnapshot() {
+    Map<Class<?>, Map<EntityId, CopyAssert<Object>>> getDbSnapshot() {
         return dbSnapshot;
     }
 
@@ -316,9 +313,8 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if entity from before snapshot is already asserted or if it has match in current
      *         snapshot and is asserted with it, <code>false</code> otherwise
      */
-    <X extends EntityType> boolean validateEntry(final List<EntityId> ids,
-            final Entry<EntityId, CopyAssert<X>> beforeEntry, final List<X> afterEntities,
-            final AssertReportBuilder report) {
+    <X> boolean validateEntry(final List<EntityId> ids, final Entry<EntityId, CopyAssert<X>> beforeEntry,
+            final List<X> afterEntities, final AssertReportBuilder report) {
 
         final X afterEntity = popEntityFromList(beforeEntry.getKey(), afterEntities);
         final CopyAssert<X> beforeAssertEntity = beforeEntry.getValue();
@@ -338,7 +334,6 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         }
 
         ids.add(beforeEntry.getKey());
-
         return assertEntities(beforeAssertEntity.getEntity(), afterEntity, report);
     }
 
@@ -356,8 +351,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if entities are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
      *         <code>false</code> otherwise
      */
-    <X extends EntityType> boolean assertEntities(final X beforeEntity, final X afterEntity,
-            final AssertReportBuilder report) {
+    <X> boolean assertEntities(final X beforeEntity, final X afterEntity, final AssertReportBuilder report) {
         try {
             assertObjects(beforeEntity, afterEntity);
             return true;
@@ -379,7 +373,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      *            list of entities
      * @return entity with specified id
      */
-    <X extends EntityType> X popEntityFromList(final EntityId id, final List<X> afterEntities) {
+    <X> X popEntityFromList(final EntityId id, final List<X> afterEntities) {
         final Iterator<X> iterator = afterEntities.iterator();
         while (iterator.hasNext()) {
             final X entity = iterator.next();
@@ -403,7 +397,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
      * @return <code>true</code> if all entities from current snapshot have matching id in list of ids,
      *         <code>false</code> otherwise
      */
-    <X extends EntityType> boolean removeAfterEntitites(final List<EntityId> ids, final List<X> afterEntities) {
+    <X> boolean removeAfterEntitites(final List<EntityId> ids, final List<X> afterEntities) {
         final Iterator<X> iterator = afterEntities.iterator();
         while (iterator.hasNext()) {
             if (ids.contains(ReflectionUtil.getIdValue(iterator.next()))) {
@@ -545,6 +539,7 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
         Method setMethod = null;
 
         try {
+            // TODO(nolah) maybe move this to ReflectionUtil
             setMethod = classObject.getMethod(SET_METHOD_PREFIX + StringUtils.capitalize(propertyName),
                     method.getReturnType());
             setMethod.invoke(object, copiedProperty);
@@ -615,18 +610,24 @@ public abstract class AbstractExecomRepositoryAssert<EntityType, EntityId> exten
     /**
      * Initialize database snapshot.
      */
-    private void initDbSnapshot() {
+    void initDbSnapshot() {
         dbSnapshot.clear();
         for (final Class<?> entityType : entityTypes) {
-            getDbSnapshot().put(entityType, new HashMap<EntityId, CopyAssert<EntityType>>());
+            getDbSnapshot().put(entityType, new HashMap<EntityId, CopyAssert<Object>>());
         }
     }
 
     /**
      * Initialize parameters snapshot.
      */
-    private void initParametersSnapshot() {
+    void initParametersSnapshot() {
         parameters.clear();
         parametersSnapshot.clear();
     }
+
+    @Override
+    protected <X> void customAssertEquals(final X expected, final X actual) {
+        Assert.assertEquals(expected, actual);
+    }
+
 }

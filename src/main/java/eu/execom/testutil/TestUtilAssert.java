@@ -13,6 +13,7 @@ import eu.execom.testutil.util.ReflectionUtil;
  * 
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
+// TODO for all methods check can method be called
 public class TestUtilAssert {
 
     private static Class<?> testClass = null;
@@ -29,10 +30,12 @@ public class TestUtilAssert {
         abstractExecomRepositoryAssert.assertDbState();
     }
 
+    // TODO why is this published ? End user shouldnt be able to us it.
     public static final List<?> findAll(final Class<?> entityClass) {
         return ReflectionUtil.findAll(testClass, entityClass);
     }
 
+    // TODO why is this published ? End user shouldnt be able to us it.
     public static Object findById(final Class<?> entityClass, final Object id) {
         return ReflectionUtil.findById(testClass, entityClass, id);
     }
@@ -58,37 +61,41 @@ public class TestUtilAssert {
         //
         // };
         abstractExecomRepositoryAssert = new AbstractExecomRepositoryAssert();
-        TestUtilAssert.testClass = ReflectionUtil.getTestClassFromStackTrace();
-        TestUtilAssert.abstractExecomRepositoryAssert.setComplexTypes(ReflectionUtil.getComplexTypes(testClass));
-        TestUtilAssert.abstractExecomRepositoryAssert.setEntityTypes(ReflectionUtil.getEntityTypes(testClass));
-        TestUtilAssert.abstractExecomRepositoryAssert.setIgnoredTypes(ReflectionUtil.getIgnoredTypes(testClass));
-        TestUtilAssert.abstractExecomRepositoryAssert.initDbSnapshot();
-        TestUtilAssert.abstractExecomRepositoryAssert.initParametersSnapshot();
+        // TODO get instance of the class not class
+        testClass = ReflectionUtil.getTestClassFromStackTrace();
+        // TODO dont create instance of test class every time, pass it as parameter
+        abstractExecomRepositoryAssert.setComplexTypes(ReflectionUtil.getComplexTypes(testClass));
+        abstractExecomRepositoryAssert.setIgnoredTypes(ReflectionUtil.getIgnoredTypes(testClass));
+        abstractExecomRepositoryAssert.initParametersSnapshot();
+
+        // TODO Move to RepositoryTestUtil
+        abstractExecomRepositoryAssert.setEntityTypes(ReflectionUtil.getEntityTypes(testClass));
+        abstractExecomRepositoryAssert.initDbSnapshot();
     }
 
     public static void afterTest() {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertSnapshots();
+        abstractExecomRepositoryAssert.assertSnapshots();
     }
 
     public static void assertEntityWithSnapshot(final Object actual, final ISingleProperty... properties) {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertEntityWithSnapshot("", actual, properties);
+        abstractExecomRepositoryAssert.assertEntityWithSnapshot("", actual, properties);
     }
 
     public static void assertObjects(final Object expected, final Object actual) {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertObjects(expected, actual);
+        abstractExecomRepositoryAssert.assertObjects(expected, actual);
     }
 
     public static void assertObject(final Object expected, final IProperty... properties) {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertObject(expected, properties);
+        abstractExecomRepositoryAssert.assertObject(expected, properties);
     }
 
     public static void assertObjects(final String message, final Object expected, final Object actual,
             final IProperty... excludes) {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertObjects(message, expected, actual, excludes);
+        abstractExecomRepositoryAssert.assertObjects(message, expected, actual, excludes);
     }
 
     public static void assertObjects(final List<Object> expected, final List<Object> actual) {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertObjects(expected, actual);
+        abstractExecomRepositoryAssert.assertObjects(expected, actual);
     }
 
     public static void markAsserted(final Object entity) {
@@ -96,14 +103,14 @@ public class TestUtilAssert {
     }
 
     public static void assertObjects(final List expected, final Object... actuals) {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertObjects(expected, actuals);
+        abstractExecomRepositoryAssert.assertObjects(expected, actuals);
     }
 
     public static void assertObjects(final Object expected, final Object actual, final IProperty properties) {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertObjects(expected, actual, properties);
+        abstractExecomRepositoryAssert.assertObjects(expected, actual, properties);
     }
 
     public static void assertEntityAsDeleted(final Object entity) {
-        TestUtilAssert.abstractExecomRepositoryAssert.assertEntityAsDeleted(entity);
+        abstractExecomRepositoryAssert.assertEntityAsDeleted(entity);
     }
 }

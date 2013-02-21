@@ -1,14 +1,14 @@
 package eu.execom.testutil.property;
 
 /**
- * {@link Property} extension with limited checking is property equal with <code>null</code>.
+ * {@link AbstractSingleProperty} extension with limited checking is property equal with <code>null</code>.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public class NotNullProperty extends Property {
+public class NotNullProperty extends AbstractSingleProperty {
 
     /**
      * Not null property default constructor.

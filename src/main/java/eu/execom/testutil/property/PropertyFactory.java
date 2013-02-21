@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class PropertyFactory {
 
     /**
-     * Create {@link ChangedProperty} with provided parameters.
+     * Create {@link Property} with provided parameters.
      * 
      * @param path
      *            property path.
@@ -25,36 +25,36 @@ public abstract class PropertyFactory {
      * @param <T>
      *            generic type
      */
-    public static <T> ChangedProperty<T> changed(final String path, final T expectedValue) {
-        return new ChangedProperty<T>(path, expectedValue);
+    public static <T> Property<T> value(final String path, final T expectedValue) {
+        return new Property<T>(path, expectedValue);
     }
 
     /**
-     * Create {@link IgnoreProperty} with provided parameter.
+     * Create {@link IgnoredProperty} with provided parameter.
      * 
      * @param path
      *            property path.
      * @return created object.
      */
-    public static IgnoreProperty ignored(final String path) {
-        return new IgnoreProperty(path);
+    public static IgnoredProperty ignored(final String path) {
+        return new IgnoredProperty(path);
     }
 
     /**
-     * Create {@link IgnoreProperty} with provided parameters.
+     * Create {@link IgnoredProperty} with provided parameters.
      * 
-     * @param path
+     * @param paths
      *            property path.
      * @return created objects.
      */
-    public static MultiProperty ignored(final String... paths) {
+    public static MultiProperties ignored(final String... paths) {
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
 
         for (final String path : paths) {
-            properties.add(new IgnoreProperty(path));
+            properties.add(ignored(path));
         }
 
-        return new MultiProperty(properties);
+        return new MultiProperties(properties);
     }
 
     /**
@@ -71,18 +71,18 @@ public abstract class PropertyFactory {
     /**
      * Create {@link NotNullProperty} with provided parameters.
      * 
-     * @param path
-     *            property path.
+     * @param paths
+     *            property paths.
      * @return created objects.
      */
-    public static MultiProperty notNull(final String... paths) {
+    public static MultiProperties notNull(final String... paths) {
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
 
         for (final String path : paths) {
-            properties.add(new NotNullProperty(path));
+            properties.add(notNull(path));
         }
 
-        return new MultiProperty(properties);
+        return new MultiProperties(properties);
     }
 
     /**
@@ -99,18 +99,18 @@ public abstract class PropertyFactory {
     /**
      * Create {@link NullProperty} with provided parameters.
      * 
-     * @param path
-     *            property path.
+     * @param paths
+     *            property paths.
      * @return created objects.
      */
-    public static MultiProperty nulll(final String... paths) {
+    public static MultiProperties nulll(final String... paths) {
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
 
         for (final String path : paths) {
-            properties.add(new NullProperty(path));
+            properties.add(nulll(path));
         }
 
-        return new MultiProperty(properties);
+        return new MultiProperties(properties);
     }
 
 }

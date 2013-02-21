@@ -10,7 +10,7 @@ import java.util.List;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public interface IMultiProperty extends IProperty {
+public interface IMultiProperties extends IProperty {
 
     /**
      * Get contained properties.

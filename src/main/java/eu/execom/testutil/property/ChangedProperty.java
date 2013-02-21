@@ -10,6 +10,7 @@ package eu.execom.testutil.property;
  * @param <T>
  *            property type
  */
+// TODO rename it, this name is totally wrong
 public class ChangedProperty<T> extends Property {
 
     private final T expectedValue;

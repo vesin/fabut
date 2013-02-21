@@ -1,6 +1,3 @@
-/*
- * 
- */
 package eu.execom.testutil;
 
 import eu.execom.testutil.property.ISingleProperty;
@@ -17,6 +14,7 @@ import eu.execom.testutil.property.ISingleProperty;
  * @param <EntityIdType>
  *            - type of entity id -
  */
+// TODO interface can be deleted.
 public interface ExecomRepositoryAssert<EntityType, EntityIdType> extends EntityAssert<EntityType> {
 
     /**
@@ -59,6 +57,7 @@ public interface ExecomRepositoryAssert<EntityType, EntityIdType> extends Entity
      * @param properties
      *            the properties
      */
-    <X extends EntityType> void assertEntityWithSnapshot(String message, final X actual, final ISingleProperty... properties);
+    <X extends EntityType> void assertEntityWithSnapshot(String message, final X actual,
+            final ISingleProperty... properties);
 
 }

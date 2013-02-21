@@ -2,6 +2,12 @@ package eu.execom.testutil;
 
 import java.util.List;
 
+/**
+ * TODO add comments.
+ * 
+ * @author Dusko Vesin
+ * 
+ */
 @SuppressWarnings("rawtypes")
 public interface ITestUtil {
 

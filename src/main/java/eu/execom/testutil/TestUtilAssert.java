@@ -6,6 +6,12 @@ import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.util.ReflectionUtil;
 
+/**
+ * TODO add comments.
+ * 
+ * @author Dusko Vesin
+ * 
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class TestUtilAssert {
 

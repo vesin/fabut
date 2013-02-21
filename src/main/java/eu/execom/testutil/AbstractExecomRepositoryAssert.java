@@ -31,6 +31,7 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"unchecked"})
+// TODO its not Abstract any more.
 public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends AbstractExecomAssert<EntityType> implements
         ExecomRepositoryAssert<EntityType, EntityId> {
 
@@ -263,6 +264,9 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
     /**
      * Asserts current parameters states with snapshot previously taken.
      */
+    // TODO its not clear what its doing, basically it test not persisted objects that can be changed inside tested
+    // method
+    // ALSO it shoul'd be part of abstract execom assert, it doesn't have anything to do with repository
     void assertParameters() {
         boolean ok = true;
         final AssertReportBuilder report = new AssertReportBuilder();
@@ -404,6 +408,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
                 iterator.remove();
             }
         }
+        // FIXME WTF?
         return afterEntities.size() > 0 ? false : true;
     }
 
@@ -468,6 +473,8 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
     }
 
     /**
+     * FIXME comment is not OK, this method is just calling method of a some object...
+     * 
      * Gets property for copying using reflection.
      * 
      * @param <T>
@@ -478,6 +485,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
      *            get method for property
      * @return property
      */
+    // TODO move to reflection util
     <T> Object getPropertyForCopying(final T object, final Method method) {
         try {
             return method.invoke(object);
@@ -559,6 +567,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
      *            object for copying
      * @return copied empty instance of specified object or <code>null</code> if default constructor can not be called
      */
+    // TODO move to reflection util
     <T> T createEmptyCopyOf(final T object) {
         try {
             return (T) object.getClass().getConstructor().newInstance();
@@ -588,6 +597,8 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
 
         copy = createEmptyCopyOf(object);
         if (copy == null) {
+            // FIXME is this even possible to happen? we need to add validation of util configuration, every DTO or
+            // entity class need to have default constructor
             return copy;
         }
         nodes.addPair(copy, object);

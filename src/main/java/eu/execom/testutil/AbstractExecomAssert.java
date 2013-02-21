@@ -37,6 +37,7 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
+// TODO it shouldnt be abstract
 public abstract class AbstractExecomAssert<EntityType> extends Assert implements EntityAssert<EntityType> {
 
     /** The Constant EMPTY_STRING. */
@@ -73,6 +74,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     @Override
+    // TODO instead of excludes it should be something like expected differences
     public <X> void assertObjects(final X expected, final X actual, final IProperty... excludes) {
         assertObjects(EMPTY_STRING, expected, actual, excludes);
     }
@@ -99,6 +101,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     @Override
+    // TODO excludes should be expected
     public <X> void assertObject(final String message, final X actual, final IProperty... excludes) {
         final AssertReportBuilder report = new AssertReportBuilder(message);
         if (!preAssertObjectWithProperties(report, actual,

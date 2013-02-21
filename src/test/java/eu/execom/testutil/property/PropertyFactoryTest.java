@@ -10,7 +10,7 @@ import eu.execom.testutil.model.EntityTierOneType;
  */
 public class PropertyFactoryTest extends AbstractExecomAssertTest {
 
-    private static String TEST = "test";
+    private static final String TEST = "test";
 
     /**
      * Test for ignored when varargs are passed.
@@ -33,7 +33,7 @@ public class PropertyFactoryTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for nulll when varargs are passed.
+     * Test for null when varargs are passed.
      */
     @Test
     public void testNulllVarargs() {
@@ -112,7 +112,7 @@ public class PropertyFactoryTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for {@link PropertyFactory#changed(String, Object)}
+     * Test for {@link PropertyFactory#changed(String, Object)}.
      */
     @Test
     public void testChanged() {

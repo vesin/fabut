@@ -18,7 +18,7 @@ import eu.execom.testutil.model.EntityTierOneType;
 public class CopyAssertTest extends Assert {
 
     /**
-     * Test for {@link CopyAssert#CopyAssert(Object)}
+     * Test for {@link CopyAssert#CopyAssert(Object)}.
      */
     @Test
     public void testCopyAssert() {

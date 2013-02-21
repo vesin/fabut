@@ -10,17 +10,17 @@ import java.util.List;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public class MultiProperty implements IMultiProperty {
+public class MultiProperties implements IMultiProperties {
 
-    private final List<ISingleProperty> properties;
+    private final List<ISingleProperty> propertiesDefinitions;
 
-    public MultiProperty(final List<ISingleProperty> properies) {
-        properties = properies;
+    public MultiProperties(final List<ISingleProperty> properies) {
+        propertiesDefinitions = properies;
     }
 
     @Override
     public List<ISingleProperty> getProperties() {
-        return properties;
+        return propertiesDefinitions;
     }
 
 }

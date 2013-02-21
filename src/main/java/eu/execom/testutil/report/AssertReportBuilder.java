@@ -153,7 +153,7 @@ public class AssertReportBuilder {
     }
 
     /**
-     * Reports fail due to different types
+     * Reports fail due to different types.
      * 
      * @param propertyName
      *            name of property

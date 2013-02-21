@@ -324,6 +324,7 @@ public final class ReflectionUtil {
 
     public static Class<?> getTestClassFromStackTrace() {
         final StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        // TODO find first class in stack trace that implements ITestUtil ...
         final String className = stackTraceElements[3].getClassName();
         try {
             return Class.forName(className);

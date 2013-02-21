@@ -189,8 +189,8 @@ public class NodesListTest extends Assert {
     }
 
     /**
-     * Test for checkIfContains of {@link AbstractExecomAssert} when one of object nodes from object pair is
-     * contained in list.
+     * Test for checkIfContains of {@link AbstractExecomAssert} when one of object nodes from object pair is contained
+     * in list.
      */
     @Test
     public void testCheckIfContainsFalse() {

@@ -1,47 +1,44 @@
 package eu.execom.testutil.property;
 
 /**
- * Abstract property definition that contains path to some property that is used.
+ * {@link AbstractSingleProperty} extension with focus on new value of the property..
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
  * @author Bojan Babic
  * @author Nikola Trkulja
+ * @param <T>
+ *            property type
  */
-public abstract class Property implements ISingleProperty {
+public class Property<T> extends AbstractSingleProperty {
 
-    private String path;
+    private final T expectedValue;
 
     /**
-     * Default constructor.
+     * Change property default constructor.
      * 
      * @param path
      *            property path
+     * @param expectedValue
+     *            expected property value
      */
-    public Property(final String path) {
-        this.path = path;
-    }
-
-    @Override
-    public String getPath() {
-        return path;
+    protected Property(final String path, final T expectedValue) {
+        super(path);
+        this.expectedValue = expectedValue;
     }
 
     /**
-     * Set property path.
+     * Get expected value.
      * 
-     * @param path
-     *            new path.
+     * @return expected value.
      */
-    @Override
-    public void setPath(final String path) {
-        this.path = path;
+    public T getExpectedValue() {
+        return expectedValue;
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        final ISingleProperty property = (ISingleProperty) obj;
-        return path.equalsIgnoreCase(property.getPath());
+    public ISingleProperty getCopy() {
+        return new Property<T>(getPath(), expectedValue);
     }
 
 }

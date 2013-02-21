@@ -14,6 +14,7 @@ import eu.execom.testutil.property.ISingleProperty;
  * @author Nikola Trkulja
  * @param <T>
  */
+// TODO make this class protected.
 public interface EntityAssert<T> {
 
     /**

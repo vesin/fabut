@@ -13,11 +13,11 @@ import eu.execom.testutil.enums.CommentType;
 import eu.execom.testutil.enums.NodeCheckType;
 import eu.execom.testutil.enums.ReferenceCheckType;
 import eu.execom.testutil.graph.NodesList;
-import eu.execom.testutil.property.ChangedProperty;
-import eu.execom.testutil.property.IMultiProperty;
+import eu.execom.testutil.property.Property;
+import eu.execom.testutil.property.IMultiProperties;
 import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
-import eu.execom.testutil.property.IgnoreProperty;
+import eu.execom.testutil.property.IgnoredProperty;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
 import eu.execom.testutil.property.PropertyFactory;
@@ -37,6 +37,7 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
+// TODO it shouldnt be abstract
 public abstract class AbstractExecomAssert<EntityType> extends Assert implements EntityAssert<EntityType> {
 
     /** The Constant EMPTY_STRING. */
@@ -73,12 +74,13 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     @Override
-    public <X> void assertObjects(final X expected, final X actual, final IProperty... excludes) {
-        assertObjects(EMPTY_STRING, expected, actual, excludes);
+    public <X> void assertObjects(final X expected, final X actual, final IProperty... expectedChanges) {
+        assertObjects(EMPTY_STRING, expected, actual, expectedChanges);
     }
 
     @Override
-    public <X> void assertObjects(final String message, final X expected, final X actual, final IProperty... excludes) {
+    public <X> void assertObjects(final String message, final X expected, final X actual,
+            final IProperty... excludes) {
         assertObjects(message, expected, actual, ConversionUtil.createListFromArray(extractProperties(excludes)));
     }
 
@@ -99,6 +101,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
     }
 
     @Override
+    // TODO excludes should be expected
     public <X> void assertObject(final String message, final X actual, final IProperty... excludes) {
         final AssertReportBuilder report = new AssertReportBuilder(message);
         if (!preAssertObjectWithProperties(report, actual,
@@ -350,14 +353,14 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         }
 
         // any value
-        if (expected instanceof IgnoreProperty) {
+        if (expected instanceof IgnoredProperty) {
             report.reportIgnoreProperty(propertyName);
             return true;
         }
 
         // assert by type
-        if (expected instanceof ChangedProperty) {
-            return assertChangedProperty(propertyName, report, ((ChangedProperty) expected).getExpectedValue(), actual,
+        if (expected instanceof Property) {
+            return assertChangedProperty(propertyName, report, ((Property) expected).getExpectedValue(), actual,
                     properties, nodesList, isProperty);
         }
 
@@ -561,13 +564,13 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
 
     /**
      * Obtains property by following rules: if there is {@link ISingleProperty} in the list of properties matching path
-     * with fieldName, it removes it from the list and returns it. Otherwise, it makes new {@link ChangedProperty} with
+     * with fieldName, it removes it from the list and returns it. Otherwise, it makes new {@link Property} with
      * fieldName as path and value of field.
      * 
      * @param <X>
      *            field type
      * @param field
-     *            expected value for {@link ChangedProperty}
+     *            expected value for {@link Property}
      * @param propertyPath
      *            path for property
      * @param properties
@@ -579,7 +582,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
         if (property != null) {
             return property;
         }
-        return PropertyFactory.changed(propertyPath, field);
+        return PropertyFactory.value(propertyPath, field);
     }
 
     /**
@@ -680,7 +683,7 @@ public abstract class AbstractExecomAssert<EntityType> extends Assert implements
             if (property instanceof ISingleProperty) {
                 list.add((ISingleProperty) property);
             } else {
-                list.addAll(((IMultiProperty) property).getProperties());
+                list.addAll(((IMultiProperties) property).getProperties());
             }
         }
 

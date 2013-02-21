@@ -10,6 +10,7 @@ package eu.execom.testutil;
  * @param <T>
  *            entity type.
  */
+// TODO make this class protected
 public class CopyAssert<T> {
 
     private T entity;

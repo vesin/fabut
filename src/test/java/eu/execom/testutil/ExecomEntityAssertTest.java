@@ -30,11 +30,11 @@ import eu.execom.testutil.model.TierTwoTypeWithIgnoreProperty;
 import eu.execom.testutil.model.TierTwoTypeWithListProperty;
 import eu.execom.testutil.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.testutil.model.UnknownType;
-import eu.execom.testutil.property.ChangedProperty;
-import eu.execom.testutil.property.IMultiProperty;
+import eu.execom.testutil.property.Property;
+import eu.execom.testutil.property.IMultiProperties;
 import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
-import eu.execom.testutil.property.IgnoreProperty;
+import eu.execom.testutil.property.IgnoredProperty;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
 import eu.execom.testutil.property.PropertyFactory;
@@ -105,7 +105,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testAssertObjectNoGetMethodsType() {
         // setup
         final NoGetMethodsType noGetMethodsType = new NoGetMethodsType(TEST);
-        final ChangedProperty<String> jokerProperty = PropertyFactory.changed(NoGetMethodsType.PROPERTY, TEST + TEST);
+        final Property<String> jokerProperty = PropertyFactory.value(NoGetMethodsType.PROPERTY, TEST + TEST);
 
         // method
         assertObject(EMPTY_STRING, noGetMethodsType, jokerProperty);
@@ -175,7 +175,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertObject with {@link IgnoreProperty} with a {@link TierOneType}.
+     * Test for assertObject with {@link IgnoredProperty} with a {@link TierOneType}.
      */
     @Test
     public void testAssertObjectIgnoreProperty() {
@@ -187,7 +187,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for asssertObject with {@link ChangedProperty} when expected value is null and actual value is null with a
+     * Test for asssertObject with {@link Property} when expected value is null and actual value is null with a
      * {@link TierOneType}.
      */
     @Test
@@ -196,12 +196,12 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(null);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, null));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.value(TierOneType.PROPERTY, null));
     }
 
     /**
      * Test if assertObject throws {@link AssertionError} when expected value is not null and actual value is null and
-     * we assert it with {@link ChangedProperty} with a {@link TierOneType}.
+     * we assert it with {@link Property} with a {@link TierOneType}.
      */
     @Test(expected = AssertionError.class)
     public void testAssertObjectChangedPropertyActualNull() {
@@ -209,12 +209,12 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(null);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, TEST));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.value(TierOneType.PROPERTY, TEST));
     }
 
     /**
      * Test if assertObject throws {@link AssertionError} when expected value is null and actual value is not null and
-     * we assert it with {@link ChangedProperty} with a {@link TierOneType}.
+     * we assert it with {@link Property} with a {@link TierOneType}.
      */
     @Test(expected = AssertionError.class)
     public void testAssertObjectChangedPropertyExpectedNull() {
@@ -222,11 +222,11 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, null));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.value(TierOneType.PROPERTY, null));
     }
 
     /**
-     * Test for assertObject with {@link ChangedProperty} when expected value is equal to actual value with a
+     * Test for assertObject with {@link Property} when expected value is equal to actual value with a
      * {@link TierOneType}.
      */
     @Test
@@ -235,11 +235,11 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, TEST));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.value(TierOneType.PROPERTY, TEST));
     }
 
     /**
-     * Test for assertObject with {@link ChangedProperty} when expected value is not equal to actual value with a
+     * Test for assertObject with {@link Property} when expected value is not equal to actual value with a
      * {@link TierOneType}.
      */
     @Test(expected = AssertionError.class)
@@ -248,7 +248,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType tierOneType = new TierOneType(TEST);
 
         // method
-        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.changed(TierOneType.PROPERTY, TEST + TEST));
+        assertObject(EMPTY_STRING, tierOneType, PropertyFactory.value(TierOneType.PROPERTY, TEST + TEST));
     }
 
     /**
@@ -259,7 +259,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         // setup
         final TierTwoTypeWithIgnoreProperty tierTwoTypeWithIgnoreProperty = new TierTwoTypeWithIgnoreProperty(
                 new IgnoredType());
-        final ChangedProperty<IgnoredType> jokerProperty = PropertyFactory.changed(
+        final Property<IgnoredType> jokerProperty = PropertyFactory.value(
                 TierTwoTypeWithIgnoreProperty.IGNORED_TYPE, new IgnoredType());
 
         // method
@@ -280,11 +280,11 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                PropertyFactory.changed(TierTwoTypeWithListProperty.PROPERTY, jokerList));
+                PropertyFactory.value(TierTwoTypeWithListProperty.PROPERTY, jokerList));
     }
 
     /**
-     * Test for assertObject with {@link ChangedProperty} when all actual list members are primitive types and are equal
+     * Test for assertObject with {@link Property} when all actual list members are primitive types and are equal
      * to expected list members with a {@link TierTwoTypeWithListProperty}.
      */
     @Test
@@ -300,11 +300,11 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                PropertyFactory.changed(TierTwoTypeWithListProperty.PROPERTY, expectedList));
+                PropertyFactory.value(TierTwoTypeWithListProperty.PROPERTY, expectedList));
     }
 
     /**
-     * Test for assertObject with {@link ChangedProperty} when actual list members are primitive types and are not equal
+     * Test for assertObject with {@link Property} when actual list members are primitive types and are not equal
      * to expected list members with a {@link TierTwoTypeWithListProperty}.
      */
     @Test(expected = AssertionError.class)
@@ -320,7 +320,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithListProperty,
-                PropertyFactory.changed(TierTwoTypeWithListProperty.PROPERTY, expectedList));
+                PropertyFactory.value(TierTwoTypeWithListProperty.PROPERTY, expectedList));
     }
 
     /**
@@ -390,7 +390,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertObjects with two {@link TierTwoTypeWithPrimitiveProperty} with {@link IgnoreProperty}.
+     * Test for assertObjects with two {@link TierTwoTypeWithPrimitiveProperty} with {@link IgnoredProperty}.
      */
     @Test
     public void testAssertObjectsTierTwoTypeWithPrimitivePropertyWithIgnoreProperty() {
@@ -455,11 +455,11 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType actual = new TierOneType(TEST);
 
         // method
-        assertObject(actual, PropertyFactory.changed(TierOneType.PROPERTY, TEST));
+        assertObject(actual, PropertyFactory.value(TierOneType.PROPERTY, TEST));
     }
 
     /**
-     * Test for assertObject with {@link EntityTierOneType} with {@link ChangedProperty}.
+     * Test for assertObject with {@link EntityTierOneType} with {@link Property}.
      */
     @Test
     public void testAssertObjectEntityTierOneType() {
@@ -467,8 +467,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
 
         // method
-        assertObject(actual, PropertyFactory.changed(EntityTierOneType.PROPERTY, TEST),
-                PropertyFactory.changed(EntityTierOneType.ID, 1));
+        assertObject(actual, PropertyFactory.value(EntityTierOneType.PROPERTY, TEST),
+                PropertyFactory.value(EntityTierOneType.ID, 1));
     }
 
     /**
@@ -480,7 +480,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
 
         // method
-        assertObject(actual, PropertyFactory.changed(EntityTierOneType.ID, 1));
+        assertObject(actual, PropertyFactory.value(EntityTierOneType.ID, 1));
     }
 
     /**
@@ -492,7 +492,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final EntityTierOneType actual = null;
 
         // method
-        assertObject(actual, PropertyFactory.changed(EntityTierOneType.ID, 1));
+        assertObject(actual, PropertyFactory.value(EntityTierOneType.ID, 1));
     }
 
     /**
@@ -866,7 +866,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link IgnoreProperty}.
+     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link IgnoredProperty}.
      */
     @Test
     public void testAssertPropertiesIgnoreProperty() {
@@ -949,7 +949,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testPreAssertObjectWithPropertiesEqual() {
         // setup
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
-        properties.add(PropertyFactory.changed(TierOneType.PROPERTY, "ninja"));
+        properties.add(PropertyFactory.value(TierOneType.PROPERTY, "ninja"));
 
         // method
         preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType("ninja"), properties);
@@ -964,7 +964,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testPreAssertObjectWithPropertiesNotEqual() {
         // setup
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
-        properties.add(PropertyFactory.changed(TierOneType.PROPERTY, TEST));
+        properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
         final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST
@@ -999,7 +999,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     public void testPreAssertObjectWithPropertiesBadProperties() {
         // setup
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
-        properties.add(PropertyFactory.changed(TEST, TEST));
+        properties.add(PropertyFactory.value(TEST, TEST));
 
         // method
         final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST),
@@ -1086,7 +1086,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final int numProperties = properties.size();
 
         // method
-        final ChangedProperty property = (ChangedProperty) obtainProperty(tierOneType, TierOneType.PROPERTY, properties);
+        final Property property = (Property) obtainProperty(tierOneType, TierOneType.PROPERTY, properties);
 
         // assert
         assertEquals(TierOneType.PROPERTY, property.getPath());
@@ -1229,12 +1229,12 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for extractProperties when parameters are of types {@link ISingleProperty} and {@link IMultiProperty}.
+     * Test for extractProperties when parameters are of types {@link ISingleProperty} and {@link IMultiProperties}.
      */
     @Test
     public void testExtractPropertiesMixed() {
         // method
-        final ISingleProperty[] propArray = extractProperties(PropertyFactory.changed(EntityTierOneType.PROPERTY, ""),
+        final ISingleProperty[] propArray = extractProperties(PropertyFactory.value(EntityTierOneType.PROPERTY, ""),
                 PropertyFactory.notNull(EntityTierOneType.ID, EntityTierOneType.PROPERTY));
 
         // assert
@@ -1250,8 +1250,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testExtractPropertiesAllISingleProperty() {
         // setup
-        final IProperty[] propArray = new ISingleProperty[] {PropertyFactory.changed(EntityTierOneType.PROPERTY, ""),
-                PropertyFactory.changed(EntityTierOneType.ID, 0)};
+        final IProperty[] propArray = new ISingleProperty[] {PropertyFactory.value(EntityTierOneType.PROPERTY, ""),
+                PropertyFactory.value(EntityTierOneType.ID, 0)};
 
         // method
         final ISingleProperty[] singlePropArray = extractProperties(propArray);
@@ -1264,16 +1264,16 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for extractProperties when all passed parameters are of type {@link IMultiProperty}.
+     * Test for extractProperties when all passed parameters are of type {@link IMultiProperties}.
      */
     @Test
     public void testExtractPropertiesAllIMultiProperty() {
         // setup
-        final IMultiProperty notNullMultiProp = PropertyFactory.notNull(EntityTierOneType.PROPERTY,
+        final IMultiProperties notNullMultiProp = PropertyFactory.notNull(EntityTierOneType.PROPERTY,
                 EntityTierOneType.ID);
-        final IMultiProperty ignoredMultiProp = PropertyFactory.ignored(EntityTierOneType.PROPERTY,
+        final IMultiProperties ignoredMultiProp = PropertyFactory.ignored(EntityTierOneType.PROPERTY,
                 EntityTierOneType.ID);
-        final IProperty[] multiPropArray = new IMultiProperty[] {notNullMultiProp, ignoredMultiProp};
+        final IProperty[] multiPropArray = new IMultiProperties[] {notNullMultiProp, ignoredMultiProp};
 
         // method
         final ISingleProperty[] singlePropArray = extractProperties(multiPropArray);
@@ -1288,7 +1288,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertObject with parameters of type {@link IMultiProperty}.
+     * Test for assertObject with parameters of type {@link IMultiProperties}.
      */
     @Test
     public void testAssertObjectMultiProperty() {
@@ -1300,7 +1300,7 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertObjects with parameters of type {@link IMultiProperty}.
+     * Test for assertObjects with parameters of type {@link IMultiProperties}.
      */
     @Test
     public void testAssertObjectsMultiProperty() {

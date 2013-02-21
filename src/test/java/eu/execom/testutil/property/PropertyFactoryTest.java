@@ -6,11 +6,11 @@ import eu.execom.testutil.AbstractExecomAssertTest;
 import eu.execom.testutil.model.EntityTierOneType;
 
 /**
- * Tests for {@link Property}.
+ * Tests for {@link AbstractSingleProperty}.
  */
 public class PropertyFactoryTest extends AbstractExecomAssertTest {
 
-    private static String TEST = "test";
+    private static final String TEST = "test";
 
     /**
      * Test for ignored when varargs are passed.
@@ -21,19 +21,19 @@ public class PropertyFactoryTest extends AbstractExecomAssertTest {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperty multi = PropertyFactory.ignored(properties);
+        final MultiProperties multi = PropertyFactory.ignored(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());
 
         for (int i = 0; i < properties.length; i++) {
-            assertTrue(multi.getProperties().get(i) instanceof IgnoreProperty);
+            assertTrue(multi.getProperties().get(i) instanceof IgnoredProperty);
             assertEquals(properties[i], multi.getProperties().get(i).getPath());
         }
     }
 
     /**
-     * Test for nulll when varargs are passed.
+     * Test for null when varargs are passed.
      */
     @Test
     public void testNulllVarargs() {
@@ -41,7 +41,7 @@ public class PropertyFactoryTest extends AbstractExecomAssertTest {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperty multi = PropertyFactory.nulll(properties);
+        final MultiProperties multi = PropertyFactory.nulll(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());
@@ -61,7 +61,7 @@ public class PropertyFactoryTest extends AbstractExecomAssertTest {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperty multi = PropertyFactory.notNull(properties);
+        final MultiProperties multi = PropertyFactory.notNull(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());
@@ -104,23 +104,23 @@ public class PropertyFactoryTest extends AbstractExecomAssertTest {
     @Test
     public void testIgnored() {
         // method
-        final IgnoreProperty ignoreProperty = PropertyFactory.ignored(EntityTierOneType.PROPERTY);
+        final IgnoredProperty ignoreProperty = PropertyFactory.ignored(EntityTierOneType.PROPERTY);
 
         // assert
-        assertTrue(ignoreProperty instanceof IgnoreProperty);
+        assertTrue(ignoreProperty instanceof IgnoredProperty);
         assertEquals(EntityTierOneType.PROPERTY, ignoreProperty.getPath());
     }
 
     /**
-     * Test for {@link PropertyFactory#changed(String, Object)}
+     * Test for {@link PropertyFactory#value(String, Object)}.
      */
     @Test
-    public void testChanged() {
+    public void testValue() {
         // method
-        final ChangedProperty<String> changedProperty = PropertyFactory.changed(EntityTierOneType.PROPERTY, TEST);
+        final Property<String> changedProperty = PropertyFactory.value(EntityTierOneType.PROPERTY, TEST);
 
         // assert
-        assertTrue(changedProperty instanceof ChangedProperty<?>);
+        assertTrue(changedProperty instanceof Property<?>);
         assertEquals(TEST, changedProperty.getExpectedValue());
         assertEquals(EntityTierOneType.PROPERTY, changedProperty.getPath());
     }

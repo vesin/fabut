@@ -105,8 +105,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Asserts two primitive types, if assert fails method must throw {@link AssertionError}.
      * 
-     * @param asserted
-     *            object types
      * @param expected
      *            expected object
      * @param actual
@@ -119,8 +117,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * After method for entity assert.
      * 
-     * @param asserted
-     *            object type
      * @param object
      *            asserted object.
      * @param isProperty

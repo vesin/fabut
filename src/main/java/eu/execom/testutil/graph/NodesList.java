@@ -14,29 +14,29 @@ import eu.execom.testutil.enums.NodeCheckType;
  * @author Nikola Trkulja
  */
 public class NodesList implements IsomorphicGraph {
-    private final List<IsomorphicNodePair<?>> isomorphicNodes;
+    private final List<IsomorphicNodePair> isomorphicNodes;
 
     /**
      * Default constructor.
      */
     public NodesList() {
-        isomorphicNodes = new LinkedList<IsomorphicNodePair<?>>();
+        isomorphicNodes = new LinkedList<IsomorphicNodePair>();
     }
 
     @Override
     public <T> boolean containsPair(final T expected, final T actual) {
-        return isomorphicNodes.contains(new IsomorphicNodePair<T>(expected, actual));
+        return isomorphicNodes.contains(new IsomorphicNodePair(expected, actual));
     }
 
     @Override
     public <T> void addPair(final T expected, final T actual) {
-        isomorphicNodes.add(new IsomorphicNodePair<T>(expected, actual));
+        isomorphicNodes.add(new IsomorphicNodePair(expected, actual));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getExpected(final T actual) {
-        for (final IsomorphicNodePair<?> isomorphicNode : isomorphicNodes) {
+        for (final IsomorphicNodePair isomorphicNode : isomorphicNodes) {
             if (isomorphicNode.getActual() == actual) {
                 return (T) isomorphicNode.getExpected();
             }
@@ -52,7 +52,7 @@ public class NodesList implements IsomorphicGraph {
 
     @Override
     public <T> boolean containsActual(final T actual) {
-        for (final IsomorphicNodePair<?> isomorphicNode : isomorphicNodes) {
+        for (final IsomorphicNodePair isomorphicNode : isomorphicNodes) {
             if (isomorphicNode.getActual() == actual) {
                 return true;
             }
@@ -62,7 +62,7 @@ public class NodesList implements IsomorphicGraph {
 
     @Override
     public <T> boolean containsExpected(final T expected) {
-        for (final IsomorphicNodePair<?> isomorphicNode : isomorphicNodes) {
+        for (final IsomorphicNodePair isomorphicNode : isomorphicNodes) {
             if (isomorphicNode.getExpected() == expected) {
                 return true;
             }

@@ -151,8 +151,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Checks if list asserting can be performed and does asserting if it can be performed.
      * 
-     * @param asserted
-     *            objects type
      * @param report
      *            assert report builder
      * @param expected
@@ -179,8 +177,6 @@ public class AbstractExecomAssert extends Assert {
      * Prepares object for asserting with specified list of properties. Checks if there is property for every field from
      * actual object, if so it does asserting, if not logs that information in report.
      * 
-     * @param asserted
-     *            object type
      * @param report
      *            assert report builder
      * @param actual
@@ -230,8 +226,6 @@ public class AbstractExecomAssert extends Assert {
      * ones from expected object and logs the report. Returns value of assertion or if specified object pair
      * actual/expected is correctly recurring nodes list.
      * 
-     * @param asserted
-     *            object types
      * @param propertyName
      *            name of field in parent object of type of actual object
      * @param report
@@ -290,8 +284,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Handles asserting actual object by the specified expected property. Logs the result in the report and returns it.
      * 
-     * @param asserted
-     *            object type
      * @param propertyName
      *            name of the current property
      * @param report
@@ -349,16 +341,10 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Handles asserting object by category of its type. Logs assertion result in report and returns it.
      * 
-     * @param asserted
-     *            objects type
      * @param propertyName
      *            name of current property
      * @param report
      *            assert report builder
-     * @param expected
-     *            expected object
-     * @param actual
-     *            actual object
      * @param properties
      *            list of excluded properties
      * @param nodesList
@@ -394,8 +380,6 @@ public class AbstractExecomAssert extends Assert {
      * Asserts two primitives using abstract method assertEqualsObjects, reports result and returns it. Primitives are
      * any class not marked as complex type, entity type or ignored type.
      * 
-     * @param the
-     *            generic type
      * @param report
      *            assert report builder
      * @param propertyName
@@ -424,8 +408,6 @@ public class AbstractExecomAssert extends Assert {
      * Handles list asserting. It traverses trough the list by list index start from 0 and going up to list size and
      * asserts every two elements on matching index. Lists cannot be asserted if their sizes are different.
      * 
-     * @param object
-     *            type
      * @param propertyName
      *            name of current property
      * @param report
@@ -475,8 +457,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Asserts two entities by their id.
      * 
-     * @param entity
-     *            type
      * @param <Id>
      *            entities id type
      * @param report
@@ -532,8 +512,6 @@ public class AbstractExecomAssert extends Assert {
      * fieldName as path and value of field.
      * 
      * @param field
-     *            type
-     * @param field
      *            expected value for {@link Property}
      * @param propertyPath
      *            path for property
@@ -575,8 +553,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * For two specified objects checks references and returns appropriate value.
      * 
-     * @param the
-     *            generic type
      * @param report
      *            builder
      * @param expected
@@ -606,8 +582,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Check is object of entity type and if it is mark it as asserted entity, in other case do nothing.
      * 
-     * @param the
-     *            generic type
      * @param object
      *            the object
      * @param isSubproperty
@@ -622,8 +596,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Checks if is same instance.
      * 
-     * @param the
-     *            generic type
      * @param expected
      *            the expected
      * @param actual

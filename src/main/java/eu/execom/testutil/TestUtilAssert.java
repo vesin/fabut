@@ -41,25 +41,6 @@ public class TestUtilAssert {
     }
 
     public static void beforeTest() {
-
-        // abstractExecomRepositoryAssert = new AbstractExecomRepositoryAssert() {
-        //
-        // @Override
-        // protected List findAll(final Class entityClass) {
-        // return TestUtilAssert.findAll(entityClass);
-        // }
-        //
-        // @Override
-        // protected Object findById(final Class entityClass, final Object id) {
-        // return TestUtilAssert.findById(entityClass, id);
-        // }
-        //
-        // @Override
-        // protected void customAssertEquals(final Object expected, final Object actual) {
-        // Assert.assertEquals(expected, actual);
-        // }
-        //
-        // };
         abstractExecomRepositoryAssert = new AbstractExecomRepositoryAssert();
         // TODO get instance of the class not class
         testClass = ReflectionUtil.getTestClassFromStackTrace();
@@ -112,5 +93,9 @@ public class TestUtilAssert {
 
     public static void assertEntityAsDeleted(final Object entity) {
         abstractExecomRepositoryAssert.assertEntityAsDeleted(entity);
+    }
+
+    public static void ignoreEntity(final Object entity) {
+        abstractExecomRepositoryAssert.ignoreEntity(entity);
     }
 }

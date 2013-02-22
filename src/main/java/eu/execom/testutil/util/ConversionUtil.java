@@ -2,6 +2,10 @@ package eu.execom.testutil.util;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import eu.execom.testutil.AssertPair;
+import eu.execom.testutil.enums.ObjectType;
 
 /**
  * Util class for conversions needed by testutil.
@@ -37,4 +41,12 @@ public final class ConversionUtil {
         }
         return list;
     }
+
+    // TODO comments, tests
+    public static AssertPair createAssertPair(final Object expected, final Object actual,
+            final Map<ObjectType, List<Class<?>>> types) {
+        final ObjectType objectType = ReflectionUtil.getObjectType(expected, actual, types);
+        return new AssertPair(expected, actual, objectType);
+    }
+
 }

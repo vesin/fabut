@@ -1,14 +1,14 @@
 package eu.execom.testutil.property;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import eu.execom.testutil.AbstractExecomAssertTest;
 import eu.execom.testutil.model.EntityTierOneType;
 
 /**
  * Tests for {@link AbstractSingleProperty}.
  */
-public class PropertyFactoryTest extends AbstractExecomAssertTest {
+public class PropertyFactoryTest extends Assert {
 
     private static final String TEST = "test";
 

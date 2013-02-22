@@ -232,6 +232,7 @@ public final class ReflectionUtil {
     public static <X> List<Method> getObjectGetMethods(final X object, final List<Class<?>> complexTypes,
             final List<Class<?>> entityTypes) {
 
+        // TODO what is point of this two lists?
         final List<Method> getMethods = new ArrayList<Method>();
         final List<Method> getMethodsComplexType = new ArrayList<Method>();
 

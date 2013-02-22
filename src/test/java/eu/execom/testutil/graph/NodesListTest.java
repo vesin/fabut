@@ -4,7 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import eu.execom.testutil.AbstractExecomAssert;
 import eu.execom.testutil.enums.NodeCheckType;
 import eu.execom.testutil.model.TierOneType;
 

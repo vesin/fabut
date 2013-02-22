@@ -42,6 +42,10 @@ import eu.execom.testutil.util.ReflectionUtil;
 @SuppressWarnings({"rawtypes"})
 public class AbstractExecomAssert extends Assert {
 
+    protected static final String EMPTY_STRING = "";
+
+    private static final String DOT = ".";
+
     protected Map<ObjectType, List<Class<?>>> types;
 
     /**
@@ -52,24 +56,11 @@ public class AbstractExecomAssert extends Assert {
         types = new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class);
     }
 
-    public void assertObjects(final List<Object> expected, final Object... actuals) {
-        assertObjects(expected, ConversionUtil.createListFromArray(actuals));
-    }
-
-    public void assertObjects(final List expected, final List actual) {
+    public void assertObjects(final List<Object> expected, final List<Object> actual) {
         final AssertReportBuilder report = new AssertReportBuilder();
         if (!beforeListAssert(report, expected, actual)) {
             throw new AssertionError(report.getMessage());
         }
-    }
-
-    public void assertObjects(final Object expected, final Object actual, final IProperty... expectedChanges) {
-        assertObjects(EMPTY_STRING, expected, actual, expectedChanges);
-    }
-
-    public void assertObjects(final String message, final Object expected, final Object actual,
-            final IProperty... excludes) {
-        assertObjects(message, expected, actual, ConversionUtil.createListFromArray(extractProperties(excludes)));
     }
 
     public void assertObjects(final String message, final Object expected, final Object actual,
@@ -83,15 +74,10 @@ public class AbstractExecomAssert extends Assert {
         afterAssertObject(actual, false);
     }
 
-    public void assertObject(final Object actual, final IProperty... excludes) {
-        assertObject(EMPTY_STRING, actual, excludes);
-    }
-
     // TODO excludes should be expected
-    public void assertObject(final String message, final Object actual, final IProperty... excludes) {
+    public void assertObject(final String message, final Object actual, final List<ISingleProperty> properties) {
         final AssertReportBuilder report = new AssertReportBuilder(message);
-        if (!preAssertObjectWithProperties(report, actual,
-                ConversionUtil.createListFromArray(extractProperties(excludes)))) {
+        if (!preAssertObjectWithProperties(report, actual, properties)) {
             throw new AssertionError(report.getMessage());
         }
         afterAssertObject(actual, false);
@@ -100,8 +86,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Asserts two primitive types, if assert fails method must throw {@link AssertionError}.
      * 
-     * @param asserted
-     *            object types
      * @param expected
      *            expected object
      * @param actual
@@ -114,8 +98,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * After method for entity assert.
      * 
-     * @param asserted
-     *            object type
      * @param object
      *            asserted object.
      * @param isProperty
@@ -150,8 +132,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Checks if list asserting can be performed and does asserting if it can be performed.
      * 
-     * @param asserted
-     *            objects type
      * @param report
      *            assert report builder
      * @param expected
@@ -178,8 +158,6 @@ public class AbstractExecomAssert extends Assert {
      * Prepares object for asserting with specified list of properties. Checks if there is property for every field from
      * actual object, if so it does asserting, if not logs that information in report.
      * 
-     * @param asserted
-     *            object type
      * @param report
      *            assert report builder
      * @param actual
@@ -229,8 +207,6 @@ public class AbstractExecomAssert extends Assert {
      * ones from expected object and logs the report. Returns value of assertion or if specified object pair
      * actual/expected is correctly recurring nodes list.
      * 
-     * @param asserted
-     *            object types
      * @param propertyName
      *            name of field in parent object of type of actual object
      * @param report
@@ -289,8 +265,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Handles asserting actual object by the specified expected property. Logs the result in the report and returns it.
      * 
-     * @param asserted
-     *            object type
      * @param propertyName
      *            name of the current property
      * @param report
@@ -348,16 +322,10 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Handles asserting object by category of its type. Logs assertion result in report and returns it.
      * 
-     * @param asserted
-     *            objects type
      * @param propertyName
      *            name of current property
      * @param report
      *            assert report builder
-     * @param expected
-     *            expected object
-     * @param actual
-     *            actual object
      * @param properties
      *            list of excluded properties
      * @param nodesList
@@ -393,8 +361,6 @@ public class AbstractExecomAssert extends Assert {
      * Asserts two primitives using abstract method assertEqualsObjects, reports result and returns it. Primitives are
      * any class not marked as complex type, entity type or ignored type.
      * 
-     * @param the
-     *            generic type
      * @param report
      *            assert report builder
      * @param propertyName
@@ -423,8 +389,6 @@ public class AbstractExecomAssert extends Assert {
      * Handles list asserting. It traverses trough the list by list index start from 0 and going up to list size and
      * asserts every two elements on matching index. Lists cannot be asserted if their sizes are different.
      * 
-     * @param object
-     *            type
      * @param propertyName
      *            name of current property
      * @param report
@@ -474,8 +438,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Asserts two entities by their id.
      * 
-     * @param entity
-     *            type
      * @param <Id>
      *            entities id type
      * @param report
@@ -531,8 +493,6 @@ public class AbstractExecomAssert extends Assert {
      * fieldName as path and value of field.
      * 
      * @param field
-     *            type
-     * @param field
      *            expected value for {@link Property}
      * @param propertyPath
      *            path for property
@@ -574,8 +534,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * For two specified objects checks references and returns appropriate value.
      * 
-     * @param the
-     *            generic type
      * @param report
      *            builder
      * @param expected
@@ -605,8 +563,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Check is object of entity type and if it is mark it as asserted entity, in other case do nothing.
      * 
-     * @param the
-     *            generic type
      * @param object
      *            the object
      * @param isSubproperty
@@ -621,8 +577,6 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Checks if is same instance.
      * 
-     * @param the
-     *            generic type
      * @param expected
      *            the expected
      * @param actual
@@ -653,11 +607,6 @@ public class AbstractExecomAssert extends Assert {
         final ISingleProperty[] array = new ISingleProperty[list.size()];
         return list.toArray(array);
     }
-
-    // TODO rethink need to constants class
-    protected static final String EMPTY_STRING = "";
-
-    private static final String DOT = ".";
 
     public Map<ObjectType, List<Class<?>>> getTypes() {
         return types;

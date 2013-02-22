@@ -9,7 +9,6 @@ import eu.execom.testutil.Pair;
  * @author Nikola Olah
  * @author Bojan Babic
  * @author Nikola Trkulja
- * @param <T>
  */
 public class IsomorphicNodePair extends Pair {
 

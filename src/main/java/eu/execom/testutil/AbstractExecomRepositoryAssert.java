@@ -74,10 +74,6 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
 
     }
 
-    public <X extends EntityType> void assertEntityWithSnapshot(final X actual, final ISingleProperty... properties) {
-        assertEntityWithSnapshot(EMPTY_STRING, actual, properties);
-    }
-
     public <X extends EntityType> void assertEntityWithSnapshot(final String message, final X actual,
             final ISingleProperty... properties) {
 

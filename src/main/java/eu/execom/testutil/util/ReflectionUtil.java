@@ -2,6 +2,7 @@ package eu.execom.testutil.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -133,12 +134,12 @@ public final class ReflectionUtil {
      *            list of entity types
      * @return <code>true</code> if specified class is contained in entity types, <code>false</code> otherwise.
      */
-    public static boolean isEntityType(final Class<?> object, final List<Class<?>> entityTypes) {
+    public static boolean isEntityType(final Class<?> object, final Map<ObjectType, List<Class<?>>> types) {
 
-        final boolean isEntity = entityTypes.contains(object);
+        final boolean isEntity = types.get(ObjectType.ENTITY_TYPE).contains(object);
 
         // necessary tweek for hibernate beans witch in some cases are fetched as proxy objects
-        final boolean isSuperClassEntity = entityTypes.contains(object.getSuperclass());
+        final boolean isSuperClassEntity = types.get(ObjectType.ENTITY_TYPE).contains(object.getSuperclass());
 
         return isEntity || isSuperClassEntity;
     }
@@ -152,8 +153,8 @@ public final class ReflectionUtil {
      *            the complex types
      * @return <code>true</code> if specified class is contained in complex types, <code>false</code> otherwise.
      */
-    public static boolean isComplexType(final Class<?> classs, final List<Class<?>> complexTypes) {
-        return complexTypes.contains(classs);
+    public static boolean isComplexType(final Class<?> classs, final Map<ObjectType, List<Class<?>>> types) {
+        return types.get(ObjectType.COMPLEX_TYPE).contains(classs);
     }
 
     /**
@@ -165,8 +166,8 @@ public final class ReflectionUtil {
      *            list of ignored types
      * @return <code>true</code> if specified class is contained in ignored types, <code>false</code> otherwise.
      */
-    public static boolean isIgnoredType(final Class<?> classs, final List<Class<?>> ignoredTypes) {
-        return ignoredTypes.contains(classs);
+    public static boolean isIgnoredType(final Class<?> classs, final Map<ObjectType, List<Class<?>>> types) {
+        return types.get(ObjectType.IGNORED_TYPE).contains(classs);
     }
 
     /**
@@ -182,14 +183,14 @@ public final class ReflectionUtil {
      * @return <code>true</code> if type of expected or actual is ignored type, <code>false</code> otherwise.
      */
     public static boolean isIgnoredType(final Object firstObject, final Object secondObject,
-            final List<Class<?>> ignoredTypes) {
+            final Map<ObjectType, List<Class<?>>> types) {
 
         if (secondObject != null) {
-            return isIgnoredType(secondObject.getClass(), ignoredTypes);
+            return isIgnoredType(secondObject.getClass(), types);
         }
 
         if (firstObject != null) {
-            return isIgnoredType(firstObject.getClass(), ignoredTypes);
+            return isIgnoredType(firstObject.getClass(), types);
         }
 
         return false;
@@ -232,25 +233,25 @@ public final class ReflectionUtil {
      */
     public static <X> List<Method> getObjectGetMethods(final X object, final Map<ObjectType, List<Class<?>>> types) {
 
-        // final List<Method> getMethods = new ArrayList<Method>();
-        // final List<Method> getMethodsComplexType = new ArrayList<Method>();
-        //
-        // final Method[] allMethods = object.getClass().getMethods();
-        // for (final Method method : allMethods) {
-        // if (ReflectionUtil.isGetMethod(object.getClass(), method)) {
-        // // complex or entity type get methods inside object come last in
-        // // list
-        // if (complexTypes.contains(method.getReturnType()) || entityTypes.contains(method.getReturnType())) {
-        // getMethodsComplexType.add(method);
-        // } else {
-        // getMethods.add(method);
-        // }
-        // }
-        // }
-        // getMethods.addAll(getMethodsComplexType);
-        // return getMethods;
+        final List<Method> getMethods = new ArrayList<Method>();
+        final List<Method> getMethodsComplexType = new ArrayList<Method>();
+
+        final Method[] allMethods = object.getClass().getMethods();
+        for (final Method method : allMethods) {
+            if (ReflectionUtil.isGetMethod(object.getClass(), method)) {
+                // complex or entity type get methods inside object come last in
+                // list
+                if (isComplexType(method.getReturnType(), types) || isEntityType(method.getReturnType(), types)) {
+                    getMethodsComplexType.add(method);
+                } else {
+                    getMethods.add(method);
+                }
+            }
+        }
+        getMethods.addAll(getMethodsComplexType);
+        return getMethods;
+
         // TODO requires new implementation
-        return null;
     }
 
     /**
@@ -362,7 +363,19 @@ public final class ReflectionUtil {
 
     public static ObjectType getObjectType(final Object expected, final Object actual,
             final Map<ObjectType, List<Class<?>>> types) {
-        // TODO IMPLEMENT THIS
-        return null;
+        if (types.get(ObjectType.COMPLEX_TYPE).contains(expected.getClass())
+                || types.get(ObjectType.COMPLEX_TYPE).contains(actual.getClass())) {
+            return ObjectType.COMPLEX_TYPE;
+        } else if (types.get(ObjectType.ENTITY_TYPE).contains(expected.getClass())
+                || types.get(ObjectType.ENTITY_TYPE).contains(actual.getClass())) {
+            return ObjectType.ENTITY_TYPE;
+
+        } else if (types.get(ObjectType.IGNORED_TYPE).contains(expected.getClass())
+                || types.get(ObjectType.IGNORED_TYPE).contains(actual.getClass())) {
+            return ObjectType.IGNORED_TYPE;
+
+        } else {
+            throw new IllegalStateException("Unsupported object type!");
+        }
     }
 }

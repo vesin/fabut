@@ -12,6 +12,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.lang3.StringUtils;
 
+import eu.execom.testutil.enums.ObjectType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.report.AssertReportBuilder;
@@ -34,6 +35,7 @@ import eu.execom.testutil.util.ReflectionUtil;
 // TODO its not Abstract any more.
 public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends AbstractExecomAssert {
 
+    // TODO should not be here, move
     /** The Constant SET_METHOD_PREFIX. */
     protected static final String SET_METHOD_PREFIX = "set";
 
@@ -66,7 +68,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
 
     public void ignoreEntity(final EntityType actual) {
 
-        if (ReflectionUtil.isEntityType(actual.getClass(), entityTypes)) {
+        if (ReflectionUtil.isEntityType(actual.getClass(), getTypes())) {
             markAsserted(actual);
         }
 
@@ -106,7 +108,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
 
     @Override
     protected final void afterAssertEntity(final Object object, final boolean isProperty) {
-        if (ReflectionUtil.isEntityType(object.getClass(), entityTypes) && !isProperty
+        if (ReflectionUtil.isEntityType(object.getClass(), getTypes()) && !isProperty
                 && ReflectionUtil.getIdValue((EntityType) object) != null) {
             markAsserted((EntityType) object);
         }
@@ -440,14 +442,14 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
      *            object for copying
      * @return copied object
      */
-    <T> T createCopy(final T object) {
+    Object createCopy(final Object object) {
         if (object == null) {
             return null;
         }
 
         if (ReflectionUtil.isListType(object)) {
             final List<?> list = (List<?>) object;
-            return (T) copyList(list);
+            return copyList(list);
         }
 
         return createCopyObject(object, new NodesList());
@@ -505,7 +507,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
             return null;
         }
 
-        if (ReflectionUtil.isComplexType(propertyForCopying.getClass(), complexTypes)) {
+        if (ReflectionUtil.isComplexType(propertyForCopying.getClass(), types)) {
             // its complex object, we need its copy
             return createCopyObject(propertyForCopying, nodes);
         }
@@ -583,9 +585,9 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
      *            list of objects that had been copied
      * @return copied entity
      */
-    private <T> T createCopyObject(final T object, final NodesList nodes) {
+    private Object createCopyObject(final Object object, final NodesList nodes) {
 
-        T copy = nodes.getExpected(object);
+        Object copy = nodes.getExpected(object);
         if (copy != null) {
             return copy;
         }
@@ -618,7 +620,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
      */
     void initDbSnapshot() {
         dbSnapshot.clear();
-        for (final Class<?> entityType : entityTypes) {
+        for (final Class<?> entityType : getEntityTypes()) {
             getDbSnapshot().put(entityType, new HashMap<EntityId, CopyAssert<Object>>());
         }
     }
@@ -634,6 +636,11 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
     @Override
     protected void customAssertEquals(final Object expected, final Object actual) {
         Assert.assertEquals(expected, actual);
+    }
+
+    public void setEntityTypes(final List<Class<?>> entityTypes) {
+        // TODO null pointer checks
+        getTypes().put(ObjectType.ENTITY_TYPE, entityTypes);
     }
 
 }

@@ -1,7 +1,5 @@
 package eu.execom.testutil;
 
-import eu.execom.testutil.model.Type;
-
 /**
  * TODO add comments
  * 
@@ -10,7 +8,7 @@ import eu.execom.testutil.model.Type;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class AbstractExecomAssertTest extends AbstractExecomAssert<Type> {
+public abstract class AbstractExecomAssertTest extends AbstractExecomAssert {
 
     /**
      * Default constructor.
@@ -54,12 +52,12 @@ public abstract class AbstractExecomAssertTest extends AbstractExecomAssert<Type
     // }
 
     @Override
-    protected <T> void customAssertEquals(final T actual, final T expected) {
+    protected void customAssertEquals(final Object actual, final Object expected) {
         assertEquals(expected, actual);
     }
 
     @Override
-    protected <X> void afterAssertEntity(final X object, final boolean asProperty) {
+    public void afterAssertEntity(final Object object, final boolean asProperty) {
     }
 
 }

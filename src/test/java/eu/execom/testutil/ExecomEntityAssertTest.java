@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import eu.execom.testutil.enums.ObjectType;
 import eu.execom.testutil.enums.ReferenceCheckType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.model.A;
@@ -30,13 +31,13 @@ import eu.execom.testutil.model.TierTwoTypeWithIgnoreProperty;
 import eu.execom.testutil.model.TierTwoTypeWithListProperty;
 import eu.execom.testutil.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.testutil.model.UnknownType;
-import eu.execom.testutil.property.Property;
 import eu.execom.testutil.property.IMultiProperties;
 import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.property.IgnoredProperty;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
+import eu.execom.testutil.property.Property;
 import eu.execom.testutil.property.PropertyFactory;
 import eu.execom.testutil.report.AssertReportBuilder;
 
@@ -56,10 +57,10 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
 
     @Before
     public void before() {
-        final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
-        entityTypes.add(EntityTierOneType.class);
-        entityTypes.add(EntityTierTwoType.class);
-        setEntityTypes(entityTypes);
+        // final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
+        // entityTypes.add(EntityTierOneType.class);
+        // entityTypes.add(EntityTierTwoType.class);
+        // setEntityTypes(entityTypes);
 
         final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
         complexTypes.add(A.class);
@@ -259,8 +260,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         // setup
         final TierTwoTypeWithIgnoreProperty tierTwoTypeWithIgnoreProperty = new TierTwoTypeWithIgnoreProperty(
                 new IgnoredType());
-        final Property<IgnoredType> jokerProperty = PropertyFactory.value(
-                TierTwoTypeWithIgnoreProperty.IGNORED_TYPE, new IgnoredType());
+        final Property<IgnoredType> jokerProperty = PropertyFactory.value(TierTwoTypeWithIgnoreProperty.IGNORED_TYPE,
+                new IgnoredType());
 
         // method
         assertObject(EMPTY_STRING, tierTwoTypeWithIgnoreProperty, jokerProperty);
@@ -284,8 +285,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertObject with {@link Property} when all actual list members are primitive types and are equal
-     * to expected list members with a {@link TierTwoTypeWithListProperty}.
+     * Test for assertObject with {@link Property} when all actual list members are primitive types and are equal to
+     * expected list members with a {@link TierTwoTypeWithListProperty}.
      */
     @Test
     public void testAssertObjectChangedPropertyWithListAllPropertiesEqual() {
@@ -304,8 +305,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertObject with {@link Property} when actual list members are primitive types and are not equal
-     * to expected list members with a {@link TierTwoTypeWithListProperty}.
+     * Test for assertObject with {@link Property} when actual list members are primitive types and are not equal to
+     * expected list members with a {@link TierTwoTypeWithListProperty}.
      */
     @Test(expected = AssertionError.class)
     public void testAssertObjectChangedPropertyWithListAllPropertiesNotEqual() {
@@ -625,28 +626,31 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testAssertChangedPropertyBothNulls() {
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), null, null,
-                new ArrayList<ISingleProperty>(), new NodesList(), true);
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(null,
+                null, ObjectType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertTrue(assertValue);
     }
 
-    /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual or expected is exclusive null.
-     */
-    @Test
-    public void testAssertChangedPropertyExclusive() {
-        // method
-        final boolean assertValue1 = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), null, new Object(),
-                new ArrayList<ISingleProperty>(), new NodesList(), true);
-        final boolean assertValue2 = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new Object(), null,
-                new ArrayList<ISingleProperty>(), new NodesList(), true);
+    // TODO this method is probably not needed anymore
 
-        // assert
-        assertFalse(assertValue1);
-        assertFalse(assertValue2);
-    }
+    // /**
+    // * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual or expected is exclusive null.
+    // */
+    // @Test
+    // public void testAssertChangedPropertyExclusive() {
+    // // method
+    // final boolean assertValue1 = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(),new
+    // AssertPair(expected, actual, objectType) null, new Object(),
+    // new ArrayList<ISingleProperty>(), new NodesList(), true);
+    // final boolean assertValue2 = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new Object(), null,
+    // new ArrayList<ISingleProperty>(), new NodesList(), true);
+    //
+    // // assert
+    // assertFalse(assertValue1);
+    // assertFalse(assertValue2);
+    // }
 
     /**
      * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is instance of complex class.
@@ -658,8 +662,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final TierOneType expected = new TierOneType(TEST);
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<ISingleProperty>(), new NodesList(), true);
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+                expected, actual, ObjectType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertTrue(assertValue);
@@ -675,8 +679,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final IgnoredType expected = new IgnoredType();
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<ISingleProperty>(), new NodesList(), true);
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+                expected, actual, ObjectType.IGNORED_TYPE), new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertTrue(assertValue);
@@ -693,8 +697,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final String expected = TEST;
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<ISingleProperty>(), new NodesList(), true);
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+                expected, actual, ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertTrue(assertValue);
@@ -711,8 +715,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         final String expected = TEST + TEST;
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new ArrayList<ISingleProperty>(), new NodesList(), true);
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+                expected, actual, ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), new NodesList(), true);
 
         // assert
         assertFalse(assertValue);
@@ -721,18 +725,18 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
     /**
      * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is entity type.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testAssertChangedPropertyEntityType() {
         // setup
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
         final EntityTierOneType expected = new EntityTierOneType(TEST, 1);
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                null, null, true);
+        assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(expected, actual,
+                ObjectType.ENTITY_TYPE), null, null, true);
 
-        // assert
-        assertTrue(assertValue);
+        // // assert
+        // assertTrue(assertValue);
     }
 
     /**
@@ -749,8 +753,8 @@ public class ExecomEntityAssertTest extends AbstractExecomAssertTest {
         expected.add(TEST);
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), expected, actual,
-                new LinkedList<ISingleProperty>(), null, true);
+        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+                expected, actual, ObjectType.LIST_TYPE), new LinkedList<ISingleProperty>(), null, true);
 
         // assert
         assertTrue(assertValue);

@@ -42,11 +42,6 @@ import eu.execom.testutil.util.ReflectionUtil;
 @SuppressWarnings({"rawtypes"})
 public class AbstractExecomAssert extends Assert {
 
-    protected static final String EMPTY_STRING = "";
-
-    private static final String DOT = ".";
-
-    // TODO remove entity types
     protected Map<ObjectType, List<Class<?>>> types;
 
     /**
@@ -126,7 +121,7 @@ public class AbstractExecomAssert extends Assert {
      * @param isProperty
      *            <code>true</code> if entity is property of another object, <code>false</code> otherwise
      */
-    protected void afterAssertEntity(final Object object, final boolean isProperty) {
+    public void afterAssertEntity(final Object object, final boolean isProperty) {
         // TODO implements functionality so this asserts objects in parameter snapshot
     }
 
@@ -136,7 +131,7 @@ public class AbstractExecomAssert extends Assert {
      * @param complexTypes
      *            list of complex types
      */
-    protected void setComplexTypes(final List<Class<?>> complexTypes) {
+    public void setComplexTypes(final List<Class<?>> complexTypes) {
         // TODO(nolah) add null pointer checks
         types.put(ObjectType.COMPLEX_TYPE, complexTypes);
     }
@@ -147,7 +142,7 @@ public class AbstractExecomAssert extends Assert {
      * @param ignoredTypes
      *            list of ignored types
      */
-    protected void setIgnoredTypes(final List<Class<?>> ignoredTypes) {
+    public void setIgnoredTypes(final List<Class<?>> ignoredTypes) {
         // TODO(nolah) add null pointer checks
         types.put(ObjectType.IGNORED_TYPE, ignoredTypes);
     }
@@ -657,6 +652,31 @@ public class AbstractExecomAssert extends Assert {
 
         final ISingleProperty[] array = new ISingleProperty[list.size()];
         return list.toArray(array);
+    }
+
+    // TODO rethink need to constants class
+    protected static final String EMPTY_STRING = "";
+
+    private static final String DOT = ".";
+
+    public Map<ObjectType, List<Class<?>>> getTypes() {
+        return types;
+    }
+
+    public void setTypes(final Map<ObjectType, List<Class<?>>> types) {
+        this.types = types;
+    }
+
+    public List<Class<?>> getComplexTypes() {
+        return types.get(ObjectType.COMPLEX_TYPE);
+    }
+
+    public List<Class<?>> getEntityTypes() {
+        return types.get(ObjectType.ENTITY_TYPE);
+    }
+
+    public List<Class<?>> getIgnoredTypes() {
+        return types.get(ObjectType.IGNORED_TYPE);
     }
 
 }

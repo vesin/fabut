@@ -592,7 +592,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     @Test
     public void testCreateCopyNull() {
         // method
-        final TierOneType object = createCopy(null);
+        final Object object = createCopy(null);
 
         // assert
         assertNull(object);
@@ -608,7 +608,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         list.add(TEST);
 
         // method
-        final List<String> assertList = createCopy(list);
+        final List<String> assertList = (List<String>) createCopy(list);
 
         assertNotNull(assertList);
         assertEquals(1, assertList.size());

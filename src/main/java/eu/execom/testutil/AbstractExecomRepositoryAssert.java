@@ -74,8 +74,8 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
 
     }
 
-    public <X extends EntityType> void assertEntityWithSnapshot(final String message, final X actual,
-            final ISingleProperty... properties) {
+    public <X extends EntityType> void assertEntityWithSnapshot(final AssertReportBuilder report, final X actual,
+            final List<ISingleProperty> properties) {
 
         final EntityId id = ReflectionUtil.getIdValue(actual);
         Assert.assertNotNull("Entity id can't be null " + actual, id);
@@ -88,7 +88,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
             if (copyAssert != null) {
                 final Object expected = copyAssert.getEntity();
                 if (expected != null) {
-                    assertObjects(message, expected, actual, properties);
+                    assertObjects(report, expected, actual, properties);
                 } else {
                     Assert.fail("There is no valid copy in snapshot for entity of class "
                             + actual.getClass().getSimpleName());
@@ -103,7 +103,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
     }
 
     @Override
-    protected final void afterAssertEntity(final Object object, final boolean isProperty) {
+    public final void afterAssertEntity(final Object object, final boolean isProperty) {
         if (ReflectionUtil.isEntityType(object.getClass(), getTypes()) && !isProperty
                 && ReflectionUtil.getIdValue((EntityType) object) != null) {
             markAsserted((EntityType) object);
@@ -350,7 +350,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
      */
     <X> boolean assertEntities(final X beforeEntity, final X afterEntity, final AssertReportBuilder report) {
         try {
-            assertObjects(beforeEntity, afterEntity);
+            assertObjects(new AssertReportBuilder(), beforeEntity, afterEntity, new ArrayList<ISingleProperty>());
             return true;
         } catch (final AssertionError e) {
             report.reportRepositoryEntityAssertFail(beforeEntity, afterEntity);
@@ -420,7 +420,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
     boolean assertParameterPair(final Object beforeParameter, final Object afterParameter,
             final AssertReportBuilder report) {
         try {
-            assertObjects(beforeParameter, afterParameter);
+            assertObjects(new AssertReportBuilder(), beforeParameter, afterParameter, new ArrayList<ISingleProperty>());
             return true;
         } catch (final AssertionError e) {
             report.reportParametersAssertFail(beforeParameter, afterParameter);
@@ -432,8 +432,6 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
     /**
      * Create copy of specified object and return its copy.
      * 
-     * @param <T>
-     *            type of the object
      * @param object
      *            object for copying
      * @return copied object

@@ -56,16 +56,14 @@ public class AbstractExecomAssert extends Assert {
         types = new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class);
     }
 
-    public void assertObjects(final List<Object> expected, final List<Object> actual) {
-        final AssertReportBuilder report = new AssertReportBuilder();
+    public void assertObjects(final AssertReportBuilder report, final List<Object> expected, final List<Object> actual) {
         if (!beforeListAssert(report, expected, actual)) {
             throw new AssertionError(report.getMessage());
         }
     }
 
-    public void assertObjects(final String message, final Object expected, final Object actual,
+    public void assertObjects(final AssertReportBuilder report, final Object expected, final Object actual,
             final List<ISingleProperty> excludedProperties) {
-        final AssertReportBuilder report = new AssertReportBuilder(message);
         // TODO ugly code, need to be changed
         if (!(isSameInstance(expected, actual) || assertChangedProperty(EMPTY_STRING, report,
                 ConversionUtil.createAssertPair(expected, actual, types), excludedProperties, new NodesList(), false))) {
@@ -75,8 +73,9 @@ public class AbstractExecomAssert extends Assert {
     }
 
     // TODO excludes should be expected
-    public void assertObject(final String message, final Object actual, final List<ISingleProperty> properties) {
-        final AssertReportBuilder report = new AssertReportBuilder(message);
+    public void assertObject(final AssertReportBuilder report, final Object actual,
+            final List<ISingleProperty> properties) {
+
         if (!preAssertObjectWithProperties(report, actual, properties)) {
             throw new AssertionError(report.getMessage());
         }
@@ -593,7 +592,7 @@ public class AbstractExecomAssert extends Assert {
      * @param properties
      *            array/arrays of properties
      */
-    ISingleProperty[] extractProperties(final IProperty... properties) {
+    List<ISingleProperty> extractProperties(final IProperty... properties) {
         final ArrayList<ISingleProperty> list = new ArrayList<ISingleProperty>();
 
         for (final IProperty property : properties) {
@@ -604,8 +603,7 @@ public class AbstractExecomAssert extends Assert {
             }
         }
 
-        final ISingleProperty[] array = new ISingleProperty[list.size()];
-        return list.toArray(array);
+        return list;
     }
 
     public Map<ObjectType, List<Class<?>>> getTypes() {

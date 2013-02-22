@@ -1,9 +1,12 @@
 package eu.execom.testutil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
+import eu.execom.testutil.report.AssertReportBuilder;
+import eu.execom.testutil.util.ConversionUtil;
 import eu.execom.testutil.util.ReflectionUtil;
 
 /**
@@ -58,25 +61,29 @@ public class TestUtilAssert {
         abstractExecomRepositoryAssert.assertSnapshots();
     }
 
-    public static void assertEntityWithSnapshot(final Object actual, final ISingleProperty... properties) {
-        abstractExecomRepositoryAssert.assertEntityWithSnapshot("", actual, properties);
+    public static void assertEntityWithSnapshot(final Object actual, final IProperty... properties) {
+        abstractExecomRepositoryAssert.assertEntityWithSnapshot(new AssertReportBuilder(), actual,
+                abstractExecomRepositoryAssert.extractProperties(properties));
     }
 
     public static void assertObjects(final Object expected, final Object actual) {
-        abstractExecomRepositoryAssert.assertObjects(expected, actual);
+        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected, actual,
+                new ArrayList<ISingleProperty>());
     }
 
     public static void assertObject(final Object expected, final IProperty... properties) {
-        abstractExecomRepositoryAssert.assertObject(expected, properties);
+        abstractExecomRepositoryAssert.assertObject(new AssertReportBuilder(), expected,
+                abstractExecomRepositoryAssert.extractProperties(properties));
     }
 
     public static void assertObjects(final String message, final Object expected, final Object actual,
             final IProperty... excludes) {
-        abstractExecomRepositoryAssert.assertObjects(message, expected, actual, excludes);
+        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(message), expected, actual,
+                abstractExecomRepositoryAssert.extractProperties(excludes));
     }
 
     public static void assertObjects(final List<Object> expected, final List<Object> actual) {
-        abstractExecomRepositoryAssert.assertObjects(expected, actual);
+        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected, actual);
     }
 
     public static void markAsserted(final Object entity) {
@@ -84,11 +91,8 @@ public class TestUtilAssert {
     }
 
     public static void assertObjects(final List expected, final Object... actuals) {
-        abstractExecomRepositoryAssert.assertObjects(expected, actuals);
-    }
-
-    public static void assertObjects(final Object expected, final Object actual, final IProperty properties) {
-        abstractExecomRepositoryAssert.assertObjects(expected, actual, properties);
+        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected,
+                ConversionUtil.createListFromArray(actuals));
     }
 
     public static void assertEntityAsDeleted(final Object entity) {

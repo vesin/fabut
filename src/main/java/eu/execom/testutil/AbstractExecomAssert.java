@@ -46,7 +46,6 @@ public class AbstractExecomAssert extends Assert {
 
     private static final String DOT = ".";
 
-    // TODO remove entity types
     protected Map<ObjectType, List<Class<?>>> types;
 
     /**
@@ -57,24 +56,11 @@ public class AbstractExecomAssert extends Assert {
         types = new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class);
     }
 
-    public void assertObjects(final List<Object> expected, final Object... actuals) {
-        assertObjects(expected, ConversionUtil.createListFromArray(actuals));
-    }
-
-    public void assertObjects(final List expected, final List actual) {
+    public void assertObjects(final List<Object> expected, final List<Object> actual) {
         final AssertReportBuilder report = new AssertReportBuilder();
         if (!beforeListAssert(report, expected, actual)) {
             throw new AssertionError(report.getMessage());
         }
-    }
-
-    public void assertObjects(final Object expected, final Object actual, final IProperty... expectedChanges) {
-        assertObjects(EMPTY_STRING, expected, actual, expectedChanges);
-    }
-
-    public void assertObjects(final String message, final Object expected, final Object actual,
-            final IProperty... excludes) {
-        assertObjects(message, expected, actual, ConversionUtil.createListFromArray(extractProperties(excludes)));
     }
 
     public void assertObjects(final String message, final Object expected, final Object actual,
@@ -88,15 +74,10 @@ public class AbstractExecomAssert extends Assert {
         afterAssertObject(actual, false);
     }
 
-    public void assertObject(final Object actual, final IProperty... excludes) {
-        assertObject(EMPTY_STRING, actual, excludes);
-    }
-
     // TODO excludes should be expected
-    public void assertObject(final String message, final Object actual, final IProperty... excludes) {
+    public void assertObject(final String message, final Object actual, final List<ISingleProperty> properties) {
         final AssertReportBuilder report = new AssertReportBuilder(message);
-        if (!preAssertObjectWithProperties(report, actual,
-                ConversionUtil.createListFromArray(extractProperties(excludes)))) {
+        if (!preAssertObjectWithProperties(report, actual, properties)) {
             throw new AssertionError(report.getMessage());
         }
         afterAssertObject(actual, false);

@@ -2,12 +2,13 @@ package eu.execom.testutil.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
 import eu.execom.testutil.ITestUtil;
+import eu.execom.testutil.enums.ObjectType;
 
 /**
  * Util class for reflection logic needed by testutil.
@@ -229,26 +230,27 @@ public final class ReflectionUtil {
      *            the entity types
      * @return {@link List} of real "get" methods of class X
      */
-    public static <X> List<Method> getObjectGetMethods(final X object, final List<Class<?>> complexTypes,
-            final List<Class<?>> entityTypes) {
+    public static <X> List<Method> getObjectGetMethods(final X object, final Map<ObjectType, List<Class<?>>> types) {
 
-        final List<Method> getMethods = new ArrayList<Method>();
-        final List<Method> getMethodsComplexType = new ArrayList<Method>();
-
-        final Method[] allMethods = object.getClass().getMethods();
-        for (final Method method : allMethods) {
-            if (ReflectionUtil.isGetMethod(object.getClass(), method)) {
-                // complex or entity type get methods inside object come last in
-                // list
-                if (complexTypes.contains(method.getReturnType()) || entityTypes.contains(method.getReturnType())) {
-                    getMethodsComplexType.add(method);
-                } else {
-                    getMethods.add(method);
-                }
-            }
-        }
-        getMethods.addAll(getMethodsComplexType);
-        return getMethods;
+        // final List<Method> getMethods = new ArrayList<Method>();
+        // final List<Method> getMethodsComplexType = new ArrayList<Method>();
+        //
+        // final Method[] allMethods = object.getClass().getMethods();
+        // for (final Method method : allMethods) {
+        // if (ReflectionUtil.isGetMethod(object.getClass(), method)) {
+        // // complex or entity type get methods inside object come last in
+        // // list
+        // if (complexTypes.contains(method.getReturnType()) || entityTypes.contains(method.getReturnType())) {
+        // getMethodsComplexType.add(method);
+        // } else {
+        // getMethods.add(method);
+        // }
+        // }
+        // }
+        // getMethods.addAll(getMethodsComplexType);
+        // return getMethods;
+        // TODO requires new implementation
+        return null;
     }
 
     /**
@@ -356,5 +358,11 @@ public final class ReflectionUtil {
         } catch (final Exception e) {
             throw new IllegalStateException("findById is uninvokable!");
         }
+    }
+
+    public static ObjectType getObjectType(final Object expected, final Object actual,
+            final Map<ObjectType, List<Class<?>>> types) {
+        // TODO IMPLEMENT THIS
+        return null;
     }
 }

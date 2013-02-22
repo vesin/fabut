@@ -32,8 +32,7 @@ import eu.execom.testutil.util.ReflectionUtil;
  */
 @SuppressWarnings({"unchecked"})
 // TODO its not Abstract any more.
-public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends AbstractExecomAssert<EntityType> implements
-        ExecomRepositoryAssert<EntityType, EntityId> {
+public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends AbstractExecomAssert {
 
     /** The Constant SET_METHOD_PREFIX. */
     protected static final String SET_METHOD_PREFIX = "set";
@@ -57,7 +56,6 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
         parametersSnapshot = new ArrayList<Object>();
     }
 
-    @Override
     public void assertEntityAsDeleted(final EntityType actual) {
 
         ignoreEntity(actual);
@@ -66,7 +64,6 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
         Assert.assertNull(findById);
     }
 
-    @Override
     public void ignoreEntity(final EntityType actual) {
 
         if (ReflectionUtil.isEntityType(actual.getClass(), entityTypes)) {
@@ -75,12 +72,10 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
 
     }
 
-    @Override
     public <X extends EntityType> void assertEntityWithSnapshot(final X actual, final ISingleProperty... properties) {
         assertEntityWithSnapshot(EMPTY_STRING, actual, properties);
     }
 
-    @Override
     public <X extends EntityType> void assertEntityWithSnapshot(final String message, final X actual,
             final ISingleProperty... properties) {
 
@@ -110,7 +105,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
     }
 
     @Override
-    protected final <X> void afterAssertEntity(final X object, final boolean isProperty) {
+    protected final void afterAssertEntity(final Object object, final boolean isProperty) {
         if (ReflectionUtil.isEntityType(object.getClass(), entityTypes) && !isProperty
                 && ReflectionUtil.getIdValue((EntityType) object) != null) {
             markAsserted((EntityType) object);
@@ -637,7 +632,7 @@ public class AbstractExecomRepositoryAssert<EntityType, EntityId> extends Abstra
     }
 
     @Override
-    protected <X> void customAssertEquals(final X expected, final X actual) {
+    protected void customAssertEquals(final Object expected, final Object actual) {
         Assert.assertEquals(expected, actual);
     }
 

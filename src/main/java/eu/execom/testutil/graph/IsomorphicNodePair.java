@@ -1,5 +1,7 @@
 package eu.execom.testutil.graph;
 
+import eu.execom.testutil.Pair;
+
 /**
  * Class representing object pair from {@link IsomorphicGraph}.
  * 
@@ -9,46 +11,17 @@ package eu.execom.testutil.graph;
  * @author Nikola Trkulja
  * @param <T>
  */
-public class IsomorphicNodePair<T> {
+public class IsomorphicNodePair extends Pair {
 
-    private final T actual, expected;
-
-    /**
-     * Isomorphic node pair constructor with..
-     * 
-     * @param expected
-     *            object
-     * @param actual
-     *            object
-     */
-    public IsomorphicNodePair(final T expected, final T actual) {
-        this.actual = actual;
-        this.expected = expected;
-    }
-
-    /**
-     * Get actual.
-     * 
-     * @return - actual object
-     */
-    public T getActual() {
-        return actual;
-    }
-
-    /**
-     * Get expected.
-     * 
-     * @return - expected object
-     */
-    public T getExpected() {
-        return expected;
+    public IsomorphicNodePair(final Object expected, final Object actual) {
+        super(expected, actual);
     }
 
     @Override
     public boolean equals(final Object arg0) {
         try {
-            final IsomorphicNodePair<?> node = (IsomorphicNodePair<?>) arg0;
-            return node.getActual() == actual && node.getExpected() == expected;
+            final IsomorphicNodePair node = (IsomorphicNodePair) arg0;
+            return node.getActual() == getActual() && node.getExpected() == getExpected();
         } catch (final Exception e) {
             return false;
         }

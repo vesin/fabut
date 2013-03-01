@@ -64,11 +64,16 @@ public class AbstractExecomAssert extends Assert {
 
     public void assertObjects(final AssertReportBuilder report, final Object expected, final Object actual,
             final List<ISingleProperty> excludedProperties) {
-        // TODO ugly code, need to be changed
-        if (!(isSameInstance(expected, actual) || assertChangedProperty(EMPTY_STRING, report,
-                ConversionUtil.createAssertPair(expected, actual, types), excludedProperties, new NodesList(), false))) {
+
+        if (isSameInstance(expected, actual)) {
+            return;
+        }
+
+        final AssertPair assertPair = ConversionUtil.createAssertPair(expected, actual, types);
+        if (!assertChangedProperty(EMPTY_STRING, report, assertPair, excludedProperties, new NodesList())) {
             throw new AssertionError(report.getMessage());
         }
+
         afterAssertObject(actual, false);
     }
 
@@ -174,7 +179,7 @@ public class AbstractExecomAssert extends Assert {
             return false;
         }
 
-        final List<Method> methods = ReflectionUtil.getObjectGetMethods(actual, types);
+        final List<Method> methods = ReflectionUtil.getGetMethods(actual, types);
 
         boolean assertResult = true;
         for (final Method method : methods) {
@@ -189,10 +194,13 @@ public class AbstractExecomAssert extends Assert {
             } else {
                 // try to assert field and property
                 try {
+                    // TODO overload assertProperties call to remove EMPTY_STRING, new NodesList(), NodesList, true...
                     assertResult &= assertProperties(fieldName, report, property, method.invoke(actual), EMPTY_STRING,
                             properties, new NodesList(), true);
                 } catch (final Exception e) {
-                    report.reportUninvokableMethod(method.getName(), method.getDeclaringClass().getSimpleName(), actual
+                    // TODO this report method needs refactoring
+                    e.printStackTrace();
+                    report.reportUninvokableMethod(method, method.getDeclaringClass().getSimpleName(), actual
                             .getClass().getSimpleName());
                     assertResult = false;
                 }
@@ -220,43 +228,70 @@ public class AbstractExecomAssert extends Assert {
      *            list of object that had been asserted
      * @return <code>true</code> if actual and expected are null or fully asserted, <code>false</code> otherwise.
      */
-    boolean assertBySubproperty(final String propertyName, final AssertReportBuilder report, final Object expected,
-            final Object actual, final List<ISingleProperty> properties, final NodesList nodesList) {
+    boolean assertBySubproperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
+            final List<ISingleProperty> properties, final NodesList nodesList) {
 
-        final ReferenceCheckType referenceCheckType = referenceCheck(report, expected, actual, propertyName);
+        final ReferenceCheckType referenceCheckType = referenceCheck(report, pair, propertyName);
         if (referenceCheckType != ReferenceCheckType.COMPLEX_ASSERT) {
             return referenceCheckType.getAssertResult();
         }
 
         // check if any of the expected/actual object is recurring in nodes list
-        final NodeCheckType nodeCheckType = nodesList.nodeCheck(expected, actual);
+        final NodeCheckType nodeCheckType = nodesList.nodeCheck(pair);
         if (nodeCheckType != NodeCheckType.NEW_PAIR) {
-            report.reportPointsTo(propertyName, actual.getClass(), nodeCheckType.getAssertValue());
+            report.reportPointsTo(propertyName, pair.getActual(), nodeCheckType.getAssertValue());
             return nodeCheckType.getAssertValue();
         }
+        nodesList.addPair(pair);
 
-        nodesList.addPair(expected, actual);
-        final List<Method> getMethods = ReflectionUtil.getObjectGetMethods(expected, types);
+        return assertSubfields(report, pair, properties, nodesList);
+    }
+
+    /**
+     * Assert subfields.
+     * 
+     * TODO add tests and proper comment
+     * 
+     * @param report
+     *            the report
+     * @param pair
+     *            the pair
+     * @param properties
+     *            the properties
+     * @param nodesList
+     *            the nodes list
+     * @return true, if successful
+     */
+    boolean assertSubfields(final AssertReportBuilder report, final AssertPair pair,
+            final List<ISingleProperty> properties, final NodesList nodesList) {
 
         report.increaseDepth();
+
         boolean t = true;
-        for (final Method expectedGetMethod : getMethods) {
+        final List<Method> getMethods = ReflectionUtil.getGetMethods(pair.getExpected(), types);
+
+        for (final Method expectedMethod : getMethods) {
             try {
-                final String fieldName = ReflectionUtil.getFieldName(expectedGetMethod);
-                final ISingleProperty property = obtainProperty(expectedGetMethod.invoke(expected), fieldName,
+
+                final String fieldName = ReflectionUtil.getFieldName(expectedMethod);
+
+                final ISingleProperty property = obtainProperty(expectedMethod.invoke(pair.getExpected()), fieldName,
                         properties);
-                final Method actualGetMethod = ReflectionUtil.getObjectGetMethodNamed(expectedGetMethod.getName(),
-                        actual);
+
+                final Method actualMethod = ReflectionUtil.getGetMethod(expectedMethod.getName(), pair.getActual());
+
                 // get actual field value by invoking its get method via
                 // reflection
-                t &= assertProperties(fieldName, report, property, actualGetMethod.invoke(actual), fieldName,
+                t &= assertProperties(fieldName, report, property, actualMethod.invoke(pair.getActual()), fieldName,
                         properties, nodesList, true);
+
             } catch (final Exception e) {
-                report.reportUninvokableMethod(expectedGetMethod.getName(), expected.getClass().getSimpleName(), actual
-                        .getClass().getSimpleName());
+
+                report.reportUninvokableMethod(expectedMethod, pair);
                 t = false;
             }
         }
+
         report.decreaseDepth();
         return t;
     }
@@ -286,7 +321,7 @@ public class AbstractExecomAssert extends Assert {
             final ISingleProperty expected, final Object actual, final String fieldName,
             final List<ISingleProperty> properties, final NodesList nodesList, final boolean isProperty) {
 
-        removeParentQualificationForProperties(fieldName, properties);
+        removeParentQualification(fieldName, properties);
 
         // expected any not null value
         if (expected instanceof NotNullProperty) {
@@ -310,9 +345,10 @@ public class AbstractExecomAssert extends Assert {
 
         // assert by type
         if (expected instanceof Property) {
-            return assertChangedProperty(propertyName, report,
-                    ConversionUtil.createAssertPair(((Property) expected).getExpectedValue(), actual, types),
-                    properties, nodesList, isProperty);
+
+            final Object expectedValue = ((Property) expected).geValue();
+            final AssertPair assertPair = ConversionUtil.createAssertPair(expectedValue, actual, types, isProperty);
+            return assertChangedProperty(propertyName, report, assertPair, properties, nodesList);
         }
 
         throw new IllegalStateException();
@@ -334,15 +370,14 @@ public class AbstractExecomAssert extends Assert {
      * @return <code>true</code> if actual object is asserted to expected object, <code>false</code> otherwise.
      */
     boolean assertChangedProperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
-            final List<ISingleProperty> properties, final NodesList nodesList, final boolean isProperty) {
+            final List<ISingleProperty> properties, final NodesList nodesList) {
 
         switch (pair.getObjectType()) {
         case IGNORED_TYPE:
-            report.reportIgnoredType(pair.getExpected(), pair.getActual());
+            report.reportIgnoredType(pair);
             return true;
         case COMPLEX_TYPE:
-            return assertBySubproperty(propertyName, report, pair.getExpected(), pair.getActual(), properties,
-                    nodesList);
+            return assertBySubproperty(propertyName, report, pair, properties, nodesList);
         case ENTITY_TYPE:
             throw new IllegalStateException("Entities are NOT supported in this type of assert");
         case PRIMITIVE_TYPE:
@@ -352,7 +387,6 @@ public class AbstractExecomAssert extends Assert {
                     nodesList, true);
         default:
             throw new IllegalStateException("Unknown assert type: " + pair.getObjectType());
-
         }
     }
 
@@ -376,10 +410,10 @@ public class AbstractExecomAssert extends Assert {
 
         try {
             customAssertEquals(expected, actual);
-            report.addComment(propertyName, EMPTY_STRING, expected, actual, CommentType.SUCCESS);
+            report.addComment(propertyName, expected, actual, CommentType.SUCCESS);
             return true;
         } catch (final AssertionError e) {
-            report.addComment(propertyName, EMPTY_STRING, expected, actual, CommentType.FAIL);
+            report.addComment(propertyName, expected, actual, CommentType.FAIL);
             return false;
         }
     }
@@ -405,6 +439,7 @@ public class AbstractExecomAssert extends Assert {
      * @return - <code>true</code> if every element from expected list with index <em>i</em> is asserted with element
      *         from actual list with index <em>i</em>, <code>false</code> otherwise.
      */
+    // TODO refactor this, ugly code
     boolean assertList(final String propertyName, final AssertReportBuilder report, final List expected,
             final List actual, final List<ISingleProperty> properties, final NodesList nodesList,
             final boolean isProperty) {
@@ -449,11 +484,12 @@ public class AbstractExecomAssert extends Assert {
      *            actual entity
      * @return - <code>true</code> if and only if ids of two specified objects are equal, <code>false</code> otherwise
      */
-    <X, Id> boolean assertEntityById(final AssertReportBuilder report, final String propertyName,
-            final Object expected, final Object actual) {
+    // TODO move this method to repository assert
+    boolean assertEntityById(final AssertReportBuilder report, final String propertyName, final Object expected,
+            final Object actual) {
 
-        final Id expectedId = ReflectionUtil.getIdValue(expected);
-        final Id actualId = ReflectionUtil.getIdValue(actual);
+        final Object expectedId = ReflectionUtil.getIdValue(expected);
+        final Object actualId = ReflectionUtil.getIdValue(actual);
 
         boolean ok = true;
         try {
@@ -475,7 +511,8 @@ public class AbstractExecomAssert extends Assert {
      *            list of excluded properties
      * @return List of properties without specified parent property name
      */
-    List<ISingleProperty> removeParentQualificationForProperties(final String parentPropertyName,
+    // TODO move this to property factory?? naming is bad
+    List<ISingleProperty> removeParentQualification(final String parentPropertyName,
             final List<ISingleProperty> properties) {
 
         final String parentPrefix = parentPropertyName + DOT;
@@ -548,15 +585,20 @@ public class AbstractExecomAssert extends Assert {
             final String propertyName) {
 
         if (expected == actual) {
-            report.addComment(propertyName, EMPTY_STRING, expected, actual, CommentType.SUCCESS);
+            report.addComment(propertyName, expected, actual, CommentType.SUCCESS);
             return ReferenceCheckType.EQUAL_REFERENCE;
         }
 
         if (expected == null ^ actual == null) {
-            report.addComment(propertyName, EMPTY_STRING, expected, actual, CommentType.FAIL);
+            report.addComment(propertyName, expected, actual, CommentType.FAIL);
             return ReferenceCheckType.EXCLUSIVE_NULL;
         }
         return ReferenceCheckType.COMPLEX_ASSERT;
+    }
+
+    ReferenceCheckType referenceCheck(final AssertReportBuilder report, final AssertPair assertPair,
+            final String propertyName) {
+        return referenceCheck(report, assertPair.getExpected(), assertPair.getActual(), propertyName);
     }
 
     /**

@@ -12,19 +12,19 @@ package eu.execom.testutil.property;
  */
 public class Property<T> extends AbstractSingleProperty {
 
-    private final T expectedValue;
+    private final T value;
 
     /**
      * Change property default constructor.
      * 
      * @param path
      *            property path
-     * @param expectedValue
+     * @param value
      *            expected property value
      */
-    protected Property(final String path, final T expectedValue) {
+    protected Property(final String path, final T value) {
         super(path);
-        this.expectedValue = expectedValue;
+        this.value = value;
     }
 
     /**
@@ -32,13 +32,13 @@ public class Property<T> extends AbstractSingleProperty {
      * 
      * @return expected value.
      */
-    public T getExpectedValue() {
-        return expectedValue;
+    public T geValue() {
+        return value;
     }
 
     @Override
     public ISingleProperty getCopy() {
-        return new Property<T>(getPath(), expectedValue);
+        return new Property<T>(getPath(), value);
     }
 
 }

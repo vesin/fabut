@@ -6,6 +6,7 @@ import java.util.Map;
 
 import eu.execom.testutil.AssertPair;
 import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.property.Property;
 
 /**
  * Util class for conversions needed by testutil.
@@ -47,6 +48,20 @@ public final class ConversionUtil {
             final Map<ObjectType, List<Class<?>>> types) {
         final ObjectType objectType = ReflectionUtil.getObjectType(expected, actual, types);
         return new AssertPair(expected, actual, objectType);
+    }
+
+    public static AssertPair createAssertPair(final Object expected, final Object actual,
+            final Map<ObjectType, List<Class<?>>> types, final boolean isProperty) {
+        final AssertPair assertPair = createAssertPair(expected, actual, types);
+        assertPair.setProperty(isProperty);
+        return assertPair;
+    }
+
+    public static AssertPair createAssertPair(final Property expected, final Object actual,
+            final Map<ObjectType, List<Class<?>>> types, final boolean isProperty) {
+        final AssertPair assertPair = createAssertPair(expected.geValue(), actual, types);
+        assertPair.setProperty(isProperty);
+        return assertPair;
     }
 
 }

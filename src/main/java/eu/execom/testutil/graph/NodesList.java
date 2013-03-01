@@ -3,6 +3,7 @@ package eu.execom.testutil.graph;
 import java.util.LinkedList;
 import java.util.List;
 
+import eu.execom.testutil.AssertPair;
 import eu.execom.testutil.enums.NodeCheckType;
 
 /**
@@ -24,21 +25,25 @@ public class NodesList implements IsomorphicGraph {
     }
 
     @Override
-    public <T> boolean containsPair(final T expected, final T actual) {
+    public boolean containsPair(final Object expected, final Object actual) {
         return isomorphicNodes.contains(new IsomorphicNodePair(expected, actual));
     }
 
     @Override
-    public <T> void addPair(final T expected, final T actual) {
+    public void addPair(final Object expected, final Object actual) {
         isomorphicNodes.add(new IsomorphicNodePair(expected, actual));
+    }
+
+    public void addPair(final AssertPair assertPair) {
+        addPair(assertPair.getExpected(), assertPair.getActual());
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getExpected(final T actual) {
+    public Object getExpected(final Object actual) {
         for (final IsomorphicNodePair isomorphicNode : isomorphicNodes) {
             if (isomorphicNode.getActual() == actual) {
-                return (T) isomorphicNode.getExpected();
+                return isomorphicNode.getExpected();
             }
         }
         return null;
@@ -51,7 +56,7 @@ public class NodesList implements IsomorphicGraph {
     }
 
     @Override
-    public <T> boolean containsActual(final T actual) {
+    public boolean containsActual(final Object actual) {
         for (final IsomorphicNodePair isomorphicNode : isomorphicNodes) {
             if (isomorphicNode.getActual() == actual) {
                 return true;
@@ -61,7 +66,7 @@ public class NodesList implements IsomorphicGraph {
     }
 
     @Override
-    public <T> boolean containsExpected(final T expected) {
+    public boolean containsExpected(final Object expected) {
         for (final IsomorphicNodePair isomorphicNode : isomorphicNodes) {
             if (isomorphicNode.getExpected() == expected) {
                 return true;
@@ -78,6 +83,10 @@ public class NodesList implements IsomorphicGraph {
             return NodeCheckType.SINGLE_NODE;
         }
         return NodeCheckType.NEW_PAIR;
+    }
+
+    public NodeCheckType nodeCheck(final AssertPair assertPair) {
+        return nodeCheck(assertPair.getExpected(), assertPair.getActual());
     }
 
 }

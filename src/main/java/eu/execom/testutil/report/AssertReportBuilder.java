@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.execom.testutil.AssertPair;
 import eu.execom.testutil.enums.CommentType;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
@@ -17,6 +18,7 @@ import eu.execom.testutil.property.NullProperty;
  * @author Nikola Trkulja
  */
 // TODO DUNNO add code snipets how error message look like and with description.
+@SuppressWarnings("rawtypes")
 public class AssertReportBuilder {
 
     private static final String ARROW = ">";
@@ -100,10 +102,10 @@ public class AssertReportBuilder {
      * @param type
      *            type of comment
      * 
-     * @param <T>
-     *            generic type
+     * @param generic
+     *            type
      */
-    public <T> void addComment(final String propertyName, final String comment, final T expected, final T actual,
+    public void addComment(final String propertyName, final String comment, final Object expected, final Object actual,
             final CommentType type) {
         switch (type) {
         case FAIL:
@@ -115,6 +117,10 @@ public class AssertReportBuilder {
         default:
             throw new IllegalStateException("Unsupported CommentyType: " + type);
         }
+    }
+
+    public void addComment(final String propertyName, final Object expected, final Object actual, final CommentType type) {
+        addComment(propertyName, EMPTY_STRING, expected, actual, type);
     }
 
     /**
@@ -163,11 +169,12 @@ public class AssertReportBuilder {
      *            value
      * @param actual
      *            value
-     * @param <T>
-     *            generic type
+     * @param generic
+     *            type
      */
-    public <T> void addDifferentTypeComment(final String propertyName, final String comment, final T expected,
-            final T actual) {
+    // TODO 1st check if this method is still needed, then refactor it
+    public void addDifferentTypeComment(final String propertyName, final String comment, final Object expected,
+            final Object actual) {
         final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
         part.append("type expected: " + expected.getClass().getSimpleName() + " but was: "
                 + actual.getClass().getSimpleName());
@@ -197,7 +204,7 @@ public class AssertReportBuilder {
      * @param field
      *            - class of the field
      */
-    public <T> void addNoPropertyForFieldComment(final String fieldName, final Method method, final T actual) {
+    public void addNoPropertyForFieldComment(final String fieldName, final Method method, final Object actual) {
 
         final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
         Object field = null;
@@ -278,8 +285,9 @@ public class AssertReportBuilder {
      * @param assertResult
      *            - assert result
      */
-    public void reportPointsTo(final String fieldName, final Class<?> fieldClass, final boolean assertResult) {
+    public void reportPointsTo(final String fieldName, final Object object, final boolean assertResult) {
 
+        final Class<?> fieldClass = object.getClass();
         final StringBuilder part = new StringBuilder(EMPTY_STRING);
 
         if (assertResult) {
@@ -301,10 +309,10 @@ public class AssertReportBuilder {
      * @param actual
      *            object
      * 
-     * @param <T>
-     *            generic type
+     * @param generic
+     *            type
      */
-    public <T> void reportIgnoredType(final T expected, final T actual) {
+    public void reportIgnoredType(final Object expected, final Object actual) {
         String fieldName;
         if (expected != null) {
             fieldName = expected.getClass().getSimpleName();
@@ -315,6 +323,10 @@ public class AssertReportBuilder {
         final StringBuilder part = new StringBuilder(indentNewLine(CommentType.SUCCESS));
         part.append(String.format(IGNORED_TYPE, fieldName));
         messageParts.add(part.toString());
+    }
+
+    public void reportIgnoredType(final AssertPair assertPair) {
+        reportIgnoredType(assertPair.getExpected(), assertPair.getActual());
     }
 
     /**
@@ -373,12 +385,12 @@ public class AssertReportBuilder {
      * @param entities
      *            list of non asserted entities
      * 
-     * @param <T>
-     *            generic type
+     * @param generic
+     *            type
      */
-    public <T> void reportEntityIsntAsserted(final List<T> entities) {
+    public void reportEntityIsntAsserted(final List entities) {
         final StringBuilder part = new StringBuilder(EMPTY_STRING);
-        for (final T entity : entities) {
+        for (final Object entity : entities) {
             part.append(NEW_LINE + NEW_LINE);
             part.append(String.format(REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED, entity.toString()));
         }
@@ -388,14 +400,14 @@ public class AssertReportBuilder {
     /**
      * Report repository entity assert fail.
      * 
-     * @param <T>
-     *            the generic type
+     * @param the
+     *            generic type
      * @param beforeEntity
      *            the before entity
      * @param afterEntity
      *            the after entity
      */
-    public <T> void reportRepositoryEntityAssertFail(final T beforeEntity, final T afterEntity) {
+    public void reportRepositoryEntityAssertFail(final Object beforeEntity, final Object afterEntity) {
         final StringBuilder part = new StringBuilder();
         part.append(NEW_LINE);
         part.append(String.format(REPOSITORY_ENTITY_ASSERT_FAIL, beforeEntity.toString(), afterEntity.toString(),
@@ -409,10 +421,17 @@ public class AssertReportBuilder {
      * @param methodName
      *            - name of the method
      */
-    public void reportUninvokableMethod(final String methodName, final String expectedClass, final String actualClass) {
-
+    public void reportUninvokableMethod(final Method method, final Object expected, final Object actual) {
         final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
-        part.append(String.format(UNINVOKABLE_METHOD, methodName, actualClass, expectedClass));
+        part.append(String.format(UNINVOKABLE_METHOD, method.getName(), actual.getClass().getSimpleName(), expected
+                .getClass().getSimpleName()));
+        messageParts.add(failedMessagePosition, part.toString());
+    }
+
+    public void reportUninvokableMethod(final Method method, final AssertPair assertPair) {
+        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
+        part.append(String.format(UNINVOKABLE_METHOD, method.getName(), assertPair.getActual().getClass()
+                .getSimpleName(), assertPair.getExpected().getClass().getSimpleName()));
         messageParts.add(failedMessagePosition, part.toString());
     }
 

@@ -193,7 +193,7 @@ public class ReflectionUtilTest extends Assert {
     @Test
     public void testFindFieldInInheritanceNullClass() {
         // method
-        final Field field = ReflectionUtil.findFieldInInheritance(null, TEST);
+        final Field field = ReflectionUtil.findField(null, TEST);
 
         // assert
         assertNull(field);
@@ -206,7 +206,7 @@ public class ReflectionUtilTest extends Assert {
     @Test
     public void testFindFieldInInheritanceSubclass() {
         // method
-        final Field field = ReflectionUtil.findFieldInInheritance(EntityTierOneType.class, EntityTierOneType.PROPERTY);
+        final Field field = ReflectionUtil.findField(EntityTierOneType.class, EntityTierOneType.PROPERTY);
 
         // assert
         assertNotNull(field);
@@ -220,7 +220,7 @@ public class ReflectionUtilTest extends Assert {
     @Test
     public void testFindFieldInInheritanceSuperclass() {
         // method
-        final Field field = ReflectionUtil.findFieldInInheritance(EntityTierOneType.class, EntityTierOneType.ID);
+        final Field field = ReflectionUtil.findField(EntityTierOneType.class, EntityTierOneType.ID);
 
         // assert
         assertNotNull(field);
@@ -438,7 +438,7 @@ public class ReflectionUtilTest extends Assert {
         final Method expectedGetMethod = tierOneType.getClass().getMethod(methodName);
 
         // method
-        final Method actualGetMethod = ReflectionUtil.getObjectGetMethodNamed(methodName, tierOneType);
+        final Method actualGetMethod = ReflectionUtil.getGetMethod(methodName, tierOneType);
 
         // assert
         assertEquals(expectedGetMethod.getName(), actualGetMethod.getName());
@@ -452,7 +452,7 @@ public class ReflectionUtilTest extends Assert {
         final NoGetMethodsType noGetMethodsType = new NoGetMethodsType();
 
         // method
-        ReflectionUtil.getObjectGetMethodNamed(methodName, noGetMethodsType);
+        ReflectionUtil.getGetMethod(methodName, noGetMethodsType);
     }
 
 }

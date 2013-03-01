@@ -65,8 +65,7 @@ public final class ReflectionUtil {
                 // if field type is primitive boolean
                 return classs.getDeclaredField(getFieldName(method)).getType() == boolean.class;
             }
-            return method.getName().startsWith(GET_METHOD_PREFIX)
-                    && findFieldInInheritance(classs, getFieldName(method)) != null;
+            return method.getName().startsWith(GET_METHOD_PREFIX) && findField(classs, getFieldName(method)) != null;
         } catch (final Exception e) {
             return false;
         }
@@ -101,14 +100,14 @@ public final class ReflectionUtil {
      *            name of the field
      * @return {@link Field} with specified name, otherwise <code>null</code>>
      */
-    public static Field findFieldInInheritance(final Class<?> fieldClass, final String fieldName) {
+    public static Field findField(final Class<?> fieldClass, final String fieldName) {
         if (fieldClass == null) {
             return null;
         }
         try {
             return fieldClass.getDeclaredField(fieldName);
         } catch (final Exception e) {
-            return findFieldInInheritance(fieldClass.getSuperclass(), fieldName);
+            return findField(fieldClass.getSuperclass(), fieldName);
         }
     }
 
@@ -136,12 +135,15 @@ public final class ReflectionUtil {
      */
     public static boolean isEntityType(final Class<?> object, final Map<ObjectType, List<Class<?>>> types) {
 
-        final boolean isEntity = types.get(ObjectType.ENTITY_TYPE).contains(object);
+        if (types.get(ObjectType.ENTITY_TYPE) != null) {
 
-        // necessary tweek for hibernate beans witch in some cases are fetched as proxy objects
-        final boolean isSuperClassEntity = types.get(ObjectType.ENTITY_TYPE).contains(object.getSuperclass());
+            final boolean isEntity = types.get(ObjectType.ENTITY_TYPE).contains(object);
 
-        return isEntity || isSuperClassEntity;
+            // necessary tweek for hibernate beans witch in some cases are fetched as proxy objects
+            final boolean isSuperClassEntity = types.get(ObjectType.ENTITY_TYPE).contains(object.getSuperclass());
+            return isEntity || isSuperClassEntity;
+        }
+        return false;
     }
 
     /**
@@ -231,7 +233,7 @@ public final class ReflectionUtil {
      *            the entity types
      * @return {@link List} of real "get" methods of class X
      */
-    public static <X> List<Method> getObjectGetMethods(final X object, final Map<ObjectType, List<Class<?>>> types) {
+    public static <X> List<Method> getGetMethods(final X object, final Map<ObjectType, List<Class<?>>> types) {
 
         final List<Method> getMethods = new ArrayList<Method>();
         final List<Method> getMethodsComplexType = new ArrayList<Method>();
@@ -265,10 +267,12 @@ public final class ReflectionUtil {
      *            the object
      * @return the object get method named
      */
-    public static <X> Method getObjectGetMethodNamed(final String methodName, final X object) throws Exception {
+    // TODO simplify this method name
+    public static <X> Method getGetMethod(final String methodName, final X object) throws Exception {
         return object.getClass().getMethod(methodName);
     }
 
+    // TODO check this
     public static Method getFindAllMethod(final Class<?> declaringClass) {
         try {
             final Object testIntance = declaringClass.newInstance();
@@ -361,21 +365,26 @@ public final class ReflectionUtil {
         }
     }
 
+    // TODO needs test, maybe further refactoring
     public static ObjectType getObjectType(final Object expected, final Object actual,
             final Map<ObjectType, List<Class<?>>> types) {
-        if (types.get(ObjectType.COMPLEX_TYPE).contains(expected.getClass())
-                || types.get(ObjectType.COMPLEX_TYPE).contains(actual.getClass())) {
-            return ObjectType.COMPLEX_TYPE;
-        } else if (types.get(ObjectType.ENTITY_TYPE).contains(expected.getClass())
-                || types.get(ObjectType.ENTITY_TYPE).contains(actual.getClass())) {
-            return ObjectType.ENTITY_TYPE;
 
-        } else if (types.get(ObjectType.IGNORED_TYPE).contains(expected.getClass())
-                || types.get(ObjectType.IGNORED_TYPE).contains(actual.getClass())) {
-            return ObjectType.IGNORED_TYPE;
-
-        } else {
-            throw new IllegalStateException("Unsupported object type!");
+        if (expected == null && actual == null) {
+            return ObjectType.PRIMITIVE_TYPE;
         }
+
+        final Class<?> typeClass = actual != null ? actual.getClass() : expected.getClass();
+        if (List.class.isAssignableFrom(typeClass)) {
+            return ObjectType.LIST_TYPE;
+        } else if (types.get(ObjectType.COMPLEX_TYPE).contains(typeClass)) {
+            return ObjectType.COMPLEX_TYPE;
+        } else if (types.get(ObjectType.ENTITY_TYPE).contains(typeClass)) {
+            return ObjectType.ENTITY_TYPE;
+        } else if (types.get(ObjectType.IGNORED_TYPE).contains(typeClass)) {
+            return ObjectType.IGNORED_TYPE;
+        } else {
+            return ObjectType.PRIMITIVE_TYPE;
+        }
+
     }
 }

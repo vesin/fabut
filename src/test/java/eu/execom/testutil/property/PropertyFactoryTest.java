@@ -121,7 +121,7 @@ public class PropertyFactoryTest extends Assert {
 
         // assert
         assertTrue(changedProperty instanceof Property<?>);
-        assertEquals(TEST, changedProperty.getExpectedValue());
+        assertEquals(TEST, changedProperty.geValue());
         assertEquals(EntityTierOneType.PROPERTY, changedProperty.getPath());
     }
 }

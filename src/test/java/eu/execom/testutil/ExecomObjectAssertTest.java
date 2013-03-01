@@ -874,7 +874,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testAssertPropertiesNotNullPropertyTrue() {
         // method
-        final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
+        final boolean assertValue = assertProperty(EMPTY_STRING, new AssertReportBuilder(),
                 PropertyFactory.notNull(TierOneType.PROPERTY), new TierOneType(TEST), "",
                 new ArrayList<ISingleProperty>(), null, true);
 
@@ -889,7 +889,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testAssertPropertiesNotNullPropertyFalse() {
         // method
-        final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
+        final boolean assertValue = assertProperty(EMPTY_STRING, new AssertReportBuilder(),
                 PropertyFactory.notNull(TierOneType.PROPERTY), null, "", new ArrayList<ISingleProperty>(), null, true);
 
         // assert
@@ -903,7 +903,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testAssertPropertiesNullPropertyTrue() {
         // method
-        final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
+        final boolean assertValue = assertProperty(EMPTY_STRING, new AssertReportBuilder(),
                 PropertyFactory.nulll(TierOneType.PROPERTY), null, "", new ArrayList<ISingleProperty>(), null, true);
 
         // assert
@@ -917,7 +917,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testAssertPropertiesNullPropertyFalse() {
         // method
-        final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
+        final boolean assertValue = assertProperty(EMPTY_STRING, new AssertReportBuilder(),
                 PropertyFactory.nulll(TierOneType.PROPERTY), new TierOneType(TEST), "",
                 new ArrayList<ISingleProperty>(), null, true);
 
@@ -931,7 +931,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testAssertPropertiesIgnoreProperty() {
         // method
-        final boolean assertValue = assertProperties(EMPTY_STRING, new AssertReportBuilder(),
+        final boolean assertValue = assertProperty(EMPTY_STRING, new AssertReportBuilder(),
                 PropertyFactory.ignored(TierOneType.PROPERTY), new TierOneType(TEST), "",
                 new ArrayList<ISingleProperty>(), null, true);
 

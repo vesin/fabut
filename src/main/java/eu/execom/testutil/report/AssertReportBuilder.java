@@ -421,10 +421,10 @@ public class AssertReportBuilder {
      * @param methodName
      *            - name of the method
      */
-    public void reportUninvokableMethod(final Method method, final Object expected, final Object actual) {
+    public void reportUninvokableMethod(final Method method, final Object actual) {
         final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
-        part.append(String.format(UNINVOKABLE_METHOD, method.getName(), actual.getClass().getSimpleName(), expected
-                .getClass().getSimpleName()));
+        part.append(String.format(UNINVOKABLE_METHOD, method.getName(), actual.getClass().getSimpleName(), method
+                .getDeclaringClass().getSimpleName()));
         messageParts.add(failedMessagePosition, part.toString());
     }
 

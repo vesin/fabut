@@ -77,7 +77,6 @@ public class AbstractExecomAssert extends Assert {
         afterAssertObject(actual, false);
     }
 
-    // TODO excludes should be expected
     public void assertObject(final AssertReportBuilder report, final Object actual,
             final List<ISingleProperty> properties) {
 
@@ -118,7 +117,9 @@ public class AbstractExecomAssert extends Assert {
      *            list of complex types
      */
     public void setComplexTypes(final List<Class<?>> complexTypes) {
-        // TODO(nolah) add null pointer checks
+        if (complexTypes == null) {
+            throw new IllegalStateException("Complex types cannot be null!");
+        }
         types.put(ObjectType.COMPLEX_TYPE, complexTypes);
     }
 
@@ -129,7 +130,9 @@ public class AbstractExecomAssert extends Assert {
      *            list of ignored types
      */
     public void setIgnoredTypes(final List<Class<?>> ignoredTypes) {
-        // TODO(nolah) add null pointer checks
+        if (ignoredTypes == null) {
+            throw new IllegalStateException("Ignored types cannot be null!");
+        }
         types.put(ObjectType.IGNORED_TYPE, ignoredTypes);
     }
 
@@ -183,25 +186,19 @@ public class AbstractExecomAssert extends Assert {
 
         boolean assertResult = true;
         for (final Method method : methods) {
+
             final String fieldName = ReflectionUtil.getFieldName(method);
             final ISingleProperty property = getPropertyFromList(fieldName, properties);
 
             if (property == null) {
-                // there is no matching property for field, log that in report,
-                // assert fails
+                // there is no matching property for field
                 report.addNoPropertyForFieldComment(fieldName, method, actual);
                 assertResult = false;
             } else {
-                // try to assert field and property
                 try {
-                    // TODO overload assertProperties call to remove EMPTY_STRING, new NodesList(), NodesList, true...
-                    assertResult &= assertProperties(fieldName, report, property, method.invoke(actual), EMPTY_STRING,
-                            properties, new NodesList(), true);
+                    assertResult &= assertProperty(fieldName, report, property, method.invoke(actual), properties);
                 } catch (final Exception e) {
-                    // TODO this report method needs refactoring
-                    e.printStackTrace();
-                    report.reportUninvokableMethod(method, method.getDeclaringClass().getSimpleName(), actual
-                            .getClass().getSimpleName());
+                    report.reportUninvokableMethod(method, actual);
                     assertResult = false;
                 }
             }
@@ -282,7 +279,7 @@ public class AbstractExecomAssert extends Assert {
 
                 // get actual field value by invoking its get method via
                 // reflection
-                t &= assertProperties(fieldName, report, property, actualMethod.invoke(pair.getActual()), fieldName,
+                t &= assertProperty(fieldName, report, property, actualMethod.invoke(pair.getActual()), fieldName,
                         properties, nodesList, true);
 
             } catch (final Exception e) {
@@ -317,9 +314,9 @@ public class AbstractExecomAssert extends Assert {
      *            is actual property, important for entities
      * @return - <code>true</code> if object is asserted with expected property, <code>false</code> otherwise.
      */
-    boolean assertProperties(final String propertyName, final AssertReportBuilder report,
-            final ISingleProperty expected, final Object actual, final String fieldName,
-            final List<ISingleProperty> properties, final NodesList nodesList, final boolean isProperty) {
+    boolean assertProperty(final String propertyName, final AssertReportBuilder report, final ISingleProperty expected,
+            final Object actual, final String fieldName, final List<ISingleProperty> properties,
+            final NodesList nodesList, final boolean isProperty) {
 
         removeParentQualification(fieldName, properties);
 
@@ -352,6 +349,20 @@ public class AbstractExecomAssert extends Assert {
         }
 
         throw new IllegalStateException();
+    }
+
+    boolean assertProperty(final String propertyName, final AssertReportBuilder report, final ISingleProperty expected,
+            final Object actual, final List<ISingleProperty> properties) {
+
+        return assertProperty(propertyName, report, expected, actual, EMPTY_STRING, properties, new NodesList(), true);
+
+    }
+
+    boolean assertProperty(final AssertReportBuilder report, final ISingleProperty expected, final Object actual,
+            final List<ISingleProperty> properties) {
+
+        return assertProperty(EMPTY_STRING, report, expected, actual, EMPTY_STRING, properties, new NodesList(), false);
+
     }
 
     /**
@@ -439,7 +450,6 @@ public class AbstractExecomAssert extends Assert {
      * @return - <code>true</code> if every element from expected list with index <em>i</em> is asserted with element
      *         from actual list with index <em>i</em>, <code>false</code> otherwise.
      */
-    // TODO refactor this, ugly code
     boolean assertList(final String propertyName, final AssertReportBuilder report, final List expected,
             final List actual, final List<ISingleProperty> properties, final NodesList nodesList,
             final boolean isProperty) {
@@ -455,10 +465,13 @@ public class AbstractExecomAssert extends Assert {
         // assert every element by index
         boolean assertResult = true;
         for (int i = 0; i < actual.size(); i++) {
+
             report.reportAssertingListElement(propertyName, i);
-            final ISingleProperty property = obtainProperty(expected.get(i), EMPTY_STRING, properties);
-            assertResult &= assertProperties(EMPTY_STRING, report, property, actual.get(i), EMPTY_STRING, properties,
+
+            final ISingleProperty property = PropertyFactory.value(EMPTY_STRING, expected.get(i));
+            assertResult &= assertProperty(EMPTY_STRING, report, property, actual.get(i), EMPTY_STRING, properties,
                     nodesList, false);
+
             afterAssertObject(actual, isProperty);
         }
         report.decreaseDepth();
@@ -507,7 +520,6 @@ public class AbstractExecomAssert extends Assert {
      *            list of excluded properties
      * @return List of properties without specified parent property name
      */
-    // TODO move this to property factory?? naming is bad
     List<ISingleProperty> removeParentQualification(final String parentPropertyName,
             final List<ISingleProperty> properties) {
 

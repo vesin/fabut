@@ -445,23 +445,19 @@ public class AbstractExecomAssert extends Assert {
             final boolean isProperty) {
 
         // check sizes
-        final int expectedSize = expected.size();
-        final int actualSize = actual.size();
-        if (expectedSize != actualSize) {
-            report.addListDifferentSizeComment(propertyName, expectedSize, actualSize);
+        if (expected.size() != actual.size()) {
+            report.addListDifferentSizeComment(propertyName, expected.size(), actual.size());
             return false;
         }
 
-        // assert every element by index
         report.increaseDepth();
 
+        // assert every element by index
         boolean assertResult = true;
         for (int i = 0; i < actual.size(); i++) {
             report.reportAssertingListElement(propertyName, i);
-            final Object expectedElement = expected.get(i);
-            final Object actualElement = actual.get(i);
-            final ISingleProperty property = obtainProperty(expectedElement, EMPTY_STRING, properties);
-            assertResult &= assertProperties(EMPTY_STRING, report, property, actualElement, EMPTY_STRING, properties,
+            final ISingleProperty property = obtainProperty(expected.get(i), EMPTY_STRING, properties);
+            assertResult &= assertProperties(EMPTY_STRING, report, property, actual.get(i), EMPTY_STRING, properties,
                     nodesList, false);
             afterAssertObject(actual, isProperty);
         }

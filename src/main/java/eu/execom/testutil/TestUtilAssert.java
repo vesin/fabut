@@ -48,11 +48,14 @@ public class TestUtilAssert {
         // TODO get instance of the class not class
         testClass = ReflectionUtil.getTestClassFromStackTrace();
         // TODO dont create instance of test class every time, pass it as parameter
+        // TODO throw IllegalStateException if getComplexTypes returns null
         abstractExecomRepositoryAssert.setComplexTypes(ReflectionUtil.getComplexTypes(testClass));
+        // TODO throw IllegalStateException if getIgnoredTypes returns null
         abstractExecomRepositoryAssert.setIgnoredTypes(ReflectionUtil.getIgnoredTypes(testClass));
         abstractExecomRepositoryAssert.initParametersSnapshot();
 
         // TODO Move to RepositoryTestUtil
+        // TODO throw IllegalStateException if getEntityTypes returns null
         abstractExecomRepositoryAssert.setEntityTypes(ReflectionUtil.getEntityTypes(testClass));
         abstractExecomRepositoryAssert.initDbSnapshot();
     }

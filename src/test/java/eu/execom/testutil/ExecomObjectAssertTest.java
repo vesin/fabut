@@ -1012,7 +1012,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, "ninja"));
 
         // method
-        preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType("ninja"), properties);
+        preAssertObject(new AssertReportBuilder(), new TierOneType("ninja"), properties);
 
     }
 
@@ -1027,7 +1027,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
-        final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST
+        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(TEST
                 + TEST), properties);
 
         // assert
@@ -1044,7 +1044,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
 
         // method
-        final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(null),
+        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(null),
                 properties);
 
         // assert
@@ -1062,7 +1062,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TEST, TEST));
 
         // method
-        final boolean assertValue = preAssertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST),
+        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(TEST),
                 properties);
 
         // assertTrue

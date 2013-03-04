@@ -80,7 +80,7 @@ public class AbstractExecomAssert extends Assert {
     public void assertObject(final AssertReportBuilder report, final Object actual,
             final List<ISingleProperty> properties) {
 
-        if (!preAssertObjectWithProperties(report, actual, properties)) {
+        if (!preAssertObject(report, actual, properties)) {
             throw new AssertionError(report.getMessage());
         }
         afterAssertObject(actual, false);
@@ -117,9 +117,6 @@ public class AbstractExecomAssert extends Assert {
      *            list of complex types
      */
     public void setComplexTypes(final List<Class<?>> complexTypes) {
-        if (complexTypes == null) {
-            throw new IllegalStateException("Complex types cannot be null!");
-        }
         types.put(ObjectType.COMPLEX_TYPE, complexTypes);
     }
 
@@ -130,9 +127,6 @@ public class AbstractExecomAssert extends Assert {
      *            list of ignored types
      */
     public void setIgnoredTypes(final List<Class<?>> ignoredTypes) {
-        if (ignoredTypes == null) {
-            throw new IllegalStateException("Ignored types cannot be null!");
-        }
         types.put(ObjectType.IGNORED_TYPE, ignoredTypes);
     }
 
@@ -174,7 +168,7 @@ public class AbstractExecomAssert extends Assert {
      * @return - <code>true</code> if and only if every field from actual object is assrted with its matching property,
      *         <code>false</code> otherwise.
      */
-    boolean preAssertObjectWithProperties(final AssertReportBuilder report, final Object actual,
+    boolean preAssertObject(final AssertReportBuilder report, final Object actual,
             final List<ISingleProperty> properties) {
 
         if (actual == null) {
@@ -277,8 +271,6 @@ public class AbstractExecomAssert extends Assert {
 
                 final Method actualMethod = ReflectionUtil.getGetMethod(expectedMethod.getName(), pair.getActual());
 
-                // get actual field value by invoking its get method via
-                // reflection
                 t &= assertProperty(fieldName, report, property, actualMethod.invoke(pair.getActual()), fieldName,
                         properties, nodesList, true);
 

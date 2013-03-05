@@ -20,7 +20,6 @@ import eu.execom.testutil.model.EntityTierThreeType;
 import eu.execom.testutil.model.EntityTierTwoType;
 import eu.execom.testutil.model.IgnoredMethodsType;
 import eu.execom.testutil.model.IgnoredType;
-import eu.execom.testutil.model.NoDefaultConstructorType;
 import eu.execom.testutil.model.NoGetMethodsType;
 import eu.execom.testutil.model.Start;
 import eu.execom.testutil.model.TierFiveType;
@@ -270,8 +269,8 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is property
-     * of another entity.
+     * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is property of
+     * another entity.
      */
     @Test(expected = AssertionError.class)
     public void testAfterAssertEntityIsProperty() {
@@ -294,8 +293,8 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is property
-     * of another entity.
+     * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is property of
+     * another entity.
      */
     @Test(expected = AssertionError.class)
     public void testAfterAssertEntityNotEntity() {
@@ -512,67 +511,8 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     // }
 
     /**
-     * Test for assertParametersState of {@link FabutRepositoryAssert} when before snapshot matches after parameters
-     * state.
-     */
-    @Test
-    public void testAssertParametersTrue() {
-        // setup
-        final EntityTierTwoType entity2 = new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
-        final EntityTierThreeType entity3 = new EntityTierThreeType(TEST + TEST, 5, new EntityTierOneType(PROPERTY
-                + PROPERTY, 15));
-
-        takeSnapshot(entity2, entity3);
-
-        entity2.setId(new Integer(1));
-        entity2.setProperty(TEST);
-        entity2.getSubProperty().setId(new Integer(10));
-        entity3.setSubProperty(new EntityTierOneType(PROPERTY + PROPERTY, 15));
-
-        // method
-        assertSnapshot();
-    }
-
-    /**
-     * Test for assertParametersState of {@link FabutRepositoryAssert} when before snapshot doesn't match after
-     * parameters state.
-     */
-    @Test(expected = AssertionError.class)
-    public void testAssertParametersFalse() {
-        // setup
-        final EntityTierTwoType entity2 = new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
-        final EntityTierThreeType entity3 = new EntityTierThreeType(TEST + TEST, 5, new EntityTierOneType(PROPERTY
-                + PROPERTY, 15));
-
-        initDbSnapshot();
-        takeSnapshot(entity2, entity3);
-
-        entity2.setId(new Integer(2));
-        entity2.getSubProperty().setId(new Integer(15));
-        entity3.setProperty(TEST);
-        entity3.getSubProperty().setId(1);
-
-        // method
-        assertSnapshot();
-    }
-
-    /**
-     * Test for {@link FabutRepositoryAssert#takeSnapshot(Object...)} when specified object has no default constructor.
-     */
-    @Test(expected = AssertionError.class)
-    public void testAssertParametersNullCopy() {
-        // setup
-        final NoDefaultConstructorType noDefaultConstructorType = new NoDefaultConstructorType(TEST);
-
-        // method
-        takeSnapshot(noDefaultConstructorType);
-        assertSnapshot();
-    }
-
-    /**
-     * Test for
-     * {@link FabutRepositoryAssert#assertBeforeSnapshotDifference(TreeSet, TreeSet, Map, AssertReportBuilder)} when
-     * there are more entities in after snapshot but are asserted.
+     * Test for {@link FabutRepositoryAssert#assertBeforeSnapshotDifference(TreeSet, TreeSet, Map, AssertReportBuilder)}
+     * when there are more entities in after snapshot but are asserted.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
@@ -608,9 +548,8 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for
-     * {@link FabutRepositoryAssert#assertBeforeSnapshotDifference(TreeSet, TreeSet, Map, AssertReportBuilder)} when
-     * one of the elements in before snapshot isn't asserted.
+     * Test for {@link FabutRepositoryAssert#assertBeforeSnapshotDifference(TreeSet, TreeSet, Map, AssertReportBuilder)}
+     * when one of the elements in before snapshot isn't asserted.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test

@@ -11,6 +11,8 @@ import java.util.TreeSet;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.graph.NodesList;
+import eu.execom.testutil.pair.AssertPair;
 import eu.execom.testutil.property.ISingleProperty;
 import eu.execom.testutil.report.AssertReportBuilder;
 import eu.execom.testutil.util.ReflectionUtil;
@@ -40,6 +42,21 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
     public FabutRepositoryAssert() {
         super();
         dbSnapshot = new HashMap<Class<?>, Map<Object, CopyAssert>>();
+    }
+
+    @Override
+    // TODO tests
+    boolean assertChangedProperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
+            final List<ISingleProperty> properties, final NodesList nodesList) {
+
+        if (pair.getObjectType() == ObjectType.ENTITY_TYPE) {
+            if (pair.isProperty()) {
+                return assertEntityById(report, propertyName, pair);
+            } else {
+                return assertBySubproperty(propertyName, report, pair, properties, nodesList);
+            }
+        }
+        return super.assertChangedProperty(propertyName, report, pair, properties, nodesList);
     }
 
     // TODO comments
@@ -262,7 +279,9 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
         beforeIdsCopy.retainAll(afterIds);
         boolean ok = true;
         for (final Object id : beforeIdsCopy) {
-            ok &= assertEntities(beforeEntities.get(id).getEntity(), afterEntities.get(id), report);
+            if (!beforeEntities.get(id).isAsserted()) {
+                ok &= assertEntities(beforeEntities.get(id).getEntity(), afterEntities.get(id), report);
+            }
         }
         return ok;
     }
@@ -343,11 +362,10 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
      * @return - <code>true</code> if and only if ids of two specified objects are equal, <code>false</code> otherwise
      */
     // TODO move this method to repository assert
-    boolean assertEntityById(final AssertReportBuilder report, final String propertyName, final Object expected,
-            final Object actual) {
+    boolean assertEntityById(final AssertReportBuilder report, final String propertyName, final AssertPair pair) {
 
-        final Object expectedId = ReflectionUtil.getIdValue(expected);
-        final Object actualId = ReflectionUtil.getIdValue(actual);
+        final Object expectedId = ReflectionUtil.getIdValue(pair.getExpected());
+        final Object actualId = ReflectionUtil.getIdValue(pair.getActual());
 
         boolean ok = true;
         try {

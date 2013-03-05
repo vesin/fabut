@@ -34,8 +34,6 @@ import eu.execom.testutil.util.ReflectionUtil;
  * ExeCom test util class. Should be used for asserting two object or to assert single object. TODO think of better
  * comment.
  * 
- * @param <EntityType>
- *            the generic type
  * @author Dusko Vesin
  * @author Nikola Olah
  * @author Bojan Babic
@@ -45,14 +43,14 @@ import eu.execom.testutil.util.ReflectionUtil;
 public class FabutObjectAssert extends Assert {
 
     protected static final String EMPTY_STRING = "";
-
     private static final String DOT = ".";
 
     protected Map<ObjectType, List<Class<?>>> types;
 
     private final List<SnapshotPair> parameterSnapshot;
 
-    Object testInstance;
+    // TODO add description
+    private Object testInstance;
 
     /**
      * Instantiates a new abstract execom entity assert.
@@ -63,14 +61,8 @@ public class FabutObjectAssert extends Assert {
         parameterSnapshot = new ArrayList<SnapshotPair>();
     }
 
-    public Object getTestInstance() {
-        return testInstance;
-    }
-
-    public void setTestInstance(final Object testInstance) {
-        this.testInstance = testInstance;
-    }
-
+    // TODO this method and next one are almost same??? maybe this comment is not valid..
+    // TODO merge with sub method beforeListAssert
     public void assertObjects(final AssertReportBuilder report, final List<Object> expected, final List<Object> actual) {
         if (!beforeListAssert(report, expected, actual)) {
             throw new AssertionError(report.getMessage());
@@ -78,20 +70,22 @@ public class FabutObjectAssert extends Assert {
     }
 
     public void assertObjects(final AssertReportBuilder report, final Object expected, final Object actual,
-            final List<ISingleProperty> excludedProperties) {
+            final List<ISingleProperty> expectedChangedProperties) {
 
+        // TODO call this else in method for asserting lists
         if (isSameInstance(expected, actual)) {
             return;
         }
 
         final AssertPair assertPair = ConversionUtil.createAssertPair(expected, actual, types);
-        if (!assertChangedProperty(EMPTY_STRING, report, assertPair, excludedProperties, new NodesList())) {
+        if (!assertChangedProperty(EMPTY_STRING, report, assertPair, expectedChangedProperties, new NodesList())) {
             throw new AssertionError(report.getMessage());
         }
 
         afterAssertObject(actual, false);
     }
 
+    // TODO merge with sub method preAssertObject
     public void assertObject(final AssertReportBuilder report, final Object actual,
             final List<ISingleProperty> properties) {
 
@@ -121,6 +115,7 @@ public class FabutObjectAssert extends Assert {
      * @param isProperty
      *            <code>true</code> if entity is property of another object, <code>false</code> otherwise
      */
+    // TODO remove this method
     public void afterAssertEntity(final Object object, final boolean isProperty) {
         // TODO implements functionality so this asserts objects in parameter snapshot
     }
@@ -157,6 +152,7 @@ public class FabutObjectAssert extends Assert {
      * @return - <code>true</code> if both list are null or if lists succeed assert, <code>false</code> if only one of
      *         specified lists is null or list fail assert.
      */
+    // TODO why before in name???
     boolean beforeListAssert(final AssertReportBuilder report, final List expected, final List actual) {
         final NodesList nodesList = new NodesList();
 
@@ -234,6 +230,7 @@ public class FabutObjectAssert extends Assert {
      *            list of object that had been asserted
      * @return <code>true</code> if actual and expected are null or fully asserted, <code>false</code> otherwise.
      */
+    // TODO merge with assert change property, only first 15 lines of code.
     boolean assertBySubproperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
@@ -387,9 +384,11 @@ public class FabutObjectAssert extends Assert {
      *            - is actual property, important for entities
      * @return <code>true</code> if actual object is asserted to expected object, <code>false</code> otherwise.
      */
+    // TODO rename it, we are asserting two objects not one property
     boolean assertChangedProperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
+        // TODO add to node list here, and remove from any other line in code
         switch (pair.getObjectType()) {
         case IGNORED_TYPE:
             report.reportIgnoredType(pair);
@@ -564,6 +563,7 @@ public class FabutObjectAssert extends Assert {
      * @return {@link ReferenceCheckType#EQUAL_REFERENCE} is expected and actual have same reference, if and only if one
      *         of them is null return {@link ReferenceCheckType#EXCLUSIVE_NULL}
      */
+    // TODO rename it...maybe checkByReference?
     ReferenceCheckType referenceCheck(final AssertReportBuilder report, final Object expected, final Object actual,
             final String propertyName) {
 
@@ -579,7 +579,7 @@ public class FabutObjectAssert extends Assert {
         return ReferenceCheckType.COMPLEX_ASSERT;
     }
 
-    // TODO comments
+    // TODO remove this method
     ReferenceCheckType referenceCheck(final AssertReportBuilder report, final AssertPair assertPair,
             final String propertyName) {
         return referenceCheck(report, assertPair.getExpected(), assertPair.getActual(), propertyName);
@@ -608,6 +608,7 @@ public class FabutObjectAssert extends Assert {
      *            the actual
      * @return <code>true</code> if expected is same instance as actual, <code>false</code> otherwise.
      */
+    // TODO remove this method and instead use checkByReference
     boolean isSameInstance(final Object expected, final Object actual) {
         return expected == actual;
     }
@@ -630,26 +631,6 @@ public class FabutObjectAssert extends Assert {
         }
 
         return list;
-    }
-
-    public Map<ObjectType, List<Class<?>>> getTypes() {
-        return types;
-    }
-
-    public void setTypes(final Map<ObjectType, List<Class<?>>> types) {
-        this.types = types;
-    }
-
-    public List<Class<?>> getComplexTypes() {
-        return types.get(ObjectType.COMPLEX_TYPE);
-    }
-
-    public List<Class<?>> getEntityTypes() {
-        return types.get(ObjectType.ENTITY_TYPE);
-    }
-
-    public List<Class<?>> getIgnoredTypes() {
-        return types.get(ObjectType.IGNORED_TYPE);
     }
 
     /**
@@ -677,6 +658,7 @@ public class FabutObjectAssert extends Assert {
         boolean ok = true;
         final AssertReportBuilder report = new AssertReportBuilder();
         for (final SnapshotPair snapshotPair : parameterSnapshot) {
+            // TODO why not use assertChangedProperty
             ok &= assertParameterPair(snapshotPair.getExpected(), snapshotPair.getActual(), report);
         }
 
@@ -718,8 +700,36 @@ public class FabutObjectAssert extends Assert {
         }
     }
 
+    public Map<ObjectType, List<Class<?>>> getTypes() {
+        return types;
+    }
+
+    public void setTypes(final Map<ObjectType, List<Class<?>>> types) {
+        this.types = types;
+    }
+
+    public List<Class<?>> getComplexTypes() {
+        return types.get(ObjectType.COMPLEX_TYPE);
+    }
+
+    public List<Class<?>> getEntityTypes() {
+        return types.get(ObjectType.ENTITY_TYPE);
+    }
+
+    public List<Class<?>> getIgnoredTypes() {
+        return types.get(ObjectType.IGNORED_TYPE);
+    }
+
     List<SnapshotPair> getParameterSnapshot() {
         return parameterSnapshot;
+    }
+
+    public Object getTestInstance() {
+        return testInstance;
+    }
+
+    public void setTestInstance(final Object testInstance) {
+        this.testInstance = testInstance;
     }
 
 }

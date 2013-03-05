@@ -219,15 +219,15 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
         final AssertReportBuilder report = new AssertReportBuilder();
 
         // assert entities by classes
-        for (final Entry<Class<?>, Map<Object, CopyAssert>> entry : dbSnapshot.entrySet()) {
+        for (final Entry<Class<?>, Map<Object, CopyAssert>> snapshotEntry : dbSnapshot.entrySet()) {
 
-            final Map<Object, Object> afterEntities = getAfterEntities(entry.getKey());
-            final TreeSet beforeIds = new TreeSet(entry.getValue().keySet());
-            final TreeSet afterIds = new TreeSet(getAfterEntities(entry.getKey()).keySet());
+            final Map<Object, Object> afterEntities = getAfterEntities(snapshotEntry.getKey());
+            final TreeSet beforeIds = new TreeSet(snapshotEntry.getValue().keySet());
+            final TreeSet afterIds = new TreeSet(afterEntities.keySet());
 
-            ok &= assertBeforeSnapshotDifference(beforeIds, afterIds, entry.getValue(), report);
+            ok &= assertBeforeSnapshotDifference(beforeIds, afterIds, snapshotEntry.getValue(), report);
             ok &= assertAfterSnapshotDifference(beforeIds, afterIds, afterEntities, report);
-            ok &= assertSnapshots(beforeIds, afterIds, entry.getValue(), afterEntities, report);
+            ok &= assertSnapshots(beforeIds, afterIds, snapshotEntry.getValue(), afterEntities, report);
 
         }
         if (!ok) {
@@ -242,6 +242,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
         final TreeSet beforeIdsCopy = new TreeSet(beforeIds);
         boolean ok = true;
+        // TODO remove if
         if (beforeIdsCopy.removeAll(afterIds)) {
             for (final Object id : beforeIdsCopy) {
                 final CopyAssert copyAssert = beforeEntities.get(id);
@@ -260,6 +261,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
         final TreeSet afterIdsCopy = new TreeSet(afterIds);
         boolean ok = true;
+        // TODO remove if
         if (afterIdsCopy.removeAll(beforeIds)) {
             for (final Object id : afterIdsCopy) {
                 final Object entity = afterEntities.get(id);

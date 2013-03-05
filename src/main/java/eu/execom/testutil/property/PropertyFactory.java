@@ -11,6 +11,7 @@ import java.util.List;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
+// TODO merge with Fabut
 public abstract class PropertyFactory {
 
     /**

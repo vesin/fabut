@@ -1,12 +1,12 @@
-/**
- * 
- */
 package eu.execom.testutil.enums;
 
 /**
+ * TODO add comments
+ * 
  * @author nolah
  * 
  */
+// TODO rename to something like AssertableObjectType
 public enum ObjectType {
 
     COMPLEX_TYPE,

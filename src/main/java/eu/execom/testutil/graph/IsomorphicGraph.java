@@ -50,18 +50,6 @@ public interface IsomorphicGraph {
     <T> T getExpected(T actual);
 
     /**
-     * Get actual object pair node for specified expected object node.Ordering is important.
-     * 
-     * @param expected
-     *            - expected object
-     * @return - actual pair object
-     * 
-     * @param <T>
-     *            generic type
-     */
-    <T> T getActual(T expected);
-
-    /**
      * Checks if object graph has specified actual object node pair. Ordering is important.
      * 
      * @param actual

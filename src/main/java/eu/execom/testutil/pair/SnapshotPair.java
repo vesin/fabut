@@ -1,4 +1,5 @@
-package eu.execom.testutil;
+package eu.execom.testutil.pair;
+
 
 public class SnapshotPair extends Pair {
     private boolean asserted;

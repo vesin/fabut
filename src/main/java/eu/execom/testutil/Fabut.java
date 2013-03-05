@@ -17,10 +17,10 @@ import eu.execom.testutil.util.ReflectionUtil;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 // TODO for all methods check can method be called
-public class TestUtilAssert {
+public class Fabut {
 
     private static Class<?> testClass = null;
-    private static AbstractExecomRepositoryAssert abstractExecomRepositoryAssert = null;
+    private static FabutRepositoryAssert abstractExecomRepositoryAssert = null;
 
     public static void takeSnapshot() {
         abstractExecomRepositoryAssert.takeSnapshot();
@@ -34,7 +34,7 @@ public class TestUtilAssert {
     }
 
     // TODO why is this published ? End user shouldnt be able to us it.
-    public static final List<?> findAll(final Class<?> entityClass) {
+    public static final List<Object> findAll(final Class<?> entityClass) {
         return ReflectionUtil.findAll(testClass, entityClass);
     }
 
@@ -44,7 +44,7 @@ public class TestUtilAssert {
     }
 
     public static void beforeTest() {
-        abstractExecomRepositoryAssert = new AbstractExecomRepositoryAssert();
+        abstractExecomRepositoryAssert = new FabutRepositoryAssert();
         // TODO get instance of the class not class
         testClass = ReflectionUtil.getTestClassFromStackTrace();
         // TODO dont create instance of test class every time, pass it as parameter
@@ -61,7 +61,7 @@ public class TestUtilAssert {
     }
 
     public static void afterTest() {
-        abstractExecomRepositoryAssert.assertSnapshots();
+        abstractExecomRepositoryAssert.assertSnapshot();
     }
 
     public static void assertEntityWithSnapshot(final Object actual, final IProperty... properties) {

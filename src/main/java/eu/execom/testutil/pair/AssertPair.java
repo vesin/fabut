@@ -1,4 +1,4 @@
-package eu.execom.testutil;
+package eu.execom.testutil.pair;
 
 import eu.execom.testutil.enums.ObjectType;
 

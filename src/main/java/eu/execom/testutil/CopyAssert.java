@@ -11,9 +11,9 @@ package eu.execom.testutil;
  *            entity type.
  */
 // TODO make this class protected
-public class CopyAssert<T> {
+public class CopyAssert {
 
-    private T entity;
+    private Object entity;
     private boolean asserted;
 
     /**
@@ -22,9 +22,9 @@ public class CopyAssert<T> {
      * @param entity
      *            is content of copy assert.
      */
-    public CopyAssert(final T entity) {
+    public CopyAssert(final Object entity) {
         this.entity = entity;
-        this.asserted = false;
+        asserted = false;
     }
 
     /**
@@ -32,7 +32,7 @@ public class CopyAssert<T> {
      * 
      * @return entity.
      */
-    public T getEntity() {
+    public Object getEntity() {
         return entity;
     }
 
@@ -42,7 +42,7 @@ public class CopyAssert<T> {
      * @param entity
      *            entity to be set
      */
-    public void setEntity(final T entity) {
+    public void setEntity(final Object entity) {
         this.entity = entity;
     }
 

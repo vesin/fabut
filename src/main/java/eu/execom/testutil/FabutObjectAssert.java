@@ -16,6 +16,8 @@ import eu.execom.testutil.enums.NodeCheckType;
 import eu.execom.testutil.enums.ObjectType;
 import eu.execom.testutil.enums.ReferenceCheckType;
 import eu.execom.testutil.graph.NodesList;
+import eu.execom.testutil.pair.AssertPair;
+import eu.execom.testutil.pair.SnapshotPair;
 import eu.execom.testutil.property.IMultiProperties;
 import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
@@ -40,7 +42,7 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"rawtypes"})
-public class AbstractExecomAssert extends Assert {
+public class FabutObjectAssert extends Assert {
 
     protected static final String EMPTY_STRING = "";
 
@@ -48,12 +50,25 @@ public class AbstractExecomAssert extends Assert {
 
     protected Map<ObjectType, List<Class<?>>> types;
 
+    private final List<SnapshotPair> parameterSnapshot;
+
+    Object testInstance;
+
     /**
      * Instantiates a new abstract execom entity assert.
      */
-    public AbstractExecomAssert() {
+    public FabutObjectAssert() {
         super();
         types = new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class);
+        parameterSnapshot = new ArrayList<SnapshotPair>();
+    }
+
+    public Object getTestInstance() {
+        return testInstance;
+    }
+
+    public void setTestInstance(final Object testInstance) {
+        this.testInstance = testInstance;
     }
 
     public void assertObjects(final AssertReportBuilder report, final List<Object> expected, final List<Object> actual) {
@@ -241,7 +256,7 @@ public class AbstractExecomAssert extends Assert {
     /**
      * Assert subfields.
      * 
-     * TODO add tests and proper comment
+     * TODO add TESTS!! and proper comment
      * 
      * @param report
      *            the report
@@ -466,41 +481,9 @@ public class AbstractExecomAssert extends Assert {
 
             afterAssertObject(actual, isProperty);
         }
+
         report.decreaseDepth();
         return assertResult;
-    }
-
-    /**
-     * Asserts two entities by their id.
-     * 
-     * @param <Id>
-     *            entities id type
-     * @param report
-     *            assert report builder
-     * @param propertyName
-     *            name of current entity
-     * @param expected
-     *            expected entity
-     * @param actual
-     *            actual entity
-     * @return - <code>true</code> if and only if ids of two specified objects are equal, <code>false</code> otherwise
-     */
-    // TODO move this method to repository assert
-    boolean assertEntityById(final AssertReportBuilder report, final String propertyName, final Object expected,
-            final Object actual) {
-
-        final Object expectedId = ReflectionUtil.getIdValue(expected);
-        final Object actualId = ReflectionUtil.getIdValue(actual);
-
-        boolean ok = true;
-        try {
-            assertEquals(expectedId, actualId);
-            ok = true;
-        } catch (final AssertionError e) {
-            ok = false;
-        }
-        report.reportEntityAssert(expectedId, actualId, ok);
-        return ok;
     }
 
     /**
@@ -596,6 +579,7 @@ public class AbstractExecomAssert extends Assert {
         return ReferenceCheckType.COMPLEX_ASSERT;
     }
 
+    // TODO comments
     ReferenceCheckType referenceCheck(final AssertReportBuilder report, final AssertPair assertPair,
             final String propertyName) {
         return referenceCheck(report, assertPair.getExpected(), assertPair.getActual(), propertyName);
@@ -666,6 +650,76 @@ public class AbstractExecomAssert extends Assert {
 
     public List<Class<?>> getIgnoredTypes() {
         return types.get(ObjectType.IGNORED_TYPE);
+    }
+
+    /**
+     * TODO rewrite This functionality should be reworked and used after initial refactoring is done. Takes current
+     * parameters snapshot and original parameters, and saves them.
+     * 
+     * @param parameters
+     *            array of parameters
+     */
+    protected void takeSnapshot(final Object... parameters) {
+        initParametersSnapshot();
+
+        for (final Object object : parameters) {
+
+            final SnapshotPair snapshotPair = new SnapshotPair(object, ReflectionUtil.createCopy(object, types));
+            parameterSnapshot.add(snapshotPair);
+        }
+    }
+
+    /**
+     * Asserts current parameters states with snapshot previously taken.
+     */
+    void assertSnapshot() {
+
+        boolean ok = true;
+        final AssertReportBuilder report = new AssertReportBuilder();
+        for (final SnapshotPair snapshotPair : parameterSnapshot) {
+            ok &= assertParameterPair(snapshotPair.getExpected(), snapshotPair.getActual(), report);
+        }
+
+        initParametersSnapshot();
+
+        if (!ok) {
+            throw new AssertionError(report.getMessage());
+        }
+    }
+
+    /**
+     * Initialize parameters snapshot.
+     */
+    void initParametersSnapshot() {
+        parameterSnapshot.clear();
+    }
+
+    /**
+     * Calls assertObjects of {@link FabutObjectAssert} to assert two parameters.
+     * 
+     * @param beforeParameter
+     *            parameter from snapshot
+     * @param afterParameter
+     *            current parameter
+     * @param report
+     *            report builder
+     * @return <code>true</code> if parameters are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
+     *         <code>false</code> otherwise
+     */
+    boolean assertParameterPair(final Object beforeParameter, final Object afterParameter,
+            final AssertReportBuilder report) {
+        try {
+            assertObjects(new AssertReportBuilder(), beforeParameter, afterParameter, new ArrayList<ISingleProperty>());
+            return true;
+        } catch (final AssertionError e) {
+            report.reportParametersAssertFail(beforeParameter, afterParameter);
+            report.append(e.getMessage());
+            return false;
+        }
+    }
+
+    List<SnapshotPair> getParameterSnapshot() {
+        return parameterSnapshot;
     }
 
 }

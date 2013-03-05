@@ -24,7 +24,7 @@ public class CopyAssertTest extends Assert {
     public void testCopyAssert() {
         // method
         final EntityTierOneType entity = new EntityTierOneType();
-        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(entity);
+        final CopyAssert copyAssert = new CopyAssert(entity);
 
         // assert
         assertFalse(copyAssert.isAsserted());
@@ -38,10 +38,10 @@ public class CopyAssertTest extends Assert {
     public void testGetEntity() {
         // setup
         final EntityTierOneType expected = new EntityTierOneType();
-        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(expected);
+        final CopyAssert copyAssert = new CopyAssert(expected);
 
         // method
-        final EntityTierOneType actual = copyAssert.getEntity();
+        final EntityTierOneType actual = (EntityTierOneType) copyAssert.getEntity();
 
         // assert
         assertEquals(expected, actual);
@@ -54,7 +54,7 @@ public class CopyAssertTest extends Assert {
     public void testSetEntity() {
         // setup
         final EntityTierOneType entity = new EntityTierOneType();
-        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(entity);
+        final CopyAssert copyAssert = new CopyAssert(entity);
         final EntityTierOneType expected = new EntityTierOneType();
 
         // method
@@ -71,7 +71,7 @@ public class CopyAssertTest extends Assert {
     public void testIsAsserted() {
         // setup
         final EntityTierOneType entity = new EntityTierOneType();
-        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(entity);
+        final CopyAssert copyAssert = new CopyAssert(entity);
 
         // method
         final boolean isAsserted = copyAssert.isAsserted();
@@ -87,7 +87,7 @@ public class CopyAssertTest extends Assert {
     public void testSetAsserted() {
         // setup
         final EntityTierOneType entity = new EntityTierOneType();
-        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(entity);
+        final CopyAssert copyAssert = new CopyAssert(entity);
 
         // method
         copyAssert.setAsserted(true);

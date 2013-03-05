@@ -170,7 +170,7 @@ public class NodesListTest extends Assert {
     }
 
     /**
-     * Test for checkIfContains of {@link AbstractExecomAssert} when object pair is contained in list.
+     * Test for checkIfContains of {@link FabutObjectAssert} when object pair is contained in list.
      */
     @Test
     public void testCheckIfContainsTrue() {
@@ -188,7 +188,7 @@ public class NodesListTest extends Assert {
     }
 
     /**
-     * Test for checkIfContains of {@link AbstractExecomAssert} when one of object nodes from object pair is contained
+     * Test for checkIfContains of {@link FabutObjectAssert} when one of object nodes from object pair is contained
      * in list.
      */
     @Test
@@ -209,7 +209,7 @@ public class NodesListTest extends Assert {
     }
 
     /**
-     * Test for checkIfContains of {@link AbstractExecomAssert} when object pair is not contained in list.
+     * Test for checkIfContains of {@link FabutObjectAssert} when object pair is not contained in list.
      */
     @Test
     public void testCheckIfContainsNull() {

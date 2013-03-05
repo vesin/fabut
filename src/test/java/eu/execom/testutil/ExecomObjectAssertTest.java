@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.execom.testutil.enums.ObjectType;
@@ -32,6 +33,8 @@ import eu.execom.testutil.model.TierTwoTypeWithIgnoreProperty;
 import eu.execom.testutil.model.TierTwoTypeWithListProperty;
 import eu.execom.testutil.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.testutil.model.UnknownType;
+import eu.execom.testutil.pair.AssertPair;
+import eu.execom.testutil.pair.SnapshotPair;
 import eu.execom.testutil.property.IMultiProperties;
 import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
@@ -43,7 +46,7 @@ import eu.execom.testutil.property.PropertyFactory;
 import eu.execom.testutil.report.AssertReportBuilder;
 
 /**
- * Tests methods from {@link AbstractExecomAssert}.
+ * Tests methods from {@link FabutObjectAssert}.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -58,10 +61,6 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
 
     @Before
     public void before() {
-        // final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
-        // entityTypes.add(EntityTierOneType.class);
-        // entityTypes.add(EntityTierTwoType.class);
-        // setEntityTypes(entityTypes);
 
         final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
         complexTypes.add(A.class);
@@ -588,7 +587,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     // }
 
     /**
-     * Test for disassembleObject of {@link AbstractExecomAssert} when actual is pointing to itself.
+     * Test for disassembleObject of {@link FabutObjectAssert} when actual is pointing to itself.
      */
     @Test
     public void testDisassembleObjectTrivialGraphEqual() {
@@ -606,7 +605,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link AbstractExecomAssert} when actual and expected object nodes are contained in
+     * Test for disassembleObject of {@link FabutObjectAssert} when actual and expected object nodes are contained in
      * nodes list.
      */
     @Test
@@ -626,7 +625,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for disassembledOBject of {@link AbstractExecomAssert} when actual and expected are null.
+     * Test for disassembledOBject of {@link FabutObjectAssert} when actual and expected are null.
      */
     @Test
     public void testDisassembleObjectBothNull() {
@@ -658,7 +657,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link AbstractExecomAssert} when getting reference to field via {@link Method}'s
+     * Test for disassembleObject of {@link FabutObjectAssert} when getting reference to field via {@link Method}'s
      * method invoke and it trows exception.
      */
     @Test
@@ -672,7 +671,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual and expected values are nulls.
+     * Test for assertChangedProperty of {@link FabutObjectAssert} when actual and expected values are nulls.
      */
     @Test
     public void testAssertChangedPropertyBothNulls() {
@@ -705,7 +704,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     // }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is instance of complex class.
+     * Test for assertChangedProperty of {@link FabutObjectAssert} when actual is instance of complex class.
      */
     @Test
     public void testAssertChangedPropertyComplexType() {
@@ -722,7 +721,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is ignored type.
+     * Test for assertChangedProperty of {@link FabutObjectAssert} when actual is ignored type.
      */
     @Test
     public void testAssertChangedPropertyIgnoredType() {
@@ -739,7 +738,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is type unknown to test util and its
+     * Test for assertChangedProperty of {@link FabutObjectAssert} when actual is type unknown to test util and its
      * considered to be primitive.Actual is not equal to expected.
      */
     @Test
@@ -757,7 +756,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is type unknown to test util and its
+     * Test for assertChangedProperty of {@link FabutObjectAssert} when actual is type unknown to test util and its
      * considered to be primitive. Actual is not equal to expected.
      */
     @Test
@@ -794,7 +793,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     // }
 
     /**
-     * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual list and expected list are equal.
+     * Test for assertChangedProperty of {@link FabutObjectAssert} when actual list and expected list are equal.
      */
     @Test
     public void testAssertChangedPropertyListTypeEqual() {
@@ -868,7 +867,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     // }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NotNullProperty} and
+     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NotNullProperty} and
      * actual is not null.
      */
     @Test
@@ -883,7 +882,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NotNullProperty} and
+     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NotNullProperty} and
      * actual is null.
      */
     @Test
@@ -897,7 +896,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NullProperty} and
+     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NullProperty} and
      * actual is null.
      */
     @Test
@@ -911,7 +910,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link NullProperty} and
+     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NullProperty} and
      * actual is not null.
      */
     @Test
@@ -926,7 +925,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link AbstractExecomAssert} when expected property is {@link IgnoredProperty}.
+     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link IgnoredProperty}.
      */
     @Test
     public void testAssertPropertiesIgnoreProperty() {
@@ -940,7 +939,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertList of {@link AbstractExecomAssert} when actual list has different size than expected list.
+     * Test for assertList of {@link FabutObjectAssert} when actual list has different size than expected list.
      */
     @Test
     public void testAssertListNotEqualSize() {
@@ -960,7 +959,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertList of {@link AbstractExecomAssert} when actual list is equal to expected list.
+     * Test for assertList of {@link FabutObjectAssert} when actual list is equal to expected list.
      */
     @Test
     public void testAssertListEqual() {
@@ -981,7 +980,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertList of {@link AbstractExecomAssert} when actual list is equal to expected list.
+     * Test for assertList of {@link FabutObjectAssert} when actual list is equal to expected list.
      */
     @Test
     public void testAssertListNotEqual() {
@@ -1002,7 +1001,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when object properties match specified
+     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when object properties match specified
      * properties.
      */
     @Test
@@ -1017,7 +1016,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when object properties don't match
+     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when object properties don't match
      * specified properties.
      */
     @Test
@@ -1027,15 +1026,14 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
-        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(TEST
-                + TEST), properties);
+        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(TEST + TEST), properties);
 
         // assert
         assertFalse(assertValue);
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when there is no property for field and
+     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when there is no property for field and
      * field value is null.
      */
     @Test
@@ -1044,15 +1042,14 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
 
         // method
-        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(null),
-                properties);
+        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(null), properties);
 
         // assert
         assertFalse(assertValue);
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link AbstractExecomAssert} when specified property's path doesn't
+     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when specified property's path doesn't
      * match object's field path.
      */
     @Test
@@ -1062,15 +1059,14 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TEST, TEST));
 
         // method
-        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(TEST),
-                properties);
+        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(TEST), properties);
 
         // assertTrue
         assertFalse(assertValue);
     }
 
     /**
-     * Test for preListAssert of {@link AbstractExecomAssert} when expected and actual list are nulls.
+     * Test for preListAssert of {@link FabutObjectAssert} when expected and actual list are nulls.
      */
     @Test
     public void testPreListForAssertNull() {
@@ -1082,7 +1078,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for preListAssert of {@link AbstractExecomAssert} when expected is null and actual is not.
+     * Test for preListAssert of {@link FabutObjectAssert} when expected is null and actual is not.
      */
     @Test
     public void testPreListForAssertExclusiveNull() {
@@ -1094,7 +1090,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for removeParentQualificationForProperties of {@link AbstractExecomAssert}.
+     * Test for removeParentQualificationForProperties of {@link FabutObjectAssert}.
      */
     @Test
     public void testRemoveParentQualificationForProperty() {
@@ -1115,7 +1111,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for generateNewProperty of {@link AbstractExecomAssert} when property for that field already exists.
+     * Test for generateNewProperty of {@link FabutObjectAssert} when property for that field already exists.
      */
     @Test
     public void testGeneratePropertyFromListOfExcluded() {
@@ -1134,7 +1130,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for generateNewProperty of {@link AbstractExecomAssert} when specified field needs to be wrapped inside new
+     * Test for generateNewProperty of {@link FabutObjectAssert} when specified field needs to be wrapped inside new
      * ChangedProperty.
      */
     @Test
@@ -1156,7 +1152,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for popProperty of {@link AbstractExecomAssert} when specified property's path matches specified path.
+     * Test for popProperty of {@link FabutObjectAssert} when specified property's path matches specified path.
      */
     @Test
     public void testPopPropertyEqualPath() {
@@ -1173,7 +1169,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for popProperty of {@link AbstractExecomAssert} when there are no properties in the list.
+     * Test for popProperty of {@link FabutObjectAssert} when there are no properties in the list.
      */
     @Test
     public void testPopPropertyNoProperties() {
@@ -1188,7 +1184,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for popProperty of {@link AbstractExecomAssert} when specified property's path doesn't match specified path.
+     * Test for popProperty of {@link FabutObjectAssert} when specified property's path doesn't match specified path.
      */
     @Test
     public void testPopPropertyNotEqualPath() {
@@ -1204,7 +1200,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for checkForNull of {@link AbstractExecomAssert} with two null objects.
+     * Test for checkForNull of {@link FabutObjectAssert} with two null objects.
      */
     @Test
     public void testCheckForNullsTrueNull() {
@@ -1216,7 +1212,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for checkForNulls of {@link AbstractExecomAssert} with two same references.
+     * Test for checkForNulls of {@link FabutObjectAssert} with two same references.
      */
     @Test
     public void testCheckForNullsTrueNotNull() {
@@ -1231,7 +1227,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for checkForNulls of {@link AbstractExecomAssert} with one object null and one not null, both cases.
+     * Test for checkForNulls of {@link FabutObjectAssert} with one object null and one not null, both cases.
      */
     @Test
     public void testCheckForNullsFalse() {
@@ -1245,7 +1241,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for checkForNulls of {@link AbstractExecomAssert} with both objects not null.
+     * Test for checkForNulls of {@link FabutObjectAssert} with both objects not null.
      */
     @Test
     public void testCheckForNullsNull() {
@@ -1377,6 +1373,38 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         // method
         assertObjects(new AssertReportBuilder(), expected, actual, extractProperties(PropertyFactory.ignored(
                 TierTwoType.PROPERTY + DOT + TierOneType.PROPERTY, TierTwoTypeWithPrimitiveProperty.PROPERTY2)));
+    }
+
+    /**
+     * Test for {@link FabutObjectAssert#takeSnapshot(Object...)}.
+     */
+    @Test
+    public void testTakeSnapshot() {
+        // setup
+        final TierOneType tierOneType = new TierOneType(TEST);
+
+        // method
+        takeSnapshot(tierOneType);
+
+        // assert
+        final List<SnapshotPair> parameterSnapshot = getParameterSnapshot();
+        assertEquals(parameterSnapshot.size(), 1);
+
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+
+        assertObjects(new AssertReportBuilder(), new TierOneType(TEST), parameterSnapshot.get(0).getExpected(),
+                properties);
+        assertObjects(new AssertReportBuilder(), new TierOneType(TEST), parameterSnapshot.get(0).getActual(),
+                properties);
+    }
+
+    /**
+     * TODO write test
+     */
+    @Test
+    @Ignore
+    public void testAssertParametersTrue() {
+
     }
 
 }

@@ -1,20 +1,16 @@
 package eu.execom.testutil;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import junit.framework.AssertionFailedError;
+import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import eu.execom.testutil.enums.ObjectType;
-import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.model.A;
 import eu.execom.testutil.model.B;
 import eu.execom.testutil.model.C;
@@ -37,19 +33,16 @@ import eu.execom.testutil.model.TierTwoTypeWithIgnoreProperty;
 import eu.execom.testutil.model.TierTwoTypeWithListProperty;
 import eu.execom.testutil.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.testutil.model.UnknownEntityType;
-import eu.execom.testutil.model.UnknownType;
 import eu.execom.testutil.report.AssertReportBuilder;
-import eu.execom.testutil.util.ReflectionUtil;
 
 /**
- * Tests for {@link AbstractExecomRepositoryAssert}.
+ * Tests for {@link FabutRepositoryAssert}.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-@SuppressWarnings("unchecked")
 public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTest {
 
     private static final String TEST = "test";
@@ -95,27 +88,27 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for assertDbState of {@link AbstractExecomRepositoryAssert} when before snapshot matches after snapshot.
+     * Test for assertDbState of {@link FabutRepositoryAssert} when before snapshot matches after snapshot.
      */
     @Test
     public void testAssertDbStateTrue() {
         // setup
-        final List<EntityTierOneType> beforeList1 = new ArrayList<EntityTierOneType>();
+        final List<Object> beforeList1 = new ArrayList<Object>();
         beforeList1.add(new EntityTierOneType(TEST + TEST, 1));
         setList1(beforeList1);
 
-        final List<EntityTierTwoType> beforeList2 = new ArrayList<EntityTierTwoType>();
+        final List<Object> beforeList2 = new ArrayList<Object>();
         beforeList2.add(new EntityTierTwoType(PROPERTY + PROPERTY + PROPERTY, 4, new EntityTierOneType(TEST + TEST
                 + TEST + TEST, 4)));
         setList2(beforeList2);
 
         takeSnapshot();
 
-        final List<EntityTierOneType> afterList1 = new ArrayList<EntityTierOneType>();
+        final List<Object> afterList1 = new ArrayList<Object>();
         afterList1.add(new EntityTierOneType(TEST + TEST, 1));
         setList1(afterList1);
 
-        final List<EntityTierTwoType> afterist2 = new ArrayList<EntityTierTwoType>();
+        final List<Object> afterist2 = new ArrayList<Object>();
         afterist2.add(new EntityTierTwoType(PROPERTY + PROPERTY + PROPERTY, 4, new EntityTierOneType(TEST + TEST + TEST
                 + TEST, 4)));
         setList2(afterist2);
@@ -125,29 +118,28 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for assertDbState of {@link AbstractExecomRepositoryAssert} when before snapshot doesn't match after
-     * snapshot.
+     * Test for assertDbState of {@link FabutRepositoryAssert} when before snapshot doesn't match after snapshot.
      */
     @Test(expected = AssertionError.class)
     // TODO(nolah) test is probably bad now that test util isnt extended anymore
     public void testAssertDbStateFalse() {
         // setup
 
-        final List<EntityTierOneType> beforeList1 = new ArrayList<EntityTierOneType>();
+        final List<Object> beforeList1 = new ArrayList<Object>();
         beforeList1.add(new EntityTierOneType(TEST, 1));
         setList1(beforeList1);
 
-        final List<EntityTierTwoType> beforeList2 = new ArrayList<EntityTierTwoType>();
+        final List<Object> beforeList2 = new ArrayList<Object>();
         beforeList2.add(new EntityTierTwoType(PROPERTY, 4, new EntityTierOneType(TEST, 7)));
         setList2(beforeList2);
 
         takeSnapshot();
 
-        final List<EntityTierOneType> afterList1 = new ArrayList<EntityTierOneType>();
+        final List<Object> afterList1 = new ArrayList<Object>();
         afterList1.add(new EntityTierOneType(TEST + TEST, 1));
         setList1(afterList1);
 
-        final List<EntityTierTwoType> afterList2 = new ArrayList<EntityTierTwoType>();
+        final List<Object> afterList2 = new ArrayList<Object>();
         afterList2.add(new EntityTierTwoType(PROPERTY + PROPERTY, 4, new EntityTierOneType(TEST + TEST, 7)));
         setList2(afterList2);
 
@@ -156,120 +148,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for assertByEntity of {@link AbstractExecomRepositoryAssert} when before entities match after entities.
-     */
-    @Test
-    public void testAssertByEntityTrue() {
-        // setup
-        initDbSnapshot();
-        final Map<Integer, CopyAssert<EntityTierOneType>> beforeEntities = new HashMap<Integer, CopyAssert<EntityTierOneType>>();
-        beforeEntities.put(1, new CopyAssert<EntityTierOneType>(new EntityTierOneType(TEST, 1)));
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-        afterEntities.add(new EntityTierOneType(TEST, 1));
-
-        // method
-        final boolean assertValue = assertByEntity(beforeEntities, afterEntities, new AssertReportBuilder());
-
-        // assert
-        assertTrue(assertValue);
-
-    }
-
-    /**
-     * Test for assertByEntity of {@link AbstractExecomRepositoryAssert} when before entities don't match after
-     * entities.
-     */
-    @Test
-    public void testAssertByEntityFalse() {
-        // setup
-        initDbSnapshot();
-        final Map<Integer, CopyAssert<EntityTierOneType>> beforeEntities = new HashMap<Integer, CopyAssert<EntityTierOneType>>();
-        beforeEntities.put(1, new CopyAssert<EntityTierOneType>(new EntityTierOneType(TEST, 1)));
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-        afterEntities.add(new EntityTierOneType(TEST + TEST, 1));
-
-        // method
-        final boolean assertValue = assertByEntity(beforeEntities, afterEntities, new AssertReportBuilder());
-
-        // assert
-        assertFalse(assertValue);
-
-    }
-
-    /**
-     * Test for validateEntry of {@link AbstractExecomRepositoryAssert} when specified entry is already asserted.
-     */
-    @Test
-    public void testValidateEntrylreadyAsserted() {
-        // setup
-        final List<Integer> ids = new ArrayList<Integer>();
-        final Map<Integer, CopyAssert<EntityTierOneType>> beforeEntities = new HashMap<Integer, CopyAssert<EntityTierOneType>>();
-        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(new EntityTierOneType(TEST,
-                1));
-        copyAssert.setAsserted(true);
-        beforeEntities.put(1, copyAssert);
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-
-        boolean assertValue = false;
-        for (final Entry<Integer, CopyAssert<EntityTierOneType>> beforeEntry : beforeEntities.entrySet()) {
-            // method
-            assertValue = validateEntry(ids, beforeEntry, afterEntities, new AssertReportBuilder());
-        }
-
-        // assert
-        assertTrue(assertValue);
-
-    }
-
-    /**
-     * Test for AssertClasess of {@link AbstractExecomRepositoryAssert} when specified element has no match in after
-     * entities.
-     */
-    @Test
-    public void testAssertClasessNoAfterElem() {
-        // setup
-        final List<Integer> ids = new ArrayList<Integer>();
-        final Map<Integer, CopyAssert<EntityTierOneType>> beforeEntities = new HashMap<Integer, CopyAssert<EntityTierOneType>>();
-        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(new EntityTierOneType(TEST,
-                1));
-        beforeEntities.put(1, copyAssert);
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-
-        boolean assertValue = false;
-        for (final Entry<Integer, CopyAssert<EntityTierOneType>> beforeEntry : beforeEntities.entrySet()) {
-            // method
-            assertValue = validateEntry(ids, beforeEntry, afterEntities, new AssertReportBuilder());
-        }
-
-        // assert
-        assertFalse(assertValue);
-    }
-
-    /**
-     * Test for validateEntry of {@link AbstractExecomRepositoryAssert} when specified element has no valid match in
-     * before entities.
-     */
-    @Test
-    public void testValidateEntryNoValidCopy() {
-        // setup
-        final List<Integer> ids = new ArrayList<Integer>();
-        final Map<Integer, CopyAssert<EntityTierOneType>> beforeEntities = new HashMap<Integer, CopyAssert<EntityTierOneType>>();
-        final CopyAssert<EntityTierOneType> copyAssert = new CopyAssert<EntityTierOneType>(null);
-        beforeEntities.put(1, copyAssert);
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-
-        boolean assertValue = false;
-        for (final Entry<Integer, CopyAssert<EntityTierOneType>> beforeEntry : beforeEntities.entrySet()) {
-            // method
-            assertValue = validateEntry(ids, beforeEntry, afterEntities, new AssertReportBuilder());
-        }
-
-        // assert
-        assertFalse(assertValue);
-    }
-
-    /**
-     * Test for assertEntities of {@link AbstractExecomRepositoryAssert} when two entities are equal.
+     * Test for assertEntities of {@link FabutRepositoryAssert} when two entities are equal.
      */
     @Test
     public void testAssertEntitiesTrue() {
@@ -285,7 +164,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for assertEntities of {@link AbstractExecomRepositoryAssert} when two entities are nor equal.
+     * Test for assertEntities of {@link FabutRepositoryAssert} when two entities are nor equal.
      */
     @Test
     public void testAssertEntitiesFalse() {
@@ -301,100 +180,12 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for popEntityFromList of {@link AbstractExecomRepositoryAssert} when there is entity in list with specified
-     * id.
-     */
-    @Test
-    public void testPopEntityFromListNotNull() {
-        // setup
-        final Integer id = new Integer(1);
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-        afterEntities.add(new EntityTierOneType(TEST, id));
-
-        // method
-        final EntityTierOneType afterEntity = popEntityFromList(id, afterEntities);
-
-        // assert
-        assertNotNull(afterEntity);
-        assertEquals(0, afterEntities.size());
-
-    }
-
-    /**
-     * Test for popEntityFromList of {@link AbstractExecomRepositoryAssert} when there is no entity in list with
-     * specified id.
-     */
-    @Test
-    public void testPopEntityFromListNull() {
-        // setup
-        final Integer id = new Integer(1);
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-        afterEntities.add(new EntityTierOneType(TEST, id));
-
-        // method
-        final EntityTierOneType afterEntity = popEntityFromList(id + id, afterEntities);
-
-        // assert
-        assertNull(afterEntity);
-        assertEquals(1, afterEntities.size());
-    }
-
-    /**
-     * Test for removeAfterEntities of {@link AbstractExecomRepositoryAssert} when there is id for entity specified in
-     * ids list.
-     */
-    @Test
-    public void testRemoveAfterEntitiesContainsId() {
-        // setup
-        final List<Integer> ids = new ArrayList<Integer>();
-        ids.add(1);
-
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-        afterEntities.add(new EntityTierOneType(TEST, 1));
-        afterEntities.add(new EntityTierOneType(TEST, 2));
-        afterEntities.add(new EntityTierOneType(TEST, 3));
-
-        // method
-        removeAfterEntitites(ids, afterEntities);
-
-        // assert
-        assertEquals(2, afterEntities.size());
-        assertEquals(new Integer(2), afterEntities.get(0).getId());
-        assertEquals(new Integer(3), afterEntities.get(1).getId());
-    }
-
-    /**
-     * Test for removeAfterEntities of {@link AbstractExecomRepositoryAssert} when there isnt id for entity specified in
-     * ids list.
-     */
-    @Test
-    public void testRemoveAfterEntitiesDoesntContainId() {
-        // setup
-        final List<Integer> ids = new ArrayList<Integer>();
-        ids.add(150);
-
-        final List<EntityTierOneType> afterEntities = new ArrayList<EntityTierOneType>();
-        afterEntities.add(new EntityTierOneType(TEST, 1));
-        afterEntities.add(new EntityTierOneType(TEST, 2));
-        afterEntities.add(new EntityTierOneType(TEST, 3));
-
-        // method
-        removeAfterEntitites(ids, afterEntities);
-
-        // assert
-        assertEquals(3, afterEntities.size());
-        assertEquals(new Integer(1), afterEntities.get(0).getId());
-        assertEquals(new Integer(2), afterEntities.get(1).getId());
-        assertEquals(new Integer(3), afterEntities.get(2).getId());
-    }
-
-    /**
-     * Test for markEntityAsDeleted of {@link AbstractExecomRepositoryAssert} when entity is marked as deleted.
+     * Test for markEntityAsDeleted of {@link FabutRepositoryAssert} when entity is marked as deleted.
      */
     @Test
     public void testAssertEntityAsDeletedEntity() {
         // setup
-        final List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
+        final List<Object> list1 = new ArrayList<Object>();
         list1.add(new EntityTierOneType(TEST, 1));
         list1.add(new EntityTierOneType(TEST, 2));
         setList1(list1);
@@ -402,7 +193,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
         takeSnapshot();
 
-        final List<EntityTierOneType> list2 = new ArrayList<EntityTierOneType>();
+        final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
         setList1(list2);
 
@@ -412,7 +203,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for markEntityAsDeleted of {@link AbstractExecomRepositoryAssert} when specified object is not entity.
+     * Test for markEntityAsDeleted of {@link FabutRepositoryAssert} when specified object is not entity.
      */
     @Test
     public void testAssertAsDeletedNotEntity() {
@@ -422,12 +213,12 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for ignoreEntity of {@link AbstractExecomRepositoryAssert} when specified entity is ignored.
+     * Test for ignoreEntity of {@link FabutRepositoryAssert} when specified entity is ignored.
      */
     @Test
     public void testIgnoreEntityEntity() {
         // setup
-        final List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
+        final List<Object> list1 = new ArrayList<Object>();
         list1.add(new EntityTierOneType(TEST, 1));
         list1.add(new EntityTierOneType(TEST, 2));
         setList1(list1);
@@ -435,7 +226,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
         takeSnapshot();
 
-        final List<EntityTierOneType> list2 = new ArrayList<EntityTierOneType>();
+        final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
         setList1(list2);
 
@@ -445,7 +236,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for ignoreEntity of {@link AbstractExecomRepositoryAssert} when specified object is not entity.
+     * Test for ignoreEntity of {@link FabutRepositoryAssert} when specified object is not entity.
      */
     @Test
     public void testIngoreEntityNotEntity() {
@@ -455,13 +246,13 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for afterAssertEntity of {@link AbstractExecomRepositoryAssert} when specified object is entity and it is
-     * not property.
+     * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is not
+     * property.
      */
     @Test
     public void testAfterAssertEntityParentEntityNotProperty() {
         // setup
-        final List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
+        final List<Object> list1 = new ArrayList<Object>();
         list1.add(new EntityTierOneType(TEST, 1));
         list1.add(new EntityTierOneType(TEST, 2));
         setList1(list1);
@@ -469,7 +260,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
         takeSnapshot();
 
-        final List<EntityTierOneType> list2 = new ArrayList<EntityTierOneType>();
+        final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
         setList1(list2);
 
@@ -479,13 +270,13 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for afterAssertEntity of {@link AbstractExecomRepositoryAssert} when specified object is entity and it is
-     * property of another entity.
+     * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is property
+     * of another entity.
      */
     @Test(expected = AssertionError.class)
     public void testAfterAssertEntityIsProperty() {
         // setup
-        final List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
+        final List<Object> list1 = new ArrayList<Object>();
         list1.add(new EntityTierOneType(TEST, 1));
         list1.add(new EntityTierOneType(TEST, 2));
         setList1(list1);
@@ -493,7 +284,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
         takeSnapshot();
 
-        final List<EntityTierOneType> list2 = new ArrayList<EntityTierOneType>();
+        final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
         setList1(list2);
 
@@ -503,13 +294,13 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for afterAssertEntity of {@link AbstractExecomRepositoryAssert} when specified object is entity and it is
-     * property of another entity.
+     * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is property
+     * of another entity.
      */
     @Test(expected = AssertionError.class)
     public void testAfterAssertEntityNotEntity() {
         // setup
-        final List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
+        final List<Object> list1 = new ArrayList<Object>();
         list1.add(new EntityTierOneType(TEST, 1));
         list1.add(new EntityTierOneType(TEST, 2));
         setList1(list1);
@@ -517,7 +308,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         final TierOneType actual = new TierOneType();
         takeSnapshot();
 
-        final List<EntityTierOneType> list2 = new ArrayList<EntityTierOneType>();
+        final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
         setList1(list2);
 
@@ -527,13 +318,13 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for afterAssertEntity of {@link AbstractExecomRepositoryAssert} when specified object is entity and it is
-     * not property of another entity but its id is <code>null</code>.
+     * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is not
+     * property of another entity but its id is <code>null</code>.
      */
     @Test
     public void testAfterAssertEntityWithoutID() {
         // setup
-        final List<EntityTierOneType> list1 = new ArrayList<EntityTierOneType>();
+        final List<Object> list1 = new ArrayList<Object>();
         list1.add(new EntityTierOneType(TEST, 1));
         list1.add(new EntityTierOneType(TEST, 2));
         setList1(list1);
@@ -547,220 +338,12 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for createEmptyCopyOf of {@link AbstractExecomRepositoryAssert} when specified object has default
-     * constructor.
-     */
-    @Test
-    public void testCreateEmptyCopyOfHasDefaultConstructor() {
-        // method
-        final TierOneType assertObject = createEmptyCopyOf(new TierOneType());
-
-        // assert
-        assertNotNull(assertObject);
-        assertEquals(TierOneType.class, assertObject.getClass());
-    }
-
-    /**
-     * Test for createEmptyCopyOf of {@link AbstractExecomRepositoryAssert} when specified object has no default
-     * constructor.
-     */
-    @Test(expected = AssertionFailedError.class)
-    public void testCreateEmptyCopyOfNoDefaultConstructor() {
-        // method
-        final NoGetMethodsType assertObject = createEmptyCopyOf(new NoGetMethodsType(TEST));
-
-        // assert
-        assertNull(assertObject);
-    }
-
-    /**
-     * Test for copyList of {@link AbstractExecomRepositoryAssert} if it copies list.
-     */
-    @Test
-    public void testCopyList() {
-        // setup
-        final List<String> list = new LinkedList<String>();
-        list.add(TEST);
-
-        // method
-        final List<String> assertList = copyList(list);
-
-        assertNotNull(assertList);
-        assertEquals(1, assertList.size());
-        assertEquals(TEST, assertList.get(0));
-    }
-
-    /**
-     * Test for createCopy of {@link AbstractExecomRepositoryAssert} when specified object is null.
-     */
-    @Test
-    public void testCreateCopyNull() {
-        // method
-        final Object object = createCopy(null);
-
-        // assert
-        assertNull(object);
-    }
-
-    /**
-     * Test for createCopy of {@link AbstractExecomRepositoryAssert} when specified object is list.
-     */
-    @Test
-    public void testCreateCopyList() {
-        // setup
-        final List<String> list = new LinkedList<String>();
-        list.add(TEST);
-
-        // method
-        final List<String> assertList = (List<String>) createCopy(list);
-
-        assertNotNull(assertList);
-        assertEquals(1, assertList.size());
-        assertEquals(TEST, assertList.get(0));
-    }
-
-    /**
-     * Test for ivokeSetMethod of {@link AbstractExecomRepositoryAssert} when specified object for copying has set
-     * method with specified name and can be invoked.
-     */
-    @Test
-    public void testIvokeSetMethodSuccess() {
-        // setup
-        final Method method = ReflectionUtil.getGetMethods(new TierOneType(), types).get(0);
-        final Class<?> classObject = TierOneType.class;
-        final String propertyName = PROPERTY;
-        final TierOneType copy = new TierOneType();
-        final Object copiedProperty = PROPERTY;
-
-        // method
-        invokeSetMethod(method, classObject, propertyName, copy, copiedProperty);
-
-        // assert
-        assertEquals(PROPERTY, copy.getProperty());
-    }
-
-    /**
-     * Test for ivokeSetMethod of {@link AbstractExecomRepositoryAssert} when specified object for copying has set
-     * method with specified name and can't be invoked as object has no set methods.
-     */
-    @Test(expected = AssertionFailedError.class)
-    public void testIvokeSetMethodNull() {
-        // setup
-        final Method method = ReflectionUtil.getGetMethods(new TierTwoType(new TierOneType()), types).get(0);
-        final Class<?> classObject = TierTwoType.class;
-        final String propertyName = PROPERTY;
-        final TierTwoType copy = new TierTwoType(new TierOneType());
-        final Object copiedProperty = PROPERTY;
-
-        // method
-        invokeSetMethod(method, classObject, propertyName, copy, copiedProperty);
-    }
-
-    /**
-     * Test for copyProperty of {@link AbstractExecomRepositoryAssert} when specified object for copying is null;
-     */
-    @Test
-    public void testCopyPropertyNull() {
-        // method
-        final Object copy = copyProperty(null, null);
-
-        // assert
-        assertNull(copy);
-    }
-
-    /**
-     * Test for copyProperty of {@link AbstractExecomRepositoryAssert} when specified object is complex object with
-     * property of complex type.
-     */
-    @Test
-    public void testCopyPropertyComplexType() {
-        // method
-        final EntityTierTwoType copy = (EntityTierTwoType) copyProperty(new EntityTierTwoType(TEST, 1,
-                new EntityTierOneType(PROPERTY, 2)), new NodesList());
-
-        // assert
-        assertNotNull(copy);
-        assertEquals(TEST, copy.getProperty());
-        assertEquals(1, copy.getId());
-        assertNotNull(copy.getSubProperty());
-        assertEquals(PROPERTY, copy.getSubProperty().getProperty());
-        assertEquals(new Integer(2), copy.getSubProperty().getId());
-    }
-
-    /**
-     * Test for copyProperty of {@link AbstractExecomRepositoryAssert} when specified object is {@link List}.
-     */
-    @Test
-    public void testCopyPropertyList() {
-        // setup
-        final List<String> list = new ArrayList<String>();
-        list.add(TEST);
-
-        // method
-        final List<String> copy = (List<String>) copyProperty(list, null);
-
-        // assert
-        assertNotNull(copy);
-        assertEquals(1, copy.size());
-        assertEquals(TEST, copy.get(0));
-
-    }
-
-    /**
-     * Test for copyProperty of {@link AbstractExecomRepositoryAssert} when specified object is of unknown type.
-     */
-    @Test
-    public void testCopyPropertyUnkownType() {
-        // setup
-        final UnknownType unknownType = new UnknownType();
-
-        // method
-        final UnknownType copy = (UnknownType) copyProperty(unknownType, null);
-
-        // assert
-        assertEquals(unknownType, copy);
-
-    }
-
-    /**
-     * Test for getPropertyForCopying of {@link AbstractExecomRepositoryAssert} when specified method can be invoked.
-     */
-    @Test
-    public void testGetPropertyForCopyingCanInvoke() {
-        // setup
-        final Method method = ReflectionUtil.getGetMethods(new EntityTierOneType(), types).get(1);
-
-        // method
-        final String property = (String) getPropertyForCopying(new EntityTierOneType(TEST, 1), method);
-
-        // assert
-        assertEquals(TEST, property);
-
-    }
-
-    /**
-     * Test for getPropertyForCopying of {@link AbstractExecomRepositoryAssert} when specified method can not be
-     * invoked.
-     */
-    @Test(expected = AssertionFailedError.class)
-    public void testGetPropertyForCopyingCantInvoke() {
-        // setup
-        final Method method = ReflectionUtil.getGetMethods(new EntityTierOneType(), types).get(1);
-
-        // method
-        final String property = (String) getPropertyForCopying(null, method);
-
-        // assert
-        assertNull(property);
-    }
-
-    /**
-     * Test for markAsAsserted of {@link AbstractExecomRepositoryAssert} when specified type is not type supported.
+     * Test for markAsAsserted of {@link FabutRepositoryAssert} when specified type is not type supported.
      */
     @Test
     public void testMarkAssertedNotTypeSupportedTrue() {
         // setup
-        final List<EntityTierTwoType> list = new ArrayList<EntityTierTwoType>();
+        final List<Object> list = new ArrayList<Object>();
         setList2(list);
 
         // method
@@ -775,7 +358,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for markAsAsserted of {@link AbstractExecomRepositoryAssert} when specified type and its superclass are not
+     * Test for markAsAsserted of {@link FabutRepositoryAssert} when specified type and its superclass are not
      * supported.
      */
     @Test
@@ -790,13 +373,12 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for markAsAsserted of {@link AbstractExecomRepositoryAssert} when there is no {@link CopyAssert} in db
-     * snapshot.
+     * Test for markAsAsserted of {@link FabutRepositoryAssert} when there is no {@link CopyAssert} in db snapshot.
      */
     @Test
     public void testMarkAssertedCopyAssertNull() {
         // setup
-        final List<EntityTierTwoType> list = new ArrayList<EntityTierTwoType>();
+        final List<Object> list = new ArrayList<Object>();
         setList2(list);
 
         // method
@@ -811,13 +393,13 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     }
 
     /**
-     * Test for markAsAsserted of {@link AbstractExecomRepositoryAssert} when {@link CopyAssert} exists in db snapshot.
+     * Test for markAsAsserted of {@link FabutRepositoryAssert} when {@link CopyAssert} exists in db snapshot.
      */
     @Test
     public void testMarkAssertedCopyAssertNotNull() {
         // setup
         final EntityTierTwoType entity = new EntityTierThreeType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
-        final List<EntityTierTwoType> list = new ArrayList<EntityTierTwoType>();
+        final List<Object> list = new ArrayList<Object>();
         list.add(entity);
         setList2(list);
 
@@ -840,7 +422,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     // public void testTakeSnapshot() {
     // // setup
     // final EntityTierTwoType entity = new EntityTierThreeType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
-    // final List<EntityTierTwoType> list = new ArrayList<EntityTierTwoType>();
+    // final List<Object> list = new ArrayList<Object>();
     // list.add(entity);
     // setList2(list);
     //
@@ -858,7 +440,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     // if (classEntry.getKey() == EntityTierTwoType.class) {
     // assertEquals(1, classEntry.getValue().size());
     // final Object object = classEntry.getValue().get(1);
-    // final CopyAssert<EntityTierTwoType> copyAssert = (CopyAssert<EntityTierTwoType>) object;
+    // final CopyAssert copyAssert = (CopyAssert) object;
     // final EntityTierTwoType assertEntity = copyAssert.getEntity();
     // assertEquals(1, assertEntity.getId());
     // assertEquals(TEST, assertEntity.getProperty());
@@ -903,7 +485,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     // @Test(expected = AssertionError.class)
     // public void testAssertEntityWithSnapshotNoEntityInSnapshot() {
     // // setup
-    // setList1(new ArrayList<EntityTierOneType>());
+    // setList1(new ArrayList<Object>());
     //
     // // method
     // takeSnapshot();
@@ -918,7 +500,7 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     // @Test
     // public void testAssertEntityWithSnapshotEntityAsserted() {
     // // setup
-    // final List<EntityTierOneType> list = new ArrayList<EntityTierOneType>();
+    // final List<Object> list = new ArrayList<Object>();
     // final EntityTierOneType expected = new EntityTierOneType(TEST, 1);
     // list.add(expected);
     // setList1(list);
@@ -930,8 +512,8 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
     // }
 
     /**
-     * Test for assertParametersState of {@link AbstractExecomRepositoryAssert} when before snapshot matches after
-     * parameters state.
+     * Test for assertParametersState of {@link FabutRepositoryAssert} when before snapshot matches after parameters
+     * state.
      */
     @Test
     public void testAssertParametersTrue() {
@@ -948,11 +530,11 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         entity3.setSubProperty(new EntityTierOneType(PROPERTY + PROPERTY, 15));
 
         // method
-        assertParameters();
+        assertSnapshot();
     }
 
     /**
-     * Test for assertParametersState of {@link AbstractExecomRepositoryAssert} when before snapshot doesn't match after
+     * Test for assertParametersState of {@link FabutRepositoryAssert} when before snapshot doesn't match after
      * parameters state.
      */
     @Test(expected = AssertionError.class)
@@ -971,12 +553,11 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
         entity3.getSubProperty().setId(1);
 
         // method
-        assertParameters();
+        assertSnapshot();
     }
 
     /**
-     * Test for {@link AbstractExecomRepositoryAssert#takeSnapshot(Object...)} when specified object has no default
-     * constructor.
+     * Test for {@link FabutRepositoryAssert#takeSnapshot(Object...)} when specified object has no default constructor.
      */
     @Test(expected = AssertionError.class)
     public void testAssertParametersNullCopy() {
@@ -985,59 +566,138 @@ public class ExecomRepositoryAssertTest extends AbstractExecomRepositoryAssertTe
 
         // method
         takeSnapshot(noDefaultConstructorType);
-        assertParameters();
+        assertSnapshot();
     }
 
     /**
-     * Test for takeSnapshot with varargs if it initializes snapshot properly.
+     * Test for
+     * {@link FabutRepositoryAssert#assertBeforeSnapshotDifference(TreeSet, TreeSet, Map, AssertReportBuilder)} when
+     * there are more entities in after snapshot but are asserted.
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void testTakeSnapshotWithVarargs() {
+    public void testAssertBeforeSnapshotDifferenceTrue() {
         // setup
-        final EntityTierTwoType entity2 = new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
-        final EntityTierThreeType entity3 = new EntityTierThreeType(TEST + TEST, 5, new EntityTierOneType(PROPERTY
-                + PROPERTY, 15));
+        final TreeSet beforeIds = new TreeSet();
+        beforeIds.add(new Integer(1));
+        beforeIds.add(new Integer(2));
+        beforeIds.add(new Integer(3));
+
+        final TreeSet afterIds = new TreeSet();
+        afterIds.add(1);
+        afterIds.add(3);
+
+        final Map<Object, CopyAssert> beforeEntities = new HashMap<Object, CopyAssert>();
+
+        final CopyAssert copyAssert1 = new CopyAssert(new EntityTierOneType());
+        beforeEntities.put(new Integer(1), copyAssert1);
+
+        final CopyAssert copyAssert2 = new CopyAssert(new EntityTierOneType());
+        copyAssert2.setAsserted(true);
+        beforeEntities.put(new Integer(2), copyAssert2);
+
+        final CopyAssert copyAssert3 = new CopyAssert(new EntityTierOneType());
+        beforeEntities.put(new Integer(3), copyAssert3);
 
         // method
-        takeSnapshot(entity2, entity3);
-        final List<Object> parameters = getParameters();
-        final List<Object> parametersSnapshot = getParametersSnapshot();
+        final boolean assertResult = assertBeforeSnapshotDifference(beforeIds, afterIds, beforeEntities,
+                new AssertReportBuilder());
 
         // assert
-        assertEquals(parameters.size(), parametersSnapshot.size());
-        assertTrue(parametersSnapshot.get(0) instanceof EntityTierTwoType);
-        assertTrue(parametersSnapshot.get(1) instanceof EntityTierThreeType);
-
-        final EntityTierTwoType assertEntity2 = (EntityTierTwoType) parametersSnapshot.get(0);
-        assertEquals(1, assertEntity2.getId());
-        assertEquals(TEST, assertEntity2.getProperty());
-        assertEquals(new Integer(10), assertEntity2.getSubProperty().getId());
-        assertEquals(PROPERTY, assertEntity2.getSubProperty().getProperty());
-
-        final EntityTierThreeType assertEntity3 = (EntityTierThreeType) parametersSnapshot.get(1);
-        assertEquals(5, assertEntity3.getId());
-        assertEquals(TEST + TEST, assertEntity3.getProperty());
-        assertEquals(new Integer(15), assertEntity3.getSubProperty().getId());
-        assertEquals(PROPERTY + PROPERTY, assertEntity3.getSubProperty().getProperty());
+        assertTrue(assertResult);
     }
 
     /**
-     * Test for createCopy if it properly handles cyclic object references.
+     * Test for
+     * {@link FabutRepositoryAssert#assertBeforeSnapshotDifference(TreeSet, TreeSet, Map, AssertReportBuilder)} when
+     * one of the elements in before snapshot isn't asserted.
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void testCreateCopyCyclic() {
+    public void testAssertBeforeSnapshotDifferenceFalse() {
         // setup
-        final A a = new A();
-        a.setProperty(PROPERTY);
-        a.setB(new B(new C(a)));
+        final TreeSet beforeIds = new TreeSet();
+        beforeIds.add(new Integer(1));
+        beforeIds.add(new Integer(2));
+        beforeIds.add(new Integer(3));
+
+        final TreeSet afterIds = new TreeSet();
+        afterIds.add(1);
+        afterIds.add(3);
+
+        final Map<Object, CopyAssert> beforeEntities = new HashMap<Object, CopyAssert>();
+
+        final CopyAssert copyAssert1 = new CopyAssert(new EntityTierOneType());
+        beforeEntities.put(new Integer(1), copyAssert1);
+
+        final CopyAssert copyAssert2 = new CopyAssert(new EntityTierOneType());
+        beforeEntities.put(new Integer(2), copyAssert2);
+
+        final CopyAssert copyAssert3 = new CopyAssert(new EntityTierOneType());
+        beforeEntities.put(new Integer(3), copyAssert3);
 
         // method
-        final A aCopy = (A) createCopy(a);
+        final boolean assertResult = assertBeforeSnapshotDifference(beforeIds, afterIds, beforeEntities,
+                new AssertReportBuilder());
 
         // assert
-        assertEquals(aCopy, aCopy.getB().getC().getA());
-        assertEquals(a.getProperty(), aCopy.getProperty());
-        assertEquals(a.getB().getC().getA().getProperty(), aCopy.getB().getC().getA().getProperty());
+        assertFalse(assertResult);
+    }
+
+    /**
+     * Test for {@link FabutRepositoryAssert#assertAfterSnapshotDifference(TreeSet, TreeSet, Map, AssertReportBuilder)}
+     * when there new element in after snapshot.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Test
+    public void testAssertAfterSnapshotDifferenceFalse() {
+        // setup
+        final TreeSet beforeIds = new TreeSet();
+        beforeIds.add(new Integer(1));
+        beforeIds.add(new Integer(2));
+
+        final TreeSet afterIds = new TreeSet();
+        afterIds.add(1);
+        afterIds.add(3);
+
+        final Map<Object, Object> afterEntities = new HashMap<Object, Object>();
+        afterEntities.put(new Integer(1), new EntityTierOneType());
+        afterEntities.put(new Integer(3), new EntityTierOneType());
+
+        // method
+        final boolean assertResult = assertAfterSnapshotDifference(beforeIds, afterIds, afterEntities,
+                new AssertReportBuilder());
+
+        // assert
+        assertFalse(assertResult);
+    }
+
+    /**
+     * Test for {@link FabutRepositoryAssert#assertAfterSnapshotDifference(TreeSet, TreeSet, Map, AssertReportBuilder)}
+     * when there new element in after snapshot.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Test
+    public void testAssertAfterSnapshotDifferenceTrue() {
+        // setup
+        final TreeSet beforeIds = new TreeSet();
+        beforeIds.add(new Integer(1));
+        beforeIds.add(new Integer(3));
+
+        final TreeSet afterIds = new TreeSet();
+        afterIds.add(1);
+        afterIds.add(3);
+
+        final Map<Object, Object> afterEntities = new HashMap<Object, Object>();
+        afterEntities.put(new Integer(1), new EntityTierOneType());
+        afterEntities.put(new Integer(3), new EntityTierOneType());
+
+        // method
+        final boolean assertResult = assertAfterSnapshotDifference(beforeIds, afterIds, afterEntities,
+                new AssertReportBuilder());
+
+        // assert
+        assertTrue(assertResult);
     }
 
 }

@@ -14,13 +14,13 @@ public abstract class AbstractTestUtil implements ITestUtil {
     @Before
     @Override
     public void beforeTest() {
-        TestUtilAssert.beforeTest();
+        Fabut.beforeTest();
     };
 
     @After
     @Override
     public void afterTest() {
-        TestUtilAssert.afterTest();
+        Fabut.afterTest();
     }
 
 }

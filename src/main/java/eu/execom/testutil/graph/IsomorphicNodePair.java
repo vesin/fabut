@@ -1,6 +1,6 @@
 package eu.execom.testutil.graph;
 
-import eu.execom.testutil.Pair;
+import eu.execom.testutil.pair.Pair;
 
 /**
  * Class representing object pair from {@link IsomorphicGraph}.

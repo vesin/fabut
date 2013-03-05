@@ -8,7 +8,7 @@ package eu.execom.testutil;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class AbstractExecomAssertTest extends AbstractExecomAssert {
+public abstract class AbstractExecomAssertTest extends FabutObjectAssert {
 
     /**
      * Default constructor.

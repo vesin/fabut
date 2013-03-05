@@ -8,7 +8,6 @@ import java.util.List;
  * @author Dusko Vesin
  * 
  */
-@SuppressWarnings("rawtypes")
 public interface ITestUtil {
 
     void beforeTest();

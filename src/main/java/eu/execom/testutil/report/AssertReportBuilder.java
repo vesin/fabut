@@ -4,8 +4,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.execom.testutil.AssertPair;
 import eu.execom.testutil.enums.CommentType;
+import eu.execom.testutil.pair.AssertPair;
 import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
 
@@ -18,7 +18,8 @@ import eu.execom.testutil.property.NullProperty;
  * @author Nikola Trkulja
  */
 // TODO DUNNO add code snipets how error message look like and with description.
-@SuppressWarnings("rawtypes")
+
+// TODO all method names should be reviewed and renamed to make more sense of what they are reporting
 public class AssertReportBuilder {
 
     private static final String ARROW = ">";
@@ -371,9 +372,9 @@ public class AssertReportBuilder {
      * @param propertyName
      *            - property name
      */
-    public void reportNoEntityFailure(final String propertyName) {
+    public void reportNoEntityFailure(final Object entity) {
         final StringBuilder part = new StringBuilder(NEW_LINE + NEW_LINE);
-        part.append(String.format(REPOSITORY_FAILURE_NO_ENTITY_IN_DB, propertyName));
+        part.append(String.format(REPOSITORY_FAILURE_NO_ENTITY_IN_DB, entity.toString()));
         messageParts.add(failedMessagePosition, part.toString());
     }
 
@@ -388,12 +389,10 @@ public class AssertReportBuilder {
      * @param generic
      *            type
      */
-    public void reportEntityIsntAsserted(final List entities) {
+    public void reportEntityIsntAsserted(final Object entity) {
         final StringBuilder part = new StringBuilder(EMPTY_STRING);
-        for (final Object entity : entities) {
-            part.append(NEW_LINE + NEW_LINE);
-            part.append(String.format(REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED, entity.toString()));
-        }
+        part.append(NEW_LINE + NEW_LINE);
+        part.append(String.format(REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED, entity.toString()));
         messageParts.add(part.toString());
     }
 

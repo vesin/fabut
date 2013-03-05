@@ -3,8 +3,8 @@ package eu.execom.testutil.graph;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.execom.testutil.AssertPair;
 import eu.execom.testutil.enums.NodeCheckType;
+import eu.execom.testutil.pair.AssertPair;
 
 /**
  * Implementing class for {@link IsomorphicGraph} using {@link LinkedList} as container.
@@ -46,12 +46,6 @@ public class NodesList implements IsomorphicGraph {
                 return isomorphicNode.getExpected();
             }
         }
-        return null;
-    }
-
-    @Override
-    // TODO why is this always null, is this method in use
-    public Object getActual(final Object expected) {
         return null;
     }
 

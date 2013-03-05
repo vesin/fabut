@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import eu.execom.testutil.AssertPair;
 import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.pair.AssertPair;
 import eu.execom.testutil.property.Property;
 
 /**
@@ -50,6 +50,7 @@ public final class ConversionUtil {
         return new AssertPair(expected, actual, objectType);
     }
 
+    // TODO comments, tests
     public static AssertPair createAssertPair(final Object expected, final Object actual,
             final Map<ObjectType, List<Class<?>>> types, final boolean isProperty) {
         final AssertPair assertPair = createAssertPair(expected, actual, types);
@@ -57,6 +58,7 @@ public final class ConversionUtil {
         return assertPair;
     }
 
+    // TODO comments, tests
     public static AssertPair createAssertPair(final Property expected, final Object actual,
             final Map<ObjectType, List<Class<?>>> types, final boolean isProperty) {
         final AssertPair assertPair = createAssertPair(expected.geValue(), actual, types);

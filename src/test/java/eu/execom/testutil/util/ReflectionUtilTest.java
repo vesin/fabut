@@ -4,15 +4,29 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import eu.execom.testutil.FabutRepositoryAssert;
+import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.graph.NodesList;
+import eu.execom.testutil.model.A;
+import eu.execom.testutil.model.B;
 import eu.execom.testutil.model.BooleanFieldType;
+import eu.execom.testutil.model.C;
 import eu.execom.testutil.model.EntityTierOneType;
+import eu.execom.testutil.model.EntityTierTwoType;
 import eu.execom.testutil.model.NoGetMethodsType;
 import eu.execom.testutil.model.TierOneType;
+import eu.execom.testutil.model.TierTwoType;
 import eu.execom.testutil.model.UnknownType;
 
 /**
@@ -23,6 +37,7 @@ import eu.execom.testutil.model.UnknownType;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
+@SuppressWarnings("unchecked")
 public class ReflectionUtilTest extends Assert {
 
     private static final String TEST = "test";
@@ -32,6 +47,8 @@ public class ReflectionUtilTest extends Assert {
     private static final String IS_FIELD = "isField";
     private static final String IS_NOT_BOOLEAN_PROPERTY = "isNotBooleanProperty";
 
+    Map<ObjectType, List<Class<?>>> types;
+
     /**
      * Test for isGetMethod of {@link ReflectionUtil} when method does not starts with "get" prefix and there is
      * matching field in the class.
@@ -39,6 +56,23 @@ public class ReflectionUtilTest extends Assert {
      * @throws SecurityException
      * @throws NoSuchMethodException
      */
+    @Before
+    public void setup() {
+        types = new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class);
+        final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
+        complexTypes.add(TierOneType.class);
+        complexTypes.add(TierTwoType.class);
+        complexTypes.add(A.class);
+        complexTypes.add(B.class);
+        complexTypes.add(C.class);
+        types.put(ObjectType.COMPLEX_TYPE, complexTypes);
+
+        final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
+        complexTypes.add(EntityTierOneType.class);
+        complexTypes.add(EntityTierTwoType.class);
+        types.put(ObjectType.ENTITY_TYPE, entityTypes);
+    }
+
     @Test
     public void testIsGetMethodNoGetPrefix() throws SecurityException, NoSuchMethodException {
         // setup
@@ -453,6 +487,235 @@ public class ReflectionUtilTest extends Assert {
 
         // method
         ReflectionUtil.getGetMethod(methodName, noGetMethodsType);
+    }
+
+    /**
+     * Test for createEmptyCopyOf of {@link FabutRepositoryAssert} when specified object has default
+     * constructor.
+     */
+    @Test
+    public void testCreateEmptyCopyOfHasDefaultConstructor() {
+        // method
+        final TierOneType assertObject = ReflectionUtil.createEmptyCopyOf(new TierOneType());
+
+        // assert
+        assertNotNull(assertObject);
+        assertEquals(TierOneType.class, assertObject.getClass());
+    }
+
+    /**
+     * Test for createEmptyCopyOf of {@link FabutRepositoryAssert} when specified object has no default
+     * constructor.
+     */
+    @Test(expected = AssertionFailedError.class)
+    public void testCreateEmptyCopyOfNoDefaultConstructor() {
+        // method
+        final NoGetMethodsType assertObject = ReflectionUtil.createEmptyCopyOf(new NoGetMethodsType(TEST));
+
+        // assert
+        assertNull(assertObject);
+    }
+
+    /**
+     * Test for copyList of {@link FabutRepositoryAssert} if it copies list.
+     */
+    @Test
+    public void testCopyList() {
+        // setup
+        final List<String> list = new LinkedList<String>();
+        list.add(TEST);
+
+        // method
+        final List<String> assertList = ReflectionUtil.copyList(list);
+
+        assertNotNull(assertList);
+        assertEquals(1, assertList.size());
+        assertEquals(TEST, assertList.get(0));
+    }
+
+    /**
+     * Test for createCopy of {@link FabutRepositoryAssert} when specified object is null.
+     */
+    @Test
+    public void testCreateCopyNull() {
+        // method
+        final Object object = ReflectionUtil
+                .createCopy(null, new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class));
+
+        // assert
+        assertNull(object);
+    }
+
+    /**
+     * Test for createCopy of {@link FabutRepositoryAssert} when specified object is list.
+     */
+    @Test
+    public void testCreateCopyList() {
+        // setup
+        final List<String> list = new LinkedList<String>();
+        list.add(TEST);
+
+        // method
+        final List<String> assertList = (List<String>) ReflectionUtil.createCopy(list,
+                new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class));
+
+        assertNotNull(assertList);
+        assertEquals(1, assertList.size());
+        assertEquals(TEST, assertList.get(0));
+    }
+
+    /**
+     * Test for ivokeSetMethod of {@link FabutRepositoryAssert} when specified object for copying has set
+     * method with specified name and can be invoked.
+     */
+    @Test
+    public void testIvokeSetMethodSuccess() {
+        // setup
+        final Method method = ReflectionUtil.getGetMethods(new TierOneType(), types).get(0);
+        final Class<?> classObject = TierOneType.class;
+        final String propertyName = PROPERTY;
+        final TierOneType copy = new TierOneType();
+        final Object copiedProperty = PROPERTY;
+
+        // method
+        ReflectionUtil.invokeSetMethod(method, classObject, propertyName, copy, copiedProperty);
+
+        // assert
+        assertEquals(PROPERTY, copy.getProperty());
+    }
+
+    /**
+     * Test for ivokeSetMethod of {@link FabutRepositoryAssert} when specified object for copying has set
+     * method with specified name and can't be invoked as object has no set methods.
+     */
+    @Test(expected = AssertionFailedError.class)
+    public void testIvokeSetMethodNull() {
+        // setup
+        final Method method = ReflectionUtil.getGetMethods(new TierTwoType(new TierOneType()), types).get(0);
+        final Class<?> classObject = TierTwoType.class;
+        final String propertyName = PROPERTY;
+        final TierTwoType copy = new TierTwoType(new TierOneType());
+        final Object copiedProperty = PROPERTY;
+
+        // method
+        ReflectionUtil.invokeSetMethod(method, classObject, propertyName, copy, copiedProperty);
+    }
+
+    /**
+     * Test for copyProperty of {@link FabutRepositoryAssert} when specified object for copying is null;
+     */
+    @Test
+    public void testCopyPropertyNull() {
+        // method
+        final Object copy = ReflectionUtil.copyProperty(null, null, types);
+
+        // assert
+        assertNull(copy);
+    }
+
+    /**
+     * Test for copyProperty of {@link FabutRepositoryAssert} when specified object is complex object with
+     * property of complex type.
+     */
+    @Test
+    public void testCopyPropertyComplexType() {
+        // method
+        final EntityTierTwoType copy = (EntityTierTwoType) ReflectionUtil.copyProperty(new EntityTierTwoType(TEST, 1,
+                new EntityTierOneType(PROPERTY, 2)), new NodesList(), types);
+
+        // assert
+        assertNotNull(copy);
+        assertEquals(TEST, copy.getProperty());
+        assertEquals(1, copy.getId());
+        assertNotNull(copy.getSubProperty());
+        assertEquals(PROPERTY, copy.getSubProperty().getProperty());
+        assertEquals(new Integer(2), copy.getSubProperty().getId());
+    }
+
+    /**
+     * Test for copyProperty of {@link FabutRepositoryAssert} when specified object is {@link List}.
+     */
+    @Test
+    public void testCopyPropertyList() {
+        // setup
+        final List<String> list = new ArrayList<String>();
+        list.add(TEST);
+
+        // method
+        final List<String> copy = (List<String>) ReflectionUtil.copyProperty(list, null, types);
+
+        // assert
+        assertNotNull(copy);
+        assertEquals(1, copy.size());
+        assertEquals(TEST, copy.get(0));
+
+    }
+
+    /**
+     * Test for copyProperty of {@link FabutRepositoryAssert} when specified object is of unknown type.
+     */
+    @Test
+    public void testCopyPropertyUnkownType() {
+        // setup
+        final UnknownType unknownType = new UnknownType();
+
+        // method
+        final UnknownType copy = (UnknownType) ReflectionUtil.copyProperty(unknownType, null, types);
+
+        // assert
+        assertEquals(unknownType, copy);
+
+    }
+
+    /**
+     * Test for getPropertyForCopying of {@link FabutRepositoryAssert} when specified method can be invoked.
+     */
+    @Test
+    public void testGetPropertyForCopyingCanInvoke() {
+        // setup
+        final Method method = ReflectionUtil.getGetMethods(new EntityTierOneType(), types).get(1);
+
+        // method
+        final String property = (String) ReflectionUtil.getPropertyForCopying(new EntityTierOneType(TEST, 1), method);
+
+        // assert
+        assertEquals(TEST, property);
+
+    }
+
+    /**
+     * Test for getPropertyForCopying of {@link FabutRepositoryAssert} when specified method can not be
+     * invoked.
+     */
+    @Test(expected = AssertionFailedError.class)
+    public void testGetPropertyForCopyingCantInvoke() {
+        // setup
+        final Method method = ReflectionUtil.getGetMethods(new EntityTierOneType(), types).get(1);
+
+        // method
+        final String property = (String) ReflectionUtil.getPropertyForCopying(null, method);
+
+        // assert
+        assertNull(property);
+    }
+
+    /**
+     * Test for createCopy if it properly handles cyclic object references.
+     */
+    @Test
+    public void testCreateCopyCyclic() {
+        // setup
+        final A a = new A();
+        a.setProperty(PROPERTY);
+        a.setB(new B(new C(a)));
+
+        // method
+        final A aCopy = (A) ReflectionUtil.createCopy(a, types);
+
+        // assert
+        assertEquals(aCopy, aCopy.getB().getC().getA());
+        assertEquals(a.getProperty(), aCopy.getProperty());
+        assertEquals(a.getB().getC().getA().getProperty(), aCopy.getB().getC().getA().getProperty());
     }
 
 }

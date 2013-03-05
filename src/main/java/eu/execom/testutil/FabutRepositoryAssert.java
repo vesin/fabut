@@ -46,7 +46,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
     @Override
     // TODO tests
-    boolean assertChangedProperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
+    boolean assertObjects(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
         if (pair.getObjectType() == ObjectType.ENTITY_TYPE) {
@@ -56,7 +56,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
                 return assertBySubproperty(propertyName, report, pair, properties, nodesList);
             }
         }
-        return super.assertChangedProperty(propertyName, report, pair, properties, nodesList);
+        return super.assertObjects(propertyName, report, pair, properties, nodesList);
     }
 
     // TODO comments

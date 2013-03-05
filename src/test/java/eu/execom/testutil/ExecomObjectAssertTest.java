@@ -676,7 +676,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testAssertChangedPropertyBothNulls() {
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(null,
+        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(null,
                 null, ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
@@ -713,7 +713,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final TierOneType expected = new TierOneType(TEST);
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
                 expected, actual, ObjectType.COMPLEX_TYPE, false), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
@@ -730,7 +730,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final IgnoredType expected = new IgnoredType();
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
                 expected, actual, ObjectType.IGNORED_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
@@ -748,7 +748,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final String expected = TEST;
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
                 expected, actual, ObjectType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
@@ -766,7 +766,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final String expected = TEST + TEST;
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
                 expected, actual, ObjectType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
@@ -806,7 +806,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         expected.add(TEST);
 
         // method
-        final boolean assertValue = assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
+        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
                 expected, actual, ObjectType.LIST_TYPE, true), new LinkedList<ISingleProperty>(), null);
 
         // assert
@@ -1205,7 +1205,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testCheckForNullsTrueNull() {
         // method
-        final ReferenceCheckType assertValue = referenceCheck(new AssertReportBuilder(), null, null, TEST);
+        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), null, null, TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EQUAL_REFERENCE, assertValue);
@@ -1220,7 +1220,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final TierOneType expected = new TierOneType();
 
         // method
-        final ReferenceCheckType assertValue = referenceCheck(new AssertReportBuilder(), expected, expected, TEST);
+        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), expected, expected, TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EQUAL_REFERENCE, assertValue);
@@ -1232,8 +1232,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testCheckForNullsFalse() {
         // method
-        final ReferenceCheckType assertValue1 = referenceCheck(new AssertReportBuilder(), new Object(), null, TEST);
-        final ReferenceCheckType assertValue2 = referenceCheck(new AssertReportBuilder(), null, new Object(), TEST);
+        final ReferenceCheckType assertValue1 = checkByReference(new AssertReportBuilder(), new Object(), null, TEST);
+        final ReferenceCheckType assertValue2 = checkByReference(new AssertReportBuilder(), null, new Object(), TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EXCLUSIVE_NULL, assertValue1);
@@ -1246,7 +1246,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testCheckForNullsNull() {
         // method
-        final ReferenceCheckType assertValue = referenceCheck(new AssertReportBuilder(), new Object(), new Object(),
+        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), new Object(), new Object(),
                 TEST);
 
         // assert

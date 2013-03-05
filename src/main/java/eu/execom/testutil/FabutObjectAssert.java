@@ -61,38 +61,53 @@ public class FabutObjectAssert extends Assert {
         parameterSnapshot = new ArrayList<SnapshotPair>();
     }
 
-    // TODO this method and next one are almost same??? maybe this comment is not valid..
-    // TODO merge with sub method beforeListAssert
-    public void assertObjects(final AssertReportBuilder report, final List<Object> expected, final List<Object> actual) {
-        if (!beforeListAssert(report, expected, actual)) {
-            throw new AssertionError(report.getMessage());
-        }
-    }
-
-    public void assertObjects(final AssertReportBuilder report, final Object expected, final Object actual,
+    public boolean assertObjects(final AssertReportBuilder report, final Object expected, final Object actual,
             final List<ISingleProperty> expectedChangedProperties) {
 
-        // TODO call this else in method for asserting lists
-        if (isSameInstance(expected, actual)) {
-            return;
-        }
-
         final AssertPair assertPair = ConversionUtil.createAssertPair(expected, actual, types);
-        if (!assertChangedProperty(EMPTY_STRING, report, assertPair, expectedChangedProperties, new NodesList())) {
-            throw new AssertionError(report.getMessage());
+        if (!assertObjects(EMPTY_STRING, report, assertPair, expectedChangedProperties, new NodesList())) {
+            return false;
         }
 
         afterAssertObject(actual, false);
+        return true;
     }
 
-    // TODO merge with sub method preAssertObject
-    public void assertObject(final AssertReportBuilder report, final Object actual,
+    public boolean assertObject(final AssertReportBuilder report, final Object actual,
             final List<ISingleProperty> properties) {
 
-        if (!preAssertObject(report, actual, properties)) {
-            throw new AssertionError(report.getMessage());
+        if (actual == null) {
+            report.addNullReferenceAssertComment();
+            return false;
         }
-        afterAssertObject(actual, false);
+
+        final List<Method> methods = ReflectionUtil.getGetMethods(actual, types);
+        boolean result = true;
+        for (final Method method : methods) {
+
+            final String fieldName = ReflectionUtil.getFieldName(method);
+            final ISingleProperty property = getPropertyFromList(fieldName, properties);
+
+            if (property == null) {
+                // there is no matching property for field
+                report.addNoPropertyForFieldComment(fieldName, method, actual);
+                result = false;
+            } else {
+                try {
+                    result &= assertProperty(fieldName, report, property, method.invoke(actual), properties);
+                } catch (final Exception e) {
+                    report.reportUninvokableMethod(method, actual);
+                    result = false;
+                }
+            }
+        }
+
+        if (!result) {
+            return false;
+        } else {
+            afterAssertObject(actual, false);
+            return true;
+        }
     }
 
     /**
@@ -156,7 +171,7 @@ public class FabutObjectAssert extends Assert {
     boolean beforeListAssert(final AssertReportBuilder report, final List expected, final List actual) {
         final NodesList nodesList = new NodesList();
 
-        final ReferenceCheckType referenceCheckType = referenceCheck(report, expected, actual, EMPTY_STRING);
+        final ReferenceCheckType referenceCheckType = checkByReference(report, expected, actual, EMPTY_STRING);
 
         if (referenceCheckType != ReferenceCheckType.COMPLEX_ASSERT) {
             return referenceCheckType.getAssertResult();
@@ -233,19 +248,6 @@ public class FabutObjectAssert extends Assert {
     // TODO merge with assert change property, only first 15 lines of code.
     boolean assertBySubproperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
-
-        final ReferenceCheckType referenceCheckType = referenceCheck(report, pair, propertyName);
-        if (referenceCheckType != ReferenceCheckType.COMPLEX_ASSERT) {
-            return referenceCheckType.getAssertResult();
-        }
-
-        // check if any of the expected/actual object is recurring in nodes list
-        final NodeCheckType nodeCheckType = nodesList.nodeCheck(pair);
-        if (nodeCheckType != NodeCheckType.NEW_PAIR) {
-            report.reportPointsTo(propertyName, pair.getActual(), nodeCheckType.getAssertValue());
-            return nodeCheckType.getAssertValue();
-        }
-        nodesList.addPair(pair);
 
         return assertSubfields(report, pair, properties, nodesList);
     }
@@ -349,7 +351,7 @@ public class FabutObjectAssert extends Assert {
 
             final Object expectedValue = ((Property) expected).geValue();
             final AssertPair assertPair = ConversionUtil.createAssertPair(expectedValue, actual, types, isProperty);
-            return assertChangedProperty(propertyName, report, assertPair, properties, nodesList);
+            return assertObjects(propertyName, report, assertPair, properties, nodesList);
         }
 
         throw new IllegalStateException();
@@ -362,13 +364,6 @@ public class FabutObjectAssert extends Assert {
 
     }
 
-    boolean assertProperty(final AssertReportBuilder report, final ISingleProperty expected, final Object actual,
-            final List<ISingleProperty> properties) {
-
-        return assertProperty(EMPTY_STRING, report, expected, actual, EMPTY_STRING, properties, new NodesList(), false);
-
-    }
-
     /**
      * Handles asserting object by category of its type. Logs assertion result in report and returns it.
      * 
@@ -376,25 +371,37 @@ public class FabutObjectAssert extends Assert {
      *            name of current property
      * @param report
      *            assert report builder
+     * @param pair
+     *            the pair
      * @param properties
      *            list of excluded properties
      * @param nodesList
      *            list of object that had been asserted
-     * @param isProperty
-     *            - is actual property, important for entities
      * @return <code>true</code> if actual object is asserted to expected object, <code>false</code> otherwise.
      */
     // TODO rename it, we are asserting two objects not one property
-    boolean assertChangedProperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
+    boolean assertObjects(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
-        // TODO add to node list here, and remove from any other line in code
+        final ReferenceCheckType referenceCheckType = checkByReference(report, pair, propertyName);
+        if (referenceCheckType != ReferenceCheckType.COMPLEX_ASSERT) {
+            return referenceCheckType.getAssertResult();
+        }
+
+        // check if any of the expected/actual object is recurring in nodes list
+        final NodeCheckType nodeCheckType = nodesList.nodeCheck(pair);
+        if (nodeCheckType != NodeCheckType.NEW_PAIR) {
+            report.reportPointsTo(propertyName, pair.getActual(), nodeCheckType.getAssertValue());
+            return nodeCheckType.getAssertValue();
+        }
+        nodesList.addPair(pair);
+
         switch (pair.getObjectType()) {
         case IGNORED_TYPE:
             report.reportIgnoredType(pair);
             return true;
         case COMPLEX_TYPE:
-            return assertBySubproperty(propertyName, report, pair, properties, nodesList);
+            return assertSubfields(report, pair, properties, nodesList);
         case ENTITY_TYPE:
             throw new IllegalStateException("Entities are NOT supported in this type of assert");
         case PRIMITIVE_TYPE:
@@ -564,7 +571,7 @@ public class FabutObjectAssert extends Assert {
      *         of them is null return {@link ReferenceCheckType#EXCLUSIVE_NULL}
      */
     // TODO rename it...maybe checkByReference?
-    ReferenceCheckType referenceCheck(final AssertReportBuilder report, final Object expected, final Object actual,
+    ReferenceCheckType checkByReference(final AssertReportBuilder report, final Object expected, final Object actual,
             final String propertyName) {
 
         if (expected == actual) {
@@ -580,9 +587,9 @@ public class FabutObjectAssert extends Assert {
     }
 
     // TODO remove this method
-    ReferenceCheckType referenceCheck(final AssertReportBuilder report, final AssertPair assertPair,
+    ReferenceCheckType checkByReference(final AssertReportBuilder report, final AssertPair assertPair,
             final String propertyName) {
-        return referenceCheck(report, assertPair.getExpected(), assertPair.getActual(), propertyName);
+        return checkByReference(report, assertPair.getExpected(), assertPair.getActual(), propertyName);
     }
 
     /**

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,12 +45,14 @@ public class FabutObjectAssert extends Assert {
 
     protected static final String EMPTY_STRING = "";
     private static final String DOT = ".";
+    private static final boolean ASSERTED = true;
+    private static final boolean ASSERT_FAIL = false;
 
     protected Map<ObjectType, List<Class<?>>> types;
 
     private final List<SnapshotPair> parameterSnapshot;
 
-    // TODO add description
+    /** Instance of the JUnit test that is currently running. */
     private Object testInstance;
 
     /**
@@ -61,19 +64,43 @@ public class FabutObjectAssert extends Assert {
         parameterSnapshot = new ArrayList<SnapshotPair>();
     }
 
+    /**
+     * TODO comments, check for tests Assert objects.
+     * 
+     * @param report
+     *            the report
+     * @param expected
+     *            the expected
+     * @param actual
+     *            the actual
+     * @param expectedChangedProperties
+     *            the expected changed properties
+     * @return true, if successful
+     */
     public boolean assertObjects(final AssertReportBuilder report, final Object expected, final Object actual,
             final List<ISingleProperty> expectedChangedProperties) {
 
         final AssertPair assertPair = ConversionUtil.createAssertPair(expected, actual, types);
-        if (!assertObjects(EMPTY_STRING, report, assertPair, expectedChangedProperties, new NodesList())) {
-            return false;
+        final boolean assertResult = assertPair(EMPTY_STRING, report, assertPair, expectedChangedProperties,
+                new NodesList());
+
+        if (assertResult == ASSERTED) {
+            afterAssertObject(actual, false);
         }
 
-        afterAssertObject(actual, false);
-        return true;
+        return assertResult;
+
     }
 
-    public boolean assertObject(final AssertReportBuilder report, final Object actual,
+    /**
+     * TODO comments, check for tests
+     * 
+     * @param report
+     * @param actual
+     * @param properties
+     * @return
+     */
+    public boolean assertObjectWithProperties(final AssertReportBuilder report, final Object actual,
             final List<ISingleProperty> properties) {
 
         if (actual == null) {
@@ -102,11 +129,27 @@ public class FabutObjectAssert extends Assert {
             }
         }
 
-        if (!result) {
-            return false;
-        } else {
+        if (result) {
             afterAssertObject(actual, false);
-            return true;
+        }
+
+        return result;
+    }
+
+    /**
+     * TODO rewrite This functionality should be reworked and used after initial refactoring is done. Takes current
+     * parameters snapshot and original parameters, and saves them.
+     * 
+     * @param parameters
+     *            array of parameters
+     */
+    protected void takeSnapshot(final Object... parameters) {
+        initParametersSnapshot();
+
+        for (final Object object : parameters) {
+
+            final SnapshotPair snapshotPair = new SnapshotPair(object, ReflectionUtil.createCopy(object, types));
+            parameterSnapshot.add(snapshotPair);
         }
     }
 
@@ -119,137 +162,56 @@ public class FabutObjectAssert extends Assert {
      *            actual object
      */
     protected void customAssertEquals(final Object expected, final Object actual) {
-        // TODO this method should rely on static class TestUtilAssert to fetch implementation via reflection
+        // TODO this method should get custom implementation by calling it from test instance via reflection.
     }
 
     /**
-     * After method for entity assert.
+     * Handles asserting object by category of its type. Logs assertion result in report and returns it.
      * 
-     * @param object
-     *            asserted object.
-     * @param isProperty
-     *            <code>true</code> if entity is property of another object, <code>false</code> otherwise
-     */
-    // TODO remove this method
-    public void afterAssertEntity(final Object object, final boolean isProperty) {
-        // TODO implements functionality so this asserts objects in parameter snapshot
-    }
-
-    /**
-     * Init list of complex types.
-     * 
-     * @param complexTypes
-     *            list of complex types
-     */
-    public void setComplexTypes(final List<Class<?>> complexTypes) {
-        types.put(ObjectType.COMPLEX_TYPE, complexTypes);
-    }
-
-    /**
-     * Init list of ignored types.
-     * 
-     * @param ignoredTypes
-     *            list of ignored types
-     */
-    public void setIgnoredTypes(final List<Class<?>> ignoredTypes) {
-        types.put(ObjectType.IGNORED_TYPE, ignoredTypes);
-    }
-
-    /**
-     * Checks if list asserting can be performed and does asserting if it can be performed.
-     * 
+     * @param propertyName
+     *            name of current property
      * @param report
      *            assert report builder
-     * @param expected
-     *            list of expected values
-     * @param actual
-     *            - list of actual values
-     * @return - <code>true</code> if both list are null or if lists succeed assert, <code>false</code> if only one of
-     *         specified lists is null or list fail assert.
+     * @param pair
+     *            the pair
+     * @param properties
+     *            list of excluded properties
+     * @param nodesList
+     *            list of object that had been asserted
+     * @return <code>true</code> if actual object is asserted to expected object, <code>false</code> otherwise.
      */
-    // TODO why before in name???
-    boolean beforeListAssert(final AssertReportBuilder report, final List expected, final List actual) {
-        final NodesList nodesList = new NodesList();
+    boolean assertPair(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
+            final List<ISingleProperty> properties, final NodesList nodesList) {
 
-        final ReferenceCheckType referenceCheckType = checkByReference(report, expected, actual, EMPTY_STRING);
-
+        final ReferenceCheckType referenceCheckType = checkByReference(report, pair, propertyName);
         if (referenceCheckType != ReferenceCheckType.COMPLEX_ASSERT) {
             return referenceCheckType.getAssertResult();
         }
 
-        nodesList.addPair(expected, actual);
-        return assertList(EMPTY_STRING, report, expected, actual, new ArrayList<ISingleProperty>(), nodesList, false);
-    }
-
-    /**
-     * Prepares object for asserting with specified list of properties. Checks if there is property for every field from
-     * actual object, if so it does asserting, if not logs that information in report.
-     * 
-     * @param report
-     *            assert report builder
-     * @param actual
-     *            object to be asserted with specified properties
-     * @param properties
-     *            expected values for object fields
-     * @return - <code>true</code> if and only if every field from actual object is assrted with its matching property,
-     *         <code>false</code> otherwise.
-     */
-    boolean preAssertObject(final AssertReportBuilder report, final Object actual,
-            final List<ISingleProperty> properties) {
-
-        if (actual == null) {
-            report.addNullReferenceAssertComment();
-            return false;
+        // check if any of the expected/actual object is recurring in nodes list
+        final NodeCheckType nodeCheckType = nodesList.nodeCheck(pair);
+        if (nodeCheckType != NodeCheckType.NEW_PAIR) {
+            report.reportPointsTo(propertyName, pair.getActual(), nodeCheckType.getAssertValue());
+            return nodeCheckType.getAssertValue();
         }
+        nodesList.addPair(pair);
 
-        final List<Method> methods = ReflectionUtil.getGetMethods(actual, types);
-
-        boolean assertResult = true;
-        for (final Method method : methods) {
-
-            final String fieldName = ReflectionUtil.getFieldName(method);
-            final ISingleProperty property = getPropertyFromList(fieldName, properties);
-
-            if (property == null) {
-                // there is no matching property for field
-                report.addNoPropertyForFieldComment(fieldName, method, actual);
-                assertResult = false;
-            } else {
-                try {
-                    assertResult &= assertProperty(fieldName, report, property, method.invoke(actual), properties);
-                } catch (final Exception e) {
-                    report.reportUninvokableMethod(method, actual);
-                    assertResult = false;
-                }
-            }
+        switch (pair.getObjectType()) {
+        case IGNORED_TYPE:
+            report.reportIgnoredType(pair);
+            return true;
+        case COMPLEX_TYPE:
+            return assertSubfields(report, pair, properties, nodesList);
+        case ENTITY_TYPE:
+            throw new IllegalStateException("Entities are NOT supported in this type of assert");
+        case PRIMITIVE_TYPE:
+            return assertPrimitives(report, propertyName, pair.getExpected(), pair.getActual());
+        case LIST_TYPE:
+            return assertList(propertyName, report, (List) pair.getExpected(), (List) pair.getActual(), properties,
+                    nodesList, true);
+        default:
+            throw new IllegalStateException("Unknown assert type: " + pair.getObjectType());
         }
-        return assertResult;
-    }
-
-    /**
-     * Handles recurring objects in nodes list, disassembling object to its fields and asserting those field to matching
-     * ones from expected object and logs the report. Returns value of assertion or if specified object pair
-     * actual/expected is correctly recurring nodes list.
-     * 
-     * @param propertyName
-     *            name of field in parent object of type of actual object
-     * @param report
-     *            assert report builder
-     * @param expected
-     *            expected object
-     * @param actual
-     *            actual object
-     * @param properties
-     *            list of properties that exclude fields from expected object
-     * @param nodesList
-     *            list of object that had been asserted
-     * @return <code>true</code> if actual and expected are null or fully asserted, <code>false</code> otherwise.
-     */
-    // TODO merge with assert change property, only first 15 lines of code.
-    boolean assertBySubproperty(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
-            final List<ISingleProperty> properties, final NodesList nodesList) {
-
-        return assertSubfields(report, pair, properties, nodesList);
     }
 
     /**
@@ -289,7 +251,6 @@ public class FabutObjectAssert extends Assert {
                         properties, nodesList, true);
 
             } catch (final Exception e) {
-
                 report.reportUninvokableMethod(expectedMethod, pair);
                 t = false;
             }
@@ -351,7 +312,7 @@ public class FabutObjectAssert extends Assert {
 
             final Object expectedValue = ((Property) expected).geValue();
             final AssertPair assertPair = ConversionUtil.createAssertPair(expectedValue, actual, types, isProperty);
-            return assertObjects(propertyName, report, assertPair, properties, nodesList);
+            return assertPair(propertyName, report, assertPair, properties, nodesList);
         }
 
         throw new IllegalStateException();
@@ -362,56 +323,6 @@ public class FabutObjectAssert extends Assert {
 
         return assertProperty(propertyName, report, expected, actual, EMPTY_STRING, properties, new NodesList(), true);
 
-    }
-
-    /**
-     * Handles asserting object by category of its type. Logs assertion result in report and returns it.
-     * 
-     * @param propertyName
-     *            name of current property
-     * @param report
-     *            assert report builder
-     * @param pair
-     *            the pair
-     * @param properties
-     *            list of excluded properties
-     * @param nodesList
-     *            list of object that had been asserted
-     * @return <code>true</code> if actual object is asserted to expected object, <code>false</code> otherwise.
-     */
-    // TODO rename it, we are asserting two objects not one property
-    boolean assertObjects(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
-            final List<ISingleProperty> properties, final NodesList nodesList) {
-
-        final ReferenceCheckType referenceCheckType = checkByReference(report, pair, propertyName);
-        if (referenceCheckType != ReferenceCheckType.COMPLEX_ASSERT) {
-            return referenceCheckType.getAssertResult();
-        }
-
-        // check if any of the expected/actual object is recurring in nodes list
-        final NodeCheckType nodeCheckType = nodesList.nodeCheck(pair);
-        if (nodeCheckType != NodeCheckType.NEW_PAIR) {
-            report.reportPointsTo(propertyName, pair.getActual(), nodeCheckType.getAssertValue());
-            return nodeCheckType.getAssertValue();
-        }
-        nodesList.addPair(pair);
-
-        switch (pair.getObjectType()) {
-        case IGNORED_TYPE:
-            report.reportIgnoredType(pair);
-            return true;
-        case COMPLEX_TYPE:
-            return assertSubfields(report, pair, properties, nodesList);
-        case ENTITY_TYPE:
-            throw new IllegalStateException("Entities are NOT supported in this type of assert");
-        case PRIMITIVE_TYPE:
-            return assertPrimitives(report, propertyName, pair.getExpected(), pair.getActual());
-        case LIST_TYPE:
-            return assertList(propertyName, report, (List) pair.getExpected(), (List) pair.getActual(), properties,
-                    nodesList, true);
-        default:
-            throw new IllegalStateException("Unknown assert type: " + pair.getObjectType());
-        }
     }
 
     /**
@@ -485,6 +396,7 @@ public class FabutObjectAssert extends Assert {
             assertResult &= assertProperty(EMPTY_STRING, report, property, actual.get(i), EMPTY_STRING, properties,
                     nodesList, false);
 
+            // TODO use assert pair
             afterAssertObject(actual, isProperty);
         }
 
@@ -570,9 +482,11 @@ public class FabutObjectAssert extends Assert {
      * @return {@link ReferenceCheckType#EQUAL_REFERENCE} is expected and actual have same reference, if and only if one
      *         of them is null return {@link ReferenceCheckType#EXCLUSIVE_NULL}
      */
-    // TODO rename it...maybe checkByReference?
-    ReferenceCheckType checkByReference(final AssertReportBuilder report, final Object expected, final Object actual,
+    ReferenceCheckType checkByReference(final AssertReportBuilder report, final AssertPair pair,
             final String propertyName) {
+
+        final Object expected = pair.getExpected();
+        final Object actual = pair.getActual();
 
         if (expected == actual) {
             report.addComment(propertyName, expected, actual, CommentType.SUCCESS);
@@ -586,12 +500,6 @@ public class FabutObjectAssert extends Assert {
         return ReferenceCheckType.COMPLEX_ASSERT;
     }
 
-    // TODO remove this method
-    ReferenceCheckType checkByReference(final AssertReportBuilder report, final AssertPair assertPair,
-            final String propertyName) {
-        return checkByReference(report, assertPair.getExpected(), assertPair.getActual(), propertyName);
-    }
-
     /**
      * Check is object of entity type and if it is mark it as asserted entity, in other case do nothing.
      * 
@@ -600,10 +508,8 @@ public class FabutObjectAssert extends Assert {
      * @param isSubproperty
      *            is object subproperty
      */
-    // TODO this method should not check if object is entity type, it should try to see if it can find a object in
-    // property snapshot
-    void afterAssertObject(final Object object, final boolean isSubproperty) {
-        afterAssertEntity(object, isSubproperty);
+    boolean afterAssertObject(final Object object, final boolean isSubproperty) {
+        return false;
     }
 
     /**
@@ -641,23 +547,6 @@ public class FabutObjectAssert extends Assert {
     }
 
     /**
-     * TODO rewrite This functionality should be reworked and used after initial refactoring is done. Takes current
-     * parameters snapshot and original parameters, and saves them.
-     * 
-     * @param parameters
-     *            array of parameters
-     */
-    protected void takeSnapshot(final Object... parameters) {
-        initParametersSnapshot();
-
-        for (final Object object : parameters) {
-
-            final SnapshotPair snapshotPair = new SnapshotPair(object, ReflectionUtil.createCopy(object, types));
-            parameterSnapshot.add(snapshotPair);
-        }
-    }
-
-    /**
      * Asserts current parameters states with snapshot previously taken.
      */
     void assertSnapshot() {
@@ -665,8 +554,8 @@ public class FabutObjectAssert extends Assert {
         boolean ok = true;
         final AssertReportBuilder report = new AssertReportBuilder();
         for (final SnapshotPair snapshotPair : parameterSnapshot) {
-            // TODO why not use assertChangedProperty
-            ok &= assertParameterPair(snapshotPair.getExpected(), snapshotPair.getActual(), report);
+            ok &= assertObjects(report, snapshotPair.getExpected(), snapshotPair.getActual(),
+                    new LinkedList<ISingleProperty>());
         }
 
         initParametersSnapshot();
@@ -681,30 +570,6 @@ public class FabutObjectAssert extends Assert {
      */
     void initParametersSnapshot() {
         parameterSnapshot.clear();
-    }
-
-    /**
-     * Calls assertObjects of {@link FabutObjectAssert} to assert two parameters.
-     * 
-     * @param beforeParameter
-     *            parameter from snapshot
-     * @param afterParameter
-     *            current parameter
-     * @param report
-     *            report builder
-     * @return <code>true</code> if parameters are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
-     *         <code>false</code> otherwise
-     */
-    boolean assertParameterPair(final Object beforeParameter, final Object afterParameter,
-            final AssertReportBuilder report) {
-        try {
-            assertObjects(new AssertReportBuilder(), beforeParameter, afterParameter, new ArrayList<ISingleProperty>());
-            return true;
-        } catch (final AssertionError e) {
-            report.reportParametersAssertFail(beforeParameter, afterParameter);
-            report.append(e.getMessage());
-            return false;
-        }
     }
 
     public Map<ObjectType, List<Class<?>>> getTypes() {
@@ -737,6 +602,26 @@ public class FabutObjectAssert extends Assert {
 
     public void setTestInstance(final Object testInstance) {
         this.testInstance = testInstance;
+    }
+
+    /**
+     * Init list of complex types.
+     * 
+     * @param complexTypes
+     *            list of complex types
+     */
+    public void setComplexTypes(final List<Class<?>> complexTypes) {
+        types.put(ObjectType.COMPLEX_TYPE, complexTypes);
+    }
+
+    /**
+     * Init list of ignored types.
+     * 
+     * @param ignoredTypes
+     *            list of ignored types
+     */
+    public void setIgnoredTypes(final List<Class<?>> ignoredTypes) {
+        types.put(ObjectType.IGNORED_TYPE, ignoredTypes);
     }
 
 }

@@ -46,17 +46,17 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
     @Override
     // TODO tests
-    boolean assertObjects(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
+    boolean assertPair(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
         if (pair.getObjectType() == ObjectType.ENTITY_TYPE) {
             if (pair.isProperty()) {
                 return assertEntityById(report, propertyName, pair);
             } else {
-                return assertBySubproperty(propertyName, report, pair, properties, nodesList);
+                return assertSubfields(report, pair, properties, nodesList);
             }
         }
-        return super.assertObjects(propertyName, report, pair, properties, nodesList);
+        return super.assertPair(propertyName, report, pair, properties, nodesList);
     }
 
     // TODO comments
@@ -110,7 +110,6 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
     }
 
-    @Override
     public final void afterAssertEntity(final Object object, final boolean isProperty) {
         if (ReflectionUtil.isEntityType(object.getClass(), getTypes()) && !isProperty
                 && ReflectionUtil.getIdValue(object) != null) {

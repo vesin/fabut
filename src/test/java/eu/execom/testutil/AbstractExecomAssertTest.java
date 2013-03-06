@@ -56,8 +56,4 @@ public abstract class AbstractExecomAssertTest extends FabutObjectAssert {
         assertEquals(expected, actual);
     }
 
-    @Override
-    public void afterAssertEntity(final Object object, final boolean asProperty) {
-    }
-
 }

@@ -1,6 +1,7 @@
 package eu.execom.testutil;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import eu.execom.testutil.property.IProperty;
@@ -75,7 +76,7 @@ public class Fabut {
     }
 
     public static void assertObject(final Object expected, final IProperty... properties) {
-        abstractExecomRepositoryAssert.assertObject(new AssertReportBuilder(), expected,
+        abstractExecomRepositoryAssert.assertObjectWithProperties(new AssertReportBuilder(), expected,
                 abstractExecomRepositoryAssert.extractProperties(properties));
     }
 
@@ -86,7 +87,8 @@ public class Fabut {
     }
 
     public static void assertObjects(final List<Object> expected, final List<Object> actual) {
-        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected, actual);
+        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected, actual,
+                new LinkedList<ISingleProperty>());
     }
 
     public static void markAsserted(final Object entity) {
@@ -95,7 +97,7 @@ public class Fabut {
 
     public static void assertObjects(final List expected, final Object... actuals) {
         abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected,
-                ConversionUtil.createListFromArray(actuals));
+                ConversionUtil.createListFromArray(actuals), new LinkedList<ISingleProperty>());
     }
 
     public static void assertEntityAsDeleted(final Object entity) {

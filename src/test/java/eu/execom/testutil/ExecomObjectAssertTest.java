@@ -103,7 +103,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
 
         // method
-        assertObject(new AssertReportBuilder(), ignoredType, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), ignoredType, properties);
     }
 
     /**
@@ -118,27 +118,30 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(jokerProperty);
 
         // method
-        assertObject(new AssertReportBuilder(), noGetMethodsType, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), noGetMethodsType, properties);
     }
 
     /**
      * Test if assertObject throws {@link AssertionError} when there is no property associated to a {@link TierOneType}.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectNoProperty() {
         // setup
         final TierOneType tierOneType = new TierOneType(TEST);
         final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        final boolean ok = assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
      * Test if assertObject throws {@link AssertionError} when type has null value property and we assert it with
      * {@link NotNullProperty} with a {@link TierOneType}.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectNotNullPropertyActuallyNull() {
         // setup
         final TierOneType tierOneType = new TierOneType(null);
@@ -146,7 +149,10 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.notNull(TierOneType.PROPERTY));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        final boolean ok = assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -160,7 +166,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.notNull(TierOneType.PROPERTY));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
 
     }
 
@@ -168,7 +174,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
      * Test if assertObject throws {@link AssertionError} when type has not null value property and we assert it with
      * {@link NullProperty} with a {@link TierOneType}.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectNullPropertyActuallyNotNull() {
         // setup
         final TierOneType tierOneType = new TierOneType(TEST);
@@ -176,7 +182,10 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.nulll(TierOneType.PROPERTY));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        final boolean ok = assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -190,7 +199,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.nulll(TierOneType.PROPERTY));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
     }
 
     /**
@@ -204,7 +213,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.ignored(TierOneType.PROPERTY));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
     }
 
     /**
@@ -219,14 +228,14 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, null));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
     }
 
     /**
      * Test if assertObject throws {@link AssertionError} when expected value is not null and actual value is null and
      * we assert it with {@link Property} with a {@link TierOneType}.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectChangedPropertyActualNull() {
         // setup
         final TierOneType tierOneType = new TierOneType(null);
@@ -234,14 +243,17 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        final boolean ok = assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
      * Test if assertObject throws {@link AssertionError} when expected value is null and actual value is not null and
      * we assert it with {@link Property} with a {@link TierOneType}.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectChangedPropertyExpectedNull() {
         // setup
         final TierOneType tierOneType = new TierOneType(TEST);
@@ -249,7 +261,10 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, null));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        final boolean ok = assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -264,14 +279,14 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
     }
 
     /**
      * Test for assertObject with {@link Property} when expected value is not equal to actual value with a
      * {@link TierOneType}.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectChangedPropertyNotEqual() {
         // setup
         final TierOneType tierOneType = new TierOneType(TEST);
@@ -279,7 +294,10 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST + TEST));
 
         // method
-        assertObject(new AssertReportBuilder(), tierOneType, properties);
+        final boolean ok = assertObjectWithProperties(new AssertReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -296,14 +314,14 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(jokerProperty);
 
         // method
-        assertObject(new AssertReportBuilder(), tierTwoTypeWithIgnoreProperty, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), tierTwoTypeWithIgnoreProperty, properties);
     }
 
     /**
      * Test if assertObject throws {@link AssertionError} when size of actual list is not equal to expected list with a
      * {@link TierTwoTypeWithListProperty}.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectChangedPropertyWithListNotEqualSize() {
         // setup
         final TierTwoTypeWithListProperty tierTwoTypeWithListProperty = new TierTwoTypeWithListProperty(
@@ -315,7 +333,11 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierTwoTypeWithListProperty.PROPERTY, jokerList));
 
         // method
-        assertObject(new AssertReportBuilder(), tierTwoTypeWithListProperty, properties);
+        final boolean ok = assertObjectWithProperties(new AssertReportBuilder(), tierTwoTypeWithListProperty,
+                properties);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -337,14 +359,14 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierTwoTypeWithListProperty.PROPERTY, expectedList));
 
         // method
-        assertObject(new AssertReportBuilder(), tierTwoTypeWithListProperty, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), tierTwoTypeWithListProperty, properties);
     }
 
     /**
      * Test for assertObject with {@link Property} when actual list members are primitive types and are not equal to
      * expected list members with a {@link TierTwoTypeWithListProperty}.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectChangedPropertyWithListAllPropertiesNotEqual() {
         // setup
         final List<String> actualList = new ArrayList<String>();
@@ -359,7 +381,11 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierTwoTypeWithListProperty.PROPERTY, expectedList));
 
         // method
-        assertObject(new AssertReportBuilder(), tierTwoTypeWithListProperty, properties);
+        final boolean ok = assertObjectWithProperties(new AssertReportBuilder(), tierTwoTypeWithListProperty,
+                properties);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -378,14 +404,17 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     /**
      * Test for assertObjects for two {@link TierTwoType} objects with equal values.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectsTierTwoObjectsWithNotEqualValues() {
         // setup
         final TierTwoType actual = new TierTwoType(new TierOneType(TEST));
         final TierTwoType expected = new TierTwoType(new TierOneType(TEST + TEST));
 
         // method
-        assertObjects(new AssertReportBuilder(), expected, actual, new LinkedList<ISingleProperty>());
+        final boolean ok = assertObjects(new AssertReportBuilder(), expected, actual, new LinkedList<ISingleProperty>());
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -411,7 +440,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     /**
      * Test for assertObjects for two {@link List}s of {@link TierOneType} with unequal values.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectsListOfTierOneObjectsWithNotEqualValues() {
         // setup
         final List<TierOneType> actual = new ArrayList<TierOneType>();
@@ -425,7 +454,10 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         expected.add(new TierOneType(TEST + TEST + TEST + TEST));
 
         // method
-        assertObjects(new AssertReportBuilder(), expected, actual, new LinkedList<ISingleProperty>());
+        final boolean ok = assertObjects(new AssertReportBuilder(), expected, actual, new LinkedList<ISingleProperty>());
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -461,7 +493,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     /**
      * Test for assertObjects with two {@link TierSixType} when complex object depth is six.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertObjectsTierSixTypeDepthSix() {
         // setup
         final TierSixType actual = new TierSixType(new TierFiveType(new TierFourType(new TierThreeType(new TierTwoType(
@@ -470,7 +502,10 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
                 new TierTwoType(new TierOneType(TEST + TEST))))));
 
         // method
-        assertObjects(new AssertReportBuilder(), expected, actual, new LinkedList<ISingleProperty>());
+        final boolean ok = assertObjects(new AssertReportBuilder(), expected, actual, new LinkedList<ISingleProperty>());
+
+        // assert
+        assertFalse(ok);
     }
 
     /**
@@ -500,7 +535,7 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
-        assertObject(new AssertReportBuilder(), actual, properties);
+        assertObjectWithProperties(new AssertReportBuilder(), actual, properties);
     }
 
     // TODO entity tests should not be here
@@ -597,8 +632,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final NodesList nodesList = new NodesList();
 
         // method
-        final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
-                expected, actual, ObjectType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
+        final boolean assertValue = assertSubfields(new AssertReportBuilder(), new AssertPair(expected, actual,
+                ObjectType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -617,21 +652,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         nodesList.addPair(expected, actual);
 
         // method
-        final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
-                expected, actual, ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), nodesList);
-
-        // assert
-        assertTrue(assertValue);
-    }
-
-    /**
-     * Test for disassembledOBject of {@link FabutObjectAssert} when actual and expected are null.
-     */
-    @Test
-    public void testDisassembleObjectBothNull() {
-        // method
-        final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(null,
-                null, ObjectType.COMPLEX_TYPE), null, null);
+        final boolean assertValue = assertSubfields(new AssertReportBuilder(), new AssertPair(expected, actual,
+                ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -649,8 +671,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         expected.setB(new B(new C(expected)));
 
         // method
-        final boolean assertValue = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
-                expected, actual, ObjectType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
+        final boolean assertValue = assertSubfields(new AssertReportBuilder(), new AssertPair(expected, actual,
+                ObjectType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -663,8 +685,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testDisassembleObject() {
         // method
-        final boolean t = assertBySubproperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(new TierOneType(
-                TEST), new UnknownType(), ObjectType.COMPLEX_TYPE), new LinkedList<ISingleProperty>(), new NodesList());
+        final boolean t = assertSubfields(new AssertReportBuilder(), new AssertPair(new TierOneType(TEST),
+                new UnknownType(), ObjectType.COMPLEX_TYPE), new LinkedList<ISingleProperty>(), new NodesList());
 
         // assert
         assertFalse(t);
@@ -676,8 +698,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testAssertChangedPropertyBothNulls() {
         // method
-        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(null,
-                null, ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), new NodesList());
+        final boolean assertValue = assertPair(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(null, null,
+                ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
@@ -713,8 +735,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final TierOneType expected = new TierOneType(TEST);
 
         // method
-        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
-                expected, actual, ObjectType.COMPLEX_TYPE, false), new ArrayList<ISingleProperty>(), new NodesList());
+        final boolean assertValue = assertPair(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(expected,
+                actual, ObjectType.COMPLEX_TYPE, false), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
@@ -730,8 +752,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final IgnoredType expected = new IgnoredType();
 
         // method
-        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
-                expected, actual, ObjectType.IGNORED_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
+        final boolean assertValue = assertPair(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(expected,
+                actual, ObjectType.IGNORED_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
@@ -748,8 +770,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final String expected = TEST;
 
         // method
-        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
-                expected, actual, ObjectType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
+        final boolean assertValue = assertPair(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(expected,
+                actual, ObjectType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
@@ -766,8 +788,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final String expected = TEST + TEST;
 
         // method
-        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
-                expected, actual, ObjectType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
+        final boolean assertValue = assertPair(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(expected,
+                actual, ObjectType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertFalse(assertValue);
@@ -806,8 +828,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         expected.add(TEST);
 
         // method
-        final boolean assertValue = assertObjects(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(
-                expected, actual, ObjectType.LIST_TYPE, true), new LinkedList<ISingleProperty>(), null);
+        final boolean assertValue = assertPair(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(expected,
+                actual, ObjectType.LIST_TYPE, true), new LinkedList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
@@ -896,8 +918,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NullProperty} and
-     * actual is null.
+     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NullProperty} and actual
+     * is null.
      */
     @Test
     public void testAssertPropertiesNullPropertyTrue() {
@@ -910,8 +932,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NullProperty} and
-     * actual is not null.
+     * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NullProperty} and actual
+     * is not null.
      */
     @Test
     public void testAssertPropertiesNullPropertyFalse() {
@@ -1011,13 +1033,13 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, "ninja"));
 
         // method
-        preAssertObject(new AssertReportBuilder(), new TierOneType("ninja"), properties);
+        assertObjectWithProperties(new AssertReportBuilder(), new TierOneType("ninja"), properties);
 
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when object properties don't match
-     * specified properties.
+     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when object properties don't match specified
+     * properties.
      */
     @Test
     public void testPreAssertObjectWithPropertiesNotEqual() {
@@ -1026,15 +1048,16 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
-        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(TEST + TEST), properties);
+        final boolean assertValue = assertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST + TEST),
+                properties);
 
         // assert
         assertFalse(assertValue);
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when there is no property for field and
-     * field value is null.
+     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when there is no property for field and field
+     * value is null.
      */
     @Test
     public void testPreAssertObjectWithPropertiesMethodReturnsNull() {
@@ -1042,15 +1065,16 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
 
         // method
-        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(null), properties);
+        final boolean assertValue = assertObjectWithProperties(new AssertReportBuilder(), new TierOneType(null),
+                properties);
 
         // assert
         assertFalse(assertValue);
     }
 
     /**
-     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when specified property's path doesn't
-     * match object's field path.
+     * Test for preAssertObjectWithProperties of {@link FabutObjectAssert} when specified property's path doesn't match
+     * object's field path.
      */
     @Test
     public void testPreAssertObjectWithPropertiesBadProperties() {
@@ -1059,33 +1083,10 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TEST, TEST));
 
         // method
-        final boolean assertValue = preAssertObject(new AssertReportBuilder(), new TierOneType(TEST), properties);
+        final boolean assertValue = assertObjectWithProperties(new AssertReportBuilder(), new TierOneType(TEST),
+                properties);
 
         // assertTrue
-        assertFalse(assertValue);
-    }
-
-    /**
-     * Test for preListAssert of {@link FabutObjectAssert} when expected and actual list are nulls.
-     */
-    @Test
-    public void testPreListForAssertNull() {
-        // method
-        final boolean assertValue = beforeListAssert(new AssertReportBuilder(), null, null);
-
-        // assert
-        assertTrue(assertValue);
-    }
-
-    /**
-     * Test for preListAssert of {@link FabutObjectAssert} when expected is null and actual is not.
-     */
-    @Test
-    public void testPreListForAssertExclusiveNull() {
-        // method
-        final boolean assertValue = beforeListAssert(new AssertReportBuilder(), null, new LinkedList<String>());
-
-        // assert
         assertFalse(assertValue);
     }
 
@@ -1205,7 +1206,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testCheckForNullsTrueNull() {
         // method
-        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), null, null, TEST);
+        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), new AssertPair(null, null,
+                ObjectType.COMPLEX_TYPE), TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EQUAL_REFERENCE, assertValue);
@@ -1220,7 +1222,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
         final TierOneType expected = new TierOneType();
 
         // method
-        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), expected, expected, TEST);
+        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), new AssertPair(expected,
+                expected, ObjectType.COMPLEX_TYPE), TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EQUAL_REFERENCE, assertValue);
@@ -1232,8 +1235,10 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testCheckForNullsFalse() {
         // method
-        final ReferenceCheckType assertValue1 = checkByReference(new AssertReportBuilder(), new Object(), null, TEST);
-        final ReferenceCheckType assertValue2 = checkByReference(new AssertReportBuilder(), null, new Object(), TEST);
+        final ReferenceCheckType assertValue1 = checkByReference(new AssertReportBuilder(), new AssertPair(
+                new Object(), null, ObjectType.COMPLEX_TYPE), TEST);
+        final ReferenceCheckType assertValue2 = checkByReference(new AssertReportBuilder(), new AssertPair(null,
+                new Object(), ObjectType.COMPLEX_TYPE), TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EXCLUSIVE_NULL, assertValue1);
@@ -1246,8 +1251,8 @@ public class ExecomObjectAssertTest extends AbstractExecomAssertTest {
     @Test
     public void testCheckForNullsNull() {
         // method
-        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), new Object(), new Object(),
-                TEST);
+        final ReferenceCheckType assertValue = checkByReference(new AssertReportBuilder(), new AssertPair(new Object(),
+                new Object(), ObjectType.COMPLEX_TYPE), TEST);
 
         // assert
         assertEquals(ReferenceCheckType.COMPLEX_ASSERT, assertValue);

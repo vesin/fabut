@@ -38,7 +38,6 @@ public class FabutReportBuilder {
     private static final String ASSERT_LIST = "Assert object at index  %s of list  %s.";
     private static final String NO_PROPERTY_FOR_FIELD = "There was no property for field:  %s of class:  %s, with value: %s";
     private static final String IGNORED_TYPE = "Type  %s is ignored type.";
-    private static final String LIST_SIZE = "list size ";
     private static final String UNINVOKABLE_METHOD = "There is no method: %s in actual class: %s (expected class was: %s).";
     private static final String REPOSITORY_FAILURE_NO_ENTITY_IN_DB = "-> Entity %s doesn't exist in DB any more "
             + "but is not asserted in test.";
@@ -91,6 +90,55 @@ public class FabutReportBuilder {
     }
 
     /**
+     * Increase depth.
+     */
+    public void increaseDepth() {
+
+        assertDepth++;
+    }
+
+    /**
+     * Decrease depth.
+     */
+    public void decreaseDepth() {
+
+        assertDepth--;
+    }
+
+    /**
+     * Add new comment to specified depth.
+     * 
+     * @param propertyName
+     *            name of property
+     * @param comment
+     *            to be added
+     * @param type
+     *            type of comment
+     */
+    private void addComment(final String comment, final CommentType type) {
+
+        final StringBuilder part = new StringBuilder(builder.toString());
+        builder.setLength(0);
+        part.append(NEW_LINE);
+        for (int i = 0; i <= assertDepth; i++) {
+            if (i == assertDepth) {
+                part.append(type.getMark());
+                part.append(ARROW);
+            } else {
+                part.append(TAB);
+            }
+        }
+
+        part.append(comment);
+        if (type == CommentType.FAIL) {
+            messageParts.add(failedMessagePosition, part.toString());
+        } else {
+            messageParts.add(part.toString());
+        }
+
+    }
+
+    /**
      * Add new comment to specified depth.
      * 
      * @param propertyName
@@ -126,62 +174,6 @@ public class FabutReportBuilder {
     }
 
     /**
-     * Add new comment to specified depth.
-     * 
-     * @param propertyName
-     *            name of property
-     * @param comment
-     *            to be added
-     * @param type
-     *            type of comment
-     */
-    public void addComment(final String propertyName, final String comment, final CommentType type) {
-
-        final StringBuilder part = new StringBuilder(builder.toString());
-        builder.setLength(0);
-        part.append(NEW_LINE);
-        for (int i = 0; i <= assertDepth; i++) {
-            if (i == assertDepth) {
-                part.append(type.getMark());
-                part.append(ARROW);
-            } else {
-                part.append(TAB);
-            }
-        }
-
-        part.append(propertyName);
-        part.append(": ");
-        part.append(comment);
-        if (type == CommentType.FAIL) {
-            messageParts.add(failedMessagePosition, part.toString());
-        } else {
-            messageParts.add(part.toString());
-        }
-
-    }
-
-    /**
-     * Reports fail due to different types.
-     * 
-     * @param propertyName
-     *            name of property
-     * @param comment
-     *            to be added
-     * @param expected
-     *            value
-     * @param actual
-     *            value
-     */
-    // TODO 1st check if this method is still needed, then refactor it
-    public void addDifferentTypeComment(final String propertyName, final String comment, final Object expected,
-            final Object actual) {
-        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
-        part.append("type expected: " + expected.getClass().getSimpleName() + " but was: "
-                + actual.getClass().getSimpleName());
-        messageParts.add(failedMessagePosition, part.toString());
-    }
-
-    /**
      * Reports fail due to different list sizes.
      * 
      * @param propertyName
@@ -192,8 +184,8 @@ public class FabutReportBuilder {
      *            - actual list's size
      */
     public void addListDifferentSizeComment(final String propertyName, final int expectedSize, final int actualSize) {
-
-        addComment(propertyName, LIST_SIZE, expectedSize, actualSize, CommentType.FAIL);
+        final String comment = "Expected list size for: " + propertyName + " is: " + expectedSize + ", but was: "
+                + actualSize;
     }
 
     /**
@@ -495,32 +487,6 @@ public class FabutReportBuilder {
 
         part.append(String.format(NO_VALID_COPY, original == null ? EMPTY_STRING : original.getClass().getSimpleName()));
         messageParts.add(failedMessagePosition, part.toString());
-    }
-
-    /**
-     * Increase depth.
-     */
-    public void increaseDepth() {
-
-        assertDepth++;
-    }
-
-    /**
-     * Decrease depth.
-     */
-    public void decreaseDepth() {
-
-        assertDepth--;
-    }
-
-    /**
-     * Appends message.
-     * 
-     * @param message
-     *            message for appending
-     */
-    public void append(final String message) {
-        messageParts.add(message);
     }
 
 }

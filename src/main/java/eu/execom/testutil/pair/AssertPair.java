@@ -1,30 +1,33 @@
 package eu.execom.testutil.pair;
 
-import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.enums.AssertableType;
 
-//TODO comments
+/**
+ * TODO comment. The Class AssertPair.
+ */
 public class AssertPair extends Pair {
-    private ObjectType objectType;
+    private AssertableType objectType;
 
     private boolean property;
 
-    public AssertPair(final Object expected, final Object actual, final ObjectType objectType) {
+    public AssertPair(final Object expected, final Object actual, final AssertableType objectType) {
         super(expected, actual);
         this.objectType = objectType;
         property = false;
     }
 
-    public AssertPair(final Object expected, final Object actual, final ObjectType objectType, final boolean property) {
+    public AssertPair(final Object expected, final Object actual, final AssertableType objectType,
+            final boolean property) {
         super(expected, actual);
         this.objectType = objectType;
         this.property = property;
     }
 
-    public ObjectType getObjectType() {
+    public AssertableType getObjectType() {
         return objectType;
     }
 
-    public void setObjectType(final ObjectType objectType) {
+    public void setObjectType(final AssertableType objectType) {
         this.objectType = objectType;
     }
 

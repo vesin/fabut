@@ -9,8 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
-import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.enums.AssertableType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.pair.AssertPair;
 import eu.execom.testutil.property.ISingleProperty;
@@ -52,27 +51,21 @@ class FabutRepositoryAssert extends FabutObjectAssert {
 
     // TODO comments
     // TODO return true false, dont throw exception
-    public void assertEntityAsDeleted(final Object actual) {
+    public boolean assertEntityAsDeleted(final Object actual) {
 
         ignoreEntity(actual);
 
         final Object findById = findById(actual.getClass(), ReflectionUtil.getIdValue(actual));
-        Assert.assertNull(findById);
+        return findById != null;
     }
 
     // TODO comments
-    public void ignoreEntity(final Object actual) {
-
-        // FIXIM only entity should be received no chekc needed
-        if (ReflectionUtil.isEntityType(actual.getClass(), getTypes())) {
-            markAsserted(actual);
-        }// FIXME add else?
-
+    public boolean ignoreEntity(final Object actual) {
+        return markAsAsserted(actual, actual.getClass());
     }
 
     // TODO comments
-    // TODO return true false, dont throw exception
-    public void assertEntityWithSnapshot(final FabutReportBuilder report, final Object entity,
+    public boolean assertEntityWithSnapshot(final FabutReportBuilder report, final Object entity,
             final List<ISingleProperty> properties) {
 
         final Object id = ReflectionUtil.getIdValue(entity);
@@ -83,20 +76,19 @@ class FabutRepositoryAssert extends FabutObjectAssert {
         final CopyAssert copyAssert = map.get(id);
         if (copyAssert != null) {
             final Object expected = copyAssert.getEntity();
-            assertObjects(report, expected, entity, properties);
+            return assertObjects(report, expected, entity, properties);
         } else {
-            // TODO add reporting to this
-            Assert.fail("Entity doesn't exist in snapshot  " + entity);
+            return ASSERT_FAIL;
         }
 
     }
 
-    // FIXME not public method
-    public final void afterAssertEntity(final Object object, final boolean isProperty) {
+    final boolean afterAssertEntity(final Object object, final boolean isProperty) {
         // FIXME no check needed, it should be entity
-        if (ReflectionUtil.isEntityType(object.getClass(), getTypes()) && !isProperty
-                && ReflectionUtil.getIdValue(object) != null) {
-            markAsserted(object);
+        if (!isProperty && ReflectionUtil.getIdValue(object) != null) {
+            return markAsAsserted(object, object.getClass());
+        } else {
+            return ASSERT_FAIL;
         }
     }
 
@@ -132,11 +124,6 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      * @param entity
      *            AbstractEntity
      */
-    // return true false, dont throw exception
-    protected void markAsserted(final Object entity) {
-        final boolean markAsserted = markAsAsserted(entity, entity.getClass());
-        Assert.assertTrue("Type " + entity.getClass() + " is not currently supported.", markAsserted);
-    }
 
     /**
      * Mark entity bean as asserted in db snapshot map. Go trough all its supper classes and if its possible assert it.
@@ -169,7 +156,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     /**
-     * Takes current database snapshot and saves it.
+     * Takes current database snapshot and saves it. TODO rework this so it can report entities that cannot be copied.
      */
     public void takeSnapshot() {
         initDbSnapshot();
@@ -185,7 +172,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     /**
-     * Asserts all previously taken snapshots.
+     * Asserts all previously taken snapshots. TODO rework this so it can report assert snapshot fails.
      */
     @Override
     protected void assertSnapshot() {
@@ -196,8 +183,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     /**
      * Asserts db snapshot with after db state.
      */
-    // TODO return true false
-    protected void assertDbState() {
+    protected boolean assertDbState() {
         boolean ok = true;
         final FabutReportBuilder report = new FabutReportBuilder();
 
@@ -213,9 +199,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
             ok &= assertDbSnapshotWithAfterState(beforeIds, afterIds, snapshotEntry.getValue(), afterEntities, report);
 
         }
-        if (!ok) {
-            throw new AssertionFailedError(report.getMessage());
-        }
+        return ok;
 
     }
 
@@ -244,7 +228,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
             final CopyAssert copyAssert = beforeEntities.get(id);
             if (!copyAssert.isAsserted()) {
                 ok = ASSERT_FAIL;
-                report.reportNoEntityFailure(beforeEntities.get(id));
+                report.noEntityInSnapshot(copyAssert.getEntity());
             }
         }
 
@@ -274,7 +258,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
         for (final Object id : afterIdsCopy) {
             final Object entity = afterEntities.get(id);
             ok = ASSERT_FAIL;
-            report.reportEntityIsntAsserted(entity);
+            report.entityNotAssertedInAfterState(entity);
         }
         return ok;
     }
@@ -329,7 +313,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     public void setEntityTypes(final List<Class<?>> entityTypes) {
-        getTypes().put(ObjectType.ENTITY_TYPE, entityTypes);
+        getTypes().put(AssertableType.ENTITY_TYPE, entityTypes);
     }
 
     /**
@@ -345,16 +329,14 @@ class FabutRepositoryAssert extends FabutObjectAssert {
 
         final Object expectedId = ReflectionUtil.getIdValue(pair.getExpected());
         final Object actualId = ReflectionUtil.getIdValue(pair.getActual());
-
-        boolean ok = true;
         try {
             assertEquals(expectedId, actualId);
-            ok = true;
+            report.asserted(pair, propertyName);
+            return ASSERTED;
         } catch (final AssertionError e) {
-            ok = false;
+            report.assertFail(pair, propertyName);
+            return ASSERT_FAIL;
         }
-        report.reportEntityAssert(expectedId, actualId, ok);
-        return ok;
     }
 
 }

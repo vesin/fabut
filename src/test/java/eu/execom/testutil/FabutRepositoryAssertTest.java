@@ -10,7 +10,7 @@ import java.util.TreeSet;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.enums.AssertableType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.model.A;
 import eu.execom.testutil.model.B;
@@ -85,9 +85,9 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         initDbSnapshot();
         initParametersSnapshot();
 
-        getTypes().put(ObjectType.ENTITY_TYPE, entityTypes);
-        getTypes().put(ObjectType.COMPLEX_TYPE, complexTypes);
-        getTypes().put(ObjectType.IGNORED_TYPE, ignoredTypes);
+        getTypes().put(AssertableType.ENTITY_TYPE, entityTypes);
+        getTypes().put(AssertableType.COMPLEX_TYPE, complexTypes);
+        getTypes().put(AssertableType.IGNORED_TYPE, ignoredTypes);
     }
 
     /**

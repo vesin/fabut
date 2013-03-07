@@ -11,7 +11,7 @@ import junit.framework.AssertionFailedError;
 import org.apache.commons.lang3.StringUtils;
 
 import eu.execom.testutil.ITestUtil;
-import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.enums.AssertableType;
 import eu.execom.testutil.graph.NodesList;
 
 /**
@@ -136,14 +136,14 @@ public final class ReflectionUtil {
      *            list of entity types
      * @return <code>true</code> if specified class is contained in entity types, <code>false</code> otherwise.
      */
-    public static boolean isEntityType(final Class<?> object, final Map<ObjectType, List<Class<?>>> types) {
+    public static boolean isEntityType(final Class<?> object, final Map<AssertableType, List<Class<?>>> types) {
 
-        if (types.get(ObjectType.ENTITY_TYPE) != null) {
+        if (types.get(AssertableType.ENTITY_TYPE) != null) {
 
-            final boolean isEntity = types.get(ObjectType.ENTITY_TYPE).contains(object);
+            final boolean isEntity = types.get(AssertableType.ENTITY_TYPE).contains(object);
 
             // necessary tweek for hibernate beans witch in some cases are fetched as proxy objects
-            final boolean isSuperClassEntity = types.get(ObjectType.ENTITY_TYPE).contains(object.getSuperclass());
+            final boolean isSuperClassEntity = types.get(AssertableType.ENTITY_TYPE).contains(object.getSuperclass());
             return isEntity || isSuperClassEntity;
         }
         return false;
@@ -158,8 +158,8 @@ public final class ReflectionUtil {
      *            the complex types
      * @return <code>true</code> if specified class is contained in complex types, <code>false</code> otherwise.
      */
-    public static boolean isComplexType(final Class<?> classs, final Map<ObjectType, List<Class<?>>> types) {
-        return types.get(ObjectType.COMPLEX_TYPE).contains(classs);
+    public static boolean isComplexType(final Class<?> classs, final Map<AssertableType, List<Class<?>>> types) {
+        return types.get(AssertableType.COMPLEX_TYPE).contains(classs);
     }
 
     /**
@@ -171,8 +171,8 @@ public final class ReflectionUtil {
      *            list of ignored types
      * @return <code>true</code> if specified class is contained in ignored types, <code>false</code> otherwise.
      */
-    public static boolean isIgnoredType(final Class<?> classs, final Map<ObjectType, List<Class<?>>> types) {
-        return types.get(ObjectType.IGNORED_TYPE).contains(classs);
+    public static boolean isIgnoredType(final Class<?> classs, final Map<AssertableType, List<Class<?>>> types) {
+        return types.get(AssertableType.IGNORED_TYPE).contains(classs);
     }
 
     /**
@@ -188,7 +188,7 @@ public final class ReflectionUtil {
      * @return <code>true</code> if type of expected or actual is ignored type, <code>false</code> otherwise.
      */
     public static boolean isIgnoredType(final Object firstObject, final Object secondObject,
-            final Map<ObjectType, List<Class<?>>> types) {
+            final Map<AssertableType, List<Class<?>>> types) {
 
         if (secondObject != null) {
             return isIgnoredType(secondObject.getClass(), types);
@@ -236,7 +236,7 @@ public final class ReflectionUtil {
      *            the entity types
      * @return {@link List} of real "get" methods of class X
      */
-    public static List<Method> getGetMethods(final Object object, final Map<ObjectType, List<Class<?>>> types) {
+    public static List<Method> getGetMethods(final Object object, final Map<AssertableType, List<Class<?>>> types) {
 
         final List<Method> getMethods = new ArrayList<Method>();
         final List<Method> getMethodsComplexType = new ArrayList<Method>();
@@ -360,24 +360,24 @@ public final class ReflectionUtil {
     }
 
     // TODO needs test, maybe further refactoring
-    public static ObjectType getObjectType(final Object expected, final Object actual,
-            final Map<ObjectType, List<Class<?>>> types) {
+    public static AssertableType getObjectType(final Object expected, final Object actual,
+            final Map<AssertableType, List<Class<?>>> types) {
 
         if (expected == null && actual == null) {
-            return ObjectType.PRIMITIVE_TYPE;
+            return AssertableType.PRIMITIVE_TYPE;
         }
 
         final Class<?> typeClass = actual != null ? actual.getClass() : expected.getClass();
         if (List.class.isAssignableFrom(typeClass)) {
-            return ObjectType.LIST_TYPE;
-        } else if (types.get(ObjectType.COMPLEX_TYPE).contains(typeClass)) {
-            return ObjectType.COMPLEX_TYPE;
-        } else if (types.get(ObjectType.ENTITY_TYPE).contains(typeClass)) {
-            return ObjectType.ENTITY_TYPE;
-        } else if (types.get(ObjectType.IGNORED_TYPE).contains(typeClass)) {
-            return ObjectType.IGNORED_TYPE;
+            return AssertableType.LIST_TYPE;
+        } else if (types.get(AssertableType.COMPLEX_TYPE).contains(typeClass)) {
+            return AssertableType.COMPLEX_TYPE;
+        } else if (types.get(AssertableType.ENTITY_TYPE).contains(typeClass)) {
+            return AssertableType.ENTITY_TYPE;
+        } else if (types.get(AssertableType.IGNORED_TYPE).contains(typeClass)) {
+            return AssertableType.IGNORED_TYPE;
         } else {
-            return ObjectType.PRIMITIVE_TYPE;
+            return AssertableType.PRIMITIVE_TYPE;
         }
 
     }
@@ -395,7 +395,7 @@ public final class ReflectionUtil {
      * @return copied entity
      */
     public static Object createCopyObject(final Object object, final NodesList nodes,
-            final Map<ObjectType, List<Class<?>>> types) {
+            final Map<AssertableType, List<Class<?>>> types) {
 
         Object copy = nodes.getExpected(object);
         if (copy != null) {
@@ -474,7 +474,7 @@ public final class ReflectionUtil {
      * @return copied property
      */
     public static Object copyProperty(final Object propertyForCopying, final NodesList nodes,
-            final Map<ObjectType, List<Class<?>>> types) {
+            final Map<AssertableType, List<Class<?>>> types) {
         if (propertyForCopying == null) {
             // its null we shouldn't do anything
             return null;
@@ -515,7 +515,7 @@ public final class ReflectionUtil {
      *            object for copying
      * @return copied object
      */
-    public static Object createCopy(final Object object, final Map<ObjectType, List<Class<?>>> types) {
+    public static Object createCopy(final Object object, final Map<AssertableType, List<Class<?>>> types) {
         if (object == null) {
             return null;
         }

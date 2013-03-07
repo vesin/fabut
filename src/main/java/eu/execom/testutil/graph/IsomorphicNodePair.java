@@ -12,7 +12,7 @@ import eu.execom.testutil.pair.Pair;
  */
 public class IsomorphicNodePair extends Pair {
 
-    public <T> IsomorphicNodePair(final T expected, final T actual) {
+    public IsomorphicNodePair(final Object expected, final Object actual) {
         super(expected, actual);
     }
 

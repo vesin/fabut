@@ -3,7 +3,6 @@ package eu.execom.testutil.enums;
 /**
  * Return result for reference check.
  * 
- * TODO add comment, for what we need this entity
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -16,7 +15,7 @@ public enum ReferenceCheckType {
 
     EXCLUSIVE_NULL(false),
 
-    COMPLEX_ASSERT(true);
+    NOT_NULL_PAIR(true);
 
     private boolean assertResult;
 

@@ -69,41 +69,4 @@ public class AbstractExecomRepositoryAssertTest extends FabutRepositoryAssert {
         this.list2 = list2;
     }
 
-    // @Override
-    // @After
-    // public void afterTest() {
-    // // TestUtilAssert.afterTest();
-    // }
-    //
-    // @Override
-    // @Before
-    // public void beforeTest() {
-    // TestUtilAssert.beforeTest();
-    // }
-    //
-    // @Override
-    // public List<Class<?>> getEntityTypes() {
-    // final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
-    // entityTypes.add(EntityTierTwoType.class);
-    // entityTypes.add(EntityTierOneType.class);
-    // return entityTypes;
-    // }
-    //
-    // @Override
-    // public List<Class<?>> getComplexTypes() {
-    // final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
-    // complexTypes.add(EntityTierTwoType.class);
-    // complexTypes.add(EntityTierOneType.class);
-    // complexTypes.add(A.class);
-    // complexTypes.add(B.class);
-    // complexTypes.add(C.class);
-    // return complexTypes;
-    // }
-    //
-    // @Override
-    // public List<Class<?>> getIgnoredTypes() {
-    // final List<Class<?>> ignoredTypes = new LinkedList<Class<?>>();
-    // return ignoredTypes;
-    // }
-
 }

@@ -12,9 +12,8 @@ import junit.framework.Assert;
 
 import org.apache.commons.lang3.StringUtils;
 
-import eu.execom.testutil.enums.CommentType;
+import eu.execom.testutil.enums.AssertableType;
 import eu.execom.testutil.enums.NodeCheckType;
-import eu.execom.testutil.enums.ObjectType;
 import eu.execom.testutil.enums.ReferenceCheckType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.pair.AssertPair;
@@ -49,7 +48,7 @@ abstract class FabutObjectAssert extends Assert {
     protected static final boolean ASSERT_FAIL = false;
 
     /** Types supported by Fabut. */
-    private Map<ObjectType, List<Class<?>>> types;
+    private Map<AssertableType, List<Class<?>>> types;
 
     /** The parameter snapshot. */
     private final List<SnapshotPair> parameterSnapshot;
@@ -62,7 +61,7 @@ abstract class FabutObjectAssert extends Assert {
      */
     public FabutObjectAssert() {
         super();
-        types = new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class);
+        types = new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class);
         parameterSnapshot = new ArrayList<SnapshotPair>();
     }
 
@@ -81,7 +80,7 @@ abstract class FabutObjectAssert extends Assert {
             final List<ISingleProperty> properties) {
 
         if (actual == null) {
-            report.addNullReferenceAssertComment();
+            report.nullReference();
             return ASSERT_FAIL;
         }
 
@@ -92,18 +91,18 @@ abstract class FabutObjectAssert extends Assert {
             final String fieldName = ReflectionUtil.getFieldName(method);
             final ISingleProperty property = getPropertyFromList(fieldName, properties);
 
-            if (property == null) {
-                // there is no matching property for field
-                report.addNoPropertyForFieldComment(fieldName, method, actual);
-                result = ASSERT_FAIL;
-            } else {
-                try {
+            try {
+                if (property == null) {
+                    // there is no matching property for field
+                    report.noPropertyForField(fieldName, method.invoke(actual));
+                    result = ASSERT_FAIL;
+                } else {
                     result &= assertProperty(fieldName, report, property, method.invoke(actual), EMPTY_STRING,
                             properties, new NodesList(), true);
-                } catch (final Exception e) {
-                    report.reportUninvokableMethod(method, actual);
-                    result = ASSERT_FAIL;
                 }
+            } catch (final Exception e) {
+                report.uncallableMethod(method, actual);
+                result = ASSERT_FAIL;
             }
         }
         if (result) {
@@ -174,29 +173,33 @@ abstract class FabutObjectAssert extends Assert {
     boolean assertPair(final String propertyName, final FabutReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
-        final ReferenceCheckType referenceCheckType = checkByReference(report, pair, propertyName);
-        if (referenceCheckType != ReferenceCheckType.COMPLEX_ASSERT) {
-            return referenceCheckType.getAssertResult();
+        final ReferenceCheckType referenceCheck = checkByReference(report, pair, propertyName);
+
+        if (referenceCheck == ReferenceCheckType.EQUAL_REFERENCE) {
+            return referenceCheck.getAssertResult();
+        }
+        if (referenceCheck == ReferenceCheckType.EXCLUSIVE_NULL) {
+            referenceCheck.getAssertResult();
         }
 
         // check if any of the expected/actual object is recurring in nodes list
         final NodeCheckType nodeCheckType = nodesList.nodeCheck(pair);
         if (nodeCheckType != NodeCheckType.NEW_PAIR) {
-            report.reportPointsTo(propertyName, pair.getActual(), nodeCheckType.getAssertValue());
+            report.checkByReference(propertyName, pair.getActual(), nodeCheckType.getAssertValue());
             return nodeCheckType.getAssertValue();
         }
         nodesList.addPair(pair);
 
         switch (pair.getObjectType()) {
         case IGNORED_TYPE:
-            report.reportIgnoredType(pair);
+            report.ignoredType(pair);
             return ASSERTED;
         case COMPLEX_TYPE:
             return assertSubfields(report, pair, properties, nodesList);
         case ENTITY_TYPE:
             return assertEntityPair(report, propertyName, pair, properties, nodesList);
         case PRIMITIVE_TYPE:
-            return assertPrimitives(report, propertyName, pair.getExpected(), pair.getActual());
+            return assertPrimitives(report, propertyName, pair);
         case LIST_TYPE:
             return assertList(propertyName, report, (List) pair.getExpected(), (List) pair.getActual(), properties,
                     nodesList, true);
@@ -214,8 +217,10 @@ abstract class FabutObjectAssert extends Assert {
      * @param nodesList
      * @return
      */
-    protected abstract boolean assertEntityPair(final FabutReportBuilder report, final String propertyName,
-            final AssertPair pair, final List<ISingleProperty> properties, final NodesList nodesList);
+    protected boolean assertEntityPair(final FabutReportBuilder report, final String propertyName,
+            final AssertPair pair, final List<ISingleProperty> properties, final NodesList nodesList) {
+        throw new IllegalStateException("Entities are not supported!");
+    }
 
     /**
      * Assert subfields.
@@ -254,7 +259,7 @@ abstract class FabutObjectAssert extends Assert {
                         properties, nodesList, true);
 
             } catch (final Exception e) {
-                report.reportUninvokableMethod(expectedMethod, pair);
+                report.uncallableMethod(expectedMethod, pair.getActual());
                 t = ASSERT_FAIL;
             }
         }
@@ -278,14 +283,13 @@ abstract class FabutObjectAssert extends Assert {
      * @return - <code>true</code> if and only if objects are asserted, <code>false</code> if method assertEqualsObjects
      *         throws {@link AssertionError}.
      */
-    boolean assertPrimitives(final FabutReportBuilder report, final String propertyName, final Object expected,
-            final Object actual) {
+    boolean assertPrimitives(final FabutReportBuilder report, final String propertyName, final AssertPair pair) {
         try {
-            customAssertEquals(expected, actual);
-            report.addComment(propertyName, expected, actual, CommentType.SUCCESS);
+            customAssertEquals(pair.getExpected(), pair.getActual());
+            report.asserted(pair, propertyName);
             return ASSERTED;
         } catch (final AssertionError e) {
-            report.addComment(propertyName, expected, actual, CommentType.FAIL);
+            report.assertFail(pair, propertyName);
             return ASSERT_FAIL;
         }
     }
@@ -332,14 +336,14 @@ abstract class FabutObjectAssert extends Assert {
         // expected any not null value
         if (expected instanceof NotNullProperty) {
             final boolean ok = actual != null ? ASSERTED : ASSERT_FAIL;
-            report.reportNotNullProperty(propertyName, ok);
+            report.notNullProperty(propertyName, ok);
             return ok;
         }
 
         // expected null value
         if (expected instanceof NullProperty) {
             final boolean ok = actual == null ? ASSERTED : ASSERT_FAIL;
-            report.reportNullProperty(propertyName, ok);
+            report.nullProperty(propertyName, ok);
             return ok;
         }
 
@@ -387,7 +391,7 @@ abstract class FabutObjectAssert extends Assert {
 
         // check sizes
         if (expected.size() != actual.size()) {
-            report.addListDifferentSizeComment(propertyName, expected.size(), actual.size());
+            report.listDifferentSizeComment(propertyName, expected.size(), actual.size());
             return ASSERT_FAIL;
         }
 
@@ -396,7 +400,7 @@ abstract class FabutObjectAssert extends Assert {
         // assert every element by index
         boolean assertResult = ASSERTED;
         for (int i = 0; i < actual.size(); i++) {
-            report.reportAssertingListElement(propertyName, i);
+            report.assertingListElement(propertyName, i);
             assertResult &= assertObjects(report, expected.get(i), actual.get(i), properties);
         }
         report.decreaseDepth();
@@ -482,19 +486,16 @@ abstract class FabutObjectAssert extends Assert {
     ReferenceCheckType checkByReference(final FabutReportBuilder report, final AssertPair pair,
             final String propertyName) {
 
-        final Object expected = pair.getExpected();
-        final Object actual = pair.getActual();
-
-        if (expected == actual) {
-            report.addComment(propertyName, expected, actual, CommentType.SUCCESS);
+        if (pair.getExpected() == pair.getActual()) {
+            report.asserted(pair, propertyName);
             return ReferenceCheckType.EQUAL_REFERENCE;
         }
 
-        if (expected == null ^ actual == null) {
-            report.addComment(propertyName, expected, actual, CommentType.FAIL);
+        if (pair.getExpected() == null ^ pair.getActual() == null) {
+            report.assertFail(pair, propertyName);
             return ReferenceCheckType.EXCLUSIVE_NULL;
         }
-        return ReferenceCheckType.COMPLEX_ASSERT;
+        return ReferenceCheckType.NOT_NULL_PAIR;
     }
 
     /**
@@ -562,7 +563,7 @@ abstract class FabutObjectAssert extends Assert {
      * 
      * @return the types
      */
-    public Map<ObjectType, List<Class<?>>> getTypes() {
+    public Map<AssertableType, List<Class<?>>> getTypes() {
         return types;
     }
 
@@ -572,7 +573,7 @@ abstract class FabutObjectAssert extends Assert {
      * @param types
      *            the types
      */
-    public void setTypes(final Map<ObjectType, List<Class<?>>> types) {
+    public void setTypes(final Map<AssertableType, List<Class<?>>> types) {
         this.types = types;
     }
 
@@ -582,7 +583,7 @@ abstract class FabutObjectAssert extends Assert {
      * @return the complex types
      */
     public List<Class<?>> getComplexTypes() {
-        return types.get(ObjectType.COMPLEX_TYPE);
+        return types.get(AssertableType.COMPLEX_TYPE);
     }
 
     /**
@@ -591,7 +592,7 @@ abstract class FabutObjectAssert extends Assert {
      * @return the entity types
      */
     public List<Class<?>> getEntityTypes() {
-        return types.get(ObjectType.ENTITY_TYPE);
+        return types.get(AssertableType.ENTITY_TYPE);
     }
 
     /**
@@ -600,7 +601,7 @@ abstract class FabutObjectAssert extends Assert {
      * @return the ignored types
      */
     public List<Class<?>> getIgnoredTypes() {
-        return types.get(ObjectType.IGNORED_TYPE);
+        return types.get(AssertableType.IGNORED_TYPE);
     }
 
     /**
@@ -638,7 +639,7 @@ abstract class FabutObjectAssert extends Assert {
      *            list of complex types
      */
     public void setComplexTypes(final List<Class<?>> complexTypes) {
-        types.put(ObjectType.COMPLEX_TYPE, complexTypes);
+        types.put(AssertableType.COMPLEX_TYPE, complexTypes);
     }
 
     /**
@@ -648,7 +649,7 @@ abstract class FabutObjectAssert extends Assert {
      *            list of ignored types
      */
     public void setIgnoredTypes(final List<Class<?>> ignoredTypes) {
-        types.put(ObjectType.IGNORED_TYPE, ignoredTypes);
+        types.put(AssertableType.IGNORED_TYPE, ignoredTypes);
     }
 
 }

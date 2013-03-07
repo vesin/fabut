@@ -91,7 +91,7 @@ public class Fabut {
     }
 
     public static void markAsserted(final Object entity) {
-        abstractExecomRepositoryAssert.markAsserted(entity);
+        abstractExecomRepositoryAssert.markAsAsserted(entity, entity.getClass());
     }
 
     public static void assertObjects(final List expected, final Object... actuals) {

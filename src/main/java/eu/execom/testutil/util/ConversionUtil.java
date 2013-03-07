@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.enums.AssertableType;
 import eu.execom.testutil.pair.AssertPair;
 import eu.execom.testutil.property.Property;
 
@@ -45,14 +45,14 @@ public final class ConversionUtil {
 
     // TODO comments, tests
     public static AssertPair createAssertPair(final Object expected, final Object actual,
-            final Map<ObjectType, List<Class<?>>> types) {
-        final ObjectType objectType = ReflectionUtil.getObjectType(expected, actual, types);
+            final Map<AssertableType, List<Class<?>>> types) {
+        final AssertableType objectType = ReflectionUtil.getObjectType(expected, actual, types);
         return new AssertPair(expected, actual, objectType);
     }
 
     // TODO comments, tests
     public static AssertPair createAssertPair(final Object expected, final Object actual,
-            final Map<ObjectType, List<Class<?>>> types, final boolean isProperty) {
+            final Map<AssertableType, List<Class<?>>> types, final boolean isProperty) {
         final AssertPair assertPair = createAssertPair(expected, actual, types);
         assertPair.setProperty(isProperty);
         return assertPair;
@@ -60,7 +60,7 @@ public final class ConversionUtil {
 
     // TODO comments, tests
     public static AssertPair createAssertPair(final Property expected, final Object actual,
-            final Map<ObjectType, List<Class<?>>> types, final boolean isProperty) {
+            final Map<AssertableType, List<Class<?>>> types, final boolean isProperty) {
         final AssertPair assertPair = createAssertPair(expected.getValue(), actual, types);
         assertPair.setProperty(isProperty);
         return assertPair;

@@ -8,10 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.enums.AssertableType;
 import eu.execom.testutil.enums.ReferenceCheckType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.model.A;
@@ -86,10 +85,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         ignoredTypes.add(IgnoredType.class);
         setIgnoredTypes(ignoredTypes);
 
-        final Map<ObjectType, List<Class<?>>> types = new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class);
-        types.put(ObjectType.COMPLEX_TYPE, complexTypes);
-        types.put(ObjectType.IGNORED_TYPE, ignoredTypes);
-        types.put(ObjectType.ENTITY_TYPE, new LinkedList<Class<?>>());
+        final Map<AssertableType, List<Class<?>>> types = new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class);
+        types.put(AssertableType.COMPLEX_TYPE, complexTypes);
+        types.put(AssertableType.IGNORED_TYPE, ignoredTypes);
+        types.put(AssertableType.ENTITY_TYPE, new LinkedList<Class<?>>());
         setTypes(types);
     }
 
@@ -539,89 +538,6 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         assertObjectWithProperties(new FabutReportBuilder(), actual, properties);
     }
 
-    // TODO entity tests should not be here
-
-    // /**
-    // * Test for assertObject with {@link EntityTierOneType} with {@link Property}.
-    // */
-    // @Test
-    // public void testAssertObjectEntityTierOneType() {
-    // // setup
-    // final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-    //
-    // final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
-    // properties.add(PropertyFactory.value(EntityTierOneType.PROPERTY, TEST));
-    // properties.add(PropertyFactory.value(EntityTierOneType.ID, 1));
-    //
-    // // method
-    // assertObject(actual, properties);
-    // }
-    //
-    // /**
-    // * Test is assertObject throws {@link AssertionError} with {@link EntityTierOneType} when property isn't asserted.
-    // */
-    // @Test(expected = AssertionError.class)
-    // public void testAssertObjectEntityTierOneTypeThrowsAssertionError() {
-    // // setup
-    // final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-    //
-    // // method
-    // assertObject(actual, PropertyFactory.value(EntityTierOneType.ID, 1));
-    // }
-    //
-    // /**
-    // * Test for assertObject when null object reference is passed.
-    // */
-    // @Test(expected = AssertionError.class)
-    // public void testAssertObjectWithNullReference() {
-    // // setup
-    // final EntityTierOneType actual = null;
-    //
-    // // method
-    // assertObject(actual, PropertyFactory.value(EntityTierOneType.ID, 1));
-    // }
-    //
-    // /**
-    // * Test for assertObjects with two {@link EntityTierTwoType} when all values are equal.
-    // */
-    // @Test
-    // public void testAssertObjectEntityTierTwoTypeAllValuesEqual() {
-    // // setup
-    // final EntityTierTwoType actual = new EntityTierTwoType(TEST, 1, new EntityTierOneType(TEST, 10));
-    // final EntityTierTwoType expected = new EntityTierTwoType(TEST, 1, new EntityTierOneType(TEST, 10));
-    //
-    // // method
-    // assertObjects(expected, actual);
-    // }
-    //
-    // /**
-    // * Test for assertObjects with two {@link EntityTierTwoType} when not all values are equal.
-    // */
-    // @Test
-    // public void testAssertObjectEntityTierTwoTypeNotAllValuesEqual() {
-    // // setup
-    // final EntityTierTwoType actual = new EntityTierTwoType(TEST, 1, new EntityTierOneType(TEST, 10));
-    // // note expected sub entity property differs from actual sub entity
-    // // property
-    // final EntityTierTwoType expected = new EntityTierTwoType(TEST, 1, new EntityTierOneType(TEST + TEST, 10));
-    //
-    // // method
-    // assertObjects(expected, actual);
-    // }
-    //
-    // /**
-    // * Test for assertObjects with two {@link EntityTierTwoType} when not all values are equal.
-    // */
-    // @Test(expected = AssertionError.class)
-    // public void testAssertObjectEntityTierTwoTypeIdNotEqual() {
-    // // setup
-    // final EntityTierTwoType actual = new EntityTierTwoType(TEST, 1, new EntityTierOneType(TEST, 10));
-    // final EntityTierTwoType expected = new EntityTierTwoType(TEST, 10, new EntityTierOneType(TEST, 20));
-    //
-    // // method
-    // assertObjects(expected, actual);
-    // }
-
     /**
      * Test for disassembleObject of {@link FabutObjectAssert} when actual is pointing to itself.
      */
@@ -634,7 +550,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertSubfields(new FabutReportBuilder(), new AssertPair(expected, actual,
-                ObjectType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
+                AssertableType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -654,7 +570,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertSubfields(new FabutReportBuilder(), new AssertPair(expected, actual,
-                ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), nodesList);
+                AssertableType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -673,7 +589,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertSubfields(new FabutReportBuilder(), new AssertPair(expected, actual,
-                ObjectType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
+                AssertableType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
@@ -687,7 +603,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
     public void testDisassembleObject() {
         // method
         final boolean t = assertSubfields(new FabutReportBuilder(), new AssertPair(new TierOneType(TEST),
-                new UnknownType(), ObjectType.COMPLEX_TYPE), new LinkedList<ISingleProperty>(), new NodesList());
+                new UnknownType(), AssertableType.COMPLEX_TYPE), new LinkedList<ISingleProperty>(), new NodesList());
 
         // assert
         assertFalse(t);
@@ -700,31 +616,11 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
     public void testAssertChangedPropertyBothNulls() {
         // method
         final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(null, null,
-                ObjectType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), new NodesList());
+                AssertableType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
     }
-
-    // TODO this method is probably not needed anymore
-
-    // /**
-    // * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual or expected is exclusive null.
-    // */
-    // @Test
-    // public void testAssertChangedPropertyExclusive() {
-    // // method
-    // final boolean assertValue1 = assertChangedProperty(EMPTY_STRING , new AssertReportBuilder(),new
-    // AssertPair(expected, actual, objectType) null, new Object(),
-    // new ArrayList<ISingleProperty>(), new NodesList(), true);
-    // final boolean assertValue2 = assertChangedProperty(EMPTY_STRING , new AssertReportBuilder(), new
-    // Object(), null,
-    // new ArrayList<ISingleProperty>(), new NodesList(), true);
-    //
-    // // assert
-    // assertFalse(assertValue1);
-    // assertFalse(assertValue2);
-    // }
 
     /**
      * Test for assertChangedProperty of {@link FabutObjectAssert} when actual is instance of complex class.
@@ -737,7 +633,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(expected, actual,
-                ObjectType.COMPLEX_TYPE, false), new ArrayList<ISingleProperty>(), new NodesList());
+                AssertableType.COMPLEX_TYPE, false), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
@@ -754,7 +650,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(expected, actual,
-                ObjectType.IGNORED_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
+                AssertableType.IGNORED_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
@@ -772,7 +668,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(expected, actual,
-                ObjectType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
+                AssertableType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
@@ -790,30 +686,11 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(expected, actual,
-                ObjectType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
+                AssertableType.PRIMITIVE_TYPE, true), new ArrayList<ISingleProperty>(), new NodesList());
 
         // assert
         assertFalse(assertValue);
     }
-
-    // TODO entity test, should be moved
-
-    // /**
-    // * Test for assertChangedProperty of {@link AbstractExecomAssert} when actual is entity type.
-    // */
-    // @Test(expected = IllegalStateException.class)
-    // public void testAssertChangedPropertyEntityType() {
-    // // setup
-    // final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-    // final EntityTierOneType expected = new EntityTierOneType(TEST, 1);
-    //
-    // // method
-    // assertChangedProperty(EMPTY_STRING, new AssertReportBuilder(), new AssertPair(expected, actual,
-    // ObjectType.ENTITY_TYPE), null, null, true);
-    //
-    // // // assert
-    // // assertTrue(assertValue);
-    // }
 
     /**
      * Test for assertChangedProperty of {@link FabutObjectAssert} when actual list and expected list are equal.
@@ -830,64 +707,11 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(expected, actual,
-                ObjectType.LIST_TYPE, true), new LinkedList<ISingleProperty>(), new NodesList());
+                AssertableType.LIST_TYPE, true), new LinkedList<ISingleProperty>(), new NodesList());
 
         // assert
         assertTrue(assertValue);
     }
-
-    // TODO entity tests, should be moved
-
-    // /**
-    // * Test for assertEntityTypes of {@link AbstractExecomAssert} when actual and expected are equal entity types.
-    // */
-    // @Test
-    // public void testAssertEntityTypesBothEntities() {
-    // // setup
-    // final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-    // final EntityTierOneType expected = new EntityTierOneType(TEST, 1);
-    //
-    // // method
-    // final boolean assertValues = assertEntityById(EMPTY_STRING, new AssertReportBuilder(), expected, actual);
-    //
-    // // assert
-    // assertTrue(assertValues);
-    //
-    // }
-    //
-    // /**
-    // * Test for assertEntityTypes of {@link AbstractExecomAssert} when actual is not entity type.
-    // */
-    // @Test
-    // public void testAssertEntityTypesActualNotEntity() {
-    // // setup
-    // final UnknownType actual = new UnknownType();
-    // final EntityTierOneType expected = new EntityTierOneType(TEST, 1);
-    //
-    // // method
-    // final boolean assertValues = assertEntityById(EMPTY_STRING, new AssertReportBuilder(), expected, actual);
-    //
-    // // assert
-    // assertFalse(assertValues);
-    //
-    // }
-    //
-    // /**
-    // * Test for assertEntityTypes of {@link AbstractExecomAssert} when expected is not entity type.
-    // */
-    // @Test
-    // public void testAssertEntityTypesExpectedNotEntity() {
-    // // setup
-    // final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-    // final UnknownType expected = new UnknownType();
-    //
-    // // method
-    // final boolean assertValues = assertEntityById(EMPTY_STRING, new AssertReportBuilder(), expected, actual);
-    //
-    // // assert
-    // assertFalse(assertValues);
-    //
-    // }
 
     /**
      * Test for assertProperties of {@link FabutObjectAssert} when expected property is {@link NotNullProperty} and
@@ -1208,7 +1032,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
     public void testCheckForNullsTrueNull() {
         // method
         final ReferenceCheckType assertValue = checkByReference(new FabutReportBuilder(), new AssertPair(null, null,
-                ObjectType.COMPLEX_TYPE), TEST);
+                AssertableType.COMPLEX_TYPE), TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EQUAL_REFERENCE, assertValue);
@@ -1224,7 +1048,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
 
         // method
         final ReferenceCheckType assertValue = checkByReference(new FabutReportBuilder(), new AssertPair(expected,
-                expected, ObjectType.COMPLEX_TYPE), TEST);
+                expected, AssertableType.COMPLEX_TYPE), TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EQUAL_REFERENCE, assertValue);
@@ -1237,9 +1061,9 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
     public void testCheckForNullsFalse() {
         // method
         final ReferenceCheckType assertValue1 = checkByReference(new FabutReportBuilder(), new AssertPair(new Object(),
-                null, ObjectType.COMPLEX_TYPE), TEST);
+                null, AssertableType.COMPLEX_TYPE), TEST);
         final ReferenceCheckType assertValue2 = checkByReference(new FabutReportBuilder(), new AssertPair(null,
-                new Object(), ObjectType.COMPLEX_TYPE), TEST);
+                new Object(), AssertableType.COMPLEX_TYPE), TEST);
 
         // assert
         assertEquals(ReferenceCheckType.EXCLUSIVE_NULL, assertValue1);
@@ -1253,10 +1077,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
     public void testCheckForNullsNull() {
         // method
         final ReferenceCheckType assertValue = checkByReference(new FabutReportBuilder(), new AssertPair(new Object(),
-                new Object(), ObjectType.COMPLEX_TYPE), TEST);
+                new Object(), AssertableType.COMPLEX_TYPE), TEST);
 
         // assert
-        assertEquals(ReferenceCheckType.COMPLEX_ASSERT, assertValue);
+        assertEquals(ReferenceCheckType.NOT_NULL_PAIR, assertValue);
     }
 
     /**
@@ -1319,21 +1143,6 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         assertEquals(ignoredMultiProp.getProperties().get(1).getPath(), properties.get(3).getPath());
     }
 
-    // TODO entity test, should be moved
-
-    // /**
-    // * Test for assertObject with parameters of type {@link IMultiProperties}.
-    // */
-    // @Test
-    // public void testAssertObjectMultiProperty() {
-    // // setup
-    // final EntityTierOneType entity = new EntityTierOneType(TEST, new Integer(0));
-    //
-    // // method
-    // assertObject(new AssertReportBuilder(), entity,
-    // PropertyFactory.notNull(EntityTierOneType.PROPERTY, EntityTierOneType.ID));
-    // }
-
     /**
      * Test for assertObjects with parameters of type {@link IMultiProperties}.
      */
@@ -1370,15 +1179,6 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         assertObjects(new FabutReportBuilder(), new TierOneType(TEST), parameterSnapshot.get(0).getExpected(),
                 properties);
         assertObjects(new FabutReportBuilder(), new TierOneType(TEST), parameterSnapshot.get(0).getActual(), properties);
-    }
-
-    /**
-     * TODO write test
-     */
-    @Test
-    @Ignore
-    public void testAssertParametersTrue() {
-
     }
 
 }

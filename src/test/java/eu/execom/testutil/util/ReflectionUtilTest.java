@@ -15,7 +15,7 @@ import junit.framework.AssertionFailedError;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.execom.testutil.enums.ObjectType;
+import eu.execom.testutil.enums.AssertableType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.model.A;
 import eu.execom.testutil.model.B;
@@ -46,7 +46,7 @@ public class ReflectionUtilTest extends Assert {
     private static final String IS_FIELD = "isField";
     private static final String IS_NOT_BOOLEAN_PROPERTY = "isNotBooleanProperty";
 
-    Map<ObjectType, List<Class<?>>> types;
+    Map<AssertableType, List<Class<?>>> types;
 
     /**
      * Test for isGetMethod of {@link ReflectionUtil} when method does not starts with "get" prefix and there is
@@ -57,19 +57,19 @@ public class ReflectionUtilTest extends Assert {
      */
     @Before
     public void setup() {
-        types = new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class);
+        types = new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class);
         final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
         complexTypes.add(TierOneType.class);
         complexTypes.add(TierTwoType.class);
         complexTypes.add(A.class);
         complexTypes.add(B.class);
         complexTypes.add(C.class);
-        types.put(ObjectType.COMPLEX_TYPE, complexTypes);
+        types.put(AssertableType.COMPLEX_TYPE, complexTypes);
 
         final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
         complexTypes.add(EntityTierOneType.class);
         complexTypes.add(EntityTierTwoType.class);
-        types.put(ObjectType.ENTITY_TYPE, entityTypes);
+        types.put(AssertableType.ENTITY_TYPE, entityTypes);
     }
 
     @Test
@@ -537,7 +537,7 @@ public class ReflectionUtilTest extends Assert {
     public void testCreateCopyNull() {
         // method
         final Object object = ReflectionUtil
-                .createCopy(null, new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class));
+                .createCopy(null, new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class));
 
         // assert
         assertNull(object);
@@ -554,7 +554,7 @@ public class ReflectionUtilTest extends Assert {
 
         // method
         final List<String> assertList = (List<String>) ReflectionUtil.createCopy(list,
-                new EnumMap<ObjectType, List<Class<?>>>(ObjectType.class));
+                new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class));
 
         assertNotNull(assertList);
         assertEquals(1, assertList.size());

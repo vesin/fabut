@@ -10,43 +10,20 @@ import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
 
 /**
- * Class which purpose is to build pretty info messages about asserting.
+ * Report builder used for creating clean and readable reports. Its point is to emphasize failed asserts so developer
+ * can track the easy.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-// TODO DUNNO add code snipets how error message look like and with description.
 
-// TODO all method names should be reviewed and renamed to make more sense of what they are reporting
 public class FabutReportBuilder {
 
     private static final String ARROW = ">";
     private static final String NEW_LINE = "\n";
     private static final String TAB = "    ";
-    private static final String EMPTY_STRING = "";
-
-    // TODO no need for this constants, they are used only once
-    private static final String NOT_NULL_PROPERTY_SUCCESS = "%s: expected not null property and was not null";
-    private static final String NOT_NULL_PROPERTY_FAIL = "%s: expected not null property, but was null";
-    private static final String NULL_PROPERTY_FAIL = "%s: expected null property, but was not null";
-    private static final String NULL_PROPERTY_SUCCESS = "%s: expected null property and was null";
-    private static final String IGNORE_PROPERTY = "%s: is ignore property";
-    private static final String PROPERTY_WRONG_REFERENCE = "Property:  %s of class:  %s has wrong reference.";
-    private static final String PROPERTY_GOOD_REFERENCE = "Property:  %s of class:  %s has good reference.";
-    private static final String ASSERT_LIST = "Assert object at index  %s of list  %s.";
-    private static final String NO_PROPERTY_FOR_FIELD = "There was no property for field:  %s of class:  %s, with value: %s";
-    private static final String IGNORED_TYPE = "Type  %s is ignored type.";
-    private static final String UNINVOKABLE_METHOD = "There is no method: %s in actual class: %s (expected class was: %s).";
-    private static final String REPOSITORY_FAILURE_NO_ENTITY_IN_DB = "-> Entity %s doesn't exist in DB any more "
-            + "but is not asserted in test.";
-    private static final String REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED = "-> Entity %s is created in system after "
-            + "last snapshot but hasnt been asserted in test.";
-    private static final String REPOSITORY_ENTITY_ASSERT_FAIL = "-> Expected entity: <<%s>> but was: <<%s>>, of %s.";
-    private static final String NULL_REFERENCE_ASSERT = "Trying to assert null object reference.";
-    private static final String PARAMETERS_ASSERT_FAIL = "-> Expected parameter: <<%s>> but was: <<%s>>, of %s.";
-    private static final String NO_VALID_COPY = "There is no public default constructor, or there is no matching public set method for field which have corresponding get method, in class: %s.";
 
     private final StringBuilder builder;
     private Integer assertDepth;
@@ -90,7 +67,7 @@ public class FabutReportBuilder {
     }
 
     /**
-     * Increase depth.
+     * Increase indentation in report.
      */
     public void increaseDepth() {
 
@@ -98,7 +75,7 @@ public class FabutReportBuilder {
     }
 
     /**
-     * Decrease depth.
+     * Decrease indentation in report.
      */
     public void decreaseDepth() {
 
@@ -108,8 +85,6 @@ public class FabutReportBuilder {
     /**
      * Add new comment to specified depth.
      * 
-     * @param propertyName
-     *            name of property
      * @param comment
      *            to be added
      * @param type
@@ -139,162 +114,140 @@ public class FabutReportBuilder {
     }
 
     /**
-     * Add new comment to specified depth.
-     * 
-     * @param propertyName
-     *            name of property
-     * @param comment
-     *            additional comment
-     * @param expected
-     *            value
-     * @param actual
-     *            value
-     * @param type
-     *            type of comment
-     * 
-     * @param generic
-     *            type
-     */
-    public void addComment(final String propertyName, final String comment, final Object expected, final Object actual,
-            final CommentType type) {
-        switch (type) {
-        case FAIL:
-            addComment(propertyName, comment + " expected: " + expected + " but was: " + actual, type);
-            break;
-        case SUCCESS:
-            addComment(propertyName, comment + " expected: " + expected + " and was: " + actual, type);
-            break;
-        default:
-            throw new IllegalStateException("Unsupported CommentyType: " + type);
-        }
-    }
-
-    public void addComment(final String propertyName, final Object expected, final Object actual, final CommentType type) {
-        addComment(propertyName, EMPTY_STRING, expected, actual, type);
-    }
-
-    /**
      * Reports fail due to different list sizes.
+     * <p>
+     * Example: <i>■> Expected size for list: users is: 2, but was: 1</i>
+     * </p>
      * 
      * @param propertyName
-     *            name of list property
+     *            the property name
      * @param expectedSize
-     *            - expected list's size
+     *            the expected size
      * @param actualSize
-     *            - actual list's size
+     *            the actual size
      */
-    public void addListDifferentSizeComment(final String propertyName, final int expectedSize, final int actualSize) {
-        final String comment = "Expected list size for: " + propertyName + " is: " + expectedSize + ", but was: "
-                + actualSize;
+    public void listDifferentSizeComment(final String propertyName, final int expectedSize, final int actualSize) {
+        final String comment2 = String.format("Expected size for list: %s is: %d, but was: %d", propertyName,
+                expectedSize, actualSize);
+        addComment(comment2, CommentType.FAIL);
     }
 
     /**
      * Reports fail due to field not having matching property.
+     * 
+     * <p>
+     * Example: <i>There was no property for field: name of class: User, with value: John</i>
+     * </p>
      * 
      * @param fieldName
      *            - name of the field
      * @param field
      *            - class of the field
      */
-    public void addNoPropertyForFieldComment(final String fieldName, final Method method, final Object actual) {
+    public void noPropertyForField(final String fieldName, final Object field) {
+        final String comment = String.format("There was no property for field:  %s of class:  %s, with value: %s",
+                fieldName, field.getClass(), field);
+        addComment(comment, CommentType.FAIL);
 
-        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
-        Object field = null;
-        try {
-            field = method.invoke(actual);
-        } catch (final Exception e) {
-            field = EMPTY_STRING;
-        }
-        part.append(String.format(NO_PROPERTY_FOR_FIELD, fieldName, method.getReturnType().getSimpleName(),
-                field == null ? null : field.toString()));
-        messageParts.add(failedMessagePosition, part.toString());
     }
 
     /**
      * Reports result of assertion with {@link NotNullProperty}.
+     * <p>
+     * Example(asserted): <i>∞> id: expected not null property and field was not null</i>
+     * </p>
+     * <p>
+     * Example(assert fail): <i>■> id: expected not null property, but field was null</i>
+     * </p>
      * 
      * @param fieldName
      *            - name of the field
      * @param assertResult
      *            - assert result
      */
-    public void reportNotNullProperty(final String fieldName, final boolean assertResult) {
-
-        final StringBuilder part = new StringBuilder(EMPTY_STRING);
+    public void notNullProperty(final String fieldName, final boolean assertResult) {
         if (assertResult) {
-            part.append(indentNewLine(CommentType.SUCCESS));
-            part.append(String.format(NOT_NULL_PROPERTY_SUCCESS, fieldName));
-            messageParts.add(part.toString());
+            final String comment = String.format("%s: expected not null property and field was not null", fieldName);
+            addComment(comment, CommentType.SUCCESS);
         } else {
-            part.append(indentNewLine(CommentType.FAIL));
-            part.append(String.format(NOT_NULL_PROPERTY_FAIL, fieldName));
-            messageParts.add(failedMessagePosition, part.toString());
+            final String comment = String.format("%s: expected not null property, but field was null", fieldName);
+            addComment(comment, CommentType.SUCCESS);
         }
     }
 
     /**
      * Reports result of of assertion with {@link NullProperty}.
+     * <p>
+     * Example(asserted): <i>∞> endDate: expected null and field was null</i>
+     * </p>
+     * <p>
+     * Example(asserted): <i>∞> endDate: expected null, but field was not null</i>
+     * </p>
+     * 
      * 
      * @param fieldName
      *            - name of the field
      * @param assertResult
      *            - assert result
      */
-    public void reportNullProperty(final String fieldName, final boolean assertResult) {
-
-        final StringBuilder part = new StringBuilder(EMPTY_STRING);
+    public void nullProperty(final String fieldName, final boolean assertResult) {
         if (assertResult) {
-            part.append(indentNewLine(CommentType.SUCCESS));
-            part.append(String.format(NULL_PROPERTY_SUCCESS, fieldName));
-            messageParts.add(part.toString());
+            final String comment = String.format("%s: expected null property and field was null", fieldName);
+            addComment(comment, CommentType.SUCCESS);
         } else {
-            part.append(indentNewLine(CommentType.FAIL));
-            part.append(String.format(NULL_PROPERTY_FAIL, fieldName));
-            messageParts.add(failedMessagePosition, part.toString());
+            final String comment = String.format("%s: expected null property, but field was not null", fieldName);
+            addComment(comment, CommentType.FAIL);
         }
     }
 
     /**
      * Reports ignore property.
+     * <p>
+     * Example: <i>∞> name: is ignored field</i>
+     * </p>
      * 
      * @param fieldName
      *            - name of the field
      */
     public void reportIgnoreProperty(final String fieldName) {
-
-        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.SUCCESS));
-        part.append(String.format(IGNORE_PROPERTY, fieldName));
-        messageParts.add(part.toString());
+        final String comment = String.format("%s: is ignored field", fieldName);
+        addComment(comment, CommentType.SUCCESS);
     }
 
     /**
-     * Report result of reference assert.
+     * Reports result of reference assert.
+     * <p>
+     * Example(asserted): <i>∞> Property: address of class: User has good reference.</i>
+     * </p>
+     * <p>
+     * Example(assert fail): <i>■> Property: address of class: User has wrong reference.</i>
+     * </p>
      * 
      * @param fieldName
      *            - name of the field
      * @param fieldClass
      *            - field class
-     * @param assertResult
+     * @param asserted
      *            - assert result
      */
-    public void reportPointsTo(final String fieldName, final Object object, final boolean assertResult) {
+    public void checkByReference(final String fieldName, final Object object, final boolean asserted) {
 
-        final Class<?> fieldClass = object.getClass();
-        final StringBuilder part = new StringBuilder(EMPTY_STRING);
-
-        if (assertResult) {
-            part.append(indentNewLine(CommentType.SUCCESS));
-            part.append(String.format(PROPERTY_GOOD_REFERENCE, fieldName, fieldClass.getSimpleName()));
-            messageParts.add(part.toString());
+        if (asserted) {
+            final String comment = String.format("Property:  %s of class:  %s has good reference.", fieldName, object
+                    .getClass().getSimpleName());
+            addComment(comment, CommentType.SUCCESS);
         } else {
-            part.append(indentNewLine(CommentType.FAIL));
-            part.append(String.format(PROPERTY_WRONG_REFERENCE, fieldName, fieldClass.getSimpleName()));
-            messageParts.add(failedMessagePosition, part.toString());
+            final String comment = String.format("Property:  %s of class:  %s has wrong reference.", fieldName, object
+                    .getClass().getSimpleName());
+            addComment(comment, CommentType.FAIL);
         }
     }
 
     /**
      * Reports ignore type.
+     * <p>
+     * Example: <i>∞> Type Date is ignored type.</i>
+     * </p>
      * 
      * @param expected
      *            object
@@ -304,189 +257,123 @@ public class FabutReportBuilder {
      * @param generic
      *            type
      */
-    public void reportIgnoredType(final Object expected, final Object actual) {
-        String fieldName;
-        if (expected != null) {
-            fieldName = expected.getClass().getSimpleName();
-        } else {
-            fieldName = actual.getClass().getSimpleName();
-        }
-
-        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.SUCCESS));
-        part.append(String.format(IGNORED_TYPE, fieldName));
-        messageParts.add(part.toString());
-    }
-
-    public void reportIgnoredType(final AssertPair assertPair) {
-        reportIgnoredType(assertPair.getExpected(), assertPair.getActual());
+    public void ignoredType(final AssertPair assertPair) {
+        final String comment = String.format("Type  %s is ignored type.", assertPair.getExpected().getClass()
+                .getSimpleName());
+        addComment(comment, CommentType.SUCCESS);
     }
 
     /**
      * Reports asserting list elements by index.
+     * <p>
+     * Example: <i>#> Asserting object at index [1] of list shoppingCarts.</i>
+     * </p>
      * 
      * @param listName
      *            - name of the list
      * @param index
      *            - index of the element in the list beeing asserted
      */
-    public void reportAssertingListElement(final String listName, final int index) {
-        builder.append(indentNewLine(CommentType.LIST));
-        builder.append(String.format(ASSERT_LIST, index, listName));
-    }
-
-    /**
-     * Reports entity assert.
-     * 
-     * @param expectedId
-     *            - Id of expected entity
-     * @param actualId
-     *            - Id of actual entity
-     * @param assertResult
-     *            - assert result
-     * 
-     * @param <ID>
-     *            type of entity identification object
-     */
-    public <ID> void reportEntityAssert(final ID expectedId, final ID actualId, final boolean assertResult) {
-        increaseDepth();
-        final String stringExpectedId = expectedId != null ? expectedId.toString() : null;
-        final String stringActualId = actualId != null ? actualId.toString() : null;
-
-        addComment(EMPTY_STRING, EMPTY_STRING, stringExpectedId, stringActualId, assertResult ? CommentType.SUCCESS
-                : CommentType.FAIL);
-        decreaseDepth();
+    public void assertingListElement(final String listName, final int index) {
+        final String comment = String.format("Asserting object at index [%d] of list %s.", index, listName);
+        addComment(comment, CommentType.LIST);
     }
 
     /**
      * Reports failure when there is no matching entity in current snapshot for entity in before snapshot.
+     * <p>
+     * Example: <i>■> Entity User [id=1] doesn't exist in DB any more but is not asserted in test.</i>
+     * </p>
      * 
      * @param propertyName
      *            - property name
      */
-    public void reportNoEntityFailure(final Object entity) {
-        final StringBuilder part = new StringBuilder(NEW_LINE + NEW_LINE);
-        part.append(String.format(REPOSITORY_FAILURE_NO_ENTITY_IN_DB, entity.toString()));
-        messageParts.add(failedMessagePosition, part.toString());
+    public void noEntityInSnapshot(final Object entity) {
+        final String comment = String.format("Entity %s doesn't exist in DB any more but is not asserted in test.",
+                entity);
+        addComment(comment, CommentType.FAIL);
     }
 
     /**
      * Reports failure when entity in current snapshot doesn't have matching entity in before snapshot and isn't
      * asserted in test.
+     * <p>
+     * Example: <i>■> EntityUser [id=100] is created in system after last snapshot but hasnt been asserted in test..</i>
+     * </p>
      * 
-     * 
-     * @param entities
-     *            list of non asserted entities
-     * 
-     * @param generic
-     *            type
+     * @param entity
+     *            the entity
      */
-    public void reportEntityIsntAsserted(final Object entity) {
-        final StringBuilder part = new StringBuilder(EMPTY_STRING);
-        part.append(NEW_LINE + NEW_LINE);
-        part.append(String.format(REPOSITORY_FAILURE_ENTITY_ISNT_ASSERTED, entity.toString()));
-        messageParts.add(part.toString());
+    public void entityNotAssertedInAfterState(final Object entity) {
+        final String comment = String.format(
+                "Entity %s is created in system after last snapshot but hasnt been asserted in test.", entity);
+        addComment(comment, CommentType.FAIL);
     }
 
     /**
-     * Report repository entity assert fail.
+     * Reports uncallable method.
+     * <p>
+     * Example: <i>■> There is no method: getName in actual object class: ShoppingCart (expected object class was:
+     * User).</i>
+     * </p>
      * 
-     * @param the
-     *            generic type
-     * @param beforeEntity
-     *            the before entity
-     * @param afterEntity
-     *            the after entity
-     */
-    public void reportRepositoryEntityAssertFail(final Object beforeEntity, final Object afterEntity) {
-        final StringBuilder part = new StringBuilder();
-        part.append(NEW_LINE);
-        part.append(String.format(REPOSITORY_ENTITY_ASSERT_FAIL, beforeEntity.toString(), afterEntity.toString(),
-                afterEntity.getClass()));
-        messageParts.add(part.toString());
-    }
-
-    /**
-     * Reports uninvokable method.
      * 
      * @param methodName
      *            - name of the method
      */
-    public void reportUninvokableMethod(final Method method, final Object actual) {
-        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
-        part.append(String.format(UNINVOKABLE_METHOD, method.getName(), actual.getClass().getSimpleName(), method
-                .getDeclaringClass().getSimpleName()));
-        messageParts.add(failedMessagePosition, part.toString());
-    }
-
-    public void reportUninvokableMethod(final Method method, final AssertPair assertPair) {
-        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
-        part.append(String.format(UNINVOKABLE_METHOD, method.getName(), assertPair.getActual().getClass()
-                .getSimpleName(), assertPair.getExpected().getClass().getSimpleName()));
-        messageParts.add(failedMessagePosition, part.toString());
+    public void uncallableMethod(final Method method, final Object actual) {
+        final String comment = String.format(
+                "There is no method: %s in actual object class: %s (expected object class was: %s).", method.getName(),
+                actual.getClass(), method.getDeclaringClass().getSimpleName());
+        addComment(comment, CommentType.FAIL);
     }
 
     /**
      * Reports fail due to passing null object reference for asserting.
+     * <p>
+     * Example: <i>Asserting object was null!</i>
+     * </p>
      * 
      * @param actual
      *            object reference for asserting
      */
-    public void addNullReferenceAssertComment() {
-
-        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
-
-        part.append(String.format(NULL_REFERENCE_ASSERT));
-        messageParts.add(failedMessagePosition, part.toString());
+    public void nullReference() {
+        final String comment = "Asserting object was null!";
+        addComment(comment, CommentType.FAIL);
     }
 
     /**
-     * Indents new line to assert depth with {@link CommentType}.
+     * Appends asserted objects comment.
+     * <p>
+     * Example: <i>id: expected: 11 and was: 11.</i>
+     * </p>
      * 
-     * @param type
-     *            - type of comment
+     * @param pair
+     *            the pair
+     * @param propertyName
+     *            the property name
      */
-    protected String indentNewLine(final CommentType type) {
-
-        final StringBuilder part = new StringBuilder(NEW_LINE);
-        for (int i = 0; i <= assertDepth; i++) {
-            if (i == assertDepth) {
-                part.append(type.getMark());
-                part.append(ARROW);
-            } else {
-                part.append(TAB);
-            }
-        }
-        return part.toString();
+    public void asserted(final AssertPair pair, final String propertyName) {
+        final String comment = String.format("%s: expected: %s and was: %s", propertyName, pair.getExpected(),
+                pair.getActual());
+        addComment(comment, CommentType.SUCCESS);
     }
 
     /**
-     * Report parameters assert fail.
+     * Appends assert fail comment.
+     * <p>
+     * Example: <i>name: expected: John, but was: Mike.</i>
+     * </p>
      * 
-     * @param beforeParameter
-     *            the before parameter
-     * @param afterParameter
-     *            the after parameter
+     * @param pair
+     *            the pair
+     * @param propertyName
+     *            the property name
      */
-    public void reportParametersAssertFail(final Object beforeParameter, final Object afterParameter) {
-        final StringBuilder part = new StringBuilder();
-        part.append(NEW_LINE);
-        part.append(String.format(PARAMETERS_ASSERT_FAIL, beforeParameter.toString(), afterParameter.toString(),
-                afterParameter.getClass()));
-        messageParts.add(part.toString());
-    }
-
-    /**
-     * Reports fail due to passing null object reference for asserting.
-     * 
-     * @param original
-     *            parameter for copying
-     */
-    public void reportNoValidCopy(final Object original) {
-
-        final StringBuilder part = new StringBuilder(indentNewLine(CommentType.FAIL));
-
-        part.append(String.format(NO_VALID_COPY, original == null ? EMPTY_STRING : original.getClass().getSimpleName()));
-        messageParts.add(failedMessagePosition, part.toString());
+    public void assertFail(final AssertPair pair, final String propertyName) {
+        final String comment = String.format("%s: expected: %s, but was: %s", propertyName, pair.getExpected(),
+                pair.getActual());
+        addComment(comment, CommentType.SUCCESS);
     }
 
 }

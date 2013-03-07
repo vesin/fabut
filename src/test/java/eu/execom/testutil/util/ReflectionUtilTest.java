@@ -15,7 +15,6 @@ import junit.framework.AssertionFailedError;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.execom.testutil.FabutRepositoryAssert;
 import eu.execom.testutil.enums.ObjectType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.model.A;
@@ -490,8 +489,7 @@ public class ReflectionUtilTest extends Assert {
     }
 
     /**
-     * Test for createEmptyCopyOf of {@link FabutRepositoryAssert} when specified object has default
-     * constructor.
+     * Test for createEmptyCopyOf of {@link FabutRepositoryAssert} when specified object has default constructor.
      */
     @Test
     public void testCreateEmptyCopyOfHasDefaultConstructor() {
@@ -504,8 +502,7 @@ public class ReflectionUtilTest extends Assert {
     }
 
     /**
-     * Test for createEmptyCopyOf of {@link FabutRepositoryAssert} when specified object has no default
-     * constructor.
+     * Test for createEmptyCopyOf of {@link FabutRepositoryAssert} when specified object has no default constructor.
      */
     @Test(expected = AssertionFailedError.class)
     public void testCreateEmptyCopyOfNoDefaultConstructor() {
@@ -565,8 +562,8 @@ public class ReflectionUtilTest extends Assert {
     }
 
     /**
-     * Test for ivokeSetMethod of {@link FabutRepositoryAssert} when specified object for copying has set
-     * method with specified name and can be invoked.
+     * Test for ivokeSetMethod of {@link FabutRepositoryAssert} when specified object for copying has set method with
+     * specified name and can be invoked.
      */
     @Test
     public void testIvokeSetMethodSuccess() {
@@ -585,8 +582,8 @@ public class ReflectionUtilTest extends Assert {
     }
 
     /**
-     * Test for ivokeSetMethod of {@link FabutRepositoryAssert} when specified object for copying has set
-     * method with specified name and can't be invoked as object has no set methods.
+     * Test for ivokeSetMethod of {@link FabutRepositoryAssert} when specified object for copying has set method with
+     * specified name and can't be invoked as object has no set methods.
      */
     @Test(expected = AssertionFailedError.class)
     public void testIvokeSetMethodNull() {
@@ -614,8 +611,8 @@ public class ReflectionUtilTest extends Assert {
     }
 
     /**
-     * Test for copyProperty of {@link FabutRepositoryAssert} when specified object is complex object with
-     * property of complex type.
+     * Test for copyProperty of {@link FabutRepositoryAssert} when specified object is complex object with property of
+     * complex type.
      */
     @Test
     public void testCopyPropertyComplexType() {
@@ -684,8 +681,7 @@ public class ReflectionUtilTest extends Assert {
     }
 
     /**
-     * Test for getPropertyForCopying of {@link FabutRepositoryAssert} when specified method can not be
-     * invoked.
+     * Test for getPropertyForCopying of {@link FabutRepositoryAssert} when specified method can not be invoked.
      */
     @Test(expected = AssertionFailedError.class)
     public void testGetPropertyForCopyingCantInvoke() {

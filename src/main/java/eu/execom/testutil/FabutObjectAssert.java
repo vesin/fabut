@@ -31,7 +31,6 @@ import eu.execom.testutil.report.FabutReportBuilder;
 import eu.execom.testutil.util.ConversionUtil;
 import eu.execom.testutil.util.ReflectionUtil;
 
-// TODO: Auto-generated Javadoc
 /**
  * ExeCom test util class. Should be used for asserting two object or to assert single object. TODO think of better
  * comment.
@@ -42,14 +41,14 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"rawtypes"})
-public class FabutObjectAssert extends Assert {
+abstract class FabutObjectAssert extends Assert {
 
     private static final String EMPTY_STRING = "";
     private static final String DOT = ".";
     protected static final boolean ASSERTED = true;
     protected static final boolean ASSERT_FAIL = false;
 
-    /** Types supported by Fabut */
+    /** Types supported by Fabut. */
     private Map<ObjectType, List<Class<?>>> types;
 
     /** The parameter snapshot. */
@@ -68,32 +67,6 @@ public class FabutObjectAssert extends Assert {
     }
 
     /**
-     * TODO comments, check for tests Assert objects.
-     * 
-     * @param report
-     *            the report
-     * @param expected
-     *            the expected
-     * @param actual
-     *            the actual
-     * @param expectedChangedProperties
-     *            the expected changed properties
-     * @return true, if successful
-     */
-    public boolean assertObjects(final FabutReportBuilder report, final Object expected, final Object actual,
-            final List<ISingleProperty> expectedChangedProperties) {
-
-        final AssertPair assertPair = ConversionUtil.createAssertPair(expected, actual, types);
-        final boolean assertResult = assertPair(EMPTY_STRING, report, assertPair, expectedChangedProperties,
-                new NodesList());
-
-        if (assertResult) {
-            afterAssertObject(actual, false);
-        }
-        return assertResult;
-    }
-
-    /**
      * TODO comments, check for tests.
      * 
      * @param report
@@ -104,7 +77,7 @@ public class FabutObjectAssert extends Assert {
      *            the properties
      * @return true, if successful
      */
-    public boolean assertObjectWithProperties(final FabutReportBuilder report, final Object actual,
+    protected boolean assertObjectWithProperties(final FabutReportBuilder report, final Object actual,
             final List<ISingleProperty> properties) {
 
         if (actual == null) {
@@ -141,6 +114,32 @@ public class FabutObjectAssert extends Assert {
     }
 
     /**
+     * TODO comments, check for tests Assert objects.
+     * 
+     * @param report
+     *            the report
+     * @param expected
+     *            the expected
+     * @param actual
+     *            the actual
+     * @param expectedChangedProperties
+     *            the expected changed properties
+     * @return true, if successful
+     */
+    protected boolean assertObjects(final FabutReportBuilder report, final Object expected, final Object actual,
+            final List<ISingleProperty> expectedChangedProperties) {
+
+        final AssertPair assertPair = ConversionUtil.createAssertPair(expected, actual, types);
+        final boolean assertResult = assertPair(EMPTY_STRING, report, assertPair, expectedChangedProperties,
+                new NodesList());
+
+        if (assertResult) {
+            afterAssertObject(actual, false);
+        }
+        return assertResult;
+    }
+
+    /**
      * TODO rewrite This functionality should be reworked and used after initial refactoring is done. Takes current
      * parameters snapshot and original parameters, and saves them.
      * 
@@ -155,18 +154,6 @@ public class FabutObjectAssert extends Assert {
             final SnapshotPair snapshotPair = new SnapshotPair(object, ReflectionUtil.createCopy(object, types));
             parameterSnapshot.add(snapshotPair);
         }
-    }
-
-    /**
-     * Asserts two primitive types, if assert fails method must throw {@link AssertionError}.
-     * 
-     * @param expected
-     *            expected object
-     * @param actual
-     *            actual object
-     */
-    protected void customAssertEquals(final Object expected, final Object actual) {
-        // TODO this method should get custom implementation by calling it from test instance via reflection.
     }
 
     /**
@@ -207,7 +194,7 @@ public class FabutObjectAssert extends Assert {
         case COMPLEX_TYPE:
             return assertSubfields(report, pair, properties, nodesList);
         case ENTITY_TYPE:
-            throw new IllegalStateException("Entities are NOT supported in this type of assert");
+            return assertEntityPair(report, propertyName, pair, properties, nodesList);
         case PRIMITIVE_TYPE:
             return assertPrimitives(report, propertyName, pair.getExpected(), pair.getActual());
         case LIST_TYPE:
@@ -217,6 +204,18 @@ public class FabutObjectAssert extends Assert {
             throw new IllegalStateException("Unknown assert type: " + pair.getObjectType());
         }
     }
+
+    /**
+     * TODO add comments.
+     * 
+     * @param report
+     * @param pair
+     * @param properties
+     * @param nodesList
+     * @return
+     */
+    protected abstract boolean assertEntityPair(final FabutReportBuilder report, final String propertyName,
+            final AssertPair pair, final List<ISingleProperty> properties, final NodesList nodesList);
 
     /**
      * Assert subfields.
@@ -262,6 +261,45 @@ public class FabutObjectAssert extends Assert {
 
         report.decreaseDepth();
         return t;
+    }
+
+    /**
+     * Asserts two primitives using abstract method assertEqualsObjects, reports result and returns it. Primitives are
+     * any class not marked as complex type, entity type or ignored type.
+     * 
+     * @param report
+     *            assert report builder
+     * @param propertyName
+     *            name of the current property
+     * @param expected
+     *            expected object
+     * @param actual
+     *            actual object
+     * @return - <code>true</code> if and only if objects are asserted, <code>false</code> if method assertEqualsObjects
+     *         throws {@link AssertionError}.
+     */
+    boolean assertPrimitives(final FabutReportBuilder report, final String propertyName, final Object expected,
+            final Object actual) {
+        try {
+            customAssertEquals(expected, actual);
+            report.addComment(propertyName, expected, actual, CommentType.SUCCESS);
+            return ASSERTED;
+        } catch (final AssertionError e) {
+            report.addComment(propertyName, expected, actual, CommentType.FAIL);
+            return ASSERT_FAIL;
+        }
+    }
+
+    /**
+     * Asserts two primitive types, if assert fails method must throw {@link AssertionError}.
+     * 
+     * @param expected
+     *            expected object
+     * @param actual
+     *            actual object
+     */
+    protected void customAssertEquals(final Object expected, final Object actual) {
+        // TODO this method should get custom implementation by calling it from test instance via reflection.
     }
 
     /**
@@ -320,33 +358,6 @@ public class FabutObjectAssert extends Assert {
         }
 
         throw new IllegalStateException();
-    }
-
-    /**
-     * Asserts two primitives using abstract method assertEqualsObjects, reports result and returns it. Primitives are
-     * any class not marked as complex type, entity type or ignored type.
-     * 
-     * @param report
-     *            assert report builder
-     * @param propertyName
-     *            name of the current property
-     * @param expected
-     *            expected object
-     * @param actual
-     *            actual object
-     * @return - <code>true</code> if and only if objects are asserted, <code>false</code> if method assertEqualsObjects
-     *         throws {@link AssertionError}.
-     */
-    boolean assertPrimitives(final FabutReportBuilder report, final String propertyName, final Object expected,
-            final Object actual) {
-        try {
-            customAssertEquals(expected, actual);
-            report.addComment(propertyName, expected, actual, CommentType.SUCCESS);
-            return ASSERTED;
-        } catch (final AssertionError e) {
-            report.addComment(propertyName, expected, actual, CommentType.FAIL);
-            return ASSERT_FAIL;
-        }
     }
 
     /**

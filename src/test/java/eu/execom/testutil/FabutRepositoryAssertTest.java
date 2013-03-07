@@ -556,7 +556,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
     }
 
     /**
-     * Test for {@link FabutRepositoryAssert#checkAddedToAfterDbState(TreeSet, TreeSet, Map, FabutReportBuilder)} when
+     * Test for {@link FabutRepositoryAssert#checkNewToAfterDbState(TreeSet, TreeSet, Map, FabutReportBuilder)} when
      * there new element in after snapshot.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -576,7 +576,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         afterEntities.put(new Integer(3), new EntityTierOneType());
 
         // method
-        final boolean assertResult = checkAddedToAfterDbState(beforeIds, afterIds, afterEntities,
+        final boolean assertResult = checkNewToAfterDbState(beforeIds, afterIds, afterEntities,
                 new FabutReportBuilder());
 
         // assert
@@ -584,7 +584,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
     }
 
     /**
-     * Test for {@link FabutRepositoryAssert#checkAddedToAfterDbState(TreeSet, TreeSet, Map, FabutReportBuilder)} when
+     * Test for {@link FabutRepositoryAssert#checkNewToAfterDbState(TreeSet, TreeSet, Map, FabutReportBuilder)} when
      * there new element in after snapshot.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -604,7 +604,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         afterEntities.put(new Integer(3), new EntityTierOneType());
 
         // method
-        final boolean assertResult = checkAddedToAfterDbState(beforeIds, afterIds, afterEntities,
+        final boolean assertResult = checkNewToAfterDbState(beforeIds, afterIds, afterEntities,
                 new FabutReportBuilder());
 
         // assert

@@ -21,17 +21,13 @@ import eu.execom.testutil.util.ReflectionUtil;
  * ExeCom test util class. Extends {@link FabutObjectAssert} with possibility to assert entire repository (DB ...) .
  * TODO think of better comment.
  * 
- * @param <EntityType>
- *            Entity type that all tested entities must implement.
- * @param <EntityId>
- *            type of entity id
  * @author Dusko Vesin
  * @author Nikola Olah
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class FabutRepositoryAssert extends FabutObjectAssert {
+class FabutRepositoryAssert extends FabutObjectAssert {
 
     /** The db snapshot. */
     private final Map<Class<?>, Map<Object, CopyAssert>> dbSnapshot;
@@ -45,20 +41,17 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     @Override
-    boolean assertPair(final String propertyName, final FabutReportBuilder report, final AssertPair pair,
-            final List<ISingleProperty> properties, final NodesList nodesList) {
-
-        if (pair.getObjectType() == ObjectType.ENTITY_TYPE) {
-            if (pair.isProperty()) {
-                return assertEntityById(report, propertyName, pair);
-            } else {
-                return assertSubfields(report, pair, properties, nodesList);
-            }
+    protected boolean assertEntityPair(final FabutReportBuilder report, final String propertyName,
+            final AssertPair pair, final List<ISingleProperty> properties, final NodesList nodesList) {
+        if (pair.isProperty()) {
+            return assertEntityById(report, propertyName, pair);
+        } else {
+            return assertSubfields(report, pair, properties, nodesList);
         }
-        return super.assertPair(propertyName, report, pair, properties, nodesList);
     }
 
     // TODO comments
+    // TODO return true false, dont throw exception
     public void assertEntityAsDeleted(final Object actual) {
 
         ignoreEntity(actual);
@@ -70,13 +63,15 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
     // TODO comments
     public void ignoreEntity(final Object actual) {
 
+        // FIXIM only entity should be received no chekc needed
         if (ReflectionUtil.isEntityType(actual.getClass(), getTypes())) {
             markAsserted(actual);
-        }
+        }// FIXME add else?
 
     }
 
     // TODO comments
+    // TODO return true false, dont throw exception
     public void assertEntityWithSnapshot(final FabutReportBuilder report, final Object entity,
             final List<ISingleProperty> properties) {
 
@@ -96,7 +91,9 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
     }
 
+    // FIXME not public method
     public final void afterAssertEntity(final Object object, final boolean isProperty) {
+        // FIXME no check needed, it should be entity
         if (ReflectionUtil.isEntityType(object.getClass(), getTypes()) && !isProperty
                 && ReflectionUtil.getIdValue(object) != null) {
             markAsserted(object);
@@ -135,6 +132,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
      * @param entity
      *            AbstractEntity
      */
+    // return true false, dont throw exception
     protected void markAsserted(final Object entity) {
         final boolean markAsserted = markAsAsserted(entity, entity.getClass());
         Assert.assertTrue("Type " + entity.getClass() + " is not currently supported.", markAsserted);
@@ -198,7 +196,8 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
     /**
      * Asserts db snapshot with after db state.
      */
-    public void assertDbState() {
+    // TODO return true false
+    protected void assertDbState() {
         boolean ok = true;
         final FabutReportBuilder report = new FabutReportBuilder();
 
@@ -210,7 +209,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
             final TreeSet afterIds = new TreeSet(afterEntities.keySet());
 
             ok &= checkNotExistingInAfterDbState(beforeIds, afterIds, snapshotEntry.getValue(), report);
-            ok &= checkAddedToAfterDbState(beforeIds, afterIds, afterEntities, report);
+            ok &= checkNewToAfterDbState(beforeIds, afterIds, afterEntities, report);
             ok &= assertDbSnapshotWithAfterState(beforeIds, afterIds, snapshotEntry.getValue(), afterEntities, report);
 
         }
@@ -265,7 +264,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
      *            the report
      * @return <code>true</code> if all entities in after db state are asserted.
      */
-    boolean checkAddedToAfterDbState(final TreeSet beforeIds, final TreeSet afterIds,
+    boolean checkNewToAfterDbState(final TreeSet beforeIds, final TreeSet afterIds,
             final Map<Object, Object> afterEntities, final FabutReportBuilder report) {
 
         final TreeSet afterIdsCopy = new TreeSet(afterIds);
@@ -336,16 +335,10 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
     /**
      * Asserts two entities by their id.
      * 
-     * @param <Id>
-     *            entities id type
      * @param report
      *            assert report builder
      * @param propertyName
      *            name of current entity
-     * @param expected
-     *            expected entity
-     * @param actual
-     *            actual entity
      * @return - <code>true</code> if and only if ids of two specified objects are equal, <code>false</code> otherwise
      */
     boolean assertEntityById(final FabutReportBuilder report, final String propertyName, final AssertPair pair) {

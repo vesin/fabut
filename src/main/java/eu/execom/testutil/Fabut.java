@@ -16,7 +16,6 @@ import eu.execom.testutil.util.ReflectionUtil;
  * @author Dusko Vesin
  * 
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 // TODO for all methods check can method be called
 public class Fabut {
 

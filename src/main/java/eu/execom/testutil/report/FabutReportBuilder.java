@@ -27,6 +27,7 @@ public class FabutReportBuilder {
     private static final String TAB = "    ";
     private static final String EMPTY_STRING = "";
 
+    // TODO no need for this constants, they are used only once
     private static final String NOT_NULL_PROPERTY_SUCCESS = "%s: expected not null property and was not null";
     private static final String NOT_NULL_PROPERTY_FAIL = "%s: expected not null property, but was null";
     private static final String NULL_PROPERTY_FAIL = "%s: expected null property, but was not null";
@@ -170,8 +171,6 @@ public class FabutReportBuilder {
      *            value
      * @param actual
      *            value
-     * @param generic
-     *            type
      */
     // TODO 1st check if this method is still needed, then refactor it
     public void addDifferentTypeComment(final String propertyName, final String comment, final Object expected,

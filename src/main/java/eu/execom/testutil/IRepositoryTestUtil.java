@@ -11,7 +11,7 @@ import java.util.List;
 public interface IRepositoryTestUtil extends ITestUtil {
 
     /**
-     * Find all objects of sepcified type.
+     * Find all objects of specified type.
      * 
      * @param clazz
      *            class of objects that are requested.

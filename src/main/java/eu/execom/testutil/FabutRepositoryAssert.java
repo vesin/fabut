@@ -1,7 +1,7 @@
 package eu.execom.testutil;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,7 +14,7 @@ import eu.execom.testutil.enums.ObjectType;
 import eu.execom.testutil.graph.NodesList;
 import eu.execom.testutil.pair.AssertPair;
 import eu.execom.testutil.property.ISingleProperty;
-import eu.execom.testutil.report.AssertReportBuilder;
+import eu.execom.testutil.report.FabutReportBuilder;
 import eu.execom.testutil.util.ReflectionUtil;
 
 /**
@@ -45,8 +45,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     @Override
-    // TODO tests
-    boolean assertPair(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
+    boolean assertPair(final String propertyName, final FabutReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
         if (pair.getObjectType() == ObjectType.ENTITY_TYPE) {
@@ -78,34 +77,21 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     // TODO comments
-    public void assertEntityWithSnapshot(final AssertReportBuilder report, final Object actual,
+    public void assertEntityWithSnapshot(final FabutReportBuilder report, final Object entity,
             final List<ISingleProperty> properties) {
 
-        final Object id = ReflectionUtil.getIdValue(actual);
-        Assert.assertNotNull("Entity id can't be null " + actual, id);
+        final Object id = ReflectionUtil.getIdValue(entity);
+        Assert.assertNotNull("Entity id can't be null " + entity, id);
 
-        final Map<Object, CopyAssert> map = dbSnapshot.get(actual.getClass());
-        final boolean isTypeSupported = map != null;
+        final Map<Object, CopyAssert> map = dbSnapshot.get(entity.getClass());
 
-        // TODO this should be moved to TestUtilAssert, this method should work only with entities that are type
-        // supported
-        if (isTypeSupported) {
-            final CopyAssert copyAssert = map.get(id);
-            if (copyAssert != null) {
-                final Object expected = copyAssert.getEntity();
-                // final TODO remove this null check, test should fail when taking
-                // snapshot fails due final to object not final being able to final be copied
-                if (expected != null) {
-                    assertObjects(report, expected, actual, properties);
-                } else {
-                    Assert.fail("There is no valid copy in snapshot for entity of class "
-                            + actual.getClass().getSimpleName());
-                }
-            } else {
-                Assert.fail("Entity doesn't exist in snapshot  " + actual);
-            }
+        final CopyAssert copyAssert = map.get(id);
+        if (copyAssert != null) {
+            final Object expected = copyAssert.getEntity();
+            assertObjects(report, expected, entity, properties);
         } else {
-            Assert.fail("Type of entity is not supported  " + actual.getClass());
+            // TODO add reporting to this
+            Assert.fail("Entity doesn't exist in snapshot  " + entity);
         }
 
     }
@@ -170,19 +156,18 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
         final Map<Object, CopyAssert> map = dbSnapshot.get(actualType);
         final boolean isTypeSupported = map != null;
 
-        // TODO type support check should be handled outside of this method
         if (isTypeSupported) {
             CopyAssert copyAssert = map.get(id);
             if (copyAssert == null) {
-                copyAssert = new CopyAssert(ReflectionUtil.createCopy(entity, types));
+                copyAssert = new CopyAssert(ReflectionUtil.createCopy(entity, getTypes()));
                 map.put(ReflectionUtil.getIdValue(entity), copyAssert);
             }
             copyAssert.setAsserted(true);
         }
 
         final Class<?> superClassType = actualType.getSuperclass();
-        final boolean isSuperClassTypeSupported = (superClassType != null) && markAsAsserted(entity, superClassType);
-        return isTypeSupported || isSuperClassTypeSupported;
+        final boolean isSuperSuperTypeSupported = (superClassType != null) && markAsAsserted(entity, superClassType);
+        return isTypeSupported || isSuperSuperTypeSupported;
     }
 
     /**
@@ -196,7 +181,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
             for (final Object abstractEntity : findAll) {
                 entry.getValue().put(ReflectionUtil.getIdValue(abstractEntity),
-                        new CopyAssert(ReflectionUtil.createCopy(abstractEntity, types)));
+                        new CopyAssert(ReflectionUtil.createCopy(abstractEntity, getTypes())));
             }
         }
     }
@@ -211,11 +196,11 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     /**
-     * Asserts current database snapshot with one previously taken.
+     * Asserts db snapshot with after db state.
      */
     public void assertDbState() {
         boolean ok = true;
-        final AssertReportBuilder report = new AssertReportBuilder();
+        final FabutReportBuilder report = new FabutReportBuilder();
 
         // assert entities by classes
         for (final Entry<Class<?>, Map<Object, CopyAssert>> snapshotEntry : dbSnapshot.entrySet()) {
@@ -224,9 +209,9 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
             final TreeSet beforeIds = new TreeSet(snapshotEntry.getValue().keySet());
             final TreeSet afterIds = new TreeSet(afterEntities.keySet());
 
-            ok &= assertBeforeSnapshotDifference(beforeIds, afterIds, snapshotEntry.getValue(), report);
-            ok &= assertAfterSnapshotDifference(beforeIds, afterIds, afterEntities, report);
-            ok &= assertSnapshots(beforeIds, afterIds, snapshotEntry.getValue(), afterEntities, report);
+            ok &= checkNotExistingInAfterDbState(beforeIds, afterIds, snapshotEntry.getValue(), report);
+            ok &= checkAddedToAfterDbState(beforeIds, afterIds, afterEntities, report);
+            ok &= assertDbSnapshotWithAfterState(beforeIds, afterIds, snapshotEntry.getValue(), afterEntities, report);
 
         }
         if (!ok) {
@@ -235,53 +220,79 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
     }
 
-    // TODO comments
-    boolean assertBeforeSnapshotDifference(final TreeSet beforeIds, final TreeSet afterIds,
-            final Map<Object, CopyAssert> beforeEntities, final AssertReportBuilder report) {
+    /**
+     * Performs assert check on entities that are contained in db snapshot but do not exist in after db state.
+     * 
+     * @param beforeIds
+     *            the before ids
+     * @param afterIds
+     *            the after ids
+     * @param beforeEntities
+     *            the before entities
+     * @param report
+     *            the report
+     * @return <code>true</code> if all entities contained only in db snapshot are asserted, <code>false</code>
+     *         otherwise.
+     */
+    boolean checkNotExistingInAfterDbState(final TreeSet beforeIds, final TreeSet afterIds,
+            final Map<Object, CopyAssert> beforeEntities, final FabutReportBuilder report) {
 
         final TreeSet beforeIdsCopy = new TreeSet(beforeIds);
-        boolean ok = true;
-        // TODO remove if
-        if (beforeIdsCopy.removeAll(afterIds)) {
-            for (final Object id : beforeIdsCopy) {
-                final CopyAssert copyAssert = beforeEntities.get(id);
-                if (!copyAssert.isAsserted()) {
-                    ok = false;
-                    report.reportNoEntityFailure(beforeEntities.get(id));
-                }
+        boolean ok = ASSERTED;
+        // does difference between db snapshot and after db state
+        beforeIdsCopy.removeAll(afterIds);
+        for (final Object id : beforeIdsCopy) {
+            final CopyAssert copyAssert = beforeEntities.get(id);
+            if (!copyAssert.isAsserted()) {
+                ok = ASSERT_FAIL;
+                report.reportNoEntityFailure(beforeEntities.get(id));
             }
         }
+
         return ok;
     }
 
-    // TODO comments
-    boolean assertAfterSnapshotDifference(final TreeSet beforeIds, final TreeSet afterIds,
-            final Map<Object, Object> afterEntities, final AssertReportBuilder report) {
+    /**
+     * Performs check if there is any entity in after db state that has not been asserted and reports them.
+     * 
+     * @param beforeIds
+     *            the before ids
+     * @param afterIds
+     *            the after ids
+     * @param afterEntities
+     *            the after entities
+     * @param report
+     *            the report
+     * @return <code>true</code> if all entities in after db state are asserted.
+     */
+    boolean checkAddedToAfterDbState(final TreeSet beforeIds, final TreeSet afterIds,
+            final Map<Object, Object> afterEntities, final FabutReportBuilder report) {
 
         final TreeSet afterIdsCopy = new TreeSet(afterIds);
-        boolean ok = true;
-        // TODO remove if
-        if (afterIdsCopy.removeAll(beforeIds)) {
-            for (final Object id : afterIdsCopy) {
-                final Object entity = afterEntities.get(id);
-                ok = false;
-                report.reportEntityIsntAsserted(entity);
-            }
+        boolean ok = ASSERTED;
+        // does difference between after db state and db snapshot
+        afterIdsCopy.removeAll(beforeIds);
+        for (final Object id : afterIdsCopy) {
+            final Object entity = afterEntities.get(id);
+            ok = ASSERT_FAIL;
+            report.reportEntityIsntAsserted(entity);
         }
         return ok;
     }
 
     // TODO tests, comments
-    boolean assertSnapshots(final TreeSet beforeIds, final TreeSet afterIds,
+    boolean assertDbSnapshotWithAfterState(final TreeSet beforeIds, final TreeSet afterIds,
             final Map<Object, CopyAssert> beforeEntities, final Map<Object, Object> afterEntities,
-            final AssertReportBuilder report) {
+            final FabutReportBuilder report) {
 
         final TreeSet beforeIdsCopy = new TreeSet(beforeIds);
+        // does intersection between db snapshot and after db state
         beforeIdsCopy.retainAll(afterIds);
-        boolean ok = true;
+        boolean ok = ASSERTED;
         for (final Object id : beforeIdsCopy) {
             if (!beforeEntities.get(id).isAsserted()) {
-                ok &= assertEntities(beforeEntities.get(id).getEntity(), afterEntities.get(id), report);
+                ok &= assertObjects(report, beforeEntities.get(id).getEntity(), afterEntities.get(id),
+                        new LinkedList<ISingleProperty>());
             }
         }
         return ok;
@@ -301,31 +312,6 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
 
     Map<Class<?>, Map<Object, CopyAssert>> getDbSnapshot() {
         return dbSnapshot;
-    }
-
-    /**
-     * Calls assertObjects of {@link FabutObjectAssert} to assert two entities.
-     * 
-     * @param the
-     *            generic type
-     * @param beforeEntity
-     *            entity from before snapshot
-     * @param afterEntity
-     *            entity from current snapshot
-     * @param report
-     *            report builder
-     * @return <code>true</code> if entities are asserted, i.e. assertObjects doesn't throw {@link AssertionError},
-     *         <code>false</code> otherwise
-     */
-    boolean assertEntities(final Object beforeEntity, final Object afterEntity, final AssertReportBuilder report) {
-        try {
-            assertObjects(new AssertReportBuilder(), beforeEntity, afterEntity, new ArrayList<ISingleProperty>());
-            return true;
-        } catch (final AssertionError e) {
-            report.reportRepositoryEntityAssertFail(beforeEntity, afterEntity);
-            report.append(e.getMessage());
-            return false;
-        }
     }
 
     /**
@@ -362,8 +348,7 @@ public class FabutRepositoryAssert extends FabutObjectAssert {
      *            actual entity
      * @return - <code>true</code> if and only if ids of two specified objects are equal, <code>false</code> otherwise
      */
-    // TODO move this method to repository assert
-    boolean assertEntityById(final AssertReportBuilder report, final String propertyName, final AssertPair pair) {
+    boolean assertEntityById(final FabutReportBuilder report, final String propertyName, final AssertPair pair) {
 
         final Object expectedId = ReflectionUtil.getIdValue(pair.getExpected());
         final Object actualId = ReflectionUtil.getIdValue(pair.getActual());

@@ -61,7 +61,7 @@ public final class ConversionUtil {
     // TODO comments, tests
     public static AssertPair createAssertPair(final Property expected, final Object actual,
             final Map<ObjectType, List<Class<?>>> types, final boolean isProperty) {
-        final AssertPair assertPair = createAssertPair(expected.geValue(), actual, types);
+        final AssertPair assertPair = createAssertPair(expected.getValue(), actual, types);
         assertPair.setProperty(isProperty);
         return assertPair;
     }

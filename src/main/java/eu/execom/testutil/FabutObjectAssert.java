@@ -27,10 +27,11 @@ import eu.execom.testutil.property.NotNullProperty;
 import eu.execom.testutil.property.NullProperty;
 import eu.execom.testutil.property.Property;
 import eu.execom.testutil.property.PropertyFactory;
-import eu.execom.testutil.report.AssertReportBuilder;
+import eu.execom.testutil.report.FabutReportBuilder;
 import eu.execom.testutil.util.ConversionUtil;
 import eu.execom.testutil.util.ReflectionUtil;
 
+// TODO: Auto-generated Javadoc
 /**
  * ExeCom test util class. Should be used for asserting two object or to assert single object. TODO think of better
  * comment.
@@ -43,13 +44,15 @@ import eu.execom.testutil.util.ReflectionUtil;
 @SuppressWarnings({"rawtypes"})
 public class FabutObjectAssert extends Assert {
 
-    protected static final String EMPTY_STRING = "";
+    private static final String EMPTY_STRING = "";
     private static final String DOT = ".";
-    private static final boolean ASSERTED = true;
-    private static final boolean ASSERT_FAIL = false;
+    protected static final boolean ASSERTED = true;
+    protected static final boolean ASSERT_FAIL = false;
 
-    protected Map<ObjectType, List<Class<?>>> types;
+    /** Types supported by Fabut */
+    private Map<ObjectType, List<Class<?>>> types;
 
+    /** The parameter snapshot. */
     private final List<SnapshotPair> parameterSnapshot;
 
     /** Instance of the JUnit test that is currently running. */
@@ -77,39 +80,40 @@ public class FabutObjectAssert extends Assert {
      *            the expected changed properties
      * @return true, if successful
      */
-    public boolean assertObjects(final AssertReportBuilder report, final Object expected, final Object actual,
+    public boolean assertObjects(final FabutReportBuilder report, final Object expected, final Object actual,
             final List<ISingleProperty> expectedChangedProperties) {
 
         final AssertPair assertPair = ConversionUtil.createAssertPair(expected, actual, types);
         final boolean assertResult = assertPair(EMPTY_STRING, report, assertPair, expectedChangedProperties,
                 new NodesList());
 
-        if (assertResult == ASSERTED) {
+        if (assertResult) {
             afterAssertObject(actual, false);
         }
-
         return assertResult;
-
     }
 
     /**
-     * TODO comments, check for tests
+     * TODO comments, check for tests.
      * 
      * @param report
+     *            the report
      * @param actual
+     *            the actual
      * @param properties
-     * @return
+     *            the properties
+     * @return true, if successful
      */
-    public boolean assertObjectWithProperties(final AssertReportBuilder report, final Object actual,
+    public boolean assertObjectWithProperties(final FabutReportBuilder report, final Object actual,
             final List<ISingleProperty> properties) {
 
         if (actual == null) {
             report.addNullReferenceAssertComment();
-            return false;
+            return ASSERT_FAIL;
         }
 
         final List<Method> methods = ReflectionUtil.getGetMethods(actual, types);
-        boolean result = true;
+        boolean result = ASSERTED;
         for (final Method method : methods) {
 
             final String fieldName = ReflectionUtil.getFieldName(method);
@@ -118,17 +122,17 @@ public class FabutObjectAssert extends Assert {
             if (property == null) {
                 // there is no matching property for field
                 report.addNoPropertyForFieldComment(fieldName, method, actual);
-                result = false;
+                result = ASSERT_FAIL;
             } else {
                 try {
-                    result &= assertProperty(fieldName, report, property, method.invoke(actual), properties);
+                    result &= assertProperty(fieldName, report, property, method.invoke(actual), EMPTY_STRING,
+                            properties, new NodesList(), true);
                 } catch (final Exception e) {
                     report.reportUninvokableMethod(method, actual);
-                    result = false;
+                    result = ASSERT_FAIL;
                 }
             }
         }
-
         if (result) {
             afterAssertObject(actual, false);
         }
@@ -180,7 +184,7 @@ public class FabutObjectAssert extends Assert {
      *            list of object that had been asserted
      * @return <code>true</code> if actual object is asserted to expected object, <code>false</code> otherwise.
      */
-    boolean assertPair(final String propertyName, final AssertReportBuilder report, final AssertPair pair,
+    boolean assertPair(final String propertyName, final FabutReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
         final ReferenceCheckType referenceCheckType = checkByReference(report, pair, propertyName);
@@ -199,7 +203,7 @@ public class FabutObjectAssert extends Assert {
         switch (pair.getObjectType()) {
         case IGNORED_TYPE:
             report.reportIgnoredType(pair);
-            return true;
+            return ASSERTED;
         case COMPLEX_TYPE:
             return assertSubfields(report, pair, properties, nodesList);
         case ENTITY_TYPE:
@@ -229,12 +233,12 @@ public class FabutObjectAssert extends Assert {
      *            the nodes list
      * @return true, if successful
      */
-    boolean assertSubfields(final AssertReportBuilder report, final AssertPair pair,
+    boolean assertSubfields(final FabutReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
 
         report.increaseDepth();
 
-        boolean t = true;
+        boolean t = ASSERTED;
         final List<Method> getMethods = ReflectionUtil.getGetMethods(pair.getExpected(), types);
 
         for (final Method expectedMethod : getMethods) {
@@ -252,7 +256,7 @@ public class FabutObjectAssert extends Assert {
 
             } catch (final Exception e) {
                 report.reportUninvokableMethod(expectedMethod, pair);
-                t = false;
+                t = ASSERT_FAIL;
             }
         }
 
@@ -281,7 +285,7 @@ public class FabutObjectAssert extends Assert {
      *            is actual property, important for entities
      * @return - <code>true</code> if object is asserted with expected property, <code>false</code> otherwise.
      */
-    boolean assertProperty(final String propertyName, final AssertReportBuilder report, final ISingleProperty expected,
+    boolean assertProperty(final String propertyName, final FabutReportBuilder report, final ISingleProperty expected,
             final Object actual, final String fieldName, final List<ISingleProperty> properties,
             final NodesList nodesList, final boolean isProperty) {
 
@@ -289,14 +293,14 @@ public class FabutObjectAssert extends Assert {
 
         // expected any not null value
         if (expected instanceof NotNullProperty) {
-            final boolean ok = actual != null ? true : false;
+            final boolean ok = actual != null ? ASSERTED : ASSERT_FAIL;
             report.reportNotNullProperty(propertyName, ok);
             return ok;
         }
 
         // expected null value
         if (expected instanceof NullProperty) {
-            final boolean ok = actual == null ? true : false;
+            final boolean ok = actual == null ? ASSERTED : ASSERT_FAIL;
             report.reportNullProperty(propertyName, ok);
             return ok;
         }
@@ -304,25 +308,18 @@ public class FabutObjectAssert extends Assert {
         // any value
         if (expected instanceof IgnoredProperty) {
             report.reportIgnoreProperty(propertyName);
-            return true;
+            return ASSERTED;
         }
 
         // assert by type
         if (expected instanceof Property) {
 
-            final Object expectedValue = ((Property) expected).geValue();
+            final Object expectedValue = ((Property) expected).getValue();
             final AssertPair assertPair = ConversionUtil.createAssertPair(expectedValue, actual, types, isProperty);
             return assertPair(propertyName, report, assertPair, properties, nodesList);
         }
 
         throw new IllegalStateException();
-    }
-
-    boolean assertProperty(final String propertyName, final AssertReportBuilder report, final ISingleProperty expected,
-            final Object actual, final List<ISingleProperty> properties) {
-
-        return assertProperty(propertyName, report, expected, actual, EMPTY_STRING, properties, new NodesList(), true);
-
     }
 
     /**
@@ -340,16 +337,15 @@ public class FabutObjectAssert extends Assert {
      * @return - <code>true</code> if and only if objects are asserted, <code>false</code> if method assertEqualsObjects
      *         throws {@link AssertionError}.
      */
-    boolean assertPrimitives(final AssertReportBuilder report, final String propertyName, final Object expected,
+    boolean assertPrimitives(final FabutReportBuilder report, final String propertyName, final Object expected,
             final Object actual) {
-
         try {
             customAssertEquals(expected, actual);
             report.addComment(propertyName, expected, actual, CommentType.SUCCESS);
-            return true;
+            return ASSERTED;
         } catch (final AssertionError e) {
             report.addComment(propertyName, expected, actual, CommentType.FAIL);
-            return false;
+            return ASSERT_FAIL;
         }
     }
 
@@ -374,32 +370,24 @@ public class FabutObjectAssert extends Assert {
      * @return - <code>true</code> if every element from expected list with index <em>i</em> is asserted with element
      *         from actual list with index <em>i</em>, <code>false</code> otherwise.
      */
-    boolean assertList(final String propertyName, final AssertReportBuilder report, final List expected,
+    boolean assertList(final String propertyName, final FabutReportBuilder report, final List expected,
             final List actual, final List<ISingleProperty> properties, final NodesList nodesList,
             final boolean isProperty) {
 
         // check sizes
         if (expected.size() != actual.size()) {
             report.addListDifferentSizeComment(propertyName, expected.size(), actual.size());
-            return false;
+            return ASSERT_FAIL;
         }
 
         report.increaseDepth();
 
         // assert every element by index
-        boolean assertResult = true;
+        boolean assertResult = ASSERTED;
         for (int i = 0; i < actual.size(); i++) {
-
             report.reportAssertingListElement(propertyName, i);
-
-            final ISingleProperty property = PropertyFactory.value(EMPTY_STRING, expected.get(i));
-            assertResult &= assertProperty(EMPTY_STRING, report, property, actual.get(i), EMPTY_STRING, properties,
-                    nodesList, false);
-
-            // TODO use assert pair
-            afterAssertObject(actual, isProperty);
+            assertResult &= assertObjects(report, expected.get(i), actual.get(i), properties);
         }
-
         report.decreaseDepth();
         return assertResult;
     }
@@ -473,16 +461,14 @@ public class FabutObjectAssert extends Assert {
      * 
      * @param report
      *            builder
-     * @param expected
-     *            object
-     * @param actual
-     *            object
+     * @param pair
+     *            the pair
      * @param propertyName
      *            name of the property
      * @return {@link ReferenceCheckType#EQUAL_REFERENCE} is expected and actual have same reference, if and only if one
      *         of them is null return {@link ReferenceCheckType#EXCLUSIVE_NULL}
      */
-    ReferenceCheckType checkByReference(final AssertReportBuilder report, final AssertPair pair,
+    ReferenceCheckType checkByReference(final FabutReportBuilder report, final AssertPair pair,
             final String propertyName) {
 
         final Object expected = pair.getExpected();
@@ -507,23 +493,10 @@ public class FabutObjectAssert extends Assert {
      *            the object
      * @param isSubproperty
      *            is object subproperty
+     * @return true, if successful
      */
     boolean afterAssertObject(final Object object, final boolean isSubproperty) {
-        return false;
-    }
-
-    /**
-     * Checks if is same instance.
-     * 
-     * @param expected
-     *            the expected
-     * @param actual
-     *            the actual
-     * @return <code>true</code> if expected is same instance as actual, <code>false</code> otherwise.
-     */
-    // TODO remove this method and instead use checkByReference
-    boolean isSameInstance(final Object expected, final Object actual) {
-        return expected == actual;
+        return ASSERT_FAIL;
     }
 
     /**
@@ -531,6 +504,7 @@ public class FabutObjectAssert extends Assert {
      * 
      * @param properties
      *            array/arrays of properties
+     * @return the list
      */
     List<ISingleProperty> extractProperties(final IProperty... properties) {
         final ArrayList<ISingleProperty> list = new ArrayList<ISingleProperty>();
@@ -552,7 +526,7 @@ public class FabutObjectAssert extends Assert {
     void assertSnapshot() {
 
         boolean ok = true;
-        final AssertReportBuilder report = new AssertReportBuilder();
+        final FabutReportBuilder report = new FabutReportBuilder();
         for (final SnapshotPair snapshotPair : parameterSnapshot) {
             ok &= assertObjects(report, snapshotPair.getExpected(), snapshotPair.getActual(),
                     new LinkedList<ISingleProperty>());
@@ -572,34 +546,76 @@ public class FabutObjectAssert extends Assert {
         parameterSnapshot.clear();
     }
 
+    /**
+     * Gets the types.
+     * 
+     * @return the types
+     */
     public Map<ObjectType, List<Class<?>>> getTypes() {
         return types;
     }
 
+    /**
+     * Sets the types.
+     * 
+     * @param types
+     *            the types
+     */
     public void setTypes(final Map<ObjectType, List<Class<?>>> types) {
         this.types = types;
     }
 
+    /**
+     * Gets the complex types.
+     * 
+     * @return the complex types
+     */
     public List<Class<?>> getComplexTypes() {
         return types.get(ObjectType.COMPLEX_TYPE);
     }
 
+    /**
+     * Gets the entity types.
+     * 
+     * @return the entity types
+     */
     public List<Class<?>> getEntityTypes() {
         return types.get(ObjectType.ENTITY_TYPE);
     }
 
+    /**
+     * Gets the ignored types.
+     * 
+     * @return the ignored types
+     */
     public List<Class<?>> getIgnoredTypes() {
         return types.get(ObjectType.IGNORED_TYPE);
     }
 
+    /**
+     * Gets the parameter snapshot.
+     * 
+     * @return the parameter snapshot
+     */
     List<SnapshotPair> getParameterSnapshot() {
         return parameterSnapshot;
     }
 
+    /**
+     * Gets the instance of the JUnit test that is currently running.
+     * 
+     * @return the instance of the JUnit test that is currently running
+     */
     public Object getTestInstance() {
         return testInstance;
     }
 
+    /**
+     * Sets the instance of the JUnit test that is currently running.
+     * 
+     * @param testInstance
+     *            the new instance of the JUnit test that is currently running
+     */
     public void setTestInstance(final Object testInstance) {
         this.testInstance = testInstance;
     }

@@ -20,7 +20,7 @@ import eu.execom.testutil.property.NullProperty;
 // TODO DUNNO add code snipets how error message look like and with description.
 
 // TODO all method names should be reviewed and renamed to make more sense of what they are reporting
-public class AssertReportBuilder {
+public class FabutReportBuilder {
 
     private static final String ARROW = ">";
     private static final String NEW_LINE = "\n";
@@ -56,7 +56,7 @@ public class AssertReportBuilder {
     /**
      * Default constructor.
      */
-    public AssertReportBuilder() {
+    public FabutReportBuilder() {
         builder = new StringBuilder();
         assertDepth = 0;
         messageParts = new ArrayList<String>();
@@ -69,7 +69,7 @@ public class AssertReportBuilder {
      * @param message
      *            initial message
      */
-    public AssertReportBuilder(final String message) {
+    public FabutReportBuilder(final String message) {
         this();
         messageParts.add(message.length() > 0 ? "\n" + message : message);
         failedMessagePosition = 1;

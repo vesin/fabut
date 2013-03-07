@@ -6,7 +6,7 @@ import java.util.List;
 
 import eu.execom.testutil.property.IProperty;
 import eu.execom.testutil.property.ISingleProperty;
-import eu.execom.testutil.report.AssertReportBuilder;
+import eu.execom.testutil.report.FabutReportBuilder;
 import eu.execom.testutil.util.ConversionUtil;
 import eu.execom.testutil.util.ReflectionUtil;
 
@@ -66,28 +66,28 @@ public class Fabut {
     }
 
     public static void assertEntityWithSnapshot(final Object actual, final IProperty... properties) {
-        abstractExecomRepositoryAssert.assertEntityWithSnapshot(new AssertReportBuilder(), actual,
+        abstractExecomRepositoryAssert.assertEntityWithSnapshot(new FabutReportBuilder(), actual,
                 abstractExecomRepositoryAssert.extractProperties(properties));
     }
 
     public static void assertObjects(final Object expected, final Object actual) {
-        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected, actual,
+        abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(), expected, actual,
                 new ArrayList<ISingleProperty>());
     }
 
     public static void assertObject(final Object expected, final IProperty... properties) {
-        abstractExecomRepositoryAssert.assertObjectWithProperties(new AssertReportBuilder(), expected,
+        abstractExecomRepositoryAssert.assertObjectWithProperties(new FabutReportBuilder(), expected,
                 abstractExecomRepositoryAssert.extractProperties(properties));
     }
 
     public static void assertObjects(final String message, final Object expected, final Object actual,
             final IProperty... excludes) {
-        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(message), expected, actual,
+        abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(message), expected, actual,
                 abstractExecomRepositoryAssert.extractProperties(excludes));
     }
 
     public static void assertObjects(final List<Object> expected, final List<Object> actual) {
-        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected, actual,
+        abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(), expected, actual,
                 new LinkedList<ISingleProperty>());
     }
 
@@ -96,7 +96,7 @@ public class Fabut {
     }
 
     public static void assertObjects(final List expected, final Object... actuals) {
-        abstractExecomRepositoryAssert.assertObjects(new AssertReportBuilder(), expected,
+        abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(), expected,
                 ConversionUtil.createListFromArray(actuals), new LinkedList<ISingleProperty>());
     }
 

@@ -32,7 +32,7 @@ public class Property<T> extends AbstractSingleProperty {
      * 
      * @return expected value.
      */
-    public T geValue() {
+    public T getValue() {
         return value;
     }
 

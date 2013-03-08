@@ -26,8 +26,9 @@ public class FabutReportBuilder {
     private static final String TAB = "    ";
 
     private final StringBuilder builder;
-    private Integer assertDepth;
     private final List<String> messageParts;
+
+    private Integer assertDepth;
     private int failedMessagePosition;
 
     /**
@@ -48,6 +49,7 @@ public class FabutReportBuilder {
      */
     public FabutReportBuilder(final String message) {
         this();
+        // FIXME is this realy necessary?
         messageParts.add(message.length() > 0 ? "\n" + message : message);
         failedMessagePosition = 1;
 
@@ -95,14 +97,13 @@ public class FabutReportBuilder {
         final StringBuilder part = new StringBuilder(builder.toString());
         builder.setLength(0);
         part.append(NEW_LINE);
-        for (int i = 0; i <= assertDepth; i++) {
-            if (i == assertDepth) {
-                part.append(type.getMark());
-                part.append(ARROW);
-            } else {
-                part.append(TAB);
-            }
+
+        for (int i = 0; i < assertDepth; i++) {
+            part.append(TAB);
         }
+
+        part.append(type.getMark());
+        part.append(ARROW);
 
         part.append(comment);
         if (type == CommentType.FAIL) {
@@ -127,9 +128,9 @@ public class FabutReportBuilder {
      *            the actual size
      */
     public void listDifferentSizeComment(final String propertyName, final int expectedSize, final int actualSize) {
-        final String comment2 = String.format("Expected size for list: %s is: %d, but was: %d", propertyName,
+        final String comment = String.format("Expected size for list: %s is: %d, but was: %d", propertyName,
                 expectedSize, actualSize);
-        addComment(comment2, CommentType.FAIL);
+        addComment(comment, CommentType.FAIL);
     }
 
     /**
@@ -140,9 +141,9 @@ public class FabutReportBuilder {
      * </p>
      * 
      * @param fieldName
-     *            - name of the field
+     *            name of the field
      * @param field
-     *            - class of the field
+     *            class of the field
      */
     public void noPropertyForField(final String fieldName, final Object field) {
         final String comment = String.format("There was no property for field:  %s of class:  %s, with value: %s",
@@ -224,11 +225,11 @@ public class FabutReportBuilder {
      * </p>
      * 
      * @param fieldName
-     *            - name of the field
+     *            name of the field
      * @param fieldClass
-     *            - field class
+     *            field class
      * @param asserted
-     *            - assert result
+     *            assert result
      */
     public void checkByReference(final String fieldName, final Object object, final boolean asserted) {
 

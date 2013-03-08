@@ -1,11 +1,12 @@
 package eu.execom.testutil.enums;
 
-import java.util.List;
-
 /**
  * Types assertable by FABUT.
  * 
- * @author nolah
+ * @author Dusko Vesin
+ * @author Nikola Olah
+ * @author Bojan Babic
+ * @author Nikola Trkulja
  * 
  */
 public enum AssertableType {
@@ -17,8 +18,8 @@ public enum AssertableType {
     IGNORED_TYPE,
 
     /**
-     * Type used for storing in external repositories, main diffence to {@link AssertableType#COMPLEX_TYPE} is that this
-     * type requires id field.
+     * Type used for storing in external repositories, main difference to {@link AssertableType#COMPLEX_TYPE} is that
+     * this type requires id field.
      */
     ENTITY_TYPE,
 

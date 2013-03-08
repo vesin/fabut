@@ -7,8 +7,6 @@ package eu.execom.testutil;
  * @author Nikola Olah
  * @author Bojan Babic
  * @author Nikola Trkulja
- * @param <T>
- *            entity type.
  */
 // TODO make this class protected
 public class CopyAssert {

@@ -12,11 +12,20 @@ import eu.execom.testutil.pair.Pair;
  */
 public class IsomorphicNodePair extends Pair {
 
+    /**
+     * Default Isomorphic node pair constructor.
+     * 
+     * @param expected
+     *            object
+     * @param actual
+     *            object
+     */
     public IsomorphicNodePair(final Object expected, final Object actual) {
         super(expected, actual);
     }
 
     @Override
+    // FIXME why with exception?
     public boolean equals(final Object arg0) {
         try {
             final IsomorphicNodePair node = (IsomorphicNodePair) arg0;

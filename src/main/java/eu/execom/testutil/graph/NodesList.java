@@ -34,6 +34,7 @@ public class NodesList implements IsomorphicGraph {
         isomorphicNodes.add(new IsomorphicNodePair(expected, actual));
     }
 
+    // FIXME this method is only used in tests, we can remove it
     public void addPair(final AssertPair assertPair) {
         addPair(assertPair.getExpected(), assertPair.getActual());
     }

@@ -176,10 +176,10 @@ abstract class FabutObjectAssert extends Assert {
         final ReferenceCheckType referenceCheck = checkByReference(report, pair, propertyName);
 
         if (referenceCheck == ReferenceCheckType.EQUAL_REFERENCE) {
-            return referenceCheck.getAssertResult();
+            return referenceCheck.isAssertResult();
         }
         if (referenceCheck == ReferenceCheckType.EXCLUSIVE_NULL) {
-            referenceCheck.getAssertResult();
+            referenceCheck.isAssertResult();
         }
 
         // check if any of the expected/actual object is recurring in nodes list

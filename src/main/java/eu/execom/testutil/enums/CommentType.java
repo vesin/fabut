@@ -3,7 +3,10 @@ package eu.execom.testutil.enums;
 /**
  * Comment types.
  * 
- * @author dvesin
+ * @author Dusko Vesin
+ * @author Nikola Olah
+ * @author Bojan Babic
+ * @author Nikola Trkulja
  */
 public enum CommentType {
 

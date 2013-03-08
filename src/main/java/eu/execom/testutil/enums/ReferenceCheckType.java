@@ -3,7 +3,6 @@ package eu.execom.testutil.enums;
 /**
  * Return result for reference check.
  * 
- * 
  * @author Dusko Vesin
  * @author Nikola Olah
  * @author Bojan Babic
@@ -19,11 +18,20 @@ public enum ReferenceCheckType {
 
     private boolean assertResult;
 
+    /**
+     * Default constructor.
+     * 
+     * @param assertResult
+     */
     private ReferenceCheckType(final boolean assertResult) {
         this.assertResult = assertResult;
     }
 
-    public boolean getAssertResult() {
+    /**
+     * @return the assertResult
+     */
+    public boolean isAssertResult() {
         return assertResult;
     }
+
 }

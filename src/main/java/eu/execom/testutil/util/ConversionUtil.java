@@ -29,7 +29,7 @@ public final class ConversionUtil {
      * Creates a {@link LinkedList} from specified varargs.
      * 
      * @param excludes
-     *            - varargs parameters
+     *            varargs parameters
      * @return list of objects of class X
      * 
      * @param <X>

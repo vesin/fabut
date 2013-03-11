@@ -35,6 +35,7 @@ import eu.execom.testutil.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.testutil.model.UnknownEntityType;
 import eu.execom.testutil.pair.AssertPair;
 import eu.execom.testutil.property.ISingleProperty;
+import eu.execom.testutil.property.PropertyFactory;
 import eu.execom.testutil.report.FabutReportBuilder;
 import eu.execom.testutil.util.ConversionUtil;
 
@@ -117,14 +118,16 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         setList2(afterist2);
 
         // method
-        assertDbState();
+        final boolean assertResult = assertDbState();
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
      * Test for assertDbState of {@link FabutRepositoryAssert} when before snapshot doesn't match after snapshot.
      */
-    @Test(expected = AssertionError.class)
-    // TODO(nolah) test is probably bad now that test util isnt extended anymore
+    @Test
     public void testAssertDbStateFalse() {
         // setup
 
@@ -147,7 +150,10 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         setList2(afterList2);
 
         // method
-        assertDbState();
+        final boolean assertResult = assertDbState();
+
+        // assert
+        assertFalse(assertResult);
     }
 
     /**
@@ -169,18 +175,12 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         setList1(list2);
 
         // method
-        assertEntityAsDeleted(actual);
-        assertDbState();
-    }
+        final boolean assertEnitityAsDeleted = assertEntityAsDeleted(actual);
+        final boolean assertDbState = assertDbState();
 
-    /**
-     * Test for markEntityAsDeleted of {@link FabutRepositoryAssert} when specified object is not entity.
-     */
-    @Test
-    public void testAssertAsDeletedNotEntity() {
-        // method
-        takeSnapshot();
-        assertEntityAsDeleted(new TierOneType());
+        // assert
+        assertTrue(assertEnitityAsDeleted);
+        assertTrue(assertDbState);
     }
 
     /**
@@ -202,18 +202,12 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         setList1(list2);
 
         // method
-        ignoreEntity(actual);
-        assertDbState();
-    }
+        final boolean ignoreEntity = ignoreEntity(actual);
+        final boolean assertDbState = assertDbState();
 
-    /**
-     * Test for ignoreEntity of {@link FabutRepositoryAssert} when specified object is not entity.
-     */
-    @Test
-    public void testIngoreEntityNotEntity() {
-        // method
-        takeSnapshot();
-        ignoreEntity(new TierOneType());
+        // assert
+        assertTrue(ignoreEntity);
+        assertTrue(assertDbState);
     }
 
     /**
@@ -236,8 +230,12 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         setList1(list2);
 
         // method
-        afterAssertEntity(actual, false);
-        assertDbState();
+        final boolean afterAssertEntity = afterAssertEntity(actual, false);
+        final boolean assertDbState = assertDbState();
+
+        // assert
+        assertTrue(afterAssertEntity);
+        assertTrue(assertDbState);
     }
 
     /**
@@ -261,14 +259,17 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // method
         afterAssertEntity(actual, true);
-        assertDbState();
+        final boolean assertResult = assertDbState();
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
      * Test for afterAssertEntity of {@link FabutRepositoryAssert} when specified object is entity and it is property of
      * another entity.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAfterAssertEntityNotEntity() {
         // setup
         final List<Object> list1 = new ArrayList<Object>();
@@ -285,7 +286,10 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // method
         afterAssertEntity(actual, false);
-        assertDbState();
+        final boolean assertResult = assertDbState();
+
+        // assert
+        assertFalse(assertResult);
     }
 
     /**
@@ -304,8 +308,12 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         takeSnapshot();
 
         // method
-        afterAssertEntity(actual, false);
-        assertDbState();
+        final boolean afterAssertEntity = afterAssertEntity(actual, false);
+        final boolean assertDbState = assertDbState();
+
+        // assert
+        assertTrue(afterAssertEntity);
+        assertTrue(assertDbState);
     }
 
     /**
@@ -324,7 +332,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
                 new EntityTierThreeType(TEST, 1, new EntityTierOneType(PROPERTY, 10)), EntityTierThreeType.class);
 
         // assert
-        assertDbState();
+        assertTrue(assertDbState());
         assertTrue(assertValue);
     }
 
@@ -339,7 +347,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         final boolean assertValue = markAsAsserted(new UnknownEntityType(4), UnknownEntityType.class);
 
         // assert
-        assertDbState();
+        assertTrue(assertDbState());
         assertFalse(assertValue);
     }
 
@@ -359,7 +367,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
                 EntityTierTwoType.class);
 
         // assert
-        assertDbState();
+        assertTrue(assertDbState());
         assertTrue(assertValue);
     }
 
@@ -381,106 +389,9 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
                 EntityTierTwoType.class);
 
         // assert
-        assertDbState();
+        assertTrue(assertDbState());
         assertTrue(assertValue);
     }
-
-    // TODO(nolah) fix this
-    // /**
-    // * Test for takeSnapshot of {@link AbstractExecomRepositoryAssert} if it initializes snapshot properly.
-    // */
-    // @Test
-    // public void testTakeSnapshot() {
-    // // setup
-    // final EntityTierTwoType entity = new EntityTierThreeType(TEST, 1, new EntityTierOneType(PROPERTY, 10));
-    // final List<Object> list = new ArrayList<Object>();
-    // list.add(entity);
-    // setList2(list);
-    //
-    // // method
-    // takeSnapshot();
-    // final Map<Class<?>, Map<Integer, CopyAssert<Type>>> dbSnapshot = getDbSnapshot();
-    //
-    // // assert
-    // assertEquals(2, dbSnapshot.size());
-    // for (final Entry<Class<?>, Map<Integer, CopyAssert<Type>>> classEntry : dbSnapshot.entrySet()) {
-    // if (classEntry.getKey() == EntityTierOneType.class) {
-    // assertEquals(0, classEntry.getValue().size());
-    // }
-    //
-    // if (classEntry.getKey() == EntityTierTwoType.class) {
-    // assertEquals(1, classEntry.getValue().size());
-    // final Object object = classEntry.getValue().get(1);
-    // final CopyAssert copyAssert = (CopyAssert) object;
-    // final EntityTierTwoType assertEntity = copyAssert.getEntity();
-    // assertEquals(1, assertEntity.getId());
-    // assertEquals(TEST, assertEntity.getProperty());
-    // assertEquals(PROPERTY, assertEntity.getSubProperty().getProperty());
-    // assertEquals(new Integer(10), assertEntity.getSubProperty().getId());
-    // }
-    // }
-    // }
-
-    // TODO this should be reworked when takeSnapshot functionality is changed
-
-    // /**
-    // * Test for assertEntityWithSnapshot from {@link AbstractExecomRepositoryAssert} when id is null.
-    // */
-    // @Test(expected = AssertionError.class)
-    // public void testAssertEntityWithSnapshotNullId() {
-    // // setup
-    // final EntityTierOneType entityTierOneType = new EntityTierOneType(TEST, null);
-    //
-    // // method
-    // takeSnapshot();
-    // assertEntityWithSnapshot(entityTierOneType);
-    // }
-    //
-    // /**
-    // * Test for assertEntityWithSnapshot from {@link AbstractExecomRepositoryAssert} when entity type isn't supported.
-    // */
-    // @Test(expected = AssertionError.class)
-    // public void testAssertEntityWithSnapshotTypeNotSupported() {
-    // // setup
-    // final TierOneType expected = new TierOneType();
-    //
-    // // method
-    // takeSnapshot();
-    // assertEntityWithSnapshot(expected);
-    // }
-    //
-    // /**
-    // * Test for assertEntityWithSnapshot from {@link AbstractExecomRepositoryAssert} when entity doesn't exist in
-    // * snapshot.
-    // */
-    // @Test(expected = AssertionError.class)
-    // public void testAssertEntityWithSnapshotNoEntityInSnapshot() {
-    // // setup
-    // setList1(new ArrayList<Object>());
-    //
-    // // method
-    // takeSnapshot();
-    // assertEntityWithSnapshot(new EntityTierOneType(TEST, 1));
-    // }
-    //
-    // /**
-    // * Test for assertEntityWithSnapshot from {@link AbstractExecomRepositoryAssert} when entity exists in snapshot
-    // and
-    // * is asserted with new changed properties.
-    // */
-    // @Test
-    // public void testAssertEntityWithSnapshotEntityAsserted() {
-    // // setup
-    // final List<Object> list = new ArrayList<Object>();
-    // final EntityTierOneType expected = new EntityTierOneType(TEST, 1);
-    // list.add(expected);
-    // setList1(list);
-    //
-    // // method
-    // takeSnapshot();
-    // expected.setProperty(TEST + TEST);
-    // assertEntityWithSnapshot(expected, PropertyFactory.value(EntityTierOneType.PROPERTY, TEST + TEST));
-    // }
 
     /**
      * Test for {@link FabutRepositoryAssert#checkNotExistingInAfterDbState(TreeSet, TreeSet, Map, FabutReportBuilder)}
@@ -769,5 +680,52 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // assert
         assertFalse(assertResult);
+    }
+
+    /**
+     * Test for {@link FabutRepositoryAssert#assertEntityWithSnapshot(FabutReportBuilder, Object, List)} when specified
+     * entity can be asserted.
+     */
+    @Test
+    public void testAssertEntityWithSnapshotTrue() {
+        // setup
+        final List<Object> list1 = new ArrayList<Object>();
+        list1.add(new EntityTierOneType(TEST, 1));
+        setList1(list1);
+        final EntityTierOneType entity = new EntityTierOneType(TEST + TEST, new Integer(1));
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(PropertyFactory.value(EntityTierOneType.PROPERTY, TEST + TEST));
+
+        // method
+        takeSnapshot();
+        final boolean assertEntityWithSnapshot = assertEntityWithSnapshot(new FabutReportBuilder(), entity, properties);
+
+        // assert
+        assertTrue(assertEntityWithSnapshot);
+        assertTrue(assertDbState());
+
+    }
+
+    /**
+     * Test for {@link FabutRepositoryAssert#assertEntityWithSnapshot(FabutReportBuilder, Object, List)} when specified
+     * entity cannot be asserted.
+     */
+    @Test
+    public void testAssertEntityWithSnapshotFalse() {
+        // setup
+        final List<Object> list1 = new ArrayList<Object>();
+        setList1(list1);
+        final EntityTierOneType entity = new EntityTierOneType(TEST + TEST, new Integer(1));
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(PropertyFactory.value(EntityTierOneType.PROPERTY, TEST + TEST));
+
+        // method
+        takeSnapshot();
+        final boolean assertEntityWithSnapshot = assertEntityWithSnapshot(new FabutReportBuilder(), entity, properties);
+
+        // assert
+        assertFalse(assertEntityWithSnapshot);
+        assertTrue(assertDbState());
+
     }
 }

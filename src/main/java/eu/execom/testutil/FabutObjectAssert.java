@@ -31,8 +31,9 @@ import eu.execom.testutil.util.ConversionUtil;
 import eu.execom.testutil.util.ReflectionUtil;
 
 /**
- * ExeCom test util class. Should be used for asserting two object or to assert single object. TODO think of better
- * comment.
+ * Tool for smart asserting two objecting, or asserting object with list of custom properties. Object asserting is done
+ * by asserting all the fields inside the given object, if the field is primitive the tool will do user specified assert
+ * for primitives, if not, tool will perform smart assert on that field.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -57,7 +58,7 @@ abstract class FabutObjectAssert extends Assert {
     private Object testInstance;
 
     /**
-     * Instantiates a new abstract execom entity assert.
+     * Instantiates a new fabut object assert.
      */
     public FabutObjectAssert() {
         super();
@@ -66,18 +67,19 @@ abstract class FabutObjectAssert extends Assert {
     }
 
     /**
-     * TODO comments, check for tests.
+     * Asserts object with with expected properties, every field of object must have property for it or assert will
+     * fail.
      * 
      * @param report
      *            the report
      * @param actual
      *            the actual
-     * @param properties
+     * @param expectedProperties
      *            the properties
-     * @return true, if successful
+     * @return <code>true</code> if object can be asserted with list of properties, <code>false</code> otherwise.
      */
     protected boolean assertObjectWithProperties(final FabutReportBuilder report, final Object actual,
-            final List<ISingleProperty> properties) {
+            final List<ISingleProperty> expectedProperties) {
 
         if (actual == null) {
             report.nullReference();
@@ -89,7 +91,7 @@ abstract class FabutObjectAssert extends Assert {
         for (final Method method : methods) {
 
             final String fieldName = ReflectionUtil.getFieldName(method);
-            final ISingleProperty property = getPropertyFromList(fieldName, properties);
+            final ISingleProperty property = getPropertyFromList(fieldName, expectedProperties);
 
             try {
                 if (property == null) {
@@ -98,7 +100,7 @@ abstract class FabutObjectAssert extends Assert {
                     result = ASSERT_FAIL;
                 } else {
                     result &= assertProperty(fieldName, report, property, method.invoke(actual), EMPTY_STRING,
-                            properties, new NodesList(), true);
+                            expectedProperties, new NodesList(), true);
                 }
             } catch (final Exception e) {
                 report.uncallableMethod(method, actual);
@@ -113,7 +115,8 @@ abstract class FabutObjectAssert extends Assert {
     }
 
     /**
-     * TODO comments, check for tests Assert objects.
+     * Asserts two objects, if objects are primitives it will rely on custom user assert for primitives, if objects are
+     * complex it will assert them by values of their fields.
      * 
      * @param report
      *            the report
@@ -122,8 +125,9 @@ abstract class FabutObjectAssert extends Assert {
      * @param actual
      *            the actual
      * @param expectedChangedProperties
-     *            the expected changed properties
-     * @return true, if successful
+     *            use of this list is to remove the need for every field of actual object to match fields of expected
+     *            object, properties in this list take priority over fields in expected object
+     * @return <code>true</code> can be asserted, <code>false</code> otherwise
      */
     protected boolean assertObjects(final FabutReportBuilder report, final Object expected, final Object actual,
             final List<ISingleProperty> expectedChangedProperties) {
@@ -156,19 +160,25 @@ abstract class FabutObjectAssert extends Assert {
     }
 
     /**
-     * Handles asserting object by category of its type. Logs assertion result in report and returns it.
+     * Asserts object pair trough three phases:
+     * <ul type="circle">
+     * <li>Reference check, assert will only continue trough this phase if both object aren't null and aren't same
+     * instance</li>
+     * <li>Node check, assert will pass continue trough if object pair is new to nodes list
+     * <li>Asserting by type with each type having particular method of asserting</li>
+     * </ul>
      * 
      * @param propertyName
      *            name of current property
      * @param report
      *            assert report builder
      * @param pair
-     *            the pair
+     *            object pair for asserting
      * @param properties
-     *            list of excluded properties
+     *            list of expected changed properties
      * @param nodesList
      *            list of object that had been asserted
-     * @return <code>true</code> if actual object is asserted to expected object, <code>false</code> otherwise.
+     * @return <code>true</code> if objects can be asserted, <code>false</code> otherwise.
      */
     boolean assertPair(final String propertyName, final FabutReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
@@ -209,13 +219,19 @@ abstract class FabutObjectAssert extends Assert {
     }
 
     /**
-     * TODO add comments.
+     * Asserts two entities.
      * 
      * @param report
+     *            the report
+     * @param propertyName
+     *            the property name
      * @param pair
+     *            the pair
      * @param properties
+     *            the properties
      * @param nodesList
-     * @return
+     *            the nodes list
+     * @return <code>true</code> if objects can be asserted, <code>false</code> otherwise.
      */
     protected boolean assertEntityPair(final FabutReportBuilder report, final String propertyName,
             final AssertPair pair, final List<ISingleProperty> properties, final NodesList nodesList) {
@@ -223,9 +239,8 @@ abstract class FabutObjectAssert extends Assert {
     }
 
     /**
-     * Assert subfields.
-     * 
-     * TODO add TESTS!! and proper comment
+     * Assert subfields of an actual object with ones from expected object, it gets the fields by invoking get methods
+     * of actual/expected objects via reflection, properties passed have priority over expected object fields.
      * 
      * @param report
      *            the report
@@ -235,7 +250,7 @@ abstract class FabutObjectAssert extends Assert {
      *            the properties
      * @param nodesList
      *            the nodes list
-     * @return true, if successful
+     * @return <code>true</code> if objects can be asserted, <code>false</code> otherwise.
      */
     boolean assertSubfields(final FabutReportBuilder report, final AssertPair pair,
             final List<ISingleProperty> properties, final NodesList nodesList) {
@@ -280,7 +295,7 @@ abstract class FabutObjectAssert extends Assert {
      *            expected object
      * @param actual
      *            actual object
-     * @return - <code>true</code> if and only if objects are asserted, <code>false</code> if method assertEqualsObjects
+     * @return - <code>true</code> if and only if objects are asserted, <code>false</code> if method customAssertEquals
      *         throws {@link AssertionError}.
      */
     boolean assertPrimitives(final FabutReportBuilder report, final String propertyName, final AssertPair pair) {

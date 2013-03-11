@@ -6,29 +6,29 @@ import eu.execom.testutil.enums.AssertableType;
  * TODO comment. The Class AssertPair.
  */
 public class AssertPair extends Pair {
-    private AssertableType objectType;
+    private AssertableType assertableType;
 
     private boolean property;
 
     public AssertPair(final Object expected, final Object actual, final AssertableType objectType) {
         super(expected, actual);
-        this.objectType = objectType;
+        assertableType = objectType;
         property = false;
     }
 
-    public AssertPair(final Object expected, final Object actual, final AssertableType objectType,
+    public AssertPair(final Object expected, final Object actual, final AssertableType assertableType,
             final boolean property) {
         super(expected, actual);
-        this.objectType = objectType;
+        this.assertableType = assertableType;
         this.property = property;
     }
 
     public AssertableType getObjectType() {
-        return objectType;
+        return assertableType;
     }
 
     public void setObjectType(final AssertableType objectType) {
-        this.objectType = objectType;
+        assertableType = objectType;
     }
 
     public boolean isProperty() {

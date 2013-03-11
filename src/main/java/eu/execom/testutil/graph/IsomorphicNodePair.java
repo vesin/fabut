@@ -25,7 +25,6 @@ public class IsomorphicNodePair extends Pair {
     }
 
     @Override
-    // FIXME why with exception?
     public boolean equals(final Object arg0) {
         try {
             final IsomorphicNodePair node = (IsomorphicNodePair) arg0;

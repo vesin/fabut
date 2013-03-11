@@ -85,7 +85,8 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         ignoredTypes.add(IgnoredType.class);
         setIgnoredTypes(ignoredTypes);
 
-        final Map<AssertableType, List<Class<?>>> types = new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class);
+        final Map<AssertableType, List<Class<?>>> types = new EnumMap<AssertableType, List<Class<?>>>(
+                AssertableType.class);
         types.put(AssertableType.COMPLEX_TYPE, complexTypes);
         types.put(AssertableType.IGNORED_TYPE, ignoredTypes);
         types.put(AssertableType.ENTITY_TYPE, new LinkedList<Class<?>>());
@@ -102,7 +103,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), ignoredType, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(), ignoredType, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -117,7 +121,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(jokerProperty);
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), noGetMethodsType, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(), noGetMethodsType, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -165,7 +172,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.notNull(TierOneType.PROPERTY));
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertTrue(assertResult);
 
     }
 
@@ -198,7 +208,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.nulll(TierOneType.PROPERTY));
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -212,7 +225,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.ignored(TierOneType.PROPERTY));
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -227,7 +243,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, null));
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -278,7 +297,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(), tierOneType, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -313,7 +335,11 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(jokerProperty);
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), tierTwoTypeWithIgnoreProperty, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(),
+                tierTwoTypeWithIgnoreProperty, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -434,7 +460,11 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         expected.add(new TierOneType(TEST + TEST + TEST));
 
         // method
-        assertObjects(new FabutReportBuilder(), expected, actual, new LinkedList<ISingleProperty>());
+        final boolean assertResult = assertObjects(new FabutReportBuilder(), expected, actual,
+                new LinkedList<ISingleProperty>());
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -475,7 +505,10 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.ignored(TierTwoType.PROPERTY + DOT + TierOneType.PROPERTY));
 
         // method
-        assertObjects(new FabutReportBuilder(), expected, actual, properties);
+        final boolean assertResult = assertObjects(new FabutReportBuilder(), expected, actual, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -519,8 +552,11 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         final TierOneType actual = new TierOneType(TEST);
 
         // method
-        assertObjects(new FabutReportBuilder(), expected, actual, new LinkedList<ISingleProperty>());
+        final boolean assertResult = assertObjects(new FabutReportBuilder(), expected, actual,
+                new LinkedList<ISingleProperty>());
 
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
@@ -535,21 +571,25 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         properties.add(PropertyFactory.value(TierOneType.PROPERTY, TEST));
 
         // method
-        assertObjectWithProperties(new FabutReportBuilder(), actual, properties);
+        final boolean assertResult = assertObjectWithProperties(new FabutReportBuilder(), actual, properties);
+
+        // assert
+        assertTrue(assertResult);
     }
 
     /**
-     * Test for disassembleObject of {@link FabutObjectAssert} when actual is pointing to itself.
+     * Test for {@link FabutObjectAssert#assertPair(String, FabutReportBuilder, AssertPair, List, NodesList)} when
+     * object graph is trivial.
      */
     @Test
-    public void testDisassembleObjectTrivialGraphEqual() {
+    public void testAssertPairrTrivialGraphEqual() {
         // setup
         final A actual = new A(null);
         final A expected = new A(null);
         final NodesList nodesList = new NodesList();
 
         // method
-        final boolean assertValue = assertSubfields(new FabutReportBuilder(), new AssertPair(expected, actual,
+        final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(expected, actual,
                 AssertableType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
@@ -557,11 +597,11 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link FabutObjectAssert} when actual and expected object nodes are contained in
-     * nodes list.
+     * Test for {@link FabutObjectAssert#assertPair(String, FabutReportBuilder, AssertPair, List, NodesList)} when
+     * actual and expected object nodes are contained in nodes list.
      */
     @Test
-    public void testDisassembleObjectNodePairInList() {
+    public void testAssertPairNodePairInList() {
         // setup
         final Object actual = new Object();
         final Object expected = new Object();
@@ -569,15 +609,19 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         nodesList.addPair(expected, actual);
 
         // method
-        final boolean assertValue = assertSubfields(new FabutReportBuilder(), new AssertPair(expected, actual,
+        final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(expected, actual,
                 AssertableType.PRIMITIVE_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
         assertTrue(assertValue);
     }
 
+    /**
+     * Test for {@link FabutObjectAssert#assertPair(String, FabutReportBuilder, AssertPair, List, NodesList)} when
+     * asserting objects are cyclic graphs.
+     */
     @Test
-    public void testDisassembleObjectCyclicGraphEqual() {
+    public void testAssertPairCyclicGraphEqual() {
         // setup
         final NodesList nodesList = new NodesList();
 
@@ -588,7 +632,7 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
         expected.setB(new B(new C(expected)));
 
         // method
-        final boolean assertValue = assertSubfields(new FabutReportBuilder(), new AssertPair(expected, actual,
+        final boolean assertValue = assertPair(EMPTY_STRING, new FabutReportBuilder(), new AssertPair(expected, actual,
                 AssertableType.COMPLEX_TYPE), new ArrayList<ISingleProperty>(), nodesList);
 
         // assert
@@ -596,17 +640,81 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
     }
 
     /**
-     * Test for disassembleObject of {@link FabutObjectAssert} when getting reference to field via {@link Method}'s
-     * method invoke and it trows exception.
+     * Test for {@link FabutObjectAssert#assertSubfields(FabutReportBuilder, AssertPair, List, NodesList)} when getting
+     * reference to field via {@link Method}'s method invoke and it trows exception.
      */
     @Test
-    public void testDisassembleObject() {
+    public void testAssertSubfieldsExceptionInReflectionCalls() {
         // method
         final boolean t = assertSubfields(new FabutReportBuilder(), new AssertPair(new TierOneType(TEST),
                 new UnknownType(), AssertableType.COMPLEX_TYPE), new LinkedList<ISingleProperty>(), new NodesList());
 
         // assert
         assertFalse(t);
+    }
+
+    /**
+     * Test for {@link FabutObjectAssert#assertSubfields(FabutReportBuilder, AssertPair, List, NodesList)} when object
+     * pair can be asseted.
+     */
+    @Test
+    public void testAssertSubfieldsAsserted() {
+        // setup
+        final TierOneType expected = new TierOneType(TEST);
+        final TierOneType actual = new TierOneType(TEST);
+        final NodesList nodeList = new NodesList();
+        final AssertPair pair = new AssertPair(expected, actual, AssertableType.COMPLEX_TYPE);
+        nodeList.addPair(pair);
+
+        // method
+        final boolean assertResult = assertSubfields(new FabutReportBuilder(), pair, new LinkedList<ISingleProperty>(),
+                nodeList);
+
+        // assert
+        assertTrue(assertResult);
+    }
+
+    /**
+     * Test for {@link FabutObjectAssert#assertSubfields(FabutReportBuilder, AssertPair, List, NodesList)} when
+     * asserting objects fail.
+     */
+    @Test
+    public void testAssertSubfieldsAssertFails() {
+        // setup
+        final TierOneType expected = new TierOneType(TEST);
+        final TierOneType actual = new TierOneType(TEST + TEST);
+        final NodesList nodeList = new NodesList();
+        final AssertPair pair = new AssertPair(expected, actual, AssertableType.COMPLEX_TYPE);
+        nodeList.addPair(pair);
+
+        // method
+        final boolean assertResult = assertSubfields(new FabutReportBuilder(), pair, new LinkedList<ISingleProperty>(),
+                nodeList);
+
+        // assert
+        assertFalse(assertResult);
+    }
+
+    /**
+     * Test for {@link FabutObjectAssert#assertSubfields(FabutReportBuilder, AssertPair, List, NodesList)} when
+     * asserting pair of objects with no get methods.
+     */
+    @Test
+    public void testAssertSubfieldsNoGetMethodsType() {
+        // setup
+        final NoGetMethodsType expected = new NoGetMethodsType(TEST);
+        final NoGetMethodsType actual = new NoGetMethodsType(TEST);
+        final NodesList nodeList = new NodesList();
+        final AssertPair pair = new AssertPair(expected, actual, AssertableType.COMPLEX_TYPE);
+        nodeList.addPair(pair);
+
+        // method
+        final boolean assertResult = assertSubfields(new FabutReportBuilder(), pair, new LinkedList<ISingleProperty>(),
+                nodeList);
+
+        // assert
+        assertTrue(assertResult);
+
     }
 
     /**

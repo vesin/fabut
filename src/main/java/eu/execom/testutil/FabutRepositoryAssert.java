@@ -49,27 +49,42 @@ class FabutRepositoryAssert extends FabutObjectAssert {
         }
     }
 
-    // TODO comments
-    // TODO return true false, dont throw exception
+    /**
+     * Asserts that entity has been deleted in after db state.
+     * 
+     * @param actual
+     * @return <code>true</code> if entity is really deleted, <code>false</code> otherwise.
+     */
     public boolean assertEntityAsDeleted(final Object actual) {
 
-        ignoreEntity(actual);
+        final boolean ignoreEntity = ignoreEntity(actual);
 
         final Object findById = findById(actual.getClass(), ReflectionUtil.getIdValue(actual));
-        return findById != null;
+        return ignoreEntity && findById == null;
     }
 
-    // TODO comments
+    /**
+     * Ignores the entity.
+     * 
+     * @param actual
+     * @return <code>true</code> if entity can be found in db snapshot, <code>false</code> otherwise.
+     */
     public boolean ignoreEntity(final Object actual) {
         return markAsAsserted(actual, actual.getClass());
     }
 
-    // TODO comments
+    /**
+     * Asserts specified entity with entity with of same class with same id in db snapshot.
+     * 
+     * @param report
+     * @param entity
+     * @param properties
+     * @return <code>true</code> if entity can be asserted with one in the snapshot, <code>false</code> otherwise.
+     */
     public boolean assertEntityWithSnapshot(final FabutReportBuilder report, final Object entity,
             final List<ISingleProperty> properties) {
 
         final Object id = ReflectionUtil.getIdValue(entity);
-        Assert.assertNotNull("Entity id can't be null " + entity, id);
 
         final Map<Object, CopyAssert> map = dbSnapshot.get(entity.getClass());
 
@@ -83,10 +98,16 @@ class FabutRepositoryAssert extends FabutObjectAssert {
 
     }
 
-    final boolean afterAssertEntity(final Object object, final boolean isProperty) {
-        // FIXME no check needed, it should be entity
-        if (!isProperty && ReflectionUtil.getIdValue(object) != null) {
-            return markAsAsserted(object, object.getClass());
+    /**
+     * This method needs to be called after every entity assert so it marks that entity has been asserted in snapshot.
+     * 
+     * @param entity
+     * @param isProperty
+     * @return <code>true</code> if entity can be marked that is asserted, <code>false</code> otherwise.
+     */
+    final boolean afterAssertEntity(final Object entity, final boolean isProperty) {
+        if (!isProperty && ReflectionUtil.getIdValue(entity) != null) {
+            return markAsAsserted(entity, entity.getClass());
         } else {
             return ASSERT_FAIL;
         }

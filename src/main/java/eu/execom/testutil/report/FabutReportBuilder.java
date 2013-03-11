@@ -332,14 +332,14 @@ public class FabutReportBuilder {
     /**
      * Reports fail due to passing null object reference for asserting.
      * <p>
-     * Example: <i>Asserting object was null!</i>
+     * Example: <i>Asserting cannot be null!</i>
      * </p>
      * 
      * @param actual
      *            object reference for asserting
      */
     public void nullReference() {
-        final String comment = "Asserting object was null!";
+        final String comment = "Asserting object cannot null!";
         addComment(comment, CommentType.FAIL);
     }
 

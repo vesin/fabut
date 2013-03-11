@@ -65,6 +65,7 @@ public class Fabut {
     }
 
     public static void assertEntityWithSnapshot(final Object actual, final IProperty... properties) {
+        // this method should throw exception if entity id is null or object is null
         abstractExecomRepositoryAssert.assertEntityWithSnapshot(new FabutReportBuilder(), actual,
                 abstractExecomRepositoryAssert.extractProperties(properties));
     }

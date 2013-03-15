@@ -12,6 +12,7 @@ import junit.framework.Assert;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.graph.NodesList;
 import eu.execom.fabut.pair.AssertPair;
+import eu.execom.fabut.property.CopyAssert;
 import eu.execom.fabut.property.ISingleProperty;
 import eu.execom.fabut.report.FabutReportBuilder;
 import eu.execom.fabut.util.ReflectionUtil;

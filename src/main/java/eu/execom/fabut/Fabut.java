@@ -17,10 +17,17 @@ import eu.execom.fabut.util.ReflectionUtil;
  * 
  */
 // TODO for all methods check can method be called
-public class Fabut {
+public final class Fabut {
 
     private static Class<?> testClass = null;
     private static FabutRepositoryAssert abstractExecomRepositoryAssert = null;
+
+    /**
+     * Private constructor to avoid create instance of this class.
+     */
+    private Fabut() {
+
+    }
 
     public static void takeSnapshot() {
         abstractExecomRepositoryAssert.takeSnapshot();

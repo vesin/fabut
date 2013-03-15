@@ -1,5 +1,5 @@
 /**
- * Testutil main package. Contains main classes and interfaces of test util with sub packages.
+ * Fabut main package. Contains main classes and interfaces of test util with sub packages.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah

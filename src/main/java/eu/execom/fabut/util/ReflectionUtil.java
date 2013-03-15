@@ -10,7 +10,7 @@ import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang3.StringUtils;
 
-import eu.execom.fabut.ITestUtil;
+import eu.execom.fabut.IFabutTest;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.graph.NodesList;
 
@@ -277,7 +277,7 @@ public final class ReflectionUtil {
     public static Method getFindAllMethod(final Class<?> declaringClass) {
         try {
             final Object testIntance = declaringClass.newInstance();
-            if (testIntance instanceof ITestUtil) {
+            if (testIntance instanceof IFabutTest) {
                 final Method method = declaringClass.getMethod("findAll", Class.class);
             } else {
                 throw new IllegalStateException("Test: " + declaringClass.getName() + ", has to implement ITestUtil!");
@@ -330,7 +330,7 @@ public final class ReflectionUtil {
         for (final StackTraceElement stackTraceElement : stackTraceElements) {
             try {
                 final Class<?> clazz = Class.forName(stackTraceElement.getClassName());
-                if (ITestUtil.class.isAssignableFrom(clazz)) {
+                if (IFabutTest.class.isAssignableFrom(clazz)) {
                     return clazz;
                 }
             } catch (final ClassNotFoundException e) {

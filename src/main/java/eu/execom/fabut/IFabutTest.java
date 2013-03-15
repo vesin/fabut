@@ -8,7 +8,7 @@ import java.util.List;
  * @author Dusko Vesin
  * 
  */
-public interface ITestUtil {
+public interface IFabutTest {
 
     void beforeTest();
 

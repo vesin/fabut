@@ -10,7 +10,6 @@ import java.util.TreeSet;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.execom.fabut.CopyAssert;
 import eu.execom.fabut.FabutRepositoryAssert;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.graph.NodesList;
@@ -36,6 +35,7 @@ import eu.execom.fabut.model.TierTwoTypeWithListProperty;
 import eu.execom.fabut.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.fabut.model.UnknownEntityType;
 import eu.execom.fabut.pair.AssertPair;
+import eu.execom.fabut.property.CopyAssert;
 import eu.execom.fabut.property.ISingleProperty;
 import eu.execom.fabut.property.PropertyFactory;
 import eu.execom.fabut.report.FabutReportBuilder;

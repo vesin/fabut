@@ -9,7 +9,7 @@ import org.junit.Before;
  * @author Dusko Vesin
  * 
  */
-public abstract class AbstractTestUtil implements ITestUtil {
+public abstract class AbstractFabutTest implements IFabutTest {
 
     @Before
     @Override

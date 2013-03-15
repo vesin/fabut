@@ -4,8 +4,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import eu.execom.fabut.CopyAssert;
 import eu.execom.fabut.model.EntityTierOneType;
+import eu.execom.fabut.property.CopyAssert;
 
 /**
  * Test class for {@link CopyAssert}.

@@ -1,6 +1,5 @@
 package eu.execom.fabut;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -71,20 +70,13 @@ public final class Fabut {
         abstractExecomRepositoryAssert.assertSnapshot();
     }
 
-    public static void assertEntityWithSnapshot(final Object actual, final IProperty... properties) {
-        // this method should throw exception if entity id is null or object is null
-        abstractExecomRepositoryAssert.assertEntityWithSnapshot(new FabutReportBuilder(), actual,
+    public static void assertObject(final String message, final Object expected, final IProperty... properties) {
+        abstractExecomRepositoryAssert.assertObjectWithProperties(new FabutReportBuilder(message), expected,
                 abstractExecomRepositoryAssert.extractProperties(properties));
-    }
-
-    public static void assertObjects(final Object expected, final Object actual) {
-        abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(), expected, actual,
-                new ArrayList<ISingleProperty>());
     }
 
     public static void assertObject(final Object expected, final IProperty... properties) {
-        abstractExecomRepositoryAssert.assertObjectWithProperties(new FabutReportBuilder(), expected,
-                abstractExecomRepositoryAssert.extractProperties(properties));
+        assertObject("", expected, properties);
     }
 
     public static void assertObjects(final String message, final Object expected, final Object actual,
@@ -93,18 +85,27 @@ public final class Fabut {
                 abstractExecomRepositoryAssert.extractProperties(excludes));
     }
 
+    public static void assertObjects(final Object expected, final Object actual, final IProperty... excludes) {
+        assertObjects("", expected, actual, excludes);
+    }
+
     public static void assertObjects(final List<Object> expected, final List<Object> actual) {
         abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(), expected, actual,
                 new LinkedList<ISingleProperty>());
     }
 
-    public static void markAsserted(final Object entity) {
-        abstractExecomRepositoryAssert.markAsAsserted(entity, entity.getClass());
+    public static void assertObjects(final List<Object> expected, final Object... actuals) {
+        assertObjects(expected, ConversionUtil.createListFromArray(actuals));
     }
 
-    public static void assertObjects(final List expected, final Object... actuals) {
-        abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(), expected,
-                ConversionUtil.createListFromArray(actuals), new LinkedList<ISingleProperty>());
+    public static void assertObjectWithSnapshot(final Object actual, final IProperty... properties) {
+        // this method should throw exception if entity id is null or object is null
+        abstractExecomRepositoryAssert.assertEntityWithSnapshot(new FabutReportBuilder(), actual,
+                abstractExecomRepositoryAssert.extractProperties(properties));
+    }
+
+    public static void markAsserted(final Object entity) {
+        abstractExecomRepositoryAssert.markAsAsserted(entity, entity.getClass());
     }
 
     public static void assertEntityAsDeleted(final Object entity) {

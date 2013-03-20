@@ -284,7 +284,21 @@ class FabutRepositoryAssert extends FabutObjectAssert {
         return ok;
     }
 
-    // TODO tests, comments
+    /**
+     * TODO comments Assert db snapshot with after state.
+     * 
+     * @param beforeIds
+     *            the before ids
+     * @param afterIds
+     *            the after ids
+     * @param beforeEntities
+     *            the before entities
+     * @param afterEntities
+     *            the after entities
+     * @param report
+     *            the report
+     * @return true, if successful
+     */
     boolean assertDbSnapshotWithAfterState(final TreeSet beforeIds, final TreeSet afterIds,
             final Map<Object, CopyAssert> beforeEntities, final Map<Object, Object> afterEntities,
             final FabutReportBuilder report) {

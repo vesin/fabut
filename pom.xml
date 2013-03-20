@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>eu.execom</groupId>
-	<artifactId>testutil</artifactId>
-	<name>Execom Test Utill</name>
-	<version>2.4.0</version>
+	<artifactId>fabut</artifactId>
+	<name>Execom Fabut</name>
+	<version>3.0</version>
 	<description>Testing tool that helps developers to write better tests.</description>
 	<ciManagement>
 		<system>GIT</system>
@@ -16,7 +16,7 @@
 	<url>https://github.com/vesin/testutil</url>
 	<issueManagement>
 		<url>https://github.com/vesin/testutil/issues</url>
-		<system>Test util git hub issue tracker</system>
+		<system>Fabut git hub issue tracker</system>
 	</issueManagement>
 	<scm>
 		<url>https://github.com/vesin/testutil</url>

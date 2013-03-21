@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import eu.execom.fabut.IFabutTest;
+import eu.execom.fabut.IRepositoryFabutTest;
+import eu.execom.fabut.enums.AssertType;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.pair.AssertPair;
 import eu.execom.fabut.property.Property;
@@ -64,6 +67,16 @@ public final class ConversionUtil {
         final AssertPair assertPair = createAssertPair(expected.getValue(), actual, types);
         assertPair.setProperty(isProperty);
         return assertPair;
+    }
+
+    public static AssertType getAssertType(final Object testInstance) {
+        if (testInstance instanceof IRepositoryFabutTest) {
+            return AssertType.REPOSITORY_ASSERT;
+        } else if (testInstance instanceof IFabutTest) {
+            return AssertType.OBJECT_ASSERT;
+        } else {
+            return AssertType.UNSUPPORTED_ASSERT;
+        }
     }
 
 }

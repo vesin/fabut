@@ -14,7 +14,7 @@ public abstract class AbstractFabutTest implements IFabutTest {
     @Before
     @Override
     public void beforeTest() {
-        Fabut.beforeTest();
+        Fabut.beforeTest(this);
     };
 
     @After

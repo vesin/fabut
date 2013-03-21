@@ -120,7 +120,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         setList2(afterist2);
 
         // method
-        final boolean assertResult = assertDbState();
+        final boolean assertResult = assertDbSnapshot();
 
         // assert
         assertTrue(assertResult);
@@ -152,7 +152,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         setList2(afterList2);
 
         // method
-        final boolean assertResult = assertDbState();
+        final boolean assertResult = assertDbSnapshot();
 
         // assert
         assertFalse(assertResult);
@@ -178,7 +178,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // method
         final boolean assertEnitityAsDeleted = assertEntityAsDeleted(actual);
-        final boolean assertDbState = assertDbState();
+        final boolean assertDbState = assertDbSnapshot();
 
         // assert
         assertTrue(assertEnitityAsDeleted);
@@ -205,7 +205,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // method
         final boolean ignoreEntity = ignoreEntity(actual);
-        final boolean assertDbState = assertDbState();
+        final boolean assertDbState = assertDbSnapshot();
 
         // assert
         assertTrue(ignoreEntity);
@@ -233,7 +233,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // method
         final boolean afterAssertEntity = afterAssertEntity(actual, false);
-        final boolean assertDbState = assertDbState();
+        final boolean assertDbState = assertDbSnapshot();
 
         // assert
         assertTrue(afterAssertEntity);
@@ -261,7 +261,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // method
         afterAssertEntity(actual, true);
-        final boolean assertResult = assertDbState();
+        final boolean assertResult = assertDbSnapshot();
 
         // assert
         assertTrue(assertResult);
@@ -288,7 +288,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // method
         afterAssertEntity(actual, false);
-        final boolean assertResult = assertDbState();
+        final boolean assertResult = assertDbSnapshot();
 
         // assert
         assertFalse(assertResult);
@@ -311,7 +311,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // method
         final boolean afterAssertEntity = afterAssertEntity(actual, false);
-        final boolean assertDbState = assertDbState();
+        final boolean assertDbState = assertDbSnapshot();
 
         // assert
         assertTrue(afterAssertEntity);
@@ -334,7 +334,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
                 new EntityTierThreeType(TEST, 1, new EntityTierOneType(PROPERTY, 10)), EntityTierThreeType.class);
 
         // assert
-        assertTrue(assertDbState());
+        assertTrue(assertDbSnapshot());
         assertTrue(assertValue);
     }
 
@@ -349,7 +349,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
         final boolean assertValue = markAsAsserted(new UnknownEntityType(4), UnknownEntityType.class);
 
         // assert
-        assertTrue(assertDbState());
+        assertTrue(assertDbSnapshot());
         assertFalse(assertValue);
     }
 
@@ -369,7 +369,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
                 EntityTierTwoType.class);
 
         // assert
-        assertTrue(assertDbState());
+        assertTrue(assertDbSnapshot());
         assertTrue(assertValue);
     }
 
@@ -391,7 +391,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
                 EntityTierTwoType.class);
 
         // assert
-        assertTrue(assertDbState());
+        assertTrue(assertDbSnapshot());
         assertTrue(assertValue);
     }
 
@@ -704,7 +704,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // assert
         assertTrue(assertEntityWithSnapshot);
-        assertTrue(assertDbState());
+        assertTrue(assertDbSnapshot());
 
     }
 
@@ -727,7 +727,7 @@ public class FabutRepositoryAssertTest extends AbstractExecomRepositoryAssertTes
 
         // assert
         assertFalse(assertEntityWithSnapshot);
-        assertTrue(assertDbState());
+        assertTrue(assertDbSnapshot());
 
     }
 }

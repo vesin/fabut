@@ -1,6 +1,6 @@
 package eu.execom.fabut;
 
-import eu.execom.fabut.FabutObjectAssert;
+import org.junit.Before;
 
 /**
  * TODO add comments
@@ -52,6 +52,15 @@ public abstract class AbstractExecomAssertTest extends FabutObjectAssert {
     // entityTypes.add(EntityTierTwoType.class);
     // entityTypes.add(EntityTierOneType.class);
     // }
+
+    void somethis(final Object tthis) {
+        System.out.println(tthis.getClass());
+    }
+
+    @Before
+    public void before() {
+        somethis(this);
+    }
 
     @Override
     protected void customAssertEquals(final Object actual, final Object expected) {

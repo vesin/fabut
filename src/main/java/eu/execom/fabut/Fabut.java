@@ -1,13 +1,12 @@
 package eu.execom.fabut;
 
-import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.AssertionFailedError;
+import eu.execom.fabut.enums.AssertType;
 import eu.execom.fabut.property.IProperty;
-import eu.execom.fabut.property.ISingleProperty;
 import eu.execom.fabut.report.FabutReportBuilder;
 import eu.execom.fabut.util.ConversionUtil;
-import eu.execom.fabut.util.ReflectionUtil;
 
 /**
  * TODO add comments.
@@ -18,61 +17,56 @@ import eu.execom.fabut.util.ReflectionUtil;
 // TODO for all methods check can method be called
 public final class Fabut {
 
-    private static Class<?> testClass = null;
-    private static FabutRepositoryAssert abstractExecomRepositoryAssert = null;
+    private static FabutRepositoryAssert fabutAssert = null;
+    private static AssertType assertType;
 
     /**
-     * Private constructor to avoid create instance of this class.
+     * Private constructor to forbid instancing this class.
      */
     private Fabut() {
 
     }
 
-    public static void takeSnapshot() {
-        abstractExecomRepositoryAssert.takeSnapshot();
-    }
-
-    /**
-     * Asserts current database snapshot with one previously taken.
-     */
-    public static void assertDbState() {
-        abstractExecomRepositoryAssert.assertDbState();
-    }
-
-    // TODO why is this published ? End user shouldnt be able to us it.
-    public static final List<Object> findAll(final Class<?> entityClass) {
-        return ReflectionUtil.findAll(testClass, entityClass);
-    }
-
-    // TODO why is this published ? End user shouldnt be able to us it.
-    public static Object findById(final Class<?> entityClass, final Object id) {
-        return ReflectionUtil.findById(testClass, entityClass, id);
-    }
-
-    public static void beforeTest() {
-        abstractExecomRepositoryAssert = new FabutRepositoryAssert();
-        // TODO get instance of the class not class
-        testClass = ReflectionUtil.getTestClassFromStackTrace();
-        // TODO dont create instance of test class every time, pass it as parameter
-        // TODO throw IllegalStateException if getComplexTypes returns null
-        abstractExecomRepositoryAssert.setComplexTypes(ReflectionUtil.getComplexTypes(testClass));
-        // TODO throw IllegalStateException if getIgnoredTypes returns null
-        abstractExecomRepositoryAssert.setIgnoredTypes(ReflectionUtil.getIgnoredTypes(testClass));
-        abstractExecomRepositoryAssert.initParametersSnapshot();
-
-        // TODO Move to RepositoryTestUtil
-        // TODO throw IllegalStateException if getEntityTypes returns null
-        abstractExecomRepositoryAssert.setEntityTypes(ReflectionUtil.getEntityTypes(testClass));
-        abstractExecomRepositoryAssert.initDbSnapshot();
+    public static synchronized void beforeTest(final Object testInstance) {
+        assertType = ConversionUtil.getAssertType(testInstance);
+        switch (assertType) {
+        case OBJECT_ASSERT:
+            fabutAssert = new FabutRepositoryAssert((IFabutTest) testInstance);
+            break;
+        case REPOSITORY_ASSERT:
+            fabutAssert = new FabutRepositoryAssert((IRepositoryFabutTest) testInstance);
+            break;
+        case UNSUPPORTED_ASSERT:
+            throw new IllegalStateException("This test must implement IFabutAssert or IRepositoryFabutAssert");
+        }
     }
 
     public static void afterTest() {
-        abstractExecomRepositoryAssert.assertSnapshot();
+        // TODO this should be reworked once parameter snapshot is ready
+        // fabutAssert.assertParameterSnapshot();
+
+        if (assertType == AssertType.REPOSITORY_ASSERT) {
+            final FabutReportBuilder report = new FabutReportBuilder();
+            final boolean ok = fabutAssert.assertDbSnapshot(report);
+            if (!ok) {
+                throw new AssertionFailedError(report.getMessage());
+            }
+        }
+
+    }
+
+    public static void takeSnapshot() {
+        checkIfRepositoryAssert();
+        fabutAssert.takeSnapshot();
     }
 
     public static void assertObject(final String message, final Object expected, final IProperty... properties) {
-        abstractExecomRepositoryAssert.assertObjectWithProperties(new FabutReportBuilder(message), expected,
-                abstractExecomRepositoryAssert.extractProperties(properties));
+        final FabutReportBuilder report = new FabutReportBuilder(message);
+        final boolean ok = fabutAssert.assertObjectWithProperties(report, expected,
+                fabutAssert.extractProperties(properties));
+        if (!ok) {
+            throw new AssertionFailedError(report.getMessage());
+        }
     }
 
     public static void assertObject(final Object expected, final IProperty... properties) {
@@ -81,38 +75,61 @@ public final class Fabut {
 
     public static void assertObjects(final String message, final Object expected, final Object actual,
             final IProperty... excludes) {
-        abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(message), expected, actual,
-                abstractExecomRepositoryAssert.extractProperties(excludes));
+        final FabutReportBuilder report = new FabutReportBuilder(message);
+        final boolean ok = fabutAssert.assertObjects(report, expected, actual, fabutAssert.extractProperties(excludes));
+        if (!ok) {
+            throw new AssertionFailedError(report.getMessage());
+        }
     }
 
     public static void assertObjects(final Object expected, final Object actual, final IProperty... excludes) {
         assertObjects("", expected, actual, excludes);
     }
 
-    public static void assertObjects(final List<Object> expected, final List<Object> actual) {
-        abstractExecomRepositoryAssert.assertObjects(new FabutReportBuilder(), expected, actual,
-                new LinkedList<ISingleProperty>());
-    }
-
     public static void assertObjects(final List<Object> expected, final Object... actuals) {
         assertObjects(expected, ConversionUtil.createListFromArray(actuals));
     }
 
-    public static void assertObjectWithSnapshot(final Object actual, final IProperty... properties) {
-        // this method should throw exception if entity id is null or object is null
-        abstractExecomRepositoryAssert.assertEntityWithSnapshot(new FabutReportBuilder(), actual,
-                abstractExecomRepositoryAssert.extractProperties(properties));
+    public static void assertEntityWithSnapshot(final Object entity, final IProperty... properties) {
+        checkIfEntity(entity);
+        final boolean ok = fabutAssert.assertEntityWithSnapshot(new FabutReportBuilder(), entity,
+                fabutAssert.extractProperties(properties));
+        if (!ok) {
+            throw new AssertionFailedError();
+        }
     }
 
     public static void markAsserted(final Object entity) {
-        abstractExecomRepositoryAssert.markAsAsserted(entity, entity.getClass());
+        checkIfEntity(entity);
+        final FabutReportBuilder report = new FabutReportBuilder();
+        final boolean ok = fabutAssert.markAsAsserted(report, entity, entity.getClass());
+        if (!ok) {
+            throw new AssertionFailedError(report.getMessage());
+        }
     }
 
     public static void assertEntityAsDeleted(final Object entity) {
-        abstractExecomRepositoryAssert.assertEntityAsDeleted(entity);
+        checkIfEntity(entity);
+        final FabutReportBuilder report = new FabutReportBuilder();
+        fabutAssert.assertEntityAsDeleted(report, entity);
     }
 
     public static void ignoreEntity(final Object entity) {
-        abstractExecomRepositoryAssert.ignoreEntity(entity);
+        checkIfEntity(entity);
+        final FabutReportBuilder report = new FabutReportBuilder();
+        fabutAssert.ignoreEntity(report, entity);
+    }
+
+    private static void checkIfEntity(final Object entity) {
+        checkIfRepositoryAssert();
+        if (!fabutAssert.getEntityTypes().contains(entity)) {
+            throw new IllegalStateException(entity.getClass() + " is not registered as entity type");
+        }
+    }
+
+    private static void checkIfRepositoryAssert() {
+        if (assertType != AssertType.REPOSITORY_ASSERT) {
+            throw new IllegalStateException("Test must implement IRepositoryFabutAssert");
+        }
     }
 }

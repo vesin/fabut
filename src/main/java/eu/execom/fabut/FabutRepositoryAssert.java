@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
+import eu.execom.fabut.enums.AssertType;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.graph.NodesList;
 import eu.execom.fabut.pair.AssertPair;
@@ -30,19 +31,33 @@ import eu.execom.fabut.util.ReflectionUtil;
 class FabutRepositoryAssert extends FabutObjectAssert {
 
     /** The db snapshot. */
-    private final Map<Class<?>, Map<Object, CopyAssert>> dbSnapshot;
+    private Map<Class<?>, Map<Object, CopyAssert>> dbSnapshot;
+    private IRepositoryFabutTest repositoryFabutTest;
+    private final AssertType assertType;
 
     /**
      * Default constructor.
      */
-    public FabutRepositoryAssert() {
-        super();
+    public FabutRepositoryAssert(final IRepositoryFabutTest repositoryFabutTest) {
+        super(repositoryFabutTest);
+        this.repositoryFabutTest = repositoryFabutTest;
         dbSnapshot = new HashMap<Class<?>, Map<Object, CopyAssert>>();
+        assertType = AssertType.REPOSITORY_ASSERT;
+        getTypes().put(AssertableType.ENTITY_TYPE, repositoryFabutTest.getEntityTypes());
+    }
+
+    public FabutRepositoryAssert(final IFabutTest fabutTest) {
+        super(fabutTest);
+        assertType = AssertType.OBJECT_ASSERT;
     }
 
     @Override
     protected boolean assertEntityPair(final FabutReportBuilder report, final String propertyName,
             final AssertPair pair, final List<ISingleProperty> properties, final NodesList nodesList) {
+        if (assertType == AssertType.OBJECT_ASSERT) {
+            return super.assertEntityPair(report, propertyName, pair, properties, nodesList);
+        }
+
         if (pair.isProperty()) {
             return assertEntityById(report, propertyName, pair);
         } else {
@@ -56,9 +71,9 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      * @param actual
      * @return <code>true</code> if entity is really deleted, <code>false</code> otherwise.
      */
-    public boolean assertEntityAsDeleted(final Object actual) {
+    public boolean assertEntityAsDeleted(final FabutReportBuilder report, final Object actual) {
 
-        final boolean ignoreEntity = ignoreEntity(actual);
+        final boolean ignoreEntity = ignoreEntity(report, actual);
 
         final Object findById = findById(actual.getClass(), ReflectionUtil.getIdValue(actual));
         return ignoreEntity && findById == null;
@@ -70,8 +85,8 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      * @param actual
      * @return <code>true</code> if entity can be found in db snapshot, <code>false</code> otherwise.
      */
-    public boolean ignoreEntity(final Object actual) {
-        return markAsAsserted(actual, actual.getClass());
+    public boolean ignoreEntity(final FabutReportBuilder report, final Object actual) {
+        return markAsAsserted(report, actual, actual.getClass());
     }
 
     /**
@@ -106,9 +121,9 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      * @param isProperty
      * @return <code>true</code> if entity can be marked that is asserted, <code>false</code> otherwise.
      */
-    final boolean afterAssertEntity(final Object entity, final boolean isProperty) {
+    final boolean afterAssertEntity(final FabutReportBuilder report, final Object entity, final boolean isProperty) {
         if (!isProperty && ReflectionUtil.getIdValue(entity) != null) {
-            return markAsAsserted(entity, entity.getClass());
+            return markAsAsserted(report, entity, entity.getClass());
         } else {
             return ASSERT_FAIL;
         }
@@ -121,9 +136,8 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      *            the entity class
      * @return the list
      */
-    // TODO this should be changed to use test instance
     protected List<Object> findAll(final Class<?> entityClass) {
-        return Fabut.findAll(entityClass);
+        return repositoryFabutTest.findAll(entityClass);
     }
 
     /**
@@ -135,9 +149,8 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      *            the id
      * @return the entity type
      */
-    // TODO this should be changed to use test instance
     protected Object findById(final Class<?> entityClass, final Object id) {
-        return Fabut.findById(entityClass, id);
+        return repositoryFabutTest.findById(entityClass, id);
     }
 
     /**
@@ -156,10 +169,10 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      *            the actual type
      * @return <code>true</code> if entity is successfully asserted else return <code>false</code>.
      */
-    protected boolean markAsAsserted(final Object entity, final Class<?> actualType) {
+    protected boolean markAsAsserted(final FabutReportBuilder report, final Object entity, final Class<?> actualType) {
 
         final Object id = ReflectionUtil.getIdValue(entity);
-        Assert.assertNotNull("Entity id can't be null " + entity, id);
+        // TODO check if id is null and report it!
         final Map<Object, CopyAssert> map = dbSnapshot.get(actualType);
         final boolean isTypeSupported = map != null;
 
@@ -173,7 +186,9 @@ class FabutRepositoryAssert extends FabutObjectAssert {
         }
 
         final Class<?> superClassType = actualType.getSuperclass();
-        final boolean isSuperSuperTypeSupported = (superClassType != null) && markAsAsserted(entity, superClassType);
+        final boolean isSuperSuperTypeSupported = (superClassType != null)
+                && markAsAsserted(report, entity, superClassType);
+        // TODO this should be reported before returned
         return isTypeSupported || isSuperSuperTypeSupported;
     }
 
@@ -194,20 +209,10 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     /**
-     * Asserts all previously taken snapshots. TODO rework this so it can report assert snapshot fails.
-     */
-    @Override
-    protected void assertSnapshot() {
-        super.assertSnapshot();
-        assertDbState();
-    }
-
-    /**
      * Asserts db snapshot with after db state.
      */
-    protected boolean assertDbState() {
+    protected boolean assertDbSnapshot(final FabutReportBuilder report) {
         boolean ok = true;
-        final FabutReportBuilder report = new FabutReportBuilder();
 
         // assert entities by classes
         for (final Entry<Class<?>, Map<Object, CopyAssert>> snapshotEntry : dbSnapshot.entrySet()) {

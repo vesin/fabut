@@ -325,7 +325,7 @@ public final class ReflectionUtil {
     }
 
     // TODO this might need tweaking, tests and comments
-    public static Class<?> getTestClassFromStackTrace() {
+    public static Class<?> getTestInstanceFromStackTrace() {
         final StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         for (final StackTraceElement stackTraceElement : stackTraceElements) {
             try {

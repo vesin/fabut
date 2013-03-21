@@ -2,27 +2,20 @@ package eu.execom.fabut;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import eu.execom.fabut.FabutObjectAssert;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.enums.ReferenceCheckType;
 import eu.execom.fabut.graph.NodesList;
 import eu.execom.fabut.model.A;
 import eu.execom.fabut.model.B;
 import eu.execom.fabut.model.C;
-import eu.execom.fabut.model.DoubleLink;
 import eu.execom.fabut.model.EntityTierOneType;
-import eu.execom.fabut.model.IgnoredMethodsType;
 import eu.execom.fabut.model.IgnoredType;
 import eu.execom.fabut.model.NoGetMethodsType;
-import eu.execom.fabut.model.Start;
 import eu.execom.fabut.model.TierFiveType;
 import eu.execom.fabut.model.TierFourType;
 import eu.execom.fabut.model.TierOneType;
@@ -59,39 +52,45 @@ public class FabutObjectAssertTest extends AbstractExecomAssertTest {
     private static final String TEST = "test";
     private static final String DOT = ".";
 
-    @Before
-    public void before() {
+    // @Override
+    // @Before
+    // public void before() {
+    //
+    // final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
+    // complexTypes.add(A.class);
+    // complexTypes.add(B.class);
+    // complexTypes.add(C.class);
+    // complexTypes.add(TierOneType.class);
+    // complexTypes.add(TierTwoType.class);
+    // complexTypes.add(TierThreeType.class);
+    // complexTypes.add(TierFourType.class);
+    // complexTypes.add(TierFiveType.class);
+    // complexTypes.add(TierSixType.class);
+    // complexTypes.add(NoGetMethodsType.class);
+    // complexTypes.add(IgnoredMethodsType.class);
+    // complexTypes.add(TierTwoTypeWithIgnoreProperty.class);
+    // complexTypes.add(TierTwoTypeWithListProperty.class);
+    // complexTypes.add(TierTwoTypeWithPrimitiveProperty.class);
+    //
+    // complexTypes.add(DoubleLink.class);
+    // complexTypes.add(Start.class);
+    // setComplexTypes(complexTypes);
+    //
+    // final List<Class<?>> ignoredTypes = new LinkedList<Class<?>>();
+    // ignoredTypes.add(IgnoredType.class);
+    // setIgnoredTypes(ignoredTypes);
+    //
+    // final Map<AssertableType, List<Class<?>>> types = new EnumMap<AssertableType, List<Class<?>>>(
+    // AssertableType.class);
+    // types.put(AssertableType.COMPLEX_TYPE, complexTypes);
+    // types.put(AssertableType.IGNORED_TYPE, ignoredTypes);
+    // types.put(AssertableType.ENTITY_TYPE, new LinkedList<Class<?>>());
+    // setTypes(types);
+    // }
 
-        final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
-        complexTypes.add(A.class);
-        complexTypes.add(B.class);
-        complexTypes.add(C.class);
-        complexTypes.add(TierOneType.class);
-        complexTypes.add(TierTwoType.class);
-        complexTypes.add(TierThreeType.class);
-        complexTypes.add(TierFourType.class);
-        complexTypes.add(TierFiveType.class);
-        complexTypes.add(TierSixType.class);
-        complexTypes.add(NoGetMethodsType.class);
-        complexTypes.add(IgnoredMethodsType.class);
-        complexTypes.add(TierTwoTypeWithIgnoreProperty.class);
-        complexTypes.add(TierTwoTypeWithListProperty.class);
-        complexTypes.add(TierTwoTypeWithPrimitiveProperty.class);
-
-        complexTypes.add(DoubleLink.class);
-        complexTypes.add(Start.class);
-        setComplexTypes(complexTypes);
-
-        final List<Class<?>> ignoredTypes = new LinkedList<Class<?>>();
-        ignoredTypes.add(IgnoredType.class);
-        setIgnoredTypes(ignoredTypes);
-
-        final Map<AssertableType, List<Class<?>>> types = new EnumMap<AssertableType, List<Class<?>>>(
-                AssertableType.class);
-        types.put(AssertableType.COMPLEX_TYPE, complexTypes);
-        types.put(AssertableType.IGNORED_TYPE, ignoredTypes);
-        types.put(AssertableType.ENTITY_TYPE, new LinkedList<Class<?>>());
-        setTypes(types);
+    @Test
+    public void testStack() {
+        System.out.println("where is before");
     }
 
     /**

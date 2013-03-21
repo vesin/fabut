@@ -57,13 +57,18 @@ abstract class FabutObjectAssert extends Assert {
     /** Instance of the JUnit test that is currently running. */
     private Object testInstance;
 
+    private final IFabutTest fabutTest;
+
     /**
      * Instantiates a new fabut object assert.
      */
-    public FabutObjectAssert() {
+    public FabutObjectAssert(final IFabutTest fabutTest) {
         super();
+        this.fabutTest = fabutTest;
         types = new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class);
         parameterSnapshot = new ArrayList<SnapshotPair>();
+        types.put(AssertableType.COMPLEX_TYPE, fabutTest.getComplexTypes());
+        types.put(AssertableType.IGNORED_TYPE, fabutTest.getIgnoredTypes());
     }
 
     /**
@@ -300,7 +305,7 @@ abstract class FabutObjectAssert extends Assert {
      */
     boolean assertPrimitives(final FabutReportBuilder report, final String propertyName, final AssertPair pair) {
         try {
-            customAssertEquals(pair.getExpected(), pair.getActual());
+            fabutTest.customAssertEquals(pair.getExpected(), pair.getActual());
             report.asserted(pair, propertyName);
             return ASSERTED;
         } catch (final AssertionError e) {
@@ -318,7 +323,7 @@ abstract class FabutObjectAssert extends Assert {
      *            actual object
      */
     protected void customAssertEquals(final Object expected, final Object actual) {
-        // TODO this method should get custom implementation by calling it from test instance via reflection.
+        fabutTest.customAssertEquals(expected, actual);
     }
 
     /**
@@ -550,7 +555,7 @@ abstract class FabutObjectAssert extends Assert {
     /**
      * Asserts current parameters states with snapshot previously taken.
      */
-    void assertSnapshot() {
+    void assertParameterSnapshot() {
 
         boolean ok = true;
         final FabutReportBuilder report = new FabutReportBuilder();

@@ -69,6 +69,7 @@ abstract class FabutObjectAssert extends Assert {
         parameterSnapshot = new ArrayList<SnapshotPair>();
         types.put(AssertableType.COMPLEX_TYPE, fabutTest.getComplexTypes());
         types.put(AssertableType.IGNORED_TYPE, fabutTest.getIgnoredTypes());
+        types.put(AssertableType.ENTITY_TYPE, new LinkedList<Class<?>>());
     }
 
     /**
@@ -279,6 +280,7 @@ abstract class FabutObjectAssert extends Assert {
                         properties, nodesList, true);
 
             } catch (final Exception e) {
+                e.printStackTrace();
                 report.uncallableMethod(expectedMethod, pair.getActual());
                 t = ASSERT_FAIL;
             }

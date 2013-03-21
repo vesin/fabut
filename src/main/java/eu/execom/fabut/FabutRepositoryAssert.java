@@ -68,25 +68,33 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     /**
      * Asserts that entity has been deleted in after db state.
      * 
-     * @param actual
+     * @param entity
      * @return <code>true</code> if entity is really deleted, <code>false</code> otherwise.
      */
-    public boolean assertEntityAsDeleted(final FabutReportBuilder report, final Object actual) {
+    public boolean assertEntityAsDeleted(final FabutReportBuilder report, final Object entity) {
 
-        final boolean ignoreEntity = ignoreEntity(report, actual);
+        final boolean ignoreEntity = ignoreEntity(report, entity);
 
-        final Object findById = findById(actual.getClass(), ReflectionUtil.getIdValue(actual));
-        return ignoreEntity && findById == null;
+        final Object findById = findById(entity.getClass(), ReflectionUtil.getIdValue(entity));
+        final boolean isDeletedInRepository = findById == null;
+
+        if (!isDeletedInRepository) {
+            report.notDeletedInRepositoy(entity);
+        }
+        return ignoreEntity && isDeletedInRepository;
     }
 
     /**
      * Ignores the entity.
      * 
-     * @param actual
+     * @param report
+     *            the report
+     * @param entity
+     *            the actual
      * @return <code>true</code> if entity can be found in db snapshot, <code>false</code> otherwise.
      */
-    public boolean ignoreEntity(final FabutReportBuilder report, final Object actual) {
-        return markAsAsserted(report, actual, actual.getClass());
+    public boolean ignoreEntity(final FabutReportBuilder report, final Object entity) {
+        return markAsAsserted(report, entity, entity.getClass());
     }
 
     /**
@@ -161,7 +169,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      */
 
     /**
-     * Mark entity bean as asserted in db snapshot map. Go trough all its supper classes and if its possible assert it.
+     * TODO tests, comments.
      * 
      * @param entity
      *            the entity
@@ -172,7 +180,30 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     protected boolean markAsAsserted(final FabutReportBuilder report, final Object entity, final Class<?> actualType) {
 
         final Object id = ReflectionUtil.getIdValue(entity);
-        // TODO check if id is null and report it!
+        if (id == null) {
+            report.idNull(actualType);
+            return ASSERT_FAIL;
+        }
+        if (!markAsserted(id, entity, actualType)) {
+            report.notExistingInSnapshot(entity);
+            return ASSERT_FAIL;
+        }
+        return ASSERTED;
+    }
+
+    /**
+     * Mark entity bean as asserted in db snapshot map. Go trough all its supper classes and if its possible assert it.
+     * TODO tests
+     * 
+     * @param id
+     *            the id
+     * @param entity
+     *            the entity
+     * @param actualType
+     *            the actual type
+     * @return true, if successful
+     */
+    protected boolean markAsserted(final Object id, final Object entity, final Class<?> actualType) {
         final Map<Object, CopyAssert> map = dbSnapshot.get(actualType);
         final boolean isTypeSupported = map != null;
 
@@ -186,9 +217,8 @@ class FabutRepositoryAssert extends FabutObjectAssert {
         }
 
         final Class<?> superClassType = actualType.getSuperclass();
-        final boolean isSuperSuperTypeSupported = (superClassType != null)
-                && markAsAsserted(report, entity, superClassType);
-        // TODO this should be reported before returned
+        final boolean isSuperSuperTypeSupported = (superClassType != null) && markAsserted(id, entity, superClassType);
+
         return isTypeSupported || isSuperSuperTypeSupported;
     }
 
@@ -213,7 +243,6 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      */
     protected boolean assertDbSnapshot(final FabutReportBuilder report) {
         boolean ok = true;
-
         // assert entities by classes
         for (final Entry<Class<?>, Map<Object, CopyAssert>> snapshotEntry : dbSnapshot.entrySet()) {
 

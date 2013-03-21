@@ -92,18 +92,17 @@ public final class Fabut {
 
     public static void assertEntityWithSnapshot(final Object entity, final IProperty... properties) {
         checkIfEntity(entity);
-        final boolean ok = fabutAssert.assertEntityWithSnapshot(new FabutReportBuilder(), entity,
-                fabutAssert.extractProperties(properties));
-        if (!ok) {
-            throw new AssertionFailedError();
+        final FabutReportBuilder report = new FabutReportBuilder();
+        if (!fabutAssert.assertEntityWithSnapshot(new FabutReportBuilder(), entity,
+                fabutAssert.extractProperties(properties))) {
+            throw new AssertionFailedError(report.getMessage());
         }
     }
 
     public static void markAsserted(final Object entity) {
         checkIfEntity(entity);
         final FabutReportBuilder report = new FabutReportBuilder();
-        final boolean ok = fabutAssert.markAsAsserted(report, entity, entity.getClass());
-        if (!ok) {
+        if (!fabutAssert.markAsAsserted(report, entity, entity.getClass())) {
             throw new AssertionFailedError(report.getMessage());
         }
     }
@@ -111,13 +110,17 @@ public final class Fabut {
     public static void assertEntityAsDeleted(final Object entity) {
         checkIfEntity(entity);
         final FabutReportBuilder report = new FabutReportBuilder();
-        fabutAssert.assertEntityAsDeleted(report, entity);
+        if (!fabutAssert.assertEntityAsDeleted(report, entity)) {
+            throw new AssertionFailedError(report.getMessage());
+        }
     }
 
     public static void ignoreEntity(final Object entity) {
         checkIfEntity(entity);
         final FabutReportBuilder report = new FabutReportBuilder();
-        fabutAssert.ignoreEntity(report, entity);
+        if (!fabutAssert.ignoreEntity(report, entity)) {
+            throw new AssertionFailedError(report.getMessage());
+        }
     }
 
     private static void checkIfEntity(final Object entity) {

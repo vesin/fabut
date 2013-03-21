@@ -11,7 +11,7 @@ import eu.execom.fabut.property.NullProperty;
 
 /**
  * Report builder used for creating clean and readable reports. Its point is to emphasize failed asserts so developer
- * can track the easy.
+ * can track them easy.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -49,7 +49,7 @@ public class FabutReportBuilder {
      */
     public FabutReportBuilder(final String message) {
         this();
-        // FIXME is this realy necessary?
+        // FIXME is this really necessary?
         messageParts.add(message.length() > 0 ? "\n" + message : message);
         failedMessagePosition = 1;
 
@@ -299,7 +299,8 @@ public class FabutReportBuilder {
      * Reports failure when entity in current snapshot doesn't have matching entity in before snapshot and isn't
      * asserted in test.
      * <p>
-     * Example: <i>■> EntityUser [id=100] is created in system after last snapshot but hasnt been asserted in test..</i>
+     * Example: <i>■> Entity User [id=100] is created in system after last snapshot but hasnt been asserted in
+     * test..</i>
      * </p>
      * 
      * @param entity
@@ -344,7 +345,7 @@ public class FabutReportBuilder {
     }
 
     /**
-     * Appends asserted objects comment.
+     * Reports asserted objects comment.
      * <p>
      * Example: <i>id: expected: 11 and was: 11.</i>
      * </p>
@@ -361,7 +362,7 @@ public class FabutReportBuilder {
     }
 
     /**
-     * Appends assert fail comment.
+     * Reports assert fail comment.
      * <p>
      * Example: <i>name: expected: John, but was: Mike.</i>
      * </p>
@@ -374,7 +375,49 @@ public class FabutReportBuilder {
     public void assertFail(final AssertPair pair, final String propertyName) {
         final String comment = String.format("%s: expected: %s, but was: %s", propertyName, pair.getExpected(),
                 pair.getActual());
-        addComment(comment, CommentType.SUCCESS);
+        addComment(comment, CommentType.FAIL);
+    }
+
+    /**
+     * Reports that entity of specified type cannot have null id.
+     * <p>
+     * Example: <i>Id of User cannot be null</i>
+     * </p>
+     * 
+     * @param clazz
+     *            the clazz
+     */
+    public void idNull(final Class<?> clazz) {
+        final String comment = String.format("Id of %s cannot be null", clazz.getSimpleName());
+        addComment(comment, CommentType.FAIL);
+    }
+
+    /**
+     * Reports that specified type of entity doesn't exist in snapshot.
+     * <p>
+     * Example: <i>Entity: User [id=100] cannot be found in snapshot</i>
+     * </p>
+     * 
+     * @param entity
+     *            the entity
+     */
+    public void notExistingInSnapshot(final Object entity) {
+        final String comment = String.format("Entity: %s cannot be found in snapshot", entity);
+        addComment(comment, CommentType.FAIL);
+    }
+
+    /**
+     * Reports that entity is not deleted in repository
+     * <p>
+     * Example: <i>Entity: User [id=100] was not deleted in repository</i>
+     * </p>
+     * 
+     * @param entity
+     *            the entity
+     */
+    public void notDeletedInRepositoy(final Object entity) {
+        final String comment = String.format("Entity: % was not deleted in repository", entity);
+        addComment(comment, CommentType.FAIL);
     }
 
 }

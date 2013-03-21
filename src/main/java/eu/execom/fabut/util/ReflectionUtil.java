@@ -362,7 +362,6 @@ public final class ReflectionUtil {
     // TODO needs test, maybe further refactoring
     public static AssertableType getObjectType(final Object expected, final Object actual,
             final Map<AssertableType, List<Class<?>>> types) {
-
         if (expected == null && actual == null) {
             return AssertableType.PRIMITIVE_TYPE;
         }

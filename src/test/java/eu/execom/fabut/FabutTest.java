@@ -7,8 +7,6 @@ import junit.framework.AssertionFailedError;
 
 import org.junit.Test;
 
-import com.sun.xml.internal.bind.v2.runtime.property.PropertyFactory;
-
 import eu.execom.fabut.model.EntityTierOneType;
 import eu.execom.fabut.model.NoDefaultConstructorEntity;
 import eu.execom.fabut.model.TierOneType;
@@ -83,7 +81,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
     }
 
     /**
-     * Test for {@link PropertyFactory#notNull(String)}.
+     * Test for {@link Fabut#notNull(String)}.
      */
     @Test
     public void testNotNull() {
@@ -96,7 +94,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
     }
 
     /**
-     * Test for {@link PropertyFactory#isNull(String)}.
+     * Test for {@link Fabut#isNull(String)}.
      */
     @Test
     public void testNulll() {
@@ -109,7 +107,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
     }
 
     /**
-     * Test for {@link PropertyFactory#ignored(String)}.
+     * Test for {@link Fabut#ignored(String)}.
      */
     @Test
     public void testIgnored() {
@@ -122,7 +120,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
     }
 
     /**
-     * Test for {@link PropertyFactory#value(String, Object)}.
+     * Test for {@link Fabut#value(String, Object)}.
      */
     @Test
     public void testValue() {
@@ -307,7 +305,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
     }
 
     /**
-     * Test for {@link Fabut#assertObjects(List, Object...)} when specified objects are lists and they can be asserted.
+     * Test for {@link Fabut#assertLists(List, Object...)} when specified objects are lists and they can be asserted.
      */
     @Test
     public void testAssertObjectsListSuccess() {
@@ -319,12 +317,12 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
         expected.add(new TierOneType(TEST + TEST));
 
         // method
-        Fabut.assertObjects(expected, new TierOneType(TEST), new TierOneType(TEST + TEST));
+        Fabut.assertLists(expected, new TierOneType(TEST), new TierOneType(TEST + TEST));
         Fabut.afterTest();
     }
 
     /**
-     * Test for {@link Fabut#assertObjects(List, Object...)} when specified objects are lists and they cannot be
+     * Test for {@link Fabut#assertLists(List, Object...)} when specified objects are lists and they cannot be
      * asserted.
      */
     @Test(expected = AssertionFailedError.class)
@@ -337,7 +335,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
         expected.add(new TierOneType(TEST + TEST));
 
         // method
-        Fabut.assertObjects(expected, new TierOneType(TEST), new TierOneType(TEST));
+        Fabut.assertLists(expected, new TierOneType(TEST), new TierOneType(TEST));
         Fabut.afterTest();
     }
 

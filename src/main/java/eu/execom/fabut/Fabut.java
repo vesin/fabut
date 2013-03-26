@@ -162,7 +162,7 @@ public final class Fabut {
      * @param actuals
      *            the actual array
      */
-    public static void assertLists(final List<Object> expected, final Object... actuals) {
+    public static void assertLists(final List expected, final Object... actuals) {
         assertObjects("", expected, ConversionUtil.createListFromArray(actuals));
     }
 

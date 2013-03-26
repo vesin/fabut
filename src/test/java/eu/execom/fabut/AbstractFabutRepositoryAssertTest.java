@@ -37,7 +37,7 @@ import eu.execom.fabut.model.TierTwoTypeWithPrimitiveProperty;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public class AbstractFabutRepositoryAssertTest extends Assert implements IRepositoryFabutTest {
+public class AbstractFabutRepositoryAssertTest extends Assert implements IFabutRepositoryTest {
     // mock lists
     private List<Object> entityTierOneTypes = new ArrayList<Object>();
     private List<Object> entityTierTwoTypes = new ArrayList<Object>();

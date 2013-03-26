@@ -137,7 +137,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 
     /**
      * Test for {@link Fabut#beforeTest(Object)} if it throws {@link IllegalStateException} if specified test instance
-     * doesn't implement {@link IFabutTest} or {@link IRepositoryFabutTest}.
+     * doesn't implement {@link IFabutTest} or {@link IFabutRepositoryTest}.
      */
     @Test(expected = IllegalStateException.class)
     public void testBeforeTest() {

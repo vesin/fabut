@@ -32,13 +32,13 @@ class FabutRepositoryAssert extends FabutObjectAssert {
 
     /** The db snapshot. */
     private Map<Class<?>, Map<Object, CopyAssert>> dbSnapshot;
-    private IRepositoryFabutTest repositoryFabutTest;
+    private IFabutRepositoryTest repositoryFabutTest;
     private final AssertType assertType;
 
     /**
      * Default constructor.
      */
-    public FabutRepositoryAssert(final IRepositoryFabutTest repositoryFabutTest) {
+    public FabutRepositoryAssert(final IFabutRepositoryTest repositoryFabutTest) {
         super(repositoryFabutTest);
         this.repositoryFabutTest = repositoryFabutTest;
         dbSnapshot = new HashMap<Class<?>, Map<Object, CopyAssert>>();

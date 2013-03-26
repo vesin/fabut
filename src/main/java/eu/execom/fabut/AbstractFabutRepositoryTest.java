@@ -6,6 +6,6 @@ package eu.execom.fabut;
  * @author Dusko Vesin
  * 
  */
-public abstract class AbstractFabutRepositoryTest extends AbstractFabutTest implements IRepositoryFabutTest {
+public abstract class AbstractFabutRepositoryTest extends AbstractFabutTest implements IFabutRepositoryTest {
 
 }

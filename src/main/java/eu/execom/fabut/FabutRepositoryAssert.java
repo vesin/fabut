@@ -228,19 +228,25 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     /**
-     * Takes current database snapshot and saves it. TODO rework this so it can report entities that cannot be copied.
+     * Takes current database snapshot and saves it.
      */
-    public void takeSnapshot() {
+    public boolean takeSnapshot(final FabutReportBuilder report) {
         initDbSnapshot();
-
+        boolean ok = ASSERTED;
         for (final Entry<Class<?>, Map<Object, CopyAssert>> entry : dbSnapshot.entrySet()) {
             final List<?> findAll = findAll(entry.getKey());
 
-            for (final Object abstractEntity : findAll) {
-                entry.getValue().put(ReflectionUtil.getIdValue(abstractEntity),
-                        new CopyAssert(ReflectionUtil.createCopy(abstractEntity, getTypes())));
+            for (final Object entity : findAll) {
+                final Object copy = ReflectionUtil.createCopy(entity, getTypes());
+                if (copy != null) {
+                    entry.getValue().put(ReflectionUtil.getIdValue(entity), new CopyAssert(copy));
+                } else {
+                    report.noCopy(entity);
+                    ok = ASSERT_FAIL;
+                }
             }
         }
+        return ok;
     }
 
     /**
@@ -345,8 +351,6 @@ class FabutRepositoryAssert extends FabutObjectAssert {
 
         final TreeSet beforeIdsCopy = new TreeSet(beforeIds);
         // does intersection between db snapshot and after db state
-        System.out.println(afterIds);
-        System.out.println(beforeIdsCopy);
         beforeIdsCopy.retainAll(afterIds);
         boolean ok = ASSERTED;
         for (final Object id : beforeIdsCopy) {

@@ -147,22 +147,22 @@ class FabutObjectAssert extends Assert {
         return assertResult;
     }
 
-    /**
-     * TODO rewrite This functionality should be reworked and used after initial refactoring is done. Takes current
-     * parameters snapshot and original parameters, and saves them.
-     * 
-     * @param parameters
-     *            array of parameters
-     */
-    protected void takeSnapshot(final Object... parameters) {
-        initParametersSnapshot();
-
-        for (final Object object : parameters) {
-
-            final SnapshotPair snapshotPair = new SnapshotPair(object, ReflectionUtil.createCopy(object, types));
-            parameterSnapshot.add(snapshotPair);
-        }
-    }
+    // /**
+    // * TODO rewrite This functionality should be reworked and used after initial refactoring is done. Takes current
+    // * parameters snapshot and original parameters, and saves them.
+    // *
+    // * @param parameters
+    // * array of parameters
+    // */
+    // protected void takeSnapshot(final Object... parameters) {
+    // initParametersSnapshot();
+    //
+    // for (final Object object : parameters) {
+    //
+    // final SnapshotPair snapshotPair = new SnapshotPair(object, ReflectionUtil.createCopy(object, types));
+    // parameterSnapshot.add(snapshotPair);
+    // }
+    // }
 
     /**
      * Asserts object pair trough three phases:

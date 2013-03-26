@@ -50,7 +50,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
                 + TEST + TEST, 4)));
         setList2(beforeList2);
 
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
 
         final List<Object> afterList1 = new ArrayList<Object>();
         afterList1.add(new EntityTierOneType(TEST + TEST, 1));
@@ -84,7 +84,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         beforeList2.add(new EntityTierTwoType(PROPERTY, 4, new EntityTierOneType(TEST, 7)));
         setList2(beforeList2);
 
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
 
         final List<Object> afterList1 = new ArrayList<Object>();
         afterList1.add(new EntityTierOneType(TEST + TEST, 1));
@@ -113,7 +113,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList1(list1);
 
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
 
         final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
@@ -141,7 +141,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList1(list1);
 
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
 
         final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
@@ -169,7 +169,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList1(list1);
 
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
 
         final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
@@ -198,7 +198,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList1(list1);
 
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
 
         final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
@@ -225,7 +225,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList1(list1);
 
         final TierOneType actual = new TierOneType();
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
 
         final List<Object> list2 = new ArrayList<Object>();
         list2.add(new EntityTierOneType(TEST, 2));
@@ -252,7 +252,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList1(list1);
 
         final EntityTierOneType actual = new EntityTierOneType(TEST, 1);
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
 
         // method
         final boolean afterAssertEntity = getFabutRepositoryAssert().afterAssertEntity(new FabutReportBuilder(),
@@ -274,7 +274,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList2(list);
 
         // method
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
         list.add(new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10)));
         final boolean assertValue = getFabutRepositoryAssert().markAsAsserted(new FabutReportBuilder(),
                 new EntityTierThreeType(TEST, 1, new EntityTierOneType(PROPERTY, 10)), EntityTierThreeType.class);
@@ -291,7 +291,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
     @Test
     public void testMarkAssertedNotTyrpeSupportedFalse() {
         // method
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
         final boolean assertValue = getFabutRepositoryAssert().markAsAsserted(new FabutReportBuilder(),
                 new UnknownEntityType(4), UnknownEntityType.class);
 
@@ -310,7 +310,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList2(list);
 
         // method
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
         list.add(new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10)));
         final boolean assertValue = getFabutRepositoryAssert().markAsAsserted(new FabutReportBuilder(),
                 new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10)), EntityTierTwoType.class);
@@ -332,7 +332,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setList2(list);
 
         // method
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
         entity.setProperty(TEST + TEST);
         final boolean assertValue = getFabutRepositoryAssert().markAsAsserted(new FabutReportBuilder(),
                 new EntityTierTwoType(TEST, 1, new EntityTierOneType(PROPERTY, 10)), EntityTierTwoType.class);
@@ -644,7 +644,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         properties.add(Fabut.value(EntityTierOneType.PROPERTY, TEST + TEST));
 
         // method
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
         final boolean assertEntityWithSnapshot = getFabutRepositoryAssert().assertEntityWithSnapshot(
                 new FabutReportBuilder(), entity, properties);
 
@@ -668,7 +668,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         properties.add(Fabut.value(EntityTierOneType.PROPERTY, TEST + TEST));
 
         // method
-        getFabutRepositoryAssert().takeSnapshot();
+        getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
         final boolean assertEntityWithSnapshot = getFabutRepositoryAssert().assertEntityWithSnapshot(
                 new FabutReportBuilder(), entity, properties);
 

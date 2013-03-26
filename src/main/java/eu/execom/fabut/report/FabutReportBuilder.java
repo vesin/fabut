@@ -333,7 +333,7 @@ public class FabutReportBuilder {
     /**
      * Reports fail due to passing null object reference for asserting.
      * <p>
-     * Example: <i>Asserting cannot be null!</i>
+     * Example: <i>■> Asserting cannot be null!</i>
      * </p>
      * 
      * @param actual
@@ -347,7 +347,7 @@ public class FabutReportBuilder {
     /**
      * Reports asserted objects comment.
      * <p>
-     * Example: <i>id: expected: 11 and was: 11.</i>
+     * Example: <i>∞> id: expected: 11 and was: 11.</i>
      * </p>
      * 
      * @param pair
@@ -364,7 +364,7 @@ public class FabutReportBuilder {
     /**
      * Reports assert fail comment.
      * <p>
-     * Example: <i>name: expected: John, but was: Mike.</i>
+     * Example: <i>■> name: expected: John, but was: Mike.</i>
      * </p>
      * 
      * @param pair
@@ -381,7 +381,7 @@ public class FabutReportBuilder {
     /**
      * Reports that entity of specified type cannot have null id.
      * <p>
-     * Example: <i>Id of User cannot be null</i>
+     * Example: <i>■> Id of User cannot be null</i>
      * </p>
      * 
      * @param clazz
@@ -395,7 +395,7 @@ public class FabutReportBuilder {
     /**
      * Reports that specified type of entity doesn't exist in snapshot.
      * <p>
-     * Example: <i>Entity: User [id=100] cannot be found in snapshot</i>
+     * Example: <i>■> Entity: User [id=100] cannot be found in snapshot</i>
      * </p>
      * 
      * @param entity
@@ -409,7 +409,7 @@ public class FabutReportBuilder {
     /**
      * Reports that entity is not deleted in repository
      * <p>
-     * Example: <i>Entity: User [id=100] was not deleted in repository</i>
+     * Example: <i>■> Entity: User [id=100] was not deleted in repository</i>
      * </p>
      * 
      * @param entity
@@ -417,6 +417,20 @@ public class FabutReportBuilder {
      */
     public void notDeletedInRepositoy(final Object entity) {
         final String comment = String.format("Entity: % was not deleted in repository", entity);
+        addComment(comment, CommentType.FAIL);
+    }
+
+    /**
+     * Reports that entity cannot be copied.
+     * <p>
+     * Example: <i>■> Entity: User [id=100] cannot be copied into snapshot</i>
+     * </p>
+     * 
+     * @param entity
+     *            the entity
+     */
+    public void noCopy(final Object entity) {
+        final String comment = String.format("Entity: %s cannot be copied into snapshot", entity);
         addComment(comment, CommentType.FAIL);
     }
 

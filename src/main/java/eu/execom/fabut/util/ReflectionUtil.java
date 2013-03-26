@@ -460,7 +460,6 @@ public final class ReflectionUtil {
      *            copied property
      * @return <code>true</code> if set method exists and it's successfully invoked, otherwise <code>false</code>.
      */
-    // TODO AssertionFailedError is bad exception to throw, it should return boolean when invoiking fails
     public static <T> boolean invokeSetMethod(final Method method, final Class<?> classObject,
             final String propertyName, final T object, final Object copiedProperty) {
         Method setMethod = null;
@@ -471,7 +470,7 @@ public final class ReflectionUtil {
             setMethod.invoke(object, copiedProperty);
             return true;
         } catch (final Exception e) {
-            throw new AssertionFailedError(e.getMessage());
+            return false;
         }
     }
 

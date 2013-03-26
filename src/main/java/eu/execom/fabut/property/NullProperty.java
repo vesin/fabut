@@ -16,7 +16,7 @@ public class NullProperty extends AbstractSingleProperty {
      * @param path
      *            property path
      */
-    protected NullProperty(final String path) {
+    public NullProperty(final String path) {
         super(path);
     }
 

@@ -22,7 +22,7 @@ public class Property<T> extends AbstractSingleProperty {
      * @param value
      *            expected property value
      */
-    protected Property(final String path, final T value) {
+    public Property(final String path, final T value) {
         super(path);
         this.value = value;
     }

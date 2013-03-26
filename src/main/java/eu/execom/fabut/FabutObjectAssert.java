@@ -25,7 +25,6 @@ import eu.execom.fabut.property.IgnoredProperty;
 import eu.execom.fabut.property.NotNullProperty;
 import eu.execom.fabut.property.NullProperty;
 import eu.execom.fabut.property.Property;
-import eu.execom.fabut.property.PropertyFactory;
 import eu.execom.fabut.report.FabutReportBuilder;
 import eu.execom.fabut.util.ConversionUtil;
 import eu.execom.fabut.util.ReflectionUtil;
@@ -467,7 +466,7 @@ class FabutObjectAssert extends Assert {
         if (property != null) {
             return property;
         }
-        return PropertyFactory.value(propertyPath, field);
+        return Fabut.value(propertyPath, field);
     }
 
     /**

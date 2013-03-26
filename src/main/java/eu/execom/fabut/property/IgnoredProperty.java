@@ -1,8 +1,8 @@
 package eu.execom.fabut.property;
 
 /**
- * The Class IgnoreProperty. {@link AbstractSingleProperty} extension with limited functionality only to mark
- * property as ignored for testing.
+ * The Class IgnoreProperty. {@link AbstractSingleProperty} extension with limited functionality only to mark property
+ * as ignored for testing.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -17,7 +17,7 @@ public class IgnoredProperty extends AbstractSingleProperty {
      * @param path
      *            property path
      */
-    protected IgnoredProperty(final String path) {
+    public IgnoredProperty(final String path) {
         super(path);
     }
 

@@ -3,13 +3,8 @@ package eu.execom.fabut.property;
 import org.junit.Assert;
 import org.junit.Test;
 
+import eu.execom.fabut.Fabut;
 import eu.execom.fabut.model.EntityTierOneType;
-import eu.execom.fabut.property.AbstractSingleProperty;
-import eu.execom.fabut.property.IgnoredProperty;
-import eu.execom.fabut.property.MultiProperties;
-import eu.execom.fabut.property.NotNullProperty;
-import eu.execom.fabut.property.NullProperty;
-import eu.execom.fabut.property.PropertyFactory;
 
 /**
  * Tests for {@link AbstractSingleProperty}.
@@ -25,7 +20,7 @@ public class PropertyTest extends Assert {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperties multi = PropertyFactory.ignored(properties);
+        final MultiProperties multi = Fabut.ignored(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());
@@ -45,7 +40,7 @@ public class PropertyTest extends Assert {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperties multi = PropertyFactory.nulll(properties);
+        final MultiProperties multi = Fabut.isNull(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());
@@ -65,7 +60,7 @@ public class PropertyTest extends Assert {
         final String[] properties = new String[] {EntityTierOneType.PROPERTY, EntityTierOneType.ID};
 
         // method
-        final MultiProperties multi = PropertyFactory.notNull(properties);
+        final MultiProperties multi = Fabut.notNull(properties);
 
         // assert
         assertEquals(properties.length, multi.getProperties().size());

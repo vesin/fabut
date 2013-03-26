@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.execom.fabut.IFabutTest;
-import eu.execom.fabut.IRepositoryFabutTest;
+import eu.execom.fabut.IFabutRepositoryTest;
 import eu.execom.fabut.enums.AssertType;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.pair.AssertPair;
@@ -90,7 +90,7 @@ public final class ConversionUtil {
      * @return the assert type
      */
     public static AssertType getAssertType(final Object testInstance) {
-        if (testInstance instanceof IRepositoryFabutTest) {
+        if (testInstance instanceof IFabutRepositoryTest) {
             return AssertType.REPOSITORY_ASSERT;
         } else if (testInstance instanceof IFabutTest) {
             return AssertType.OBJECT_ASSERT;

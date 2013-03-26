@@ -8,7 +8,7 @@ import java.util.List;
  * @author Dusko Vesin
  * 
  */
-public interface IRepositoryFabutTest extends IFabutTest {
+public interface IFabutRepositoryTest extends IFabutTest {
 
     /**
      * Find all objects of specified type.

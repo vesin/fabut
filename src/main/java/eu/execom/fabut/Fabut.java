@@ -46,7 +46,7 @@ public final class Fabut {
             fabutAssert = new FabutRepositoryAssert((IFabutTest) testInstance);
             break;
         case REPOSITORY_ASSERT:
-            fabutAssert = new FabutRepositoryAssert((IRepositoryFabutTest) testInstance);
+            fabutAssert = new FabutRepositoryAssert((IFabutRepositoryTest) testInstance);
             break;
         case UNSUPPORTED_ASSERT:
             throw new IllegalStateException("This test must implement IFabutAssert or IRepositoryFabutAssert");

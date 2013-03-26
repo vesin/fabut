@@ -27,7 +27,6 @@ import eu.execom.fabut.model.NoGetMethodsType;
 import eu.execom.fabut.model.TierOneType;
 import eu.execom.fabut.model.TierTwoType;
 import eu.execom.fabut.model.UnknownType;
-import eu.execom.fabut.util.ReflectionUtil;
 
 /**
  * Tests for {@link ReflectionUtil}.
@@ -537,8 +536,8 @@ public class ReflectionUtilTest extends Assert {
     @Test
     public void testCreateCopyNull() {
         // method
-        final Object object = ReflectionUtil
-                .createCopy(null, new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class));
+        final Object object = ReflectionUtil.createCopy(null, new EnumMap<AssertableType, List<Class<?>>>(
+                AssertableType.class));
 
         // assert
         assertNull(object);
@@ -586,7 +585,7 @@ public class ReflectionUtilTest extends Assert {
      * Test for ivokeSetMethod of {@link FabutRepositoryAssert} when specified object for copying has set method with
      * specified name and can't be invoked as object has no set methods.
      */
-    @Test(expected = AssertionFailedError.class)
+    @Test
     public void testIvokeSetMethodNull() {
         // setup
         final Method method = ReflectionUtil.getGetMethods(new TierTwoType(new TierOneType()), types).get(0);
@@ -596,7 +595,10 @@ public class ReflectionUtilTest extends Assert {
         final Object copiedProperty = PROPERTY;
 
         // method
-        ReflectionUtil.invokeSetMethod(method, classObject, propertyName, copy, copiedProperty);
+        final boolean ok = ReflectionUtil.invokeSetMethod(method, classObject, propertyName, copy, copiedProperty);
+
+        // assert
+        assertFalse(ok);
     }
 
     /**

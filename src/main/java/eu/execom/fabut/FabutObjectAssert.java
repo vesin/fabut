@@ -279,7 +279,6 @@ class FabutObjectAssert extends Assert {
                         properties, nodesList, true);
 
             } catch (final Exception e) {
-                e.printStackTrace();
                 report.uncallableMethod(expectedMethod, pair.getActual());
                 t = ASSERT_FAIL;
             }

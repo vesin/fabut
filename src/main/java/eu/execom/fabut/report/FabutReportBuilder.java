@@ -416,7 +416,7 @@ public class FabutReportBuilder {
      *            the entity
      */
     public void notDeletedInRepositoy(final Object entity) {
-        final String comment = String.format("Entity: % was not deleted in repository", entity);
+        final String comment = String.format("Entity: %s was not deleted in repository", entity);
         addComment(comment, CommentType.FAIL);
     }
 

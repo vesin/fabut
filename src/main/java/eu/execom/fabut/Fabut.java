@@ -163,7 +163,7 @@ public final class Fabut {
      *            the actual array
      */
     public static void assertObjects(final List<Object> expected, final Object... actuals) {
-        assertObjects(expected, ConversionUtil.createListFromArray(actuals));
+        assertObjects("", expected, ConversionUtil.createListFromArray(actuals));
     }
 
     /**
@@ -238,10 +238,10 @@ public final class Fabut {
      * @param entity
      *            the entity
      */
-    public static void checkIfEntity(final Object entity) {
+    private static void checkIfEntity(final Object entity) {
         checkIfRepositoryAssert();
 
-        if (!fabutAssert.getEntityTypes().contains(entity)) {
+        if (!fabutAssert.getEntityTypes().contains(entity.getClass())) {
 
             throw new IllegalStateException(entity.getClass() + " is not registered as entity type");
         }
@@ -250,7 +250,7 @@ public final class Fabut {
     /**
      * Checks if current test is repository test.
      */
-    public static void checkIfRepositoryAssert() {
+    private static void checkIfRepositoryAssert() {
 
         if (assertType != AssertType.REPOSITORY_ASSERT) {
 

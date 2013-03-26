@@ -21,6 +21,7 @@ import eu.execom.fabut.util.ConversionUtil;
  * @author Dusko Vesin
  * 
  */
+@SuppressWarnings({"rawtypes"})
 public final class Fabut {
 
     private static FabutRepositoryAssert fabutAssert = null;
@@ -176,6 +177,7 @@ public final class Fabut {
      */
     public static void assertEntityWithSnapshot(final Object entity, final IProperty... expectedChanges) {
         checkIfEntity(entity);
+        checkIfValidSnapshot();
 
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.assertEntityWithSnapshot(report, entity, fabutAssert.extractProperties(expectedChanges))) {
@@ -192,6 +194,7 @@ public final class Fabut {
      */
     public static void markAsserted(final Object entity) {
         checkIfEntity(entity);
+        checkIfValidSnapshot();
 
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.markAsAsserted(report, entity, entity.getClass())) {
@@ -208,6 +211,7 @@ public final class Fabut {
      */
     public static void assertEntityAsDeleted(final Object entity) {
         checkIfEntity(entity);
+        checkIfValidSnapshot();
 
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.assertEntityAsDeleted(report, entity)) {
@@ -224,11 +228,18 @@ public final class Fabut {
      */
     public static void ignoreEntity(final Object entity) {
         checkIfEntity(entity);
+        checkIfValidSnapshot();
 
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.ignoreEntity(report, entity)) {
 
             throw new AssertionFailedError(report.getMessage());
+        }
+    }
+
+    private static void checkIfValidSnapshot() {
+        if (!fabutAssert.isRepositoryValid()) {
+            throw new IllegalStateException("takeSnapshot neeeds to be called before calling this method");
         }
     }
 

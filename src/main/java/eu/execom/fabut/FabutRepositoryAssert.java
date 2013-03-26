@@ -34,6 +34,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     private Map<Class<?>, Map<Object, CopyAssert>> dbSnapshot;
     private IFabutRepositoryTest repositoryFabutTest;
     private final AssertType assertType;
+    private boolean isRepositoryValid;
 
     /**
      * Default constructor.
@@ -44,6 +45,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
         dbSnapshot = new HashMap<Class<?>, Map<Object, CopyAssert>>();
         assertType = AssertType.REPOSITORY_ASSERT;
         getTypes().put(AssertableType.ENTITY_TYPE, repositoryFabutTest.getEntityTypes());
+        isRepositoryValid = false;
     }
 
     public FabutRepositoryAssert(final IFabutTest fabutTest) {
@@ -232,6 +234,8 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      */
     public boolean takeSnapshot(final FabutReportBuilder report) {
         initDbSnapshot();
+        isRepositoryValid = true;
+
         boolean ok = ASSERTED;
         for (final Entry<Class<?>, Map<Object, CopyAssert>> entry : dbSnapshot.entrySet()) {
             final List<?> findAll = findAll(entry.getKey());
@@ -418,6 +422,10 @@ class FabutRepositoryAssert extends FabutObjectAssert {
             report.assertFail(pair, propertyName);
             return ASSERT_FAIL;
         }
+    }
+
+    public boolean isRepositoryValid() {
+        return isRepositoryValid;
     }
 
 }

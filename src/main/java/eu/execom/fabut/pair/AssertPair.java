@@ -3,11 +3,12 @@ package eu.execom.fabut.pair;
 import eu.execom.fabut.enums.AssertableType;
 
 /**
- * TODO comment. The Class AssertPair.
+ * Represents expected&actual pair during asserting with information of what type is the pair and if expected/acutal are
+ * fields of some already asserted object.
  */
 public class AssertPair extends Pair {
-    private AssertableType assertableType;
 
+    private AssertableType assertableType;
     private boolean property;
 
     public AssertPair(final Object expected, final Object actual, final AssertableType objectType) {

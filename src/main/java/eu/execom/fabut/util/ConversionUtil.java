@@ -9,7 +9,6 @@ import eu.execom.fabut.IRepositoryFabutTest;
 import eu.execom.fabut.enums.AssertType;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.pair.AssertPair;
-import eu.execom.fabut.property.Property;
 
 /**
  * Util class for conversions needed by testutil.
@@ -46,14 +45,36 @@ public final class ConversionUtil {
         return list;
     }
 
-    // TODO comments, tests
+    /**
+     * Creates the assert pair.
+     * 
+     * @param expected
+     *            the expected
+     * @param actual
+     *            the actual
+     * @param types
+     *            the types
+     * @return the assert pair
+     */
     public static AssertPair createAssertPair(final Object expected, final Object actual,
             final Map<AssertableType, List<Class<?>>> types) {
         final AssertableType objectType = ReflectionUtil.getObjectType(expected, actual, types);
         return new AssertPair(expected, actual, objectType);
     }
 
-    // TODO comments, tests
+    /**
+     * Creates the assert pair.
+     * 
+     * @param expected
+     *            the expected
+     * @param actual
+     *            the actual
+     * @param types
+     *            the types
+     * @param isProperty
+     *            the is property
+     * @return the assert pair
+     */
     public static AssertPair createAssertPair(final Object expected, final Object actual,
             final Map<AssertableType, List<Class<?>>> types, final boolean isProperty) {
         final AssertPair assertPair = createAssertPair(expected, actual, types);
@@ -61,14 +82,13 @@ public final class ConversionUtil {
         return assertPair;
     }
 
-    // TODO comments, tests
-    public static AssertPair createAssertPair(final Property expected, final Object actual,
-            final Map<AssertableType, List<Class<?>>> types, final boolean isProperty) {
-        final AssertPair assertPair = createAssertPair(expected.getValue(), actual, types);
-        assertPair.setProperty(isProperty);
-        return assertPair;
-    }
-
+    /**
+     * Gets the assert type based on which of the fabut interfaces does test instance implements.
+     * 
+     * @param testInstance
+     *            the test instance
+     * @return the assert type
+     */
     public static AssertType getAssertType(final Object testInstance) {
         if (testInstance instanceof IRepositoryFabutTest) {
             return AssertType.REPOSITORY_ASSERT;

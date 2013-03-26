@@ -122,6 +122,11 @@ class FabutRepositoryAssert extends FabutObjectAssert {
 
     }
 
+    @Override
+    boolean afterAssertObject(final Object object, final boolean isSubproperty) {
+        return afterAssertEntity(new FabutReportBuilder(), object, isSubproperty);
+    }
+
     /**
      * This method needs to be called after every entity assert so it marks that entity has been asserted in snapshot.
      * 
@@ -130,10 +135,10 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      * @return <code>true</code> if entity can be marked that is asserted, <code>false</code> otherwise.
      */
     final boolean afterAssertEntity(final FabutReportBuilder report, final Object entity, final boolean isProperty) {
-        if (!isProperty && ReflectionUtil.getIdValue(entity) != null) {
+        if (!isProperty) {
             return markAsAsserted(report, entity, entity.getClass());
         } else {
-            return ASSERT_FAIL;
+            return ASSERTED;
         }
     }
 
@@ -169,7 +174,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      */
 
     /**
-     * TODO tests, comments.
+     * Marks the specified entity as asserted.
      * 
      * @param entity
      *            the entity
@@ -340,6 +345,8 @@ class FabutRepositoryAssert extends FabutObjectAssert {
 
         final TreeSet beforeIdsCopy = new TreeSet(beforeIds);
         // does intersection between db snapshot and after db state
+        System.out.println(afterIds);
+        System.out.println(beforeIdsCopy);
         beforeIdsCopy.retainAll(afterIds);
         boolean ok = ASSERTED;
         for (final Object id : beforeIdsCopy) {

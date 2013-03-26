@@ -3,8 +3,6 @@ package eu.execom.fabut.pair;
 /**
  * The Class Pair.
  * 
- * @param <T>
- *            the generic type
  */
 public class Pair {
 

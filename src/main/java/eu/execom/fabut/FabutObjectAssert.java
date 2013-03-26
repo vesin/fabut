@@ -41,7 +41,7 @@ import eu.execom.fabut.util.ReflectionUtil;
  * @author Nikola Trkulja
  */
 @SuppressWarnings({"rawtypes"})
-abstract class FabutObjectAssert extends Assert {
+class FabutObjectAssert extends Assert {
 
     private static final String EMPTY_STRING = "";
     private static final String DOT = ".";

@@ -10,7 +10,6 @@ import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang3.StringUtils;
 
-import eu.execom.fabut.IFabutTest;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.graph.NodesList;
 
@@ -36,12 +35,6 @@ public final class ReflectionUtil {
 
     /** The Constant SET_METHOD_PREFIX. */
     protected static final String SET_METHOD_PREFIX = "set";
-
-    private static final String FIND_ALL = "findAll";
-    private static final String GET_ENTITY_TYPES = "getEntityTypes";
-    private static final String GET_COMPLEX_TYPES = "getComplexTypes";
-    private static final String GET_IGNORED_TYPES = "getIgnoredTypes";
-    private static final String FIND_BY_ID = "findById";
 
     /**
      * Instantiates a new reflection util.
@@ -273,93 +266,17 @@ public final class ReflectionUtil {
         return object.getClass().getMethod(methodName);
     }
 
-    // TODO this should be refacored, implemented and tested along with TestUtilAssert
-    public static Method getFindAllMethod(final Class<?> declaringClass) {
-        try {
-            final Object testIntance = declaringClass.newInstance();
-            if (testIntance instanceof IFabutTest) {
-                final Method method = declaringClass.getMethod("findAll", Class.class);
-            } else {
-                throw new IllegalStateException("Test: " + declaringClass.getName() + ", has to implement ITestUtil!");
-            }
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    // TODO tests, comments
-    public static List<Class<?>> getEntityTypes(final Object testInstance) {
-        return getTypes(testInstance, GET_ENTITY_TYPES);
-    }
-
-    // TODO tests, comments
-    public static List<Class<?>> getComplexTypes(final Object testInstance) {
-        return getTypes(testInstance, GET_COMPLEX_TYPES);
-    }
-
-    // TODO tests, comments
-    public static List<Class<?>> getIgnoredTypes(final Object testInstance) {
-        return getTypes(testInstance, GET_IGNORED_TYPES);
-    }
-
-    // TODO tests, comments
-    private static List<Class<?>> getTypes(final Object testInstance, final String getMethodName) {
-        try {
-            final Method getTypesMethod = testInstance.getClass().getMethod(getMethodName);
-            return (List<Class<?>>) getTypesMethod.invoke(testInstance);
-        } catch (final Exception e) {
-            return null;
-        }
-    }
-
-    // TODO tests, comments
-    public static Object newInstance(final Class<?> testClass) {
-        try {
-            return testClass.newInstance();
-        } catch (final IllegalAccessException e) {
-            return null;
-        } catch (final InstantiationException e) {
-            throw new IllegalStateException("Test: " + testClass.getSimpleName() + " must have default constructor");
-        }
-    }
-
-    // TODO this might need tweaking, tests and comments
-    public static Class<?> getTestInstanceFromStackTrace() {
-        final StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        for (final StackTraceElement stackTraceElement : stackTraceElements) {
-            try {
-                final Class<?> clazz = Class.forName(stackTraceElement.getClassName());
-                if (IFabutTest.class.isAssignableFrom(clazz)) {
-                    return clazz;
-                }
-            } catch (final ClassNotFoundException e) {
-            }
-        }
-        return null;
-    }
-
-    // TODO this might need tweaking, tests and comments
-    public static List<Object> findAll(final Object testInstance, final Class<?> entityClass) {
-        try {
-            final Method findAll = testInstance.getClass().getMethod(FIND_ALL, Class.class);
-            return (List<Object>) findAll.invoke(testInstance, entityClass);
-        } catch (final Exception e) {
-            throw new IllegalStateException("Method findAll not found");
-        }
-    }
-
-    // TODO this might need tweaking, tests and comments
-    public static Object findById(final Object testInstance, final Class<?> entityClass, final Object id) {
-        try {
-            final Method findById = testInstance.getClass().getMethod(FIND_BY_ID, entityClass, Object.class);
-            return findById.invoke(testInstance, entityClass, id);
-        } catch (final Exception e) {
-            throw new IllegalStateException("findById is uninvokable!");
-        }
-    }
-
-    // TODO needs test, maybe further refactoring
+    /**
+     * Gets the object type.
+     * 
+     * @param expected
+     *            the expected
+     * @param actual
+     *            the actual
+     * @param types
+     *            the types
+     * @return the object type
+     */
     public static AssertableType getObjectType(final Object expected, final Object actual,
             final Map<AssertableType, List<Class<?>>> types) {
         if (expected == null && actual == null) {
@@ -433,7 +350,6 @@ public final class ReflectionUtil {
      *            object for copying
      * @return copied empty instance of specified object or <code>null</code> if default constructor can not be called
      */
-    // TODO move to reflection util
     public static <T> T createEmptyCopyOf(final T object) {
         try {
             return (T) object.getClass().getConstructor().newInstance();

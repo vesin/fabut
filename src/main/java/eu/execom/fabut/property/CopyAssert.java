@@ -8,7 +8,6 @@ package eu.execom.fabut.property;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-// TODO make this class protected
 public class CopyAssert {
 
     private Object entity;

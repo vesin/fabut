@@ -68,7 +68,10 @@ public final class Fabut {
      */
     public static void takeSnapshot() {
         checkIfRepositoryAssert();
-        fabutAssert.takeSnapshot();
+        final FabutReportBuilder report = new FabutReportBuilder();
+        if (!fabutAssert.takeSnapshot(report)) {
+            throw new AssertionFailedError(report.getMessage());
+        }
     }
 
     /**

@@ -16,6 +16,7 @@ import eu.execom.fabut.model.EntityTierOneType;
 import eu.execom.fabut.model.EntityTierTwoType;
 import eu.execom.fabut.model.IgnoredMethodsType;
 import eu.execom.fabut.model.IgnoredType;
+import eu.execom.fabut.model.NoDefaultConstructorEntity;
 import eu.execom.fabut.model.NoGetMethodsType;
 import eu.execom.fabut.model.Start;
 import eu.execom.fabut.model.TierFiveType;
@@ -38,8 +39,9 @@ import eu.execom.fabut.model.TierTwoTypeWithPrimitiveProperty;
  */
 public class AbstractFabutRepositoryAssertTest extends Assert implements IRepositoryFabutTest {
     // mock lists
-    private List<Object> list1 = new ArrayList<Object>();
-    private List<Object> list2 = new ArrayList<Object>();
+    private List<Object> entityTierOneTypes = new ArrayList<Object>();
+    private List<Object> entityTierTwoTypes = new ArrayList<Object>();
+    private List<Object> noDefaultConstructorEntities = new ArrayList<Object>();
     private FabutRepositoryAssert fabutRepositoryAssert;
 
     public AbstractFabutRepositoryAssertTest() {
@@ -51,16 +53,20 @@ public class AbstractFabutRepositoryAssertTest extends Assert implements IReposi
         final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
         entityTypes.add(EntityTierOneType.class);
         entityTypes.add(EntityTierTwoType.class);
+        entityTypes.add(NoDefaultConstructorEntity.class);
         return entityTypes;
     }
 
     @Override
     public List<Object> findAll(final Class<?> entityClass) {
         if (entityClass == EntityTierOneType.class) {
-            return list1;
+            return entityTierOneTypes;
         }
         if (entityClass == EntityTierTwoType.class) {
-            return list2;
+            return entityTierTwoTypes;
+        }
+        if (entityClass == NoDefaultConstructorEntity.class) {
+            return noDefaultConstructorEntities;
         }
         return null;
     }
@@ -68,8 +74,15 @@ public class AbstractFabutRepositoryAssertTest extends Assert implements IReposi
     @Override
     public Object findById(final Class<?> entityClass, final Object id) {
         if (entityClass == EntityTierOneType.class) {
-            for (final Object entity : list1) {
-                if (((EntityTierOneType) entity).getId() == id) {
+            for (final Object entity : entityTierOneTypes) {
+                if (((EntityTierOneType) entity).getId().equals(id)) {
+                    return entity;
+                }
+            }
+        }
+        if (entityClass == NoDefaultConstructorEntity.class) {
+            for (final Object entity : noDefaultConstructorEntities) {
+                if (((NoDefaultConstructorEntity) entity).getId().equals(id)) {
                     return entity;
                 }
             }
@@ -77,20 +90,28 @@ public class AbstractFabutRepositoryAssertTest extends Assert implements IReposi
         return null;
     }
 
-    public List<Object> getList1() {
-        return list1;
+    public List<Object> getEntityTierOneTypes() {
+        return entityTierOneTypes;
     }
 
-    public void setList1(final List<Object> list1) {
-        this.list1 = list1;
+    public void setEntityTierOneTypes(final List<Object> list1) {
+        entityTierOneTypes = list1;
     }
 
-    public List<Object> getList2() {
-        return list2;
+    public List<Object> getEntityTierTwoTypes() {
+        return entityTierTwoTypes;
     }
 
-    public void setList2(final List<Object> list2) {
-        this.list2 = list2;
+    public void setEntityTierTwoTypes(final List<Object> list2) {
+        entityTierTwoTypes = list2;
+    }
+
+    public List<Object> getNoDefaultConstructorEntities() {
+        return noDefaultConstructorEntities;
+    }
+
+    public void setNoDefaultConstructorEntities(final List<Object> noDefaultConstructorEntities) {
+        this.noDefaultConstructorEntities = noDefaultConstructorEntities;
     }
 
     @Override

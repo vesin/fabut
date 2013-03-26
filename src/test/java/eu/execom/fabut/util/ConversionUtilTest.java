@@ -6,12 +6,11 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import eu.execom.fabut.Fabut;
 import eu.execom.fabut.property.AbstractSingleProperty;
 import eu.execom.fabut.property.ISingleProperty;
 import eu.execom.fabut.property.NotNullProperty;
 import eu.execom.fabut.property.NullProperty;
-import eu.execom.fabut.property.PropertyFactory;
-import eu.execom.fabut.util.ConversionUtil;
 
 /**
  * Tests for {@link ConversionUtil}.
@@ -32,8 +31,8 @@ public class ConversionUtilTest extends Assert {
     @Test
     public void testCreateListFromVarargsTwoProperties() {
         // setup
-        final NullProperty nullProperty = PropertyFactory.nulll(TEST);
-        final NotNullProperty notNullProperty = PropertyFactory.notNull(TEST);
+        final NullProperty nullProperty = Fabut.isNull(TEST);
+        final NotNullProperty notNullProperty = Fabut.notNull(TEST);
 
         // method
         final List<AbstractSingleProperty> properties = ConversionUtil.createListFromArray(nullProperty,

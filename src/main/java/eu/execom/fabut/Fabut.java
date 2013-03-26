@@ -1,10 +1,17 @@
 package eu.execom.fabut;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.AssertionFailedError;
 import eu.execom.fabut.enums.AssertType;
 import eu.execom.fabut.property.IProperty;
+import eu.execom.fabut.property.ISingleProperty;
+import eu.execom.fabut.property.IgnoredProperty;
+import eu.execom.fabut.property.MultiProperties;
+import eu.execom.fabut.property.NotNullProperty;
+import eu.execom.fabut.property.NullProperty;
+import eu.execom.fabut.property.Property;
 import eu.execom.fabut.report.FabutReportBuilder;
 import eu.execom.fabut.util.ConversionUtil;
 
@@ -43,6 +50,8 @@ public final class Fabut {
             break;
         case UNSUPPORTED_ASSERT:
             throw new IllegalStateException("This test must implement IFabutAssert or IRepositoryFabutAssert");
+        default:
+            throw new IllegalStateException("Unsupported assert type: " + assertType);
         }
     }
 
@@ -54,9 +63,10 @@ public final class Fabut {
         // fabutAssert.assertParameterSnapshot();
 
         if (assertType == AssertType.REPOSITORY_ASSERT) {
+
             final FabutReportBuilder report = new FabutReportBuilder();
-            final boolean ok = fabutAssert.assertDbSnapshot(report);
-            if (!ok) {
+            if (!fabutAssert.assertDbSnapshot(report)) {
+
                 throw new AssertionFailedError(report.getMessage());
             }
         }
@@ -68,10 +78,13 @@ public final class Fabut {
      */
     public static void takeSnapshot() {
         checkIfRepositoryAssert();
+
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.takeSnapshot(report)) {
+
             throw new AssertionFailedError(report.getMessage());
         }
+
     }
 
     /**
@@ -85,10 +98,10 @@ public final class Fabut {
      *            expected properties for asserting object
      */
     public static void assertObject(final String message, final Object object, final IProperty... properties) {
+
         final FabutReportBuilder report = new FabutReportBuilder(message);
-        final boolean ok = fabutAssert.assertObjectWithProperties(report, object,
-                fabutAssert.extractProperties(properties));
-        if (!ok) {
+        if (!fabutAssert.assertObjectWithProperties(report, object, fabutAssert.extractProperties(properties))) {
+
             throw new AssertionFailedError(report.getMessage());
         }
     }
@@ -119,22 +132,22 @@ public final class Fabut {
      */
     public static void assertObjects(final String message, final Object expected, final Object actual,
             final IProperty... properties) {
+
         final FabutReportBuilder report = new FabutReportBuilder(message);
-        final boolean ok = fabutAssert.assertObjects(report, expected, actual,
-                fabutAssert.extractProperties(properties));
-        if (!ok) {
+        if (!fabutAssert.assertObjects(report, expected, actual, fabutAssert.extractProperties(properties))) {
+
             throw new AssertionFailedError(report.getMessage());
         }
     }
 
     /**
-     * Asserts two objects
+     * Asserts two objects.
      * 
      * @param expected
      *            the expected object
      * @param actual
      *            the actual object
-     * @param properties
+     * @param excludes
      *            property difference between expected and actual
      */
     public static void assertObjects(final Object expected, final Object actual, final IProperty... excludes) {
@@ -142,11 +155,11 @@ public final class Fabut {
     }
 
     /**
-     * Asserts list of expected and actual objects
+     * Asserts list of expected and actual objects.
      * 
      * @param expected
      *            the expected list
-     * @param actual
+     * @param actuals
      *            the actual array
      */
     public static void assertObjects(final List<Object> expected, final Object... actuals) {
@@ -163,9 +176,10 @@ public final class Fabut {
      */
     public static void assertEntityWithSnapshot(final Object entity, final IProperty... properties) {
         checkIfEntity(entity);
+
         final FabutReportBuilder report = new FabutReportBuilder();
-        if (!fabutAssert.assertEntityWithSnapshot(new FabutReportBuilder(), entity,
-                fabutAssert.extractProperties(properties))) {
+        if (!fabutAssert.assertEntityWithSnapshot(report, entity, fabutAssert.extractProperties(properties))) {
+
             throw new AssertionFailedError(report.getMessage());
         }
     }
@@ -178,8 +192,10 @@ public final class Fabut {
      */
     public static void markAsserted(final Object entity) {
         checkIfEntity(entity);
+
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.markAsAsserted(report, entity, entity.getClass())) {
+
             throw new AssertionFailedError(report.getMessage());
         }
     }
@@ -192,8 +208,10 @@ public final class Fabut {
      */
     public static void assertEntityAsDeleted(final Object entity) {
         checkIfEntity(entity);
+
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.assertEntityAsDeleted(report, entity)) {
+
             throw new AssertionFailedError(report.getMessage());
         }
     }
@@ -206,8 +224,10 @@ public final class Fabut {
      */
     public static void ignoreEntity(final Object entity) {
         checkIfEntity(entity);
+
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.ignoreEntity(report, entity)) {
+
             throw new AssertionFailedError(report.getMessage());
         }
     }
@@ -220,7 +240,9 @@ public final class Fabut {
      */
     public static void checkIfEntity(final Object entity) {
         checkIfRepositoryAssert();
+
         if (!fabutAssert.getEntityTypes().contains(entity)) {
+
             throw new IllegalStateException(entity.getClass() + " is not registered as entity type");
         }
     }
@@ -229,8 +251,110 @@ public final class Fabut {
      * Checks if current test is repository test.
      */
     public static void checkIfRepositoryAssert() {
+
         if (assertType != AssertType.REPOSITORY_ASSERT) {
+
             throw new IllegalStateException("Test must implement IRepositoryFabutAssert");
         }
+    }
+
+    /**
+     * Create {@link Property} with provided parameters.
+     * 
+     * @param path
+     *            property path.
+     * @param expectedValue
+     *            expected values
+     * @return created object.
+     * 
+     * @param <T>
+     *            generic type
+     */
+    public static <T> Property<T> value(final String path, final T expectedValue) {
+        return new Property<T>(path, expectedValue);
+    }
+
+    /**
+     * Create {@link IgnoredProperty} with provided parameter.
+     * 
+     * @param path
+     *            property path.
+     * @return created object.
+     */
+    public static IgnoredProperty ignored(final String path) {
+        return new IgnoredProperty(path);
+    }
+
+    /**
+     * Create {@link IgnoredProperty} with provided parameters.
+     * 
+     * @param paths
+     *            property path.
+     * @return created objects.
+     */
+    public static MultiProperties ignored(final String... paths) {
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+
+        for (final String path : paths) {
+            properties.add(ignored(path));
+        }
+
+        return new MultiProperties(properties);
+    }
+
+    /**
+     * Create {@link NotNullProperty} with provided parameter.
+     * 
+     * @param path
+     *            property path.
+     * @return created object.
+     */
+    public static NotNullProperty notNull(final String path) {
+        return new NotNullProperty(path);
+    }
+
+    /**
+     * Create {@link NotNullProperty} with provided parameters.
+     * 
+     * @param paths
+     *            property paths.
+     * @return created objects.
+     */
+    public static MultiProperties notNull(final String... paths) {
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+
+        for (final String path : paths) {
+            properties.add(notNull(path));
+        }
+
+        return new MultiProperties(properties);
+    }
+
+    /**
+     * Create {@link NullProperty} with provided parameter.
+     * 
+     * @param path
+     *            property path.
+     * @return created object.
+     */
+    public static NullProperty isNull(final String path) {
+        return new NullProperty(path);
+    }
+
+    /**
+     * Create {@link NullProperty} with provided parameters.
+     * 
+     * @param paths
+     *            property paths.
+     * @return created objects.
+     */
+    public static MultiProperties isNull(final String... paths) {
+        final List<ISingleProperty> properties = new ArrayList<ISingleProperty>();
+
+        for (final String path : paths) {
+            properties.add(isNull(path));
+        }
+
+        return new MultiProperties(properties);
     }
 }

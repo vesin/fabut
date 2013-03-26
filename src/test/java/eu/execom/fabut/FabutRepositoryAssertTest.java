@@ -18,7 +18,6 @@ import eu.execom.fabut.model.UnknownEntityType;
 import eu.execom.fabut.pair.AssertPair;
 import eu.execom.fabut.property.CopyAssert;
 import eu.execom.fabut.property.ISingleProperty;
-import eu.execom.fabut.property.PropertyFactory;
 import eu.execom.fabut.report.FabutReportBuilder;
 import eu.execom.fabut.util.ConversionUtil;
 
@@ -642,7 +641,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setEntityTierOneTypes(list1);
         final EntityTierOneType entity = new EntityTierOneType(TEST + TEST, new Integer(1));
         final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
-        properties.add(PropertyFactory.value(EntityTierOneType.PROPERTY, TEST + TEST));
+        properties.add(Fabut.value(EntityTierOneType.PROPERTY, TEST + TEST));
 
         // method
         getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());
@@ -666,7 +665,7 @@ public class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest
         setEntityTierOneTypes(list1);
         final EntityTierOneType entity = new EntityTierOneType(TEST + TEST, new Integer(1));
         final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
-        properties.add(PropertyFactory.value(EntityTierOneType.PROPERTY, TEST + TEST));
+        properties.add(Fabut.value(EntityTierOneType.PROPERTY, TEST + TEST));
 
         // method
         getFabutRepositoryAssert().takeSnapshot(new FabutReportBuilder());

@@ -16,7 +16,7 @@ public class NotNullProperty extends AbstractSingleProperty {
      * @param path
      *            property path
      */
-    protected NotNullProperty(final String path) {
+    public NotNullProperty(final String path) {
         super(path);
     }
 

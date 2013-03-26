@@ -127,14 +127,14 @@ public final class Fabut {
      *            the expected object
      * @param actual
      *            the actual object
-     * @param properties
+     * @param expectedChanges
      *            property difference between expected and actual
      */
     public static void assertObjects(final String message, final Object expected, final Object actual,
-            final IProperty... properties) {
+            final IProperty... expectedChanges) {
 
         final FabutReportBuilder report = new FabutReportBuilder(message);
-        if (!fabutAssert.assertObjects(report, expected, actual, fabutAssert.extractProperties(properties))) {
+        if (!fabutAssert.assertObjects(report, expected, actual, fabutAssert.extractProperties(expectedChanges))) {
 
             throw new AssertionFailedError(report.getMessage());
         }
@@ -147,11 +147,11 @@ public final class Fabut {
      *            the expected object
      * @param actual
      *            the actual object
-     * @param excludes
+     * @param expectedChanges
      *            property difference between expected and actual
      */
-    public static void assertObjects(final Object expected, final Object actual, final IProperty... excludes) {
-        assertObjects("", expected, actual, excludes);
+    public static void assertObjects(final Object expected, final Object actual, final IProperty... expectedChanges) {
+        assertObjects("", expected, actual, expectedChanges);
     }
 
     /**
@@ -171,14 +171,14 @@ public final class Fabut {
      * 
      * @param entity
      *            the entity
-     * @param properties
+     * @param expectedChanges
      *            properties changed after the snapshot has been taken
      */
-    public static void assertEntityWithSnapshot(final Object entity, final IProperty... properties) {
+    public static void assertEntityWithSnapshot(final Object entity, final IProperty... expectedChanges) {
         checkIfEntity(entity);
 
         final FabutReportBuilder report = new FabutReportBuilder();
-        if (!fabutAssert.assertEntityWithSnapshot(report, entity, fabutAssert.extractProperties(properties))) {
+        if (!fabutAssert.assertEntityWithSnapshot(report, entity, fabutAssert.extractProperties(expectedChanges))) {
 
             throw new AssertionFailedError(report.getMessage());
         }

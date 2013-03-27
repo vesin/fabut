@@ -9,7 +9,11 @@ import org.junit.Before;
  * @author Dusko Vesin
  * 
  */
-public abstract class AbstractFabutTest implements IFabutTest {
+public abstract class AbstractFabutTest extends Fabut implements IFabutTest {
+
+    public AbstractFabutTest() {
+        super();
+    }
 
     @Before
     @Override
@@ -18,8 +22,7 @@ public abstract class AbstractFabutTest implements IFabutTest {
     };
 
     @After
-    @Override
-    public void afterTest() {
+    public void after() {
         Fabut.afterTest();
     }
 

@@ -12,7 +12,7 @@ public interface IFabutTest {
 
     void beforeTest();
 
-    void afterTest();
+    void after();
 
     List<Class<?>> getComplexTypes();
 

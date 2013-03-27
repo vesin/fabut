@@ -21,8 +21,7 @@ import eu.execom.fabut.util.ConversionUtil;
  * @author Dusko Vesin
  * 
  */
-@SuppressWarnings({"rawtypes"})
-public final class Fabut {
+public class Fabut {
 
     private static FabutRepositoryAssert fabutAssert = null;
     private static AssertType assertType;
@@ -30,7 +29,7 @@ public final class Fabut {
     /**
      * Private constructor to forbid instancing this class.
      */
-    private Fabut() {
+    protected Fabut() {
 
     }
 
@@ -78,6 +77,7 @@ public final class Fabut {
      * Creates repository snapshot so it can be asserted with after state after the test execution.
      */
     public static void takeSnapshot() {
+        checkValidInit();
         checkIfRepositoryAssert();
 
         final FabutReportBuilder report = new FabutReportBuilder();
@@ -99,6 +99,7 @@ public final class Fabut {
      *            expected properties for asserting object
      */
     public static void assertObject(final String message, final Object object, final IProperty... properties) {
+        checkValidInit();
 
         final FabutReportBuilder report = new FabutReportBuilder(message);
         if (!fabutAssert.assertObjectWithProperties(report, object, fabutAssert.extractProperties(properties))) {
@@ -116,6 +117,7 @@ public final class Fabut {
      *            expected properties for asserting object
      */
     public static void assertObject(final Object expected, final IProperty... properties) {
+        checkValidInit();
         assertObject("", expected, properties);
     }
 
@@ -133,6 +135,7 @@ public final class Fabut {
      */
     public static void assertObjects(final String message, final Object expected, final Object actual,
             final IProperty... expectedChanges) {
+        checkValidInit();
 
         final FabutReportBuilder report = new FabutReportBuilder(message);
         if (!fabutAssert.assertObjects(report, expected, actual, fabutAssert.extractProperties(expectedChanges))) {
@@ -152,6 +155,7 @@ public final class Fabut {
      *            property difference between expected and actual
      */
     public static void assertObjects(final Object expected, final Object actual, final IProperty... expectedChanges) {
+        checkValidInit();
         assertObjects("", expected, actual, expectedChanges);
     }
 
@@ -163,7 +167,8 @@ public final class Fabut {
      * @param actuals
      *            the actual array
      */
-    public static void assertLists(final List expected, final Object... actuals) {
+    public static void assertLists(final List<?> expected, final Object... actuals) {
+        checkValidInit();
         assertObjects("", expected, ConversionUtil.createListFromArray(actuals));
     }
 
@@ -176,6 +181,7 @@ public final class Fabut {
      *            properties changed after the snapshot has been taken
      */
     public static void assertEntityWithSnapshot(final Object entity, final IProperty... expectedChanges) {
+        checkValidInit();
         checkIfEntity(entity);
         checkIfValidSnapshot();
 
@@ -193,6 +199,7 @@ public final class Fabut {
      *            the entity
      */
     public static void markAsserted(final Object entity) {
+        checkValidInit();
         checkIfEntity(entity);
         checkIfValidSnapshot();
 
@@ -210,6 +217,7 @@ public final class Fabut {
      *            the entity
      */
     public static void assertEntityAsDeleted(final Object entity) {
+        checkValidInit();
         checkIfEntity(entity);
         checkIfValidSnapshot();
 
@@ -227,6 +235,7 @@ public final class Fabut {
      *            the entity
      */
     public static void ignoreEntity(final Object entity) {
+        checkValidInit();
         checkIfEntity(entity);
         checkIfValidSnapshot();
 
@@ -266,6 +275,12 @@ public final class Fabut {
         if (assertType != AssertType.REPOSITORY_ASSERT) {
 
             throw new IllegalStateException("Test must implement IRepositoryFabutAssert");
+        }
+    }
+
+    private static void checkValidInit() {
+        if (fabutAssert == null) {
+            throw new IllegalStateException("Fabut.beforeTest must be called before the test");
         }
     }
 

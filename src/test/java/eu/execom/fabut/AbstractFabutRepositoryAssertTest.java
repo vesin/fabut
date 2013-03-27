@@ -122,7 +122,7 @@ public class AbstractFabutRepositoryAssertTest extends Assert implements IFabutR
 
     @Override
     @After
-    public void afterTest() {
+    public void after() {
     }
 
     @Override

@@ -151,7 +151,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
      *            the entity class
      * @return the list
      */
-    protected List<Object> findAll(final Class<?> entityClass) {
+    protected List<?> findAll(final Class<?> entityClass) {
         return repositoryFabutTest.findAll(entityClass);
     }
 

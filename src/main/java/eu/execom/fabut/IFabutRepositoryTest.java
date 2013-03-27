@@ -17,7 +17,7 @@ public interface IFabutRepositoryTest extends IFabutTest {
      *            class of objects that are requested.
      * @return {@link List} of objects of clazz type
      */
-    List<Object> findAll(Class<?> clazz);
+    List<?> findAll(Class<?> clazz);
 
     /**
      * Find object of requested class by id.

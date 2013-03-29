@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import junit.framework.Assert;
 import eu.execom.fabut.enums.AssertType;
 import eu.execom.fabut.enums.AssertableType;
+import eu.execom.fabut.exception.CopyException;
 import eu.execom.fabut.graph.NodesList;
 import eu.execom.fabut.pair.AssertPair;
 import eu.execom.fabut.property.CopyAssert;
@@ -19,8 +20,7 @@ import eu.execom.fabut.report.FabutReportBuilder;
 import eu.execom.fabut.util.ReflectionUtil;
 
 /**
- * ExeCom test util class. Extends {@link FabutObjectAssert} with possibility to assert entire repository (DB ...) .
- * TODO think of better comment.
+ * Extension of {@link FabutObjectAssert} with functionality to assert bd snapshot with its after state.
  * 
  * @author Dusko Vesin
  * @author Nikola Olah
@@ -191,70 +191,87 @@ class FabutRepositoryAssert extends FabutObjectAssert {
             report.idNull(actualType);
             return ASSERT_FAIL;
         }
-        if (!markAsserted(id, entity, actualType)) {
-            report.notExistingInSnapshot(entity);
+        Object copy = null;
+        try {
+            copy = ReflectionUtil.createCopy(entity, getTypes());
+        } catch (final CopyException e) {
+            report.noCopy(entity);
             return ASSERT_FAIL;
         }
-        return ASSERTED;
+
+        return markAsserted(report, id, copy, actualType);
     }
 
     /**
      * Mark entity bean as asserted in db snapshot map. Go trough all its supper classes and if its possible assert it.
-     * TODO tests
      * 
      * @param id
      *            the id
-     * @param entity
+     * @param copy
      *            the entity
      * @param actualType
      *            the actual type
      * @return true, if successful
      */
-    protected boolean markAsserted(final Object id, final Object entity, final Class<?> actualType) {
+    protected boolean markAsserted(final FabutReportBuilder report, final Object id, final Object copy,
+            final Class<?> actualType) {
         final Map<Object, CopyAssert> map = dbSnapshot.get(actualType);
         final boolean isTypeSupported = map != null;
-
         if (isTypeSupported) {
             CopyAssert copyAssert = map.get(id);
             if (copyAssert == null) {
-                copyAssert = new CopyAssert(ReflectionUtil.createCopy(entity, getTypes()));
-                map.put(ReflectionUtil.getIdValue(entity), copyAssert);
+                copyAssert = new CopyAssert(copy);
+                map.put(ReflectionUtil.getIdValue(copy), copyAssert);
             }
             copyAssert.setAsserted(true);
         }
 
         final Class<?> superClassType = actualType.getSuperclass();
-        final boolean isSuperSuperTypeSupported = (superClassType != null) && markAsserted(id, entity, superClassType);
+        final boolean isSuperSuperTypeSupported = (superClassType != null)
+                && markAsserted(report, id, copy, superClassType);
 
-        return isTypeSupported || isSuperSuperTypeSupported;
+        final boolean marked = isTypeSupported || isSuperSuperTypeSupported;
+        return marked;
     }
 
     /**
      * Takes current database snapshot and saves it.
+     * 
+     * @param report
+     *            the report
+     * @param parameters
+     *            the parameters
+     * @return true, if successful
      */
-    public boolean takeSnapshot(final FabutReportBuilder report) {
+    @Override
+    public boolean takeSnapshot(final FabutReportBuilder report, final Object... parameters) {
         initDbSnapshot();
         isRepositoryValid = true;
+        final boolean isParameterSnapshotOk = super.takeSnapshot(report, parameters);
 
         boolean ok = ASSERTED;
         for (final Entry<Class<?>, Map<Object, CopyAssert>> entry : dbSnapshot.entrySet()) {
             final List<?> findAll = findAll(entry.getKey());
 
             for (final Object entity : findAll) {
-                final Object copy = ReflectionUtil.createCopy(entity, getTypes());
-                if (copy != null) {
+                try {
+                    final Object copy = ReflectionUtil.createCopy(entity, getTypes());
                     entry.getValue().put(ReflectionUtil.getIdValue(entity), new CopyAssert(copy));
-                } else {
+                } catch (final CopyException e) {
                     report.noCopy(entity);
                     ok = ASSERT_FAIL;
                 }
             }
         }
-        return ok;
+        return ok && isParameterSnapshotOk;
     }
 
     /**
      * Asserts db snapshot with after db state.
+     * 
+     * @param report
+     *            the report
+     * @return true, if successful
      */
     protected boolean assertDbSnapshot(final FabutReportBuilder report) {
         boolean ok = true;
@@ -335,7 +352,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
     }
 
     /**
-     * TODO comments Assert db snapshot with after state.
+     * Assert db snapshot with after state.
      * 
      * @param beforeIds
      *            the before ids

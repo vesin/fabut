@@ -59,16 +59,16 @@ public class Fabut {
      * This method needs to be called in @After method of a test in order for {@link Fabut} to work.
      */
     public static void afterTest() {
-        // TODO this should be reworked once parameter snapshot is ready
-        // fabutAssert.assertParameterSnapshot();
+        final FabutReportBuilder report = new FabutReportBuilder();
+        boolean ok = true;
+        ok = fabutAssert.assertParameterSnapshot(report);
 
         if (assertType == AssertType.REPOSITORY_ASSERT) {
+            ok &= fabutAssert.assertDbSnapshot(report);
+        }
 
-            final FabutReportBuilder report = new FabutReportBuilder();
-            if (!fabutAssert.assertDbSnapshot(report)) {
-
-                throw new AssertionFailedError(report.getMessage());
-            }
+        if (!ok) {
+            throw new AssertionFailedError(report.getMessage());
         }
 
     }
@@ -76,16 +76,15 @@ public class Fabut {
     /**
      * Creates repository snapshot so it can be asserted with after state after the test execution.
      */
-    public static void takeSnapshot() {
+    public static void takeSnapshot(final Object... parameters) {
         checkValidInit();
         checkIfRepositoryAssert();
 
         final FabutReportBuilder report = new FabutReportBuilder();
-        if (!fabutAssert.takeSnapshot(report)) {
+        if (!fabutAssert.takeSnapshot(report, parameters)) {
 
             throw new AssertionFailedError(report.getMessage());
         }
-
     }
 
     /**
@@ -183,7 +182,6 @@ public class Fabut {
     public static void assertEntityWithSnapshot(final Object entity, final IProperty... expectedChanges) {
         checkValidInit();
         checkIfEntity(entity);
-        checkIfValidSnapshot();
 
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.assertEntityWithSnapshot(report, entity, fabutAssert.extractProperties(expectedChanges))) {
@@ -201,7 +199,6 @@ public class Fabut {
     public static void markAsserted(final Object entity) {
         checkValidInit();
         checkIfEntity(entity);
-        checkIfValidSnapshot();
 
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.markAsAsserted(report, entity, entity.getClass())) {
@@ -219,7 +216,6 @@ public class Fabut {
     public static void assertEntityAsDeleted(final Object entity) {
         checkValidInit();
         checkIfEntity(entity);
-        checkIfValidSnapshot();
 
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.assertEntityAsDeleted(report, entity)) {
@@ -237,18 +233,11 @@ public class Fabut {
     public static void ignoreEntity(final Object entity) {
         checkValidInit();
         checkIfEntity(entity);
-        checkIfValidSnapshot();
 
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.ignoreEntity(report, entity)) {
 
             throw new AssertionFailedError(report.getMessage());
-        }
-    }
-
-    private static void checkIfValidSnapshot() {
-        if (!fabutAssert.isRepositoryValid()) {
-            throw new IllegalStateException("takeSnapshot neeeds to be called before calling this method");
         }
     }
 

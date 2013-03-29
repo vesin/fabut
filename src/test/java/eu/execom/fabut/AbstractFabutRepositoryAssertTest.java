@@ -116,13 +116,13 @@ public class AbstractFabutRepositoryAssertTest extends Assert implements IFabutR
 
     @Override
     @Before
-    public void beforeTest() {
+    public void fabutBeforeTest() {
         fabutRepositoryAssert = new FabutRepositoryAssert(this);
     }
 
     @Override
     @After
-    public void after() {
+    public void fabutAfterTest() {
     }
 
     @Override

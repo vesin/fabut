@@ -10,9 +10,9 @@ import java.util.List;
  */
 public interface IFabutTest {
 
-    void beforeTest();
+    void fabutBeforeTest();
 
-    void after();
+    void fabutAfterTest();
 
     List<Class<?>> getComplexTypes();
 

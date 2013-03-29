@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.enums.NodeCheckType;
 import eu.execom.fabut.enums.ReferenceCheckType;
+import eu.execom.fabut.exception.CopyException;
 import eu.execom.fabut.graph.NodesList;
 import eu.execom.fabut.pair.AssertPair;
 import eu.execom.fabut.pair.SnapshotPair;
@@ -147,22 +148,26 @@ class FabutObjectAssert extends Assert {
         return assertResult;
     }
 
-    // /**
-    // * TODO rewrite This functionality should be reworked and used after initial refactoring is done. Takes current
-    // * parameters snapshot and original parameters, and saves them.
-    // *
-    // * @param parameters
-    // * array of parameters
-    // */
-    // protected void takeSnapshot(final Object... parameters) {
-    // initParametersSnapshot();
-    //
-    // for (final Object object : parameters) {
-    //
-    // final SnapshotPair snapshotPair = new SnapshotPair(object, ReflectionUtil.createCopy(object, types));
-    // parameterSnapshot.add(snapshotPair);
-    // }
-    // }
+    /**
+     * Makes snapshot of specified parameters.
+     * 
+     * @param parameters
+     *            array of parameters
+     */
+    protected boolean takeSnapshot(final FabutReportBuilder report, final Object... parameters) {
+        initParametersSnapshot();
+        boolean ok = ASSERTED;
+        for (final Object object : parameters) {
+            try {
+                final SnapshotPair snapshotPair = new SnapshotPair(object, ReflectionUtil.createCopy(object, types));
+                parameterSnapshot.add(snapshotPair);
+            } catch (final CopyException e) {
+                report.noCopy(object);
+                ok = false;
+            }
+        }
+        return ok;
+    }
 
     /**
      * Asserts object pair trough three phases:
@@ -554,11 +559,14 @@ class FabutObjectAssert extends Assert {
 
     /**
      * Asserts current parameters states with snapshot previously taken.
+     * 
+     * @param report
+     *            the report
+     * @return true, if successful
      */
-    void assertParameterSnapshot() {
+    boolean assertParameterSnapshot(final FabutReportBuilder report) {
 
         boolean ok = true;
-        final FabutReportBuilder report = new FabutReportBuilder();
         for (final SnapshotPair snapshotPair : parameterSnapshot) {
             ok &= assertObjects(report, snapshotPair.getExpected(), snapshotPair.getActual(),
                     new LinkedList<ISingleProperty>());
@@ -566,9 +574,7 @@ class FabutObjectAssert extends Assert {
 
         initParametersSnapshot();
 
-        if (!ok) {
-            throw new AssertionError(report.getMessage());
-        }
+        return ok;
     }
 
     /**

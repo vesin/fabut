@@ -46,12 +46,12 @@ public abstract class AbstractFabutObjectAssertTest extends Assert implements IF
 
     @Override
     @Before
-    public void beforeTest() {
+    public void fabutBeforeTest() {
         fabutObjectAssert = new FabutObjectAssert(this);
     }
 
     @Override
-    public void after() {
+    public void fabutAfterTest() {
     }
 
     @Override

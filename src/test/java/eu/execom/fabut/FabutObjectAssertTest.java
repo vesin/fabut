@@ -27,6 +27,7 @@ import eu.execom.fabut.model.TierTwoTypeWithListProperty;
 import eu.execom.fabut.model.TierTwoTypeWithPrimitiveProperty;
 import eu.execom.fabut.model.UnknownType;
 import eu.execom.fabut.pair.AssertPair;
+import eu.execom.fabut.pair.SnapshotPair;
 import eu.execom.fabut.property.IMultiProperties;
 import eu.execom.fabut.property.IProperty;
 import eu.execom.fabut.property.ISingleProperty;
@@ -1265,28 +1266,30 @@ public class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
                         Fabut.ignored(TierTwoType.PROPERTY + DOT + TierOneType.PROPERTY,
                                 TierTwoTypeWithPrimitiveProperty.PROPERTY2)));
     }
-    //
-    // /**
-    // * Test for {@link FabutObjectAssert#takeSnapshot(Object...)}.
-    // */
-    // @Test
-    // public void testTakeSnapshot() {
-    // // setup
-    // final TierOneType tierOneType = new TierOneType(TEST);
-    //
-    // // method
-    // getFabutObjectAssert().takeSnapshot(tierOneType);
-    //
-    // // assert
-    // final List<SnapshotPair> parameterSnapshot = getFabutObjectAssert().getParameterSnapshot();
-    // assertEquals(parameterSnapshot.size(), 1);
-    //
-    // final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
-    //
-    // getFabutObjectAssert().assertObjects(new FabutReportBuilder(), new TierOneType(TEST),
-    // parameterSnapshot.get(0).getExpected(), properties);
-    // getFabutObjectAssert().assertObjects(new FabutReportBuilder(), new TierOneType(TEST),
-    // parameterSnapshot.get(0).getActual(), properties);
-    // }
+
+    /**
+     * Test for {@link FabutObjectAssert#takeSnapshot(Object...)}.
+     */
+    @Test
+    public void testTakeSnapshot() {
+        // setup
+        final TierOneType tierOneType = new TierOneType(TEST);
+
+        // method
+        getFabutObjectAssert().takeSnapshot(new FabutReportBuilder(), tierOneType);
+
+        // assert
+        final List<SnapshotPair> parameterSnapshot = getFabutObjectAssert().getParameterSnapshot();
+        assertEquals(parameterSnapshot.size(), 1);
+
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+
+        getFabutObjectAssert().assertObjects(new FabutReportBuilder(), new TierOneType(TEST),
+                parameterSnapshot.get(0).getExpected(), properties);
+        getFabutObjectAssert().assertObjects(new FabutReportBuilder(), new TierOneType(TEST),
+                parameterSnapshot.get(0).getActual(), properties);
+
+        assertTrue(getFabutObjectAssert().assertParameterSnapshot(new FabutReportBuilder()));
+    }
 
 }

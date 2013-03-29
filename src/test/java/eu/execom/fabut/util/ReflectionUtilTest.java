@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.execom.fabut.enums.AssertableType;
+import eu.execom.fabut.exception.CopyException;
 import eu.execom.fabut.graph.NodesList;
 import eu.execom.fabut.model.A;
 import eu.execom.fabut.model.B;
@@ -413,56 +414,6 @@ public class ReflectionUtilTest extends Assert {
         assertNull(id);
     }
 
-    // TODO fix these tests
-
-    // /**
-    // * Test for getObjectGetMethods when has one real get method.
-    // */
-    // @Test
-    // public void testGetObjectGetMethodsTierOneType() {
-    // // method
-    // final List<Method> methods = ReflectionUtil.getObjectGetMethods(new TierOneType(TEST),
-    // new ArrayList<Class<?>>(), new ArrayList<Class<?>>());
-    // final Method method = methods.get(0);
-    // // assert
-    // assertEquals(1, methods.size());
-    // assertEquals("getProperty", method.getName());
-    // }
-    //
-    // /**
-    // * Test for getObjectGetMethods when class has no real get methods.
-    // */
-    // @Test
-    // public void testGetObjectGetMethodsNoGetMethodsType() {
-    // // method
-    // final List<Method> methods = ReflectionUtil.getObjectGetMethods(new NoGetMethodsType(TEST),
-    // new ArrayList<Class<?>>(), new ArrayList<Class<?>>());
-    // // assert
-    // assertEquals(0, methods.size());
-    // }
-    //
-    // /**
-    // * Test for getObjectGetMethods if it impose ordering of get methods for complex or entity types come last in
-    // list.
-    // *
-    // * @throws Exception
-    // */
-    // @Test
-    // public void testGetObjectGetMethodsCheckOrdering() throws Exception {
-    // // setup
-    // final Method getSubProperty = EntityTierTwoType.class.getMethod("getSubProperty");
-    // final List<Class<?>> entityTypes = new ArrayList<Class<?>>();
-    // entityTypes.add(EntityTierTwoType.class);
-    // entityTypes.add(EntityTierOneType.class);
-    //
-    // // method
-    // final List<Method> methods = ReflectionUtil.getObjectGetMethods(new EntityTierTwoType(TEST, 10,
-    // new EntityTierOneType(TEST, 5)), new ArrayList<Class<?>>(), entityTypes);
-    //
-    // // assert
-    // assertEquals(getSubProperty.getName(), methods.get(2).getName());
-    // }
-
     @Test
     public void testGetObjectGetMethodNamed() throws Exception {
         // setup
@@ -494,7 +445,7 @@ public class ReflectionUtilTest extends Assert {
     @Test
     public void testCreateEmptyCopyOfHasDefaultConstructor() {
         // method
-        final TierOneType assertObject = ReflectionUtil.createEmptyCopyOf(new TierOneType());
+        final TierOneType assertObject = (TierOneType) ReflectionUtil.createEmptyCopyOf(new TierOneType());
 
         // assert
         assertNotNull(assertObject);
@@ -507,7 +458,8 @@ public class ReflectionUtilTest extends Assert {
     @Test(expected = AssertionFailedError.class)
     public void testCreateEmptyCopyOfNoDefaultConstructor() {
         // method
-        final NoGetMethodsType assertObject = ReflectionUtil.createEmptyCopyOf(new NoGetMethodsType(TEST));
+        final NoGetMethodsType assertObject = (NoGetMethodsType) ReflectionUtil.createEmptyCopyOf(new NoGetMethodsType(
+                TEST));
 
         // assert
         assertNull(assertObject);
@@ -517,13 +469,16 @@ public class ReflectionUtilTest extends Assert {
      * Test for copyList of {@link FabutRepositoryAssert} if it copies list.
      */
     @Test
-    public void testCopyList() {
+    public void testCopyList() throws CopyException {
         // setup
         final List<String> list = new LinkedList<String>();
+        final Map<AssertableType, List<Class<?>>> types = new EnumMap<AssertableType, List<Class<?>>>(
+                AssertableType.class);
+        types.put(AssertableType.COMPLEX_TYPE, new LinkedList<Class<?>>());
         list.add(TEST);
 
         // method
-        final List<String> assertList = ReflectionUtil.copyList(list);
+        final List<String> assertList = ReflectionUtil.copyList(list, types);
 
         assertNotNull(assertList);
         assertEquals(1, assertList.size());
@@ -534,7 +489,7 @@ public class ReflectionUtilTest extends Assert {
      * Test for createCopy of {@link FabutRepositoryAssert} when specified object is null.
      */
     @Test
-    public void testCreateCopyNull() {
+    public void testCreateCopyNull() throws CopyException {
         // method
         final Object object = ReflectionUtil.createCopy(null, new EnumMap<AssertableType, List<Class<?>>>(
                 AssertableType.class));
@@ -547,14 +502,16 @@ public class ReflectionUtilTest extends Assert {
      * Test for createCopy of {@link FabutRepositoryAssert} when specified object is list.
      */
     @Test
-    public void testCreateCopyList() {
+    public void testCreateCopyList() throws CopyException {
         // setup
         final List<String> list = new LinkedList<String>();
+        final Map<AssertableType, List<Class<?>>> types = new EnumMap<AssertableType, List<Class<?>>>(
+                AssertableType.class);
+        types.put(AssertableType.COMPLEX_TYPE, new LinkedList<Class<?>>());
         list.add(TEST);
 
         // method
-        final List<String> assertList = (List<String>) ReflectionUtil.createCopy(list,
-                new EnumMap<AssertableType, List<Class<?>>>(AssertableType.class));
+        final List<String> assertList = (List<String>) ReflectionUtil.createCopy(list, types);
 
         assertNotNull(assertList);
         assertEquals(1, assertList.size());
@@ -605,7 +562,7 @@ public class ReflectionUtilTest extends Assert {
      * Test for copyProperty of {@link FabutRepositoryAssert} when specified object for copying is null;
      */
     @Test
-    public void testCopyPropertyNull() {
+    public void testCopyPropertyNull() throws CopyException {
         // method
         final Object copy = ReflectionUtil.copyProperty(null, null, types);
 
@@ -618,7 +575,7 @@ public class ReflectionUtilTest extends Assert {
      * complex type.
      */
     @Test
-    public void testCopyPropertyComplexType() {
+    public void testCopyPropertyComplexType() throws CopyException {
         // method
         final EntityTierTwoType copy = (EntityTierTwoType) ReflectionUtil.copyProperty(new EntityTierTwoType(TEST, 1,
                 new EntityTierOneType(PROPERTY, 2)), new NodesList(), types);
@@ -636,7 +593,7 @@ public class ReflectionUtilTest extends Assert {
      * Test for copyProperty of {@link FabutRepositoryAssert} when specified object is {@link List}.
      */
     @Test
-    public void testCopyPropertyList() {
+    public void testCopyPropertyList() throws CopyException {
         // setup
         final List<String> list = new ArrayList<String>();
         list.add(TEST);
@@ -655,7 +612,7 @@ public class ReflectionUtilTest extends Assert {
      * Test for copyProperty of {@link FabutRepositoryAssert} when specified object is of unknown type.
      */
     @Test
-    public void testCopyPropertyUnkownType() {
+    public void testCopyPropertyUnkownType() throws CopyException {
         // setup
         final UnknownType unknownType = new UnknownType();
 
@@ -702,7 +659,7 @@ public class ReflectionUtilTest extends Assert {
      * Test for createCopy if it properly handles cyclic object references.
      */
     @Test
-    public void testCreateCopyCyclic() {
+    public void testCreateCopyCyclic() throws CopyException {
         // setup
         final A a = new A();
         a.setProperty(PROPERTY);
@@ -715,6 +672,6 @@ public class ReflectionUtilTest extends Assert {
         assertEquals(aCopy, aCopy.getB().getC().getA());
         assertEquals(a.getProperty(), aCopy.getProperty());
         assertEquals(a.getB().getC().getA().getProperty(), aCopy.getB().getC().getA().getProperty());
-    }
 
+    }
 }

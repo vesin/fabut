@@ -49,7 +49,6 @@ public class FabutReportBuilder {
      */
     public FabutReportBuilder(final String message) {
         this();
-        // FIXME is this really necessary?
         messageParts.add(message.length() > 0 ? "\n" + message : message);
         failedMessagePosition = 1;
 

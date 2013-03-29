@@ -11,6 +11,7 @@ import junit.framework.AssertionFailedError;
 import org.apache.commons.lang3.StringUtils;
 
 import eu.execom.fabut.enums.AssertableType;
+import eu.execom.fabut.exception.CopyException;
 import eu.execom.fabut.graph.NodesList;
 
 /**
@@ -302,16 +303,18 @@ public final class ReflectionUtil {
      * Creates a copy of specified object by creating instance with reflection and fills it using get and set method of
      * a class.
      * 
-     * @param <T>
-     *            type of the object
      * @param object
      *            object for copying
      * @param nodes
      *            list of objects that had been copied
+     * @param types
+     *            the types
      * @return copied entity
+     * @throws CopyException
+     *             the copy exception
      */
     public static Object createCopyObject(final Object object, final NodesList nodes,
-            final Map<AssertableType, List<Class<?>>> types) {
+            final Map<AssertableType, List<Class<?>>> types) throws CopyException {
 
         Object copy = nodes.getExpected(object);
         if (copy != null) {
@@ -320,9 +323,7 @@ public final class ReflectionUtil {
 
         copy = createEmptyCopyOf(object);
         if (copy == null) {
-            // FIXME is this even possible to happen? we need to add validation of util configuration, every DTO or
-            // entity class need to have default constructor
-            return copy;
+            throw new CopyException(object.getClass().getSimpleName());
         }
         nodes.addPair(copy, object);
 
@@ -334,7 +335,7 @@ public final class ReflectionUtil {
                 final Object propertyForCopying = getPropertyForCopying(object, method);
                 final Object copiedProperty = copyProperty(propertyForCopying, nodes, types);
                 if (!invokeSetMethod(method, classObject, propertyName, copy, copiedProperty)) {
-                    return null;
+                    throw new CopyException(classObject.getSimpleName());
                 }
             }
         }
@@ -344,34 +345,29 @@ public final class ReflectionUtil {
     /**
      * Creates empty copy of object using reflection to call default constructor.
      * 
-     * @param <T>
-     *            type of copied object
      * @param object
      *            object for copying
      * @return copied empty instance of specified object or <code>null</code> if default constructor can not be called
      */
-    public static <T> T createEmptyCopyOf(final T object) {
+    public static Object createEmptyCopyOf(final Object object) {
         try {
-            return (T) object.getClass().getConstructor().newInstance();
+            return object.getClass().getConstructor().newInstance();
         } catch (final Exception e) {
             return null;
         }
     }
 
     /**
-     * FIXME comment is not OK, this method is just calling method of a some object...
      * 
      * Gets property for copying using reflection.
      * 
-     * @param <T>
-     *            type of the object
      * @param object
      *            property's parent
      * @param method
      *            get method for property
      * @return property
      */
-    public static <T> Object getPropertyForCopying(final T object, final Method method) {
+    public static Object getPropertyForCopying(final Object object, final Method method) {
         try {
             return method.invoke(object);
         } catch (final Exception e) {
@@ -389,7 +385,7 @@ public final class ReflectionUtil {
      * @return copied property
      */
     public static Object copyProperty(final Object propertyForCopying, final NodesList nodes,
-            final Map<AssertableType, List<Class<?>>> types) {
+            final Map<AssertableType, List<Class<?>>> types) throws CopyException {
         if (propertyForCopying == null) {
             // its null we shouldn't do anything
             return null;
@@ -402,7 +398,7 @@ public final class ReflectionUtil {
 
         if (ReflectionUtil.isListType(propertyForCopying)) {
             // just creating new list with same elements
-            return copyList((List<?>) propertyForCopying);
+            return copyList((List<?>) propertyForCopying, types);
         }
 
         // if its not list or some complex type same object will be added.
@@ -419,8 +415,13 @@ public final class ReflectionUtil {
      *            list for copying
      * @return copied list
      */
-    public static <T> List<T> copyList(final List<T> list) {
-        return new ArrayList<T>(list);
+    public static <T> List<T> copyList(final List<T> list, final Map<AssertableType, List<Class<?>>> types)
+            throws CopyException {
+        final List<T> copyList = new ArrayList<T>();
+        for (final T t : list) {
+            copyList.add((T) ReflectionUtil.copyProperty(t, new NodesList(), types));
+        }
+        return copyList;
     }
 
     /**
@@ -428,19 +429,25 @@ public final class ReflectionUtil {
      * 
      * @param object
      *            object for copying
+     * @param types
+     *            the types
      * @return copied object
+     * @throws CopyException
+     *             the copy exception
      */
-    public static Object createCopy(final Object object, final Map<AssertableType, List<Class<?>>> types) {
+    public static Object createCopy(final Object object, final Map<AssertableType, List<Class<?>>> types)
+            throws CopyException {
         if (object == null) {
             return null;
         }
 
         if (ReflectionUtil.isListType(object)) {
             final List<?> list = (List<?>) object;
-            return copyList(list);
+            return copyList(list, types);
         }
 
         return createCopyObject(object, new NodesList(), types);
+
     }
 
     /**

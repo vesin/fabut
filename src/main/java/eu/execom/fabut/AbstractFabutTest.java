@@ -17,12 +17,13 @@ public abstract class AbstractFabutTest extends Fabut implements IFabutTest {
 
     @Before
     @Override
-    public void beforeTest() {
+    public void fabutBeforeTest() {
         Fabut.beforeTest(this);
     };
 
+    @Override
     @After
-    public void after() {
+    public void fabutAfterTest() {
         Fabut.afterTest();
     }
 

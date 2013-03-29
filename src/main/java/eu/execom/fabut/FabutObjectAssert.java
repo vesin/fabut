@@ -141,7 +141,6 @@ class FabutObjectAssert extends Assert {
         final AssertPair assertPair = ConversionUtil.createAssertPair(expected, actual, types);
         final boolean assertResult = assertPair(EMPTY_STRING, report, assertPair, expectedChangedProperties,
                 new NodesList());
-
         if (assertResult) {
             afterAssertObject(actual, false);
         }

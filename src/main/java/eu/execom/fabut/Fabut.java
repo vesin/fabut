@@ -59,16 +59,25 @@ public class Fabut {
      * This method needs to be called in @After method of a test in order for {@link Fabut} to work.
      */
     public static void afterTest() {
-        final FabutReportBuilder report = new FabutReportBuilder();
         boolean ok = true;
-        ok = fabutAssert.assertParameterSnapshot(report);
+        final StringBuilder sb = new StringBuilder();
 
+        final FabutReportBuilder parameterReport = new FabutReportBuilder("Parameter snapshot assert");
+        if (!fabutAssert.assertParameterSnapshot(parameterReport)) {
+            ok = false;
+            sb.append(parameterReport.getMessage());
+        }
+
+        final FabutReportBuilder snapshotReport = new FabutReportBuilder("Repository snapshot assert");
         if (assertType == AssertType.REPOSITORY_ASSERT) {
-            ok &= fabutAssert.assertDbSnapshot(report);
+            if (!fabutAssert.assertDbSnapshot(snapshotReport)) {
+                ok = false;
+                sb.append(snapshotReport.getMessage());
+            }
         }
 
         if (!ok) {
-            throw new AssertionFailedError(report.getMessage());
+            throw new AssertionFailedError(sb.toString());
         }
 
     }

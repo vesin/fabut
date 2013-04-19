@@ -87,11 +87,11 @@ public class Fabut {
      */
     public static void takeSnapshot(final Object... parameters) {
         checkValidInit();
-        checkIfRepositoryAssert();
-
+        if (assertType == AssertType.UNSUPPORTED_ASSERT) {
+            throw new IllegalStateException("Test must implement IRepositoryFabutAssert");
+        }
         final FabutReportBuilder report = new FabutReportBuilder();
         if (!fabutAssert.takeSnapshot(report, parameters)) {
-
             throw new AssertionFailedError(report.getMessage());
         }
     }

@@ -16,12 +16,12 @@ public class NullProperty extends AbstractSingleProperty {
      * @param path
      *            property path
      */
-    public NullProperty(final String path) {
-        super(path);
+    public NullProperty(final String path, final boolean isInnerProperty) {
+        super(path, isInnerProperty);
     }
 
     @Override
     public ISingleProperty getCopy() {
-        return new NullProperty(getPath());
+        return new NullProperty(getPath(), isInnerProperty());
     }
 }

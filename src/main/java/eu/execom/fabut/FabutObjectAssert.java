@@ -43,10 +43,10 @@ import eu.execom.fabut.util.ReflectionUtil;
 @SuppressWarnings({"rawtypes"})
 class FabutObjectAssert extends Assert {
 
-    private static final String EMPTY_STRING = "";
-    private static final String DOT = ".";
-    protected static final boolean ASSERTED = true;
-    protected static final boolean ASSERT_FAIL = false;
+    private final static String EMPTY_STRING = "";
+    private final static String DOT = ".";
+    protected final static boolean ASSERTED = true;
+    protected final static boolean ASSERT_FAIL = false;
 
     /** Types supported by Fabut. */
     private Map<AssertableType, List<Class<?>>> types;
@@ -98,7 +98,6 @@ class FabutObjectAssert extends Assert {
 
             final String fieldName = ReflectionUtil.getFieldName(method);
             final ISingleProperty property = getPropertyFromList(fieldName, expectedProperties);
-
             try {
                 if (property == null) {
                     // there is no matching property for field
@@ -354,8 +353,11 @@ class FabutObjectAssert extends Assert {
     boolean assertProperty(final String propertyName, final FabutReportBuilder report, final ISingleProperty expected,
             final Object actual, final String fieldName, final List<ISingleProperty> properties,
             final NodesList nodesList, final boolean isProperty) {
-
         removeParentQualification(fieldName, properties);
+
+        if (expected.isInnerProperty()) {
+            return assertInnerProperty(report, actual, expected, propertyName, properties, nodesList);
+        }
 
         // expected any not null value
         if (expected instanceof NotNullProperty) {
@@ -379,13 +381,26 @@ class FabutObjectAssert extends Assert {
 
         // assert by type
         if (expected instanceof Property) {
-
             final Object expectedValue = ((Property) expected).getValue();
             final AssertPair assertPair = ConversionUtil.createAssertPair(expectedValue, actual, types, isProperty);
             return assertPair(propertyName, report, assertPair, properties, nodesList);
         }
 
         throw new IllegalStateException();
+    }
+
+    boolean assertInnerProperty(final FabutReportBuilder report, final Object actual, final ISingleProperty expected,
+            final String propertyName, final List<ISingleProperty> properties, final NodesList nodesList) {
+        removeParentQualification(propertyName, expected, propertyName + ".");
+        final String fieldName = expected.getPath().split("\\.")[0];
+        try {
+            final Method getActual = ReflectionUtil.getMethodByFieldName(fieldName, actual);
+            return assertProperty(fieldName, report, expected, getActual.invoke(actual), fieldName, properties,
+                    nodesList, true);
+        } catch (final Exception e) {
+            report.noMethodForFieldInClass(fieldName, actual);
+            return false;
+        }
     }
 
     /**
@@ -445,10 +460,18 @@ class FabutObjectAssert extends Assert {
 
         final String parentPrefix = parentPropertyName + DOT;
         for (final ISingleProperty property : properties) {
-            final String path = StringUtils.removeStart(property.getPath(), parentPrefix);
-            property.setPath(path);
+            removeParentQualification(parentPropertyName, property, parentPrefix);
         }
         return properties;
+    }
+
+    void removeParentQualification(final String parentPropertyName, final ISingleProperty property,
+            final String parentPrefix) {
+        if (property.getPath().startsWith(parentPrefix)) {
+            final String path = StringUtils.removeStart(property.getPath(), parentPrefix);
+            property.setPath(path);
+            property.setInnerProperty(Fabut.isInnerProperty(path));
+        }
     }
 
     /**
@@ -483,16 +506,23 @@ class FabutObjectAssert extends Assert {
      *         <code>null</code> otherwise
      */
     ISingleProperty getPropertyFromList(final String propertyPath, final List<ISingleProperty> properties) {
-
         final Iterator<ISingleProperty> iterator = properties.iterator();
         while (iterator.hasNext()) {
             final ISingleProperty property = iterator.next();
-            if (property.getPath().equalsIgnoreCase(propertyPath)) {
+            if (matchesPropertyParth(property, propertyPath)) {
                 iterator.remove();
                 return property;
             }
         }
         return null;
+    }
+
+    boolean matchesPropertyParth(final ISingleProperty property, final String propertyPath) {
+        if (propertyPath.split(".").length > 1) {
+            return propertyPath.split(".")[0].equals(propertyPath);
+        } else {
+            return propertyPath.equals(propertyPath);
+        }
     }
 
     /**

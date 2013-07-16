@@ -1292,4 +1292,32 @@ public class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
         assertTrue(getFabutObjectAssert().assertParameterSnapshot(new FabutReportBuilder()));
     }
 
+    @Test
+    public void testAssertInnerProperties() {
+        // setup
+        final TierThreeType type = new TierThreeType(new TierTwoType(new TierOneType(TEST)));
+
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertInnerProperty(new FabutReportBuilder(), type,
+                Fabut.value("property.property.property", TEST), "property", new ArrayList<ISingleProperty>(),
+                new NodesList());
+
+        // assert
+        assertTrue(assertResult);
+    }
+
+    @Test
+    public void testAssertInnerPropertiesException() {
+        // setup
+        final TierThreeType type = new TierThreeType(new TierTwoType(new TierOneType(TEST)));
+
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertInnerProperty(new FabutReportBuilder(), type,
+                Fabut.value("property.property.property1", TEST), "property", new ArrayList<ISingleProperty>(),
+                new NodesList());
+
+        // assert
+        assertFalse(assertResult);
+    }
+
 }

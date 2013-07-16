@@ -108,7 +108,6 @@ public class Fabut {
      */
     public static void assertObject(final String message, final Object object, final IProperty... properties) {
         checkValidInit();
-
         final FabutReportBuilder report = new FabutReportBuilder(message);
         if (!fabutAssert.assertObjectWithProperties(report, object, fabutAssert.extractProperties(properties))) {
 
@@ -295,7 +294,11 @@ public class Fabut {
      *            generic type
      */
     public static <T> Property<T> value(final String path, final T expectedValue) {
-        return new Property<T>(path, expectedValue);
+        return new Property<T>(path, expectedValue, isInnerProperty(path));
+    }
+
+    public static boolean isInnerProperty(final String path) {
+        return path.contains(".");
     }
 
     /**
@@ -306,7 +309,7 @@ public class Fabut {
      * @return created object.
      */
     public static IgnoredProperty ignored(final String path) {
-        return new IgnoredProperty(path);
+        return new IgnoredProperty(path, isInnerProperty(path));
     }
 
     /**
@@ -334,7 +337,7 @@ public class Fabut {
      * @return created object.
      */
     public static NotNullProperty notNull(final String path) {
-        return new NotNullProperty(path);
+        return new NotNullProperty(path, isInnerProperty(path));
     }
 
     /**
@@ -362,7 +365,7 @@ public class Fabut {
      * @return created object.
      */
     public static NullProperty isNull(final String path) {
-        return new NullProperty(path);
+        return new NullProperty(path, isInnerProperty(path));
     }
 
     /**

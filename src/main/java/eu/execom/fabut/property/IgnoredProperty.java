@@ -17,13 +17,13 @@ public class IgnoredProperty extends AbstractSingleProperty {
      * @param path
      *            property path
      */
-    public IgnoredProperty(final String path) {
-        super(path);
+    public IgnoredProperty(final String path, final boolean isInnerProperty) {
+        super(path, isInnerProperty);
     }
 
     @Override
     public ISingleProperty getCopy() {
-        return new IgnoredProperty(getPath());
+        return new IgnoredProperty(getPath(), isInnerProperty());
     }
 
 }

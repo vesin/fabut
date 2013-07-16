@@ -322,8 +322,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
     }
 
     /**
-     * Test for {@link Fabut#assertLists(List, Object...)} when specified objects are lists and they cannot be
-     * asserted.
+     * Test for {@link Fabut#assertLists(List, Object...)} when specified objects are lists and they cannot be asserted.
      */
     @Test(expected = AssertionFailedError.class)
     public void testAssertObjectsListFail() {
@@ -585,4 +584,5 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 
         Fabut.afterTest();
     }
+
 }

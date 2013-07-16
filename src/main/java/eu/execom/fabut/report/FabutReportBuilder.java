@@ -433,4 +433,10 @@ public class FabutReportBuilder {
         addComment(comment, CommentType.FAIL);
     }
 
+    public void noMethodForFieldInClass(final String fieldName, final Object object) {
+        final String comment = String.format("No get method for field: %s, in class: %s", fieldName, object.getClass()
+                .getSimpleName());
+        addComment(comment, CommentType.FAIL);
+    }
+
 }

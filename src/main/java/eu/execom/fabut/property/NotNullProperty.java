@@ -16,12 +16,12 @@ public class NotNullProperty extends AbstractSingleProperty {
      * @param path
      *            property path
      */
-    public NotNullProperty(final String path) {
-        super(path);
+    public NotNullProperty(final String path, final boolean isInnerProperty) {
+        super(path, isInnerProperty);
     }
 
     @Override
     public ISingleProperty getCopy() {
-        return new NotNullProperty(getPath());
+        return new NotNullProperty(getPath(), isInnerProperty());
     }
 }

@@ -267,6 +267,11 @@ public final class ReflectionUtil {
         return object.getClass().getMethod(methodName);
     }
 
+    public static Method getMethodByFieldName(final String fieldName, final Object object) throws Exception {
+        final String getMethodName = GET_METHOD_PREFIX + StringUtils.capitalize(fieldName);
+        return getGetMethod(getMethodName, object);
+    }
+
     /**
      * Gets the object type.
      * 

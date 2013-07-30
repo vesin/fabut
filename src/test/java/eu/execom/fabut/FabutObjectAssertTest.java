@@ -634,7 +634,7 @@ public class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
         // method
         final boolean t = getFabutObjectAssert().assertSubfields(new FabutReportBuilder(),
                 new AssertPair(new TierOneType(TEST), new UnknownType(), AssertableType.COMPLEX_TYPE),
-                new LinkedList<ISingleProperty>(), new NodesList());
+                new LinkedList<ISingleProperty>(), new NodesList(), EMPTY_STRING);
 
         // assert
         assertFalse(t);
@@ -655,7 +655,7 @@ public class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
         // method
         final boolean assertResult = getFabutObjectAssert().assertSubfields(new FabutReportBuilder(), pair,
-                new LinkedList<ISingleProperty>(), nodeList);
+                new LinkedList<ISingleProperty>(), nodeList, EMPTY_STRING);
 
         // assert
         assertTrue(assertResult);
@@ -676,7 +676,7 @@ public class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
         // method
         final boolean assertResult = getFabutObjectAssert().assertSubfields(new FabutReportBuilder(), pair,
-                new LinkedList<ISingleProperty>(), nodeList);
+                new LinkedList<ISingleProperty>(), nodeList, EMPTY_STRING);
 
         // assert
         assertFalse(assertResult);
@@ -697,7 +697,7 @@ public class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
         // method
         final boolean assertResult = getFabutObjectAssert().assertSubfields(new FabutReportBuilder(), pair,
-                new LinkedList<ISingleProperty>(), nodeList);
+                new LinkedList<ISingleProperty>(), nodeList, EMPTY_STRING);
 
         // assert
         assertTrue(assertResult);
@@ -1292,4 +1292,78 @@ public class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
         assertTrue(getFabutObjectAssert().assertParameterSnapshot(new FabutReportBuilder()));
     }
 
+    @Test
+    public void testExtractPropertiesWithMatchingParent() {
+        // setup
+        final String parent = "parent";
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(Fabut.value("parent.name", "name"));
+        properties.add(Fabut.value("parents", "parents"));
+        properties.add(Fabut.value("parent.lastName", "lastName"));
+        properties.add(Fabut.value("parent.address.city", "city"));
+
+        // method
+        final List<ISingleProperty> extracted = getFabutObjectAssert().extractPropertiesWithMatchingParent(parent,
+                properties);
+
+        // assert
+        assertEquals(1, properties.size());
+        assertEquals("parents", properties.get(0).getPath());
+        assertEquals(3, extracted.size());
+        assertEquals("parent.name", extracted.get(0).getPath());
+        assertEquals("parent.lastName", extracted.get(1).getPath());
+        assertEquals("parent.address.city", extracted.get(2).getPath());
+    }
+
+    @Test
+    public void testHasInnerPropertyTrue() {
+        // setup
+        final String parent = "parent";
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(Fabut.value("parent.name", "name"));
+
+        // method
+        final boolean hasInnerProperties = getFabutObjectAssert().hasInnerProperties(parent, properties);
+
+        // assert
+        assertTrue(hasInnerProperties);
+    }
+
+    @Test
+    public void testHasInnerPropertyFalse() {
+        // setup
+        final String parent = "parent";
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(Fabut.value("parents", "name"));
+
+        // method
+        final boolean hasInnerProperties = getFabutObjectAssert().hasInnerProperties(parent, properties);
+
+        // assert
+        assertFalse(hasInnerProperties);
+    }
+
+    @Test
+    public void testAssertInnerProperty() {
+        // setup
+        final TierOneType actual = new TierOneType(TEST);
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(Fabut.value("property.property", TEST));
+        final FabutReportBuilder report = new FabutReportBuilder();
+        // assert
+        assertTrue(getFabutObjectAssert().assertInnerProperty(report, actual, properties, "property"));
+
+    }
+
+    @Test
+    public void testAssertInnerObject() {
+        // setup
+        final TierOneType actual = new TierOneType(TEST);
+        final TierOneType expected = new TierOneType(TEST + TEST);
+        final List<ISingleProperty> properties = new LinkedList<ISingleProperty>();
+        properties.add(Fabut.value("property.property", TEST + TEST));
+        final FabutReportBuilder report = new FabutReportBuilder();
+        // assert
+        assertTrue(getFabutObjectAssert().assertInnerObject(report, actual, expected, properties, "property"));
+    }
 }

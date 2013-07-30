@@ -98,16 +98,18 @@ class FabutObjectAssert extends Assert {
 
             final String fieldName = ReflectionUtil.getFieldName(method);
             final ISingleProperty property = getPropertyFromList(fieldName, expectedProperties);
-
             try {
-                if (property == null) {
+                if (property != null) {
+                    result &= assertProperty(fieldName, report, property, method.invoke(actual), EMPTY_STRING,
+                            expectedProperties, new NodesList(), true);
+                } else if (hasInnerProperties(fieldName, expectedProperties)) {
+                    result &= assertInnerProperty(report, method.invoke(actual), expectedProperties, fieldName);
+                } else {
                     // there is no matching property for field
                     report.noPropertyForField(fieldName, method.invoke(actual));
                     result = ASSERT_FAIL;
-                } else {
-                    result &= assertProperty(fieldName, report, property, method.invoke(actual), EMPTY_STRING,
-                            expectedProperties, new NodesList(), true);
                 }
+
             } catch (final Exception e) {
                 report.uncallableMethod(method, actual);
                 result = ASSERT_FAIL;
@@ -118,6 +120,26 @@ class FabutObjectAssert extends Assert {
         }
 
         return result;
+    }
+
+    boolean assertInnerProperty(final FabutReportBuilder report, final Object actual,
+            final List<ISingleProperty> properties, final String parent) {
+        final List<ISingleProperty> extracts = extractPropertiesWithMatchingParent(parent, properties);
+        removeParentQualification(parent, extracts);
+        report.increaseDepth(parent);
+        final boolean t = assertObjectWithProperties(report, actual, extracts);
+        report.decreaseDepth();
+        return t;
+    }
+
+    boolean assertInnerObject(final FabutReportBuilder report, final Object expected, final Object actual,
+            final List<ISingleProperty> properties, final String parent) {
+        final List<ISingleProperty> extracts = extractPropertiesWithMatchingParent(parent, properties);
+        removeParentQualification(parent, extracts);
+        report.increaseDepth(parent);
+        final boolean t = assertObjects(report, expected, actual, extracts);
+        report.decreaseDepth();
+        return t;
     }
 
     /**
@@ -208,13 +230,12 @@ class FabutObjectAssert extends Assert {
             return nodeCheckType.getAssertValue();
         }
         nodesList.addPair(pair);
-
         switch (pair.getObjectType()) {
         case IGNORED_TYPE:
             report.ignoredType(pair);
             return ASSERTED;
         case COMPLEX_TYPE:
-            return assertSubfields(report, pair, properties, nodesList);
+            return assertSubfields(report, pair, properties, nodesList, propertyName);
         case ENTITY_TYPE:
             return assertEntityPair(report, propertyName, pair, properties, nodesList);
         case PRIMITIVE_TYPE:
@@ -262,9 +283,9 @@ class FabutObjectAssert extends Assert {
      * @return <code>true</code> if objects can be asserted, <code>false</code> otherwise.
      */
     boolean assertSubfields(final FabutReportBuilder report, final AssertPair pair,
-            final List<ISingleProperty> properties, final NodesList nodesList) {
+            final List<ISingleProperty> properties, final NodesList nodesList, final String propertyName) {
 
-        report.increaseDepth();
+        report.increaseDepth(propertyName);
 
         boolean t = ASSERTED;
         final List<Method> getMethods = ReflectionUtil.getGetMethods(pair.getExpected(), types);
@@ -379,7 +400,6 @@ class FabutObjectAssert extends Assert {
 
         // assert by type
         if (expected instanceof Property) {
-
             final Object expectedValue = ((Property) expected).getValue();
             final AssertPair assertPair = ConversionUtil.createAssertPair(expectedValue, actual, types, isProperty);
             return assertPair(propertyName, report, assertPair, properties, nodesList);
@@ -419,7 +439,7 @@ class FabutObjectAssert extends Assert {
             return ASSERT_FAIL;
         }
 
-        report.increaseDepth();
+        report.increaseDepth(propertyName);
 
         // assert every element by index
         boolean assertResult = ASSERTED;
@@ -509,7 +529,6 @@ class FabutObjectAssert extends Assert {
      */
     ReferenceCheckType checkByReference(final FabutReportBuilder report, final AssertPair pair,
             final String propertyName) {
-
         if (pair.getExpected() == pair.getActual()) {
             report.asserted(pair, propertyName);
             return ReferenceCheckType.EQUAL_REFERENCE;
@@ -574,6 +593,29 @@ class FabutObjectAssert extends Assert {
         initParametersSnapshot();
 
         return ok;
+    }
+
+    List<ISingleProperty> extractPropertiesWithMatchingParent(final String parent,
+            final List<ISingleProperty> properties) {
+        final List<ISingleProperty> extracts = new LinkedList<ISingleProperty>();
+        final Iterator<ISingleProperty> iterator = properties.iterator();
+        while (iterator.hasNext()) {
+            final ISingleProperty property = iterator.next();
+            if (property.getPath().startsWith(parent + DOT) || property.getPath().equalsIgnoreCase(parent)) {
+                extracts.add(property);
+                iterator.remove();
+            }
+        }
+        return extracts;
+    }
+
+    boolean hasInnerProperties(final String parent, final List<ISingleProperty> properties) {
+        for (final ISingleProperty property : properties) {
+            if (property.getPath().startsWith(parent + DOT)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

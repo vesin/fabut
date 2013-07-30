@@ -1,8 +1,6 @@
 package eu.execom.fabut.report;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import eu.execom.fabut.enums.CommentType;
 import eu.execom.fabut.pair.AssertPair;
@@ -24,12 +22,11 @@ public class FabutReportBuilder {
     private static final String ARROW = ">";
     private static final String NEW_LINE = "\n";
     private static final String TAB = "    ";
+    private static final String COLON = ":";
 
     private final StringBuilder builder;
-    private final List<String> messageParts;
 
     private Integer assertDepth;
-    private int failedMessagePosition;
 
     /**
      * Default constructor.
@@ -37,8 +34,6 @@ public class FabutReportBuilder {
     public FabutReportBuilder() {
         builder = new StringBuilder();
         assertDepth = 0;
-        messageParts = new ArrayList<String>();
-        failedMessagePosition = 0;
     }
 
     /**
@@ -49,8 +44,7 @@ public class FabutReportBuilder {
      */
     public FabutReportBuilder(final String message) {
         this();
-        messageParts.add(message.length() > 0 ? "\n" + message : message);
-        failedMessagePosition = 1;
+        builder.append(message.length() > 0 ? "\n" + message : message);
 
     }
 
@@ -61,17 +55,14 @@ public class FabutReportBuilder {
      */
     public String getMessage() {
 
-        for (final String part : messageParts) {
-            builder.append(part);
-        }
         return builder.toString();
     }
 
     /**
      * Increase indentation in report.
      */
-    public void increaseDepth() {
-
+    public void increaseDepth(final String parent) {
+        builder.append(addIndentation() + parent + COLON);
         assertDepth++;
     }
 
@@ -79,7 +70,6 @@ public class FabutReportBuilder {
      * Decrease indentation in report.
      */
     public void decreaseDepth() {
-
         assertDepth--;
     }
 
@@ -93,6 +83,16 @@ public class FabutReportBuilder {
      */
     private void addComment(final String comment, final CommentType type) {
 
+        final StringBuilder part = new StringBuilder(addIndentation());
+
+        part.append(type.getMark());
+        part.append(ARROW);
+
+        part.append(comment);
+        builder.append(part.toString());
+    }
+
+    private String addIndentation() {
         final StringBuilder part = new StringBuilder(builder.toString());
         builder.setLength(0);
         part.append(NEW_LINE);
@@ -100,17 +100,7 @@ public class FabutReportBuilder {
         for (int i = 0; i < assertDepth; i++) {
             part.append(TAB);
         }
-
-        part.append(type.getMark());
-        part.append(ARROW);
-
-        part.append(comment);
-        if (type == CommentType.FAIL) {
-            messageParts.add(failedMessagePosition, part.toString());
-        } else {
-            messageParts.add(part.toString());
-        }
-
+        return part.toString();
     }
 
     /**
@@ -339,7 +329,7 @@ public class FabutReportBuilder {
      *            object reference for asserting
      */
     public void nullReference() {
-        final String comment = "Asserting object cannot null!";
+        final String comment = "Asserting object be cannot null!";
         addComment(comment, CommentType.FAIL);
     }
 

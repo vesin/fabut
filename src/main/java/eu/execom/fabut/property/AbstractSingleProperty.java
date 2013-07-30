@@ -9,7 +9,7 @@ package eu.execom.fabut.property;
  * @author Nikola Trkulja
  */
 public abstract class AbstractSingleProperty implements ISingleProperty {
-    private boolean isInnerProperty;
+
     private String path;
 
     /**
@@ -18,9 +18,8 @@ public abstract class AbstractSingleProperty implements ISingleProperty {
      * @param path
      *            property path
      */
-    public AbstractSingleProperty(final String path, final boolean isInnerProperty) {
+    public AbstractSingleProperty(final String path) {
         this.path = path;
-        this.isInnerProperty = isInnerProperty;
     }
 
     @Override
@@ -43,16 +42,6 @@ public abstract class AbstractSingleProperty implements ISingleProperty {
     public boolean equals(final Object obj) {
         final ISingleProperty property = (ISingleProperty) obj;
         return path.equalsIgnoreCase(property.getPath());
-    }
-
-    @Override
-    public boolean isInnerProperty() {
-        return isInnerProperty;
-    }
-
-    @Override
-    public void setInnerProperty(final boolean isInnerProperty) {
-        this.isInnerProperty = isInnerProperty;
     }
 
 }

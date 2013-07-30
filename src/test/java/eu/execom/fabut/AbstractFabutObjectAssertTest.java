@@ -24,6 +24,10 @@ import eu.execom.fabut.model.TierTwoType;
 import eu.execom.fabut.model.TierTwoTypeWithIgnoreProperty;
 import eu.execom.fabut.model.TierTwoTypeWithListProperty;
 import eu.execom.fabut.model.TierTwoTypeWithPrimitiveProperty;
+import eu.execom.fabut.model.test.Address;
+import eu.execom.fabut.model.test.Faculty;
+import eu.execom.fabut.model.test.Student;
+import eu.execom.fabut.model.test.Teacher;
 
 /**
  * TODO add comments
@@ -73,6 +77,10 @@ public abstract class AbstractFabutObjectAssertTest extends Assert implements IF
         complexTypes.add(TierTwoTypeWithPrimitiveProperty.class);
         complexTypes.add(DoubleLink.class);
         complexTypes.add(Start.class);
+        complexTypes.add(Address.class);
+        complexTypes.add(Faculty.class);
+        complexTypes.add(Student.class);
+        complexTypes.add(Teacher.class);
         return complexTypes;
     }
 

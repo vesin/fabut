@@ -32,8 +32,4 @@ public interface ISingleProperty extends IProperty {
      */
     ISingleProperty getCopy();
 
-    boolean isInnerProperty();
-
-    void setInnerProperty(boolean innerProperty);
-
 }

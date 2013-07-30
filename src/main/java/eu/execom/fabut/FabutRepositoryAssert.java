@@ -63,7 +63,7 @@ class FabutRepositoryAssert extends FabutObjectAssert {
         if (pair.isProperty()) {
             return assertEntityById(report, propertyName, pair);
         } else {
-            return assertSubfields(report, pair, properties, nodesList);
+            return assertSubfields(report, pair, properties, nodesList, propertyName);
         }
     }
 

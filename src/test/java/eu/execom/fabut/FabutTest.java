@@ -10,6 +10,10 @@ import org.junit.Test;
 import eu.execom.fabut.model.EntityTierOneType;
 import eu.execom.fabut.model.NoDefaultConstructorEntity;
 import eu.execom.fabut.model.TierOneType;
+import eu.execom.fabut.model.test.Address;
+import eu.execom.fabut.model.test.Faculty;
+import eu.execom.fabut.model.test.Student;
+import eu.execom.fabut.model.test.Teacher;
 import eu.execom.fabut.property.IgnoredProperty;
 import eu.execom.fabut.property.MultiProperties;
 import eu.execom.fabut.property.NotNullProperty;
@@ -585,4 +589,44 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
         Fabut.afterTest();
     }
 
+    /**
+     * Integration test for {@link Fabut#assertObject(Object, eu.execom.fabut.property.IProperty...)} when inner
+     * properties are used for asserting.
+     */
+    @Test
+    public void testAssertObject() {
+        // method
+        Fabut.beforeTest(this);
+        final Student student = new Student();
+        student.setName("Nikola");
+        student.setLastName("Olah");
+        final Address address1 = new Address();
+        address1.setCity("Temerin");
+        address1.setStreet("Novosadska");
+        address1.setStreetNumber("627");
+        student.setAddress(address1);
+        final Faculty faculty = new Faculty();
+        faculty.setName("PMF");
+        student.setFaculty(faculty);
+        final Teacher teacher = new Teacher();
+        teacher.setName("Djura");
+        faculty.setTeacher(teacher);
+        final Address address2 = new Address();
+        address2.setCity("Kamenica");
+        address2.setStreet("Ljubicica");
+        address2.setStreetNumber("10");
+        teacher.setAddress(address2);
+        teacher.setStudent(student);
+        Fabut.takeSnapshot();
+
+        // assert
+        Fabut.assertObject(student, Fabut.value("name", "Nikola"), Fabut.value("lastName", "Olah"),
+                Fabut.value("address.city", "Temerin"), Fabut.value("address.street", "Novosadska"),
+                Fabut.value("address.streetNumber", "627"), Fabut.value("faculty.name", "PMF"),
+                Fabut.value("faculty.teacher.name", "Djura"), Fabut.value("faculty.teacher.address.city", "Kamenica"),
+                Fabut.value("faculty.teacher.address.street", "Ljubicica"),
+                Fabut.value("faculty.teacher.student", student),
+                Fabut.value("faculty.teacher.address.streetNumber", "10"));
+        Fabut.afterTest();
+    }
 }

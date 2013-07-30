@@ -33,17 +33,27 @@ public class TierOneType extends Type {
         this.property = property;
     }
 
+    /**
+     * Gets the property.
+     * 
+     * @return the property
+     */
     public String getProperty() {
         return property;
     }
 
+    /**
+     * Sets the property.
+     * 
+     * @param property
+     *            the new property
+     */
     public void setProperty(final String property) {
         this.property = property;
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Object#toString()
      */
     @Override

@@ -22,8 +22,8 @@ public class Property<T> extends AbstractSingleProperty {
      * @param value
      *            expected property value
      */
-    public Property(final String path, final T value, final boolean isInnerProperty) {
-        super(path, isInnerProperty);
+    public Property(final String path, final T value) {
+        super(path);
         this.value = value;
     }
 
@@ -38,7 +38,7 @@ public class Property<T> extends AbstractSingleProperty {
 
     @Override
     public ISingleProperty getCopy() {
-        return new Property<T>(getPath(), value, isInnerProperty());
+        return new Property<T>(getPath(), value);
     }
 
 }

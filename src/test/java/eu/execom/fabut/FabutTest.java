@@ -309,7 +309,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
     }
 
     /**
-     * Test for {@link Fabut#assertLists(List, Object...)} when specified objects are lists and they can be asserted.
+     * Test for {@link Fabut#assertList(List, Object...)} when specified objects are lists and they can be asserted.
      */
     @Test
     public void testAssertObjectsListSuccess() {
@@ -321,12 +321,12 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
         expected.add(new TierOneType(TEST + TEST));
 
         // method
-        Fabut.assertLists(expected, new TierOneType(TEST), new TierOneType(TEST + TEST));
+        Fabut.assertList(expected, new TierOneType(TEST), new TierOneType(TEST + TEST));
         Fabut.afterTest();
     }
 
     /**
-     * Test for {@link Fabut#assertLists(List, Object...)} when specified objects are lists and they cannot be asserted.
+     * Test for {@link Fabut#assertList(List, Object...)} when specified objects are lists and they cannot be asserted.
      */
     @Test(expected = AssertionFailedError.class)
     public void testAssertObjectsListFail() {
@@ -338,7 +338,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
         expected.add(new TierOneType(TEST + TEST));
 
         // method
-        Fabut.assertLists(expected, new TierOneType(TEST), new TierOneType(TEST));
+        Fabut.assertList(expected, new TierOneType(TEST), new TierOneType(TEST));
         Fabut.afterTest();
     }
 
@@ -436,6 +436,23 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 
         // method
         Fabut.assertEntityWithSnapshot(new TierOneType());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAssertEntityWithSnapshotNullEntity() {
+        // setup
+        Fabut.beforeTest(this);
+        final EntityTierOneType entityTierOneType = new EntityTierOneType();
+        entityTierOneType.setId(10);
+        entityTierOneType.setProperty("property");
+        getEntityTierOneTypes().add(entityTierOneType);
+        Fabut.takeSnapshot();
+
+        // method
+        ((EntityTierOneType) getEntityTierOneTypes().get(0)).setProperty("test");
+        Fabut.assertEntityWithSnapshot(null, Fabut.value(EntityTierOneType.PROPERTY, "test"));
+
+        Fabut.afterTest();
     }
 
     /**

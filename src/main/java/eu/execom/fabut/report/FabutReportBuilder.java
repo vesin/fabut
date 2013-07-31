@@ -2,6 +2,8 @@ package eu.execom.fabut.report;
 
 import java.lang.reflect.Method;
 
+import org.apache.commons.lang3.StringUtils;
+
 import eu.execom.fabut.enums.CommentType;
 import eu.execom.fabut.pair.AssertPair;
 import eu.execom.fabut.property.NotNullProperty;
@@ -62,7 +64,9 @@ public class FabutReportBuilder {
      * Increase indentation in report.
      */
     public void increaseDepth(final String parent) {
-        builder.append(addIndentation() + parent + COLON);
+        if (!StringUtils.isEmpty(parent)) {
+            builder.append(addIndentation() + parent + COLON);
+        }
         assertDepth++;
     }
 
@@ -329,7 +333,7 @@ public class FabutReportBuilder {
      *            object reference for asserting
      */
     public void nullReference() {
-        final String comment = "Asserting object be cannot null!";
+        final String comment = "Object that was passed to assertObject was null, it must not be null!";
         addComment(comment, CommentType.FAIL);
     }
 

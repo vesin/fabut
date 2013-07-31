@@ -168,14 +168,14 @@ public class Fabut {
     }
 
     /**
-     * Asserts list of expected and actual objects.
+     * Asserts list of expected and array of actual objects.
      * 
      * @param expected
      *            the expected list
      * @param actuals
      *            the actual array
      */
-    public static void assertLists(final List<?> expected, final Object... actuals) {
+    public static void assertList(final List<?> expected, final Object... actuals) {
         checkValidInit();
         assertObjects("", expected, ConversionUtil.createListFromArray(actuals));
     }
@@ -258,6 +258,9 @@ public class Fabut {
      */
     private static void checkIfEntity(final Object entity) {
         checkIfRepositoryAssert();
+        if (entity == null) {
+            throw new NullPointerException("assertEntityWithSnapshot cannot take null entity!");
+        }
 
         if (!fabutAssert.getEntityTypes().contains(entity.getClass())) {
 
@@ -272,7 +275,7 @@ public class Fabut {
 
         if (assertType != AssertType.REPOSITORY_ASSERT) {
 
-            throw new IllegalStateException("Test must implement IRepositoryFabutAssert");
+            throw new IllegalStateException("Test class must implement IRepositoryFabutAssert");
         }
     }
 

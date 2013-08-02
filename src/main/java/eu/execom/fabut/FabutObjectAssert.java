@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import junit.framework.Assert;
 
@@ -40,7 +41,7 @@ import eu.execom.fabut.util.ReflectionUtil;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-@SuppressWarnings({"rawtypes"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 class FabutObjectAssert extends Assert {
 
     private static final String EMPTY_STRING = "";
@@ -243,6 +244,9 @@ class FabutObjectAssert extends Assert {
         case LIST_TYPE:
             return assertList(propertyName, report, (List) pair.getExpected(), (List) pair.getActual(), properties,
                     nodesList, true);
+        case MAP_TYPE:
+            return assertMap(propertyName, report, (Map) pair.getExpected(), (Map) pair.getActual(), properties,
+                    nodesList, true);
         default:
             throw new IllegalStateException("Unknown assert type: " + pair.getObjectType());
         }
@@ -292,7 +296,6 @@ class FabutObjectAssert extends Assert {
 
         for (final Method expectedMethod : getMethods) {
             try {
-
                 final String fieldName = ReflectionUtil.getFieldName(expectedMethod);
 
                 final ISingleProperty property = obtainProperty(expectedMethod.invoke(pair.getExpected()), fieldName,
@@ -452,6 +455,84 @@ class FabutObjectAssert extends Assert {
     }
 
     /**
+     * Asserts two maps.
+     * 
+     * @param propertyName
+     * @param report
+     * @param expected
+     * @param actual
+     * @param properties
+     * @param nodesList
+     * @param isProperty
+     * @return
+     */
+    boolean assertMap(final String propertyName, final FabutReportBuilder report, final Map expected, final Map actual,
+            final List<ISingleProperty> properties, final NodesList nodesList, final boolean isProperty) {
+        // TODO add better reporting when asserting map objects, similar to list
+        final TreeSet expectedKeys = new TreeSet(expected.keySet());
+        final TreeSet actualKeys = new TreeSet(actual.keySet());
+        final TreeSet expectedKeysCopy = new TreeSet(expectedKeys);
+        report.increaseDepth(propertyName);
+        expectedKeysCopy.retainAll(actualKeys);
+        boolean ok = true;
+        for (final Object key : expectedKeysCopy) {
+            final AssertPair assertPair = ConversionUtil.createAssertPair(expected.get(key), actual.get(key), types);
+            report.assertingMapKey(key);
+            ok &= assertPair(EMPTY_STRING, report, assertPair, properties, nodesList);
+        }
+        ok &= assertExcessExpected(propertyName, report, expected, expectedKeysCopy, actualKeys);
+        ok &= assertExcessActual(propertyName, report, actual, expectedKeysCopy, actualKeys);
+        report.decreaseDepth();
+        return ok;
+    }
+
+    /**
+     * Asserts excess, if any, from expected map.
+     * 
+     * @param propertyName
+     * @param report
+     * @param expected
+     * @param expectedKeys
+     * @param actualKeys
+     * @return
+     */
+    boolean assertExcessExpected(final String propertyName, final FabutReportBuilder report, final Map expected,
+            final TreeSet expectedKeys, final TreeSet actualKeys) {
+        final TreeSet expectedKeysCopy = new TreeSet(expectedKeys);
+        expectedKeysCopy.removeAll(actualKeys);
+        if (expectedKeysCopy.size() > 0) {
+            for (final Object key : expectedKeysCopy) {
+                report.excessExpectedMap(key);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Asserts excess, if any, from actual map.
+     * 
+     * @param propertyName
+     * @param report
+     * @param actual
+     * @param expectedKeys
+     * @param actualKeys
+     * @return
+     */
+    boolean assertExcessActual(final String propertyName, final FabutReportBuilder report, final Map actual,
+            final TreeSet expectedKeys, final TreeSet actualKeys) {
+        final TreeSet actualKeysCopy = new TreeSet(actualKeys);
+        actualKeysCopy.removeAll(expectedKeys);
+        if (actualKeysCopy.size() > 0) {
+            for (final Object key : actualKeysCopy) {
+                report.excessActualMap(key);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Cuts off parent property name from start of property path.
      * 
      * @param parentPropertyName
@@ -595,6 +676,13 @@ class FabutObjectAssert extends Assert {
         return ok;
     }
 
+    /**
+     * Extracts properties from specified list that have same parent as specified one.
+     * 
+     * @param parent
+     * @param properties
+     * @return
+     */
     List<ISingleProperty> extractPropertiesWithMatchingParent(final String parent,
             final List<ISingleProperty> properties) {
         final List<ISingleProperty> extracts = new LinkedList<ISingleProperty>();
@@ -609,6 +697,13 @@ class FabutObjectAssert extends Assert {
         return extracts;
     }
 
+    /**
+     * Determines if list of properties has inner properties in it.
+     * 
+     * @param parent
+     * @param properties
+     * @return
+     */
     boolean hasInnerProperties(final String parent, final List<ISingleProperty> properties) {
         for (final ISingleProperty property : properties) {
             if (property.getPath().startsWith(parent + DOT)) {

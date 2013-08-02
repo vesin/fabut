@@ -3,6 +3,7 @@ package eu.execom.fabut.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ import eu.execom.fabut.graph.NodesList;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class ReflectionUtil {
 
     /** The Constant GET_METHOD_PREFIX. */
@@ -119,6 +120,16 @@ public final class ReflectionUtil {
      */
     public static boolean isListType(final Object object) {
         return object instanceof List;
+    }
+
+    /**
+     * Determines if specified object is instance of {@link Map}.
+     * 
+     * @param object
+     * @return
+     */
+    public static boolean isMapType(final Object object) {
+        return object instanceof Map;
     }
 
     /**
@@ -237,7 +248,7 @@ public final class ReflectionUtil {
 
         final Method[] allMethods = object.getClass().getMethods();
         for (final Method method : allMethods) {
-            if (ReflectionUtil.isGetMethod(object.getClass(), method)) {
+            if (isGetMethod(object.getClass(), method)) {
                 // complex or entity type get methods inside object come last in
                 // list
                 if (isComplexType(method.getReturnType(), types) || isEntityType(method.getReturnType(), types)) {
@@ -287,6 +298,8 @@ public final class ReflectionUtil {
         final Class<?> typeClass = actual != null ? actual.getClass() : expected.getClass();
         if (List.class.isAssignableFrom(typeClass)) {
             return AssertableType.LIST_TYPE;
+        } else if (Map.class.isAssignableFrom(typeClass)) {
+            return AssertableType.MAP_TYPE;
         } else if (types.get(AssertableType.COMPLEX_TYPE).contains(typeClass)) {
             return AssertableType.COMPLEX_TYPE;
         } else if (types.get(AssertableType.ENTITY_TYPE).contains(typeClass)) {
@@ -330,8 +343,8 @@ public final class ReflectionUtil {
         final Class<?> classObject = object.getClass();
         for (final Method method : classObject.getMethods()) {
 
-            if (ReflectionUtil.isGetMethod(object.getClass(), method) && method.getParameterAnnotations().length == 0) {
-                final String propertyName = ReflectionUtil.getFieldName(method);
+            if (isGetMethod(object.getClass(), method) && method.getParameterAnnotations().length == 0) {
+                final String propertyName = getFieldName(method);
                 final Object propertyForCopying = getPropertyForCopying(object, method);
                 final Object copiedProperty = copyProperty(propertyForCopying, nodes, types);
                 if (!invokeSetMethod(method, classObject, propertyName, copy, copiedProperty)) {
@@ -391,19 +404,40 @@ public final class ReflectionUtil {
             return null;
         }
 
-        if (ReflectionUtil.isComplexType(propertyForCopying.getClass(), types)) {
+        if (isComplexType(propertyForCopying.getClass(), types)) {
             // its complex object, we need its copy
             return createCopyObject(propertyForCopying, nodes, types);
         }
 
-        if (ReflectionUtil.isListType(propertyForCopying)) {
+        if (isListType(propertyForCopying)) {
             // just creating new list with same elements
             return copyList((List<?>) propertyForCopying, types);
+        }
+
+        if (isMapType(propertyForCopying)) {
+            return copyMap((Map) propertyForCopying, types);
         }
 
         // if its not list or some complex type same object will be added.
         return propertyForCopying;
 
+    }
+
+    /**
+     * Creates a copy of specified map.
+     * 
+     * @param propertyForCopying
+     * @param types
+     * @return
+     * @throws CopyException
+     */
+    public static Object copyMap(final Map propertyForCopying, final Map<AssertableType, List<Class<?>>> types)
+            throws CopyException {
+        final Map mapCopy = new HashMap();
+        for (final Object key : propertyForCopying.keySet()) {
+            mapCopy.put(key, copyProperty(propertyForCopying.get(key), new NodesList(), types));
+        }
+        return mapCopy;
     }
 
     /**
@@ -419,7 +453,7 @@ public final class ReflectionUtil {
             throws CopyException {
         final List<T> copyList = new ArrayList<T>();
         for (final T t : list) {
-            copyList.add((T) ReflectionUtil.copyProperty(t, new NodesList(), types));
+            copyList.add((T) copyProperty(t, new NodesList(), types));
         }
         return copyList;
     }
@@ -441,7 +475,7 @@ public final class ReflectionUtil {
             return null;
         }
 
-        if (ReflectionUtil.isListType(object)) {
+        if (isListType(object)) {
             final List<?> list = (List<?>) object;
             return copyList(list, types);
         }

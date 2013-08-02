@@ -23,7 +23,7 @@ public enum CommentType {
     /**
      * List type.
      */
-    LIST("#");
+    COLLECTION("#");
 
     private final String mark;
 

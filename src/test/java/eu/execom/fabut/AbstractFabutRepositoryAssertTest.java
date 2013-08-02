@@ -27,6 +27,7 @@ import eu.execom.fabut.model.TierThreeType;
 import eu.execom.fabut.model.TierTwoType;
 import eu.execom.fabut.model.TierTwoTypeWithIgnoreProperty;
 import eu.execom.fabut.model.TierTwoTypeWithListProperty;
+import eu.execom.fabut.model.TierTwoTypeWithMap;
 import eu.execom.fabut.model.TierTwoTypeWithPrimitiveProperty;
 
 /**
@@ -144,6 +145,7 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert implement
         complexTypes.add(TierTwoTypeWithPrimitiveProperty.class);
         complexTypes.add(DoubleLink.class);
         complexTypes.add(Start.class);
+        complexTypes.add(TierTwoTypeWithMap.class);
         return complexTypes;
     }
 

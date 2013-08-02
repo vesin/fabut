@@ -1,5 +1,7 @@
 package eu.execom.fabut.enums;
 
+import java.util.Map;
+
 /**
  * Types assertable by FABUT.
  * 
@@ -27,6 +29,9 @@ public enum AssertableType {
     PRIMITIVE_TYPE,
 
     /** Type that implements {@link List}, its asserted iterating over its elements and asserting those. */
-    LIST_TYPE;
+    LIST_TYPE,
+
+    /** Type that implements {@link Map} */
+    MAP_TYPE;
 
 }

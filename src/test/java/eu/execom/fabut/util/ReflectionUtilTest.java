@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -278,6 +279,18 @@ public class ReflectionUtilTest extends Assert {
     public void testIsListTypeFalse() {
         // assert
         assertFalse(ReflectionUtil.isListType(TEST));
+    }
+
+    @Test
+    public void testIsMapTypeTrue() {
+        // assert
+        assertTrue(ReflectionUtil.isMapType(new HashMap<String, String>()));
+    }
+
+    @Test
+    public void testIsMapTypeFalse() {
+        // assert
+        assertFalse(ReflectionUtil.isMapType(TEST));
     }
 
     // TODO fix these tests
@@ -673,5 +686,26 @@ public class ReflectionUtilTest extends Assert {
         assertEquals(a.getProperty(), aCopy.getProperty());
         assertEquals(a.getB().getC().getA().getProperty(), aCopy.getB().getC().getA().getProperty());
 
+    }
+
+    /**
+     * Test for {@link ReflectionUtil#copyMap(Map, Map)}.
+     * 
+     * @throws CopyException
+     */
+    @Test
+    public void testCopyMap() throws CopyException {
+        // setup
+        final Map<String, TierOneType> map = new HashMap<String, TierOneType>();
+        map.put("first", new TierOneType(TEST));
+        map.put("second", new TierOneType(TEST + TEST));
+
+        // method
+        final Map<String, TierOneType> result = (Map<String, TierOneType>) ReflectionUtil.copyMap(map, types);
+
+        // assert
+        assertEquals(2, result.size());
+        assertEquals(TEST, result.get("first").getProperty());
+        assertEquals(TEST + TEST, result.get("second").getProperty());
     }
 }

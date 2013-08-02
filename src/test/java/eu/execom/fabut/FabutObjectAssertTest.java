@@ -2,8 +2,11 @@ package eu.execom.fabut;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 import org.junit.Test;
 
@@ -1365,5 +1368,132 @@ public class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
         final FabutReportBuilder report = new FabutReportBuilder();
         // assert
         assertTrue(getFabutObjectAssert().assertInnerObject(report, actual, expected, properties, "property"));
+    }
+
+    @Test
+    public void testAssertMapTrue() {
+        // setup
+        final Map<String, TierOneType> expected = new HashMap<String, TierOneType>();
+        expected.put("first", new TierOneType(TEST));
+        expected.put("second", new TierOneType(TEST));
+
+        final Map<String, TierOneType> actual = new HashMap<String, TierOneType>();
+        actual.put("first", new TierOneType(TEST));
+        actual.put("second", new TierOneType(TEST));
+
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertMap("", new FabutReportBuilder(), expected, actual,
+                new ArrayList<ISingleProperty>(), new NodesList(), false);
+
+        // assert
+        assertTrue(assertResult);
+    }
+
+    @Test
+    public void testAssertMapFalseSameSize() {
+        // setup
+        final Map<String, TierOneType> expected = new HashMap<String, TierOneType>();
+        expected.put("first", new TierOneType(TEST));
+        expected.put("second", new TierOneType(TEST));
+
+        final Map<String, TierOneType> actual = new HashMap<String, TierOneType>();
+        actual.put("first", new TierOneType(TEST + TEST));
+        actual.put("second", new TierOneType(TEST + TEST));
+
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertMap("", new FabutReportBuilder(), expected, actual,
+                new ArrayList<ISingleProperty>(), new NodesList(), false);
+
+        // assert
+        assertFalse(assertResult);
+    }
+
+    @Test
+    public void testAssertMapFalseDifferentKeySet() {
+        // setup
+        final Map<String, TierOneType> expected = new HashMap<String, TierOneType>();
+        expected.put("first", new TierOneType(TEST));
+        expected.put("third", new TierOneType(TEST));
+
+        final Map<String, TierOneType> actual = new HashMap<String, TierOneType>();
+        actual.put("first", new TierOneType(TEST));
+        actual.put("second", new TierOneType(TEST));
+
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertMap("", new FabutReportBuilder(), expected, actual,
+                new ArrayList<ISingleProperty>(), new NodesList(), false);
+
+        // assert
+        assertFalse(assertResult);
+    }
+
+    @Test
+    public void testAssertExcessExpectedNoExcess() {
+        // setup
+        final Map<String, TierOneType> expected = new HashMap<String, TierOneType>();
+        expected.put("first", new TierOneType());
+        final TreeSet<String> expectedKeys = new TreeSet<String>();
+        expectedKeys.add("first");
+        final TreeSet<String> actualKeys = new TreeSet<String>();
+        actualKeys.add("first");
+
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertExcessExpected("", new FabutReportBuilder(),
+                expected, expectedKeys, actualKeys);
+
+        // assert
+        assertTrue(assertResult);
+    }
+
+    @Test
+    public void testAssertExcessExpectedExcess() {
+        // setup
+        final Map<String, TierOneType> expected = new HashMap<String, TierOneType>();
+        expected.put("first", new TierOneType());
+        final TreeSet<String> expectedKeys = new TreeSet<String>();
+        expectedKeys.add("first");
+        final TreeSet<String> actualKeys = new TreeSet<String>();
+        final FabutReportBuilder report = new FabutReportBuilder();
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertExcessExpected("", report, expected, expectedKeys,
+                actualKeys);
+
+        // assert
+        assertFalse(assertResult);
+    }
+
+    @Test
+    public void testAssertExcessActualNoExcess() {
+        // setup
+        final Map<String, TierOneType> actual = new HashMap<String, TierOneType>();
+        actual.put("first", new TierOneType());
+        final TreeSet<String> expectedKeys = new TreeSet<String>();
+        expectedKeys.add("first");
+        final TreeSet<String> actualKeys = new TreeSet<String>();
+        actualKeys.add("first");
+
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertExcessActual("", new FabutReportBuilder(), actual,
+                expectedKeys, actualKeys);
+
+        // assert
+        assertTrue(assertResult);
+    }
+
+    @Test
+    public void testAssertExcessActualExcess() {
+        // setup
+        final Map<String, TierOneType> actual = new HashMap<String, TierOneType>();
+        actual.put("first", new TierOneType());
+        final TreeSet<String> expectedKeys = new TreeSet<String>();
+        final TreeSet<String> actualKeys = new TreeSet<String>();
+        actualKeys.add("first");
+        final FabutReportBuilder report = new FabutReportBuilder();
+        // method
+        final boolean assertResult = getFabutObjectAssert().assertExcessActual("", report, actual, expectedKeys,
+                actualKeys);
+
+        // assert
+        assertFalse(assertResult);
     }
 }

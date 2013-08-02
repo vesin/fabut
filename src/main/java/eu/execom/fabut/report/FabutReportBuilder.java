@@ -270,7 +270,7 @@ public class FabutReportBuilder {
      */
     public void assertingListElement(final String listName, final int index) {
         final String comment = String.format("Asserting object at index [%d] of list %s.", index, listName);
-        addComment(comment, CommentType.LIST);
+        addComment(comment, CommentType.COLLECTION);
     }
 
     /**
@@ -425,6 +425,45 @@ public class FabutReportBuilder {
     public void noCopy(final Object entity) {
         final String comment = String.format("Entity: %s cannot be copied into snapshot", entity);
         addComment(comment, CommentType.FAIL);
+    }
+
+    /**
+     * Reports that there is no match for key from expected map in actual map.
+     * <p>
+     * Example: <i>■> No match for expected key: first </i>
+     * </p>
+     * 
+     * @param key
+     */
+    public void excessExpectedMap(final Object key) {
+        final String comment = String.format("No match for expected key: %s", key);
+        addComment(comment, CommentType.FAIL);
+    }
+
+    /**
+     * Reports that there is no match for key from actual map in expected map.
+     * <p>
+     * Example: <i>■> No match for actual key: first </i>
+     * </p>
+     * 
+     * @param key
+     */
+    public void excessActualMap(final Object key) {
+        final String comment = String.format("No match for actual key: %s", key);
+        addComment(comment, CommentType.FAIL);
+    }
+
+    /**
+     * Reports asserting map element by key.
+     * <p>
+     * Example: <i>#> Map key: first </i>
+     * </p>
+     * 
+     * @param key
+     */
+    public void assertingMapKey(final Object key) {
+        final String comment = String.format("Map key: %s", key);
+        addComment(comment, CommentType.COLLECTION);
     }
 
 }

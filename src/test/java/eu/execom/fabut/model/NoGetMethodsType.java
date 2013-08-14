@@ -40,7 +40,7 @@ public class NoGetMethodsType extends Type {
      * 
      * @return the string
      */
-    public String property() {
+    public String propertyGetter() {
         return property;
     }
 

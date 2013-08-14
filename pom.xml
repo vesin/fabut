@@ -4,7 +4,7 @@
 	<groupId>eu.execom</groupId>
 	<artifactId>fabut</artifactId>
 	<name>Execom Fabut</name>
-	<version>3.1.0-RELEASE</version>
+	<version>3.2.0-RELEASE</version>
 	<description>Testing tool that helps developers to write better tests.</description>
 	<ciManagement>
 		<system>GIT</system>

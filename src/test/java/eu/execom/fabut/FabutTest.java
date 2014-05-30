@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import eu.execom.fabut.model.EntityTierOneType;
 import eu.execom.fabut.model.NoDefaultConstructorEntity;
+import eu.execom.fabut.model.ScalaType;
 import eu.execom.fabut.model.TierOneType;
 import eu.execom.fabut.model.TierTwoTypeWithListProperty;
 import eu.execom.fabut.model.TierTwoTypeWithMap;
@@ -375,6 +376,28 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 		// method
 		Fabut.takeSnapshot();
 		getEntityTierOneTypes().add(actual);
+		Fabut.assertObjects(expected, actual);
+
+		Fabut.afterTest();
+	}
+	/**
+	 * Test for
+	 * {@link Fabut#assertObjects(Object, Object, eu.execom.fabut.property.IProperty...)}
+	 * when specified objects are entities and can be asserted.
+	 */
+	@Test
+	public void testAssertObjectsEntitySuccessScalaType() {
+		// setup
+		Fabut.beforeTest(this);
+
+		ScalaType expected = new ScalaType();
+		expected.id(1l);
+		
+		ScalaType actual = new ScalaType();
+		actual.id(1l);
+
+		// method
+		Fabut.takeSnapshot(expected);
 		Fabut.assertObjects(expected, actual);
 
 		Fabut.afterTest();

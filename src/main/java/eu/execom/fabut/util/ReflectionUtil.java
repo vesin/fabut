@@ -214,11 +214,19 @@ public final class ReflectionUtil {
 	 */
 	public static Object getIdValue(final Object entity) {
 		try {
-			final Method method = entity.getClass().getMethod(GET_ID);
-			return method.invoke(entity);
+			Method getMethod = entity.getClass().getMethod(GET_ID);
+			return getMethod.invoke(entity);
 		} catch (final Exception e) {
-			return null;
 		}
+		
+		try {
+			Method getMethod = entity.getClass().getMethod("id");
+			return getMethod.invoke(entity);
+		} catch (final Exception e) {
+		}
+		
+		return null;
+		
 	}
 
 	/**

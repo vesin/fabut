@@ -26,6 +26,7 @@ import eu.execom.fabut.model.C;
 import eu.execom.fabut.model.EntityTierOneType;
 import eu.execom.fabut.model.EntityTierTwoType;
 import eu.execom.fabut.model.NoGetMethodsType;
+import eu.execom.fabut.model.ScalaType;
 import eu.execom.fabut.model.TierOneType;
 import eu.execom.fabut.model.TierTwoType;
 import eu.execom.fabut.model.TypeWithAllWaysOfGettingFields;
@@ -172,6 +173,17 @@ public class ReflectionUtilTest extends Assert {
 
 		// assert
 		assertFalse(assertValue);
+	}
+	
+
+	
+	@Test
+	public void testIsGetMethodScalaType() throws SecurityException, NoSuchMethodException{
+		Method method = ScalaType.class.getMethod("id");
+		
+		boolean ok = ReflectionUtil.isGetMethod(new ScalaType().getClass(), method);
+		
+		assertTrue(ok);
 	}
 
 	/**
@@ -937,5 +949,4 @@ public class ReflectionUtilTest extends Assert {
 		// assert
 		assertFalse(ok);
 	}
-
 }

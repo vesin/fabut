@@ -18,6 +18,7 @@ import eu.execom.fabut.model.IgnoredMethodsType;
 import eu.execom.fabut.model.IgnoredType;
 import eu.execom.fabut.model.NoDefaultConstructorEntity;
 import eu.execom.fabut.model.NoGetMethodsType;
+import eu.execom.fabut.model.ScalaType;
 import eu.execom.fabut.model.Start;
 import eu.execom.fabut.model.TierFiveType;
 import eu.execom.fabut.model.TierFourType;
@@ -147,6 +148,7 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert implement
 		complexTypes.add(Start.class);
 		complexTypes.add(TierTwoTypeWithMap.class);
 		complexTypes.add(TypeWithAllWaysOfGettingFields.class);
+		complexTypes.add(ScalaType.class);
 		return complexTypes;
 	}
 

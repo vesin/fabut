@@ -8,28 +8,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-import eu.execom.fabut.model.A;
-import eu.execom.fabut.model.B;
-import eu.execom.fabut.model.C;
-import eu.execom.fabut.model.DoubleLink;
-import eu.execom.fabut.model.EntityTierOneType;
-import eu.execom.fabut.model.EntityTierTwoType;
-import eu.execom.fabut.model.IgnoredMethodsType;
-import eu.execom.fabut.model.IgnoredType;
-import eu.execom.fabut.model.NoDefaultConstructorEntity;
-import eu.execom.fabut.model.NoGetMethodsType;
-import eu.execom.fabut.model.Start;
-import eu.execom.fabut.model.TierFiveType;
-import eu.execom.fabut.model.TierFourType;
-import eu.execom.fabut.model.TierOneType;
-import eu.execom.fabut.model.TierSixType;
-import eu.execom.fabut.model.TierThreeType;
-import eu.execom.fabut.model.TierTwoType;
-import eu.execom.fabut.model.TierTwoTypeWithIgnoreProperty;
-import eu.execom.fabut.model.TierTwoTypeWithListProperty;
-import eu.execom.fabut.model.TierTwoTypeWithMap;
-import eu.execom.fabut.model.TierTwoTypeWithPrimitiveProperty;
-import eu.execom.fabut.model.TypeWithAllWaysOfGettingFields;
+import fabut.model.Contract;
+import fabut.model.Employee;
 
 /**
  * TODO add comments
@@ -39,11 +19,13 @@ import eu.execom.fabut.model.TypeWithAllWaysOfGettingFields;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-public abstract class AbstractFabutRepositoryAssertTest extends Assert implements IFabutRepositoryTest {
+public abstract class AbstractFabutRepositoryAssertTest extends Assert
+		implements IFabutRepositoryTest {
 	// mock lists
 	private List<Object> entityTierOneTypes = new ArrayList<Object>();
 	private List<Object> entityTierTwoTypes = new ArrayList<Object>();
 	private List<Object> noDefaultConstructorEntities = new ArrayList<Object>();
+	private List<Object> employees = new ArrayList<Object>();
 	private FabutRepositoryAssert fabutRepositoryAssert;
 
 	public AbstractFabutRepositoryAssertTest() {
@@ -53,38 +35,24 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert implement
 	@Override
 	public List<Class<?>> getEntityTypes() {
 		final List<Class<?>> entityTypes = new LinkedList<Class<?>>();
-		entityTypes.add(EntityTierOneType.class);
-		entityTypes.add(EntityTierTwoType.class);
-		entityTypes.add(NoDefaultConstructorEntity.class);
+		entityTypes.add(Employee.class);
 		return entityTypes;
 	}
 
 	@Override
 	public List<Object> findAll(final Class<?> entityClass) {
-		if (entityClass == EntityTierOneType.class) {
-			return entityTierOneTypes;
-		}
-		if (entityClass == EntityTierTwoType.class) {
-			return entityTierTwoTypes;
-		}
-		if (entityClass == NoDefaultConstructorEntity.class) {
-			return noDefaultConstructorEntities;
+		if (entityClass == Employee.class) {
+			return employees;
 		}
 		return null;
 	}
 
 	@Override
 	public Object findById(final Class<?> entityClass, final Object id) {
-		if (entityClass == EntityTierOneType.class) {
-			for (final Object entity : entityTierOneTypes) {
-				if (((EntityTierOneType)entity).getId().equals(id)) {
-					return entity;
-				}
-			}
-		}
-		if (entityClass == NoDefaultConstructorEntity.class) {
-			for (final Object entity : noDefaultConstructorEntities) {
-				if (((NoDefaultConstructorEntity)entity).getId().equals(id)) {
+		if (entityClass == Employee.class) {
+			for (final Object entity : employees) {
+				Employee e = (Employee) entity;
+				if (id.equals(((Employee) entity).id())) {
 					return entity;
 				}
 			}
@@ -112,7 +80,8 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert implement
 		return noDefaultConstructorEntities;
 	}
 
-	public void setNoDefaultConstructorEntities(final List<Object> noDefaultConstructorEntities) {
+	public void setNoDefaultConstructorEntities(
+			final List<Object> noDefaultConstructorEntities) {
 		this.noDefaultConstructorEntities = noDefaultConstructorEntities;
 	}
 
@@ -124,36 +93,20 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert implement
 
 	@Override
 	@After
-	public void fabutAfterTest() {}
+	public void fabutAfterTest() {
+	}
 
 	@Override
 	public List<Class<?>> getComplexTypes() {
 		final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
-		complexTypes.add(A.class);
-		complexTypes.add(B.class);
-		complexTypes.add(C.class);
-		complexTypes.add(TierOneType.class);
-		complexTypes.add(TierTwoType.class);
-		complexTypes.add(TierThreeType.class);
-		complexTypes.add(TierFourType.class);
-		complexTypes.add(TierFiveType.class);
-		complexTypes.add(TierSixType.class);
-		complexTypes.add(NoGetMethodsType.class);
-		complexTypes.add(IgnoredMethodsType.class);
-		complexTypes.add(TierTwoTypeWithIgnoreProperty.class);
-		complexTypes.add(TierTwoTypeWithListProperty.class);
-		complexTypes.add(TierTwoTypeWithPrimitiveProperty.class);
-		complexTypes.add(DoubleLink.class);
-		complexTypes.add(Start.class);
-		complexTypes.add(TierTwoTypeWithMap.class);
-		complexTypes.add(TypeWithAllWaysOfGettingFields.class);
+		complexTypes.add(Contract.class);
+		complexTypes.add(Technology.class);
 		return complexTypes;
 	}
 
 	@Override
 	public List<Class<?>> getIgnoredTypes() {
 		final List<Class<?>> ignoredTypes = new LinkedList<Class<?>>();
-		ignoredTypes.add(IgnoredType.class);
 		return ignoredTypes;
 	}
 
@@ -165,6 +118,14 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert implement
 
 	public FabutRepositoryAssert getFabutRepositoryAssert() {
 		return fabutRepositoryAssert;
+	}
+
+	public List<Object> getEmployees() {
+		return employees;
+	}
+
+	public void setEmployees(List<Object> employees) {
+		this.employees = employees;
 	}
 
 }

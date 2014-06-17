@@ -5,6 +5,7 @@ import junit.framework.AssertionFailedError;
 import org.junit.Test;
 
 import fabut.model.Employee;
+import fabut.model.EmployeeDTO;
 
 public class FabutTest extends AbstractFabutRepositoryAssertTest {
 
@@ -22,8 +23,33 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 		Fabut.afterTest();
 	}
 
+	@Test(expected = AssertionFailedError.class)
+	public void testTakeSnapshotScalaEmployeeFail() {
+		// setup
+		Fabut.beforeTest(this);
+		Fabut.takeSnapshot();
+		getEmployees().add(new Employee(2l, TEST + TEST));
+
+		// method
+		Fabut.afterTest();
+	}
+
 	@Test
 	public void testAssertObject() {
+		// setup
+		Fabut.beforeTest(this);
+		Employee employee = new Employee(1l, TEST);
+
+		// method
+		Fabut.takeSnapshot();
+		Fabut.assertObject(employee,
+				Fabut.value("fabut$model$Employee$$_id", 1l),
+				Fabut.value("fabut$model$Employee$$_name", TEST));
+		Fabut.afterTest();
+	}
+
+	@Test
+	public void testAssertObjectGeneratedFieldNames() {
 		// setup
 		Fabut.beforeTest(this);
 		Employee employee = new Employee(1l, TEST);
@@ -49,6 +75,32 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 	}
 
 	@Test
+	public void testAssertObjectsDTOs() {
+		// setup
+		Fabut.beforeTest(this);
+		EmployeeDTO expected = new EmployeeDTO(1l, TEST);
+		EmployeeDTO actual = new EmployeeDTO(1l, TEST);
+
+		// method
+		Fabut.takeSnapshot();
+		Fabut.assertObjects(expected, actual);
+		Fabut.afterTest();
+	}
+
+	@Test(expected = AssertionFailedError.class)
+	public void testAssertObjectsDTOsFail() {
+		// setup
+		Fabut.beforeTest(this);
+		EmployeeDTO expected = new EmployeeDTO(1l, TEST + TEST);
+		EmployeeDTO actual = new EmployeeDTO(1l, TEST);
+
+		// method
+		Fabut.takeSnapshot();
+		Fabut.assertObjects(expected, actual);
+		Fabut.afterTest();
+	}
+
+	@Test
 	public void testAssertObjects() {
 		// setup
 		Fabut.beforeTest(this);
@@ -70,7 +122,8 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 
 		// method
 		Fabut.takeSnapshot();
-		Fabut.assertObjects(expected, actual, Fabut.value("_name", TEST + TEST));
+		Fabut.assertObjects(expected, actual,
+				Fabut.value("fabut$model$Employee$$_name", TEST + TEST));
 		Fabut.afterTest();
 	}
 
@@ -99,7 +152,7 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 		Employee changed = (Employee) getEmployees().get(0);
 		changed.name_$eq(TEST + TEST);
 		Fabut.assertEntityWithSnapshot(changed,
-				Fabut.value("_name", TEST + TEST));
+				Fabut.value("fabut$model$Employee$$_name", TEST + TEST));
 		Fabut.afterTest();
 	}
 

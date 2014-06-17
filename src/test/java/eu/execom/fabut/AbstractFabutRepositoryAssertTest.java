@@ -10,6 +10,7 @@ import org.junit.Before;
 
 import fabut.model.Contract;
 import fabut.model.Employee;
+import fabut.model.EmployeeDTO;
 
 /**
  * TODO add comments
@@ -51,7 +52,6 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert
 	public Object findById(final Class<?> entityClass, final Object id) {
 		if (entityClass == Employee.class) {
 			for (final Object entity : employees) {
-				Employee e = (Employee) entity;
 				if (id.equals(((Employee) entity).id())) {
 					return entity;
 				}
@@ -101,6 +101,7 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert
 		final List<Class<?>> complexTypes = new LinkedList<Class<?>>();
 		complexTypes.add(Contract.class);
 		complexTypes.add(Technology.class);
+		complexTypes.add(EmployeeDTO.class);
 		return complexTypes;
 	}
 

@@ -67,14 +67,6 @@ public class Fabut {
 		boolean ok = true;
 		final StringBuilder sb = new StringBuilder();
 
-		// TODO(nolah) implement parameter snapshot
-		// final FabutReportBuilder parameterReport = new FabutReportBuilder(
-		// "Parameter snapshot assert");
-		// if (!fabutAssert.assertParameterSnapshot(parameterReport)) {
-		// ok = false;
-		// sb.append(parameterReport.getMessage());
-		// }
-
 		final FabutReportBuilder snapshotReport = new FabutReportBuilder(
 				"Repository snapshot assert");
 		if (assertType == AssertType.REPOSITORY_ASSERT) {

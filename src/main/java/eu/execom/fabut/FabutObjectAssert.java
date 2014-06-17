@@ -249,13 +249,6 @@ class FabutObjectAssert extends Assert {
 			// TODO(nolah) CUT-OFF RECURSION HERE WHEN ASSERTING PROPERTIES AND
 			// INNER PROPERTIES OF COMPLEX OBJECT
 			return assertPrimitives(report, propertyName, pair);
-			// case LIST_TYPE:
-			// return assertList(propertyName, report, (List)
-			// pair.getExpected(),
-			// (List) pair.getActual(), properties, nodesList, true);
-			// case MAP_TYPE:
-			// return assertMap(propertyName, report, (Map) pair.getExpected(),
-			// (Map) pair.getActual(), properties, nodesList, true);
 		default:
 			throw new IllegalStateException("Unknown assert type: "
 					+ pair.getObjectType());
@@ -320,7 +313,6 @@ class FabutObjectAssert extends Assert {
 						pair.getActual(), fieldName);
 				t &= assertProperty(fieldName, report, property, actual,
 						fieldName, properties, nodesList, true);
-
 			} catch (final Exception e) {
 				// FIXME, with new way of fetching fields
 				// report.uncallableMethod(expectedMethod, pair.getActual());
@@ -635,6 +627,13 @@ class FabutObjectAssert extends Assert {
 		while (iterator.hasNext()) {
 			final ISingleProperty property = iterator.next();
 			if (property.getPath().equalsIgnoreCase(propertyPath)) {
+				iterator.remove();
+				return property;
+			}
+			if (propertyPath.lastIndexOf("_") >= 0
+					&& property.getPath().equalsIgnoreCase(
+							propertyPath.substring(propertyPath
+									.lastIndexOf("_")))) {
 				iterator.remove();
 				return property;
 			}

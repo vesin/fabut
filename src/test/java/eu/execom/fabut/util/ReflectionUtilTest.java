@@ -13,8 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.execom.fabut.enums.AssertableType;
-import fabut.model.Contract;
 import fabut.model.Employee;
+import fabut.model.EmployeeDTO;
 
 /**
  * Tests for {@link ReflectionUtil}.
@@ -67,7 +67,7 @@ public class ReflectionUtilTest extends Assert {
 	}
 
 	@Test
-	public void testGetFieldNameFromGetter() throws NoSuchMethodException {
+	public void testGetFieldNameFromGetterEntity() throws NoSuchMethodException {
 		// setup
 		Employee employee = new Employee(1l, "Test");
 		Method method = employee.getClass().getMethod("id");
@@ -76,8 +76,20 @@ public class ReflectionUtilTest extends Assert {
 		String fieldName = ReflectionUtil.getFieldNameFromGetter(method);
 
 		// assert
-		assertEquals("_id", fieldName);
+		assertEquals("fabut$model$Employee$$_id", fieldName);
+	}
 
+	@Test
+	public void testGetFieldNameFromGetterDTO() throws NoSuchMethodException {
+		// setup
+		EmployeeDTO employeeDTO = new EmployeeDTO(1l, "Test");
+		Method method = employeeDTO.getClass().getMethod("id");
+
+		// method
+		String fieldName = ReflectionUtil.getFieldNameFromGetter(method);
+
+		// assert
+		assertEquals("id", fieldName);
 	}
 
 	@Test
@@ -97,7 +109,7 @@ public class ReflectionUtilTest extends Assert {
 	@Test
 	public void testIsGetMethod() throws NoSuchMethodException {
 		// setup
-		Contract employee = new Contract(1l, 2l, new Employee(3l, "Nikola"));
+		Employee employee = new Employee(1l, "Test");
 		Method method = employee.getClass().getMethod("id");
 
 		// method
@@ -118,8 +130,9 @@ public class ReflectionUtilTest extends Assert {
 				.getFieldsForAssertFromMethods(employee);
 
 		// assert
-		assertEquals(1l, actual.get("_id"));
-		assertEquals("Test", actual.get("_name"));
+		assertEquals(2, actual.size());
+		assertEquals(1l, actual.get("fabut$model$Employee$$_id"));
+		assertEquals("Test", actual.get("fabut$model$Employee$$_name"));
 	}
 
 	@Test

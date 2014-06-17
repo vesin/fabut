@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>eu.execom</groupId>
-	<artifactId>fabut</artifactId>
+	<artifactId>fabut4scala</artifactId>
 	<name>Fabut4Scala</name>
-	<version>1.0.0-RELEASE</version>
+	<version>1.0.1-RELEASE</version>
 	<description>Testing tool that helps developers to write better tests.</description>
 	<ciManagement>
 		<system>GIT</system>
@@ -78,8 +78,8 @@
 
 	<build>
 	
-		<sourceDirectory>src/main/scala</sourceDirectory>
-        <testSourceDirectory>src/test/scala</testSourceDirectory>
+		<sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         
         <pluginManagement>
 			<plugins>

@@ -33,8 +33,37 @@ public final class ReflectionUtil {
 						fromMethod.getName().indexOf(SETTER_SUFIX));
 	}
 
+	/**
+	 * Gets field name from getter, ensures that field actually exists. Does
+	 * three checks as there are 3 ways of naming fields atm.
+	 * 
+	 * @param fromMethod
+	 * @return
+	 */
 	public static String getFieldNameFromGetter(Method fromMethod) {
-		return "_" + fromMethod.getName();
+		Class<?> ownerClass = fromMethod.getDeclaringClass();
+		try {
+			Field field = ownerClass.getDeclaredField(fromMethod.getName());
+			return field.getName();
+		} catch (Exception e) {
+		}
+
+		try {
+			Field field = ownerClass.getDeclaredField("_"
+					+ fromMethod.getName());
+			return field.getName();
+		} catch (Exception e) {
+		}
+
+		try {
+			Field field = ownerClass
+					.getDeclaredField(getRubbishScalaPrefix(ownerClass) + "_"
+							+ fromMethod.getName());
+			return field.getName();
+		} catch (Exception e) {
+		}
+
+		return null;
 	}
 
 	/**
@@ -95,7 +124,9 @@ public final class ReflectionUtil {
 	public static Object getFieldValue(Object object, String fieldName)
 			throws Exception {
 		try {
-			Method getter = object.getClass().getMethod(fieldName.substring(1));
+			int indexOfUnderScore = fieldName.lastIndexOf("_");
+			Method getter = object.getClass().getMethod(
+					fieldName.substring(indexOfUnderScore + 1));
 			return getter.invoke(object);
 		} catch (Exception e) {
 		}
@@ -113,10 +144,10 @@ public final class ReflectionUtil {
 				: expected.getClass();
 
 		if (scala.collection.immutable.List.class.isAssignableFrom(typeClass)) {
-			throw new RuntimeException("Scala lists are not supported!");
+			return AssertableType.IGNORED_TYPE;
 		} else if (scala.collection.immutable.Map.class
 				.isAssignableFrom(typeClass)) {
-			throw new RuntimeException("Scala maps are not supported!");
+			return AssertableType.IGNORED_TYPE;
 
 		} else if (types.get(AssertableType.COMPLEX_TYPE).contains(typeClass)) {
 			return AssertableType.COMPLEX_TYPE;

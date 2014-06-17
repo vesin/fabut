@@ -4,27 +4,8 @@ import junit.framework.AssertionFailedError;
 
 import org.junit.Test;
 
-<<<<<<< HEAD
 import fabut.model.Employee;
 import fabut.model.EmployeeDTO;
-=======
-import eu.execom.fabut.model.EntityTierOneType;
-import eu.execom.fabut.model.NoDefaultConstructorEntity;
-import eu.execom.fabut.model.ScalaType;
-import eu.execom.fabut.model.TierOneType;
-import eu.execom.fabut.model.TierTwoTypeWithListProperty;
-import eu.execom.fabut.model.TierTwoTypeWithMap;
-import eu.execom.fabut.model.TypeWithAllWaysOfGettingFields;
-import eu.execom.fabut.model.test.Address;
-import eu.execom.fabut.model.test.Faculty;
-import eu.execom.fabut.model.test.Student;
-import eu.execom.fabut.model.test.Teacher;
-import eu.execom.fabut.property.IgnoredProperty;
-import eu.execom.fabut.property.MultiProperties;
-import eu.execom.fabut.property.NotNullProperty;
-import eu.execom.fabut.property.NullProperty;
-import eu.execom.fabut.property.Property;
->>>>>>> master
 
 public class FabutTest extends AbstractFabutRepositoryAssertTest {
 
@@ -143,28 +124,6 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 		Fabut.takeSnapshot();
 		Fabut.assertObjects(expected, actual,
 				Fabut.value("fabut$model$Employee$$_name", TEST + TEST));
-		Fabut.afterTest();
-	}
-	/**
-	 * Test for
-	 * {@link Fabut#assertObjects(Object, Object, eu.execom.fabut.property.IProperty...)}
-	 * when specified objects are entities and can be asserted.
-	 */
-	@Test
-	public void testAssertObjectsEntitySuccessScalaType() {
-		// setup
-		Fabut.beforeTest(this);
-
-		ScalaType expected = new ScalaType();
-		expected.id(1l);
-		
-		ScalaType actual = new ScalaType();
-		actual.id(1l);
-
-		// method
-		Fabut.takeSnapshot(expected);
-		Fabut.assertObjects(expected, actual);
-
 		Fabut.afterTest();
 	}
 

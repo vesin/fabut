@@ -188,5 +188,4 @@ public class ReflectionUtilTest extends Assert {
 		// assert
 		assertEquals("fabut$model$Employee$$", rubbish);
 	}
-
 }

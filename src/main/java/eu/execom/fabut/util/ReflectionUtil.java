@@ -103,6 +103,7 @@ public final class ReflectionUtil {
 		String fieldName = getFieldNameFromGetter(method);
 		Field field = findField(clazz, fieldName);
 		return field != null && method.getReturnType().equals(field.getType());
+
 	}
 
 	public static Map<String, Object> getFieldsForAssertFromMethods(

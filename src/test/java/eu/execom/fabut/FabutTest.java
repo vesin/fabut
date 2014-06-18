@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import fabut.model.Employee;
 import fabut.model.EmployeeDTO;
+import fabut.model.WithListProperty;
+import fabut.model.WithMapProperty;
 
 public class FabutTest extends AbstractFabutRepositoryAssertTest {
 
@@ -232,5 +234,64 @@ public class FabutTest extends AbstractFabutRepositoryAssertTest {
 		Fabut.ignoreEntity(changed);
 		Fabut.afterTest();
 
+	}
+
+	@Test(expected = AssertionFailedError.class)
+	public void testAssertObjectsWithScalaListAsProperty() {
+		// setup
+		Fabut.beforeTest(this);
+		WithListProperty expected = new WithListProperty();
+		expected.populateList("test1");
+		WithListProperty actual = new WithListProperty();
+		actual.populateList("test2");
+
+		// method
+		Fabut.assertObjects(expected, actual);
+	}
+
+	@Test(expected = AssertionFailedError.class)
+	public void testAssertObjectWithScalaListAsProperty() {
+		// setup
+		Fabut.beforeTest(this);
+		WithListProperty expected = new WithListProperty();
+		expected.populateList("test1");
+
+		// method
+		Fabut.assertObject(expected, Fabut.value("list", "Test"));
+	}
+
+	@Test(expected = AssertionFailedError.class)
+	public void testAssertObjectsWithScalaMapAsProperty() {
+		// setup
+		Fabut.beforeTest(this);
+		WithMapProperty expected = new WithMapProperty();
+		expected.populateMap("test1");
+		WithMapProperty actual = new WithMapProperty();
+		actual.populateMap("test2");
+
+		// method
+		Fabut.assertObjects(expected, actual);
+	}
+
+	@Test(expected = AssertionFailedError.class)
+	public void testAssertObjectWithScalaMapAsProperty() {
+		// setup
+		Fabut.beforeTest(this);
+		WithMapProperty expected = new WithMapProperty();
+		expected.populateMap("test1");
+
+		// method
+		Fabut.assertObject(expected, Fabut.value("map", "Test"));
+	}
+
+	@Test(expected = AssertionFailedError.class)
+	public void testAssertList() {
+		// setup
+		Fabut.beforeTest(this);
+		WithListProperty expected = new WithListProperty();
+		expected.populateList("test1");
+
+		// method
+		Fabut.assertObject(expected.list(), Fabut.value("list", "Test"));
 	}
 }

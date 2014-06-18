@@ -58,7 +58,7 @@ public final class ConversionUtil {
 	 */
 	public static AssertPair createAssertPair(final Object expected,
 			final Object actual, final Map<AssertableType, List<Class<?>>> types) {
-		final AssertableType objectType = ReflectionUtil.getObjectType(
+		final AssertableType objectType = ReflectionUtil.getAssertableTypeFrom(
 				expected, actual, types);
 		return new AssertPair(expected, actual, objectType);
 	}

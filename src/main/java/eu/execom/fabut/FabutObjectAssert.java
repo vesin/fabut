@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeSet;
 
 import junit.framework.Assert;
 
@@ -18,7 +17,6 @@ import eu.execom.fabut.enums.NodeCheckType;
 import eu.execom.fabut.enums.ReferenceCheckType;
 import eu.execom.fabut.graph.NodesList;
 import eu.execom.fabut.pair.AssertPair;
-import eu.execom.fabut.pair.SnapshotPair;
 import eu.execom.fabut.property.IMultiProperties;
 import eu.execom.fabut.property.IProperty;
 import eu.execom.fabut.property.ISingleProperty;
@@ -42,7 +40,7 @@ import eu.execom.fabut.util.ReflectionUtil;
  * @author Bojan Babic
  * @author Nikola Trkulja
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes" })
 class FabutObjectAssert extends Assert {
 
 	private static final String EMPTY_STRING = "";
@@ -52,9 +50,6 @@ class FabutObjectAssert extends Assert {
 
 	/** Types supported by Fabut. */
 	private Map<AssertableType, List<Class<?>>> types;
-
-	/** The parameter snapshot. */
-	private final List<SnapshotPair> parameterSnapshot;
 
 	/** Instance of the JUnit test that is currently running. */
 	private Object testInstance;
@@ -69,7 +64,6 @@ class FabutObjectAssert extends Assert {
 		this.fabutTest = fabutTest;
 		types = new EnumMap<AssertableType, List<Class<?>>>(
 				AssertableType.class);
-		parameterSnapshot = new ArrayList<SnapshotPair>();
 		types.put(AssertableType.COMPLEX_TYPE, fabutTest.getComplexTypes());
 		types.put(AssertableType.IGNORED_TYPE, fabutTest.getIgnoredTypes());
 		types.put(AssertableType.ENTITY_TYPE, new LinkedList<Class<?>>());
@@ -111,7 +105,6 @@ class FabutObjectAssert extends Assert {
 							field.getValue(), EMPTY_STRING, expectedProperties,
 							new NodesList(), true);
 
-					// TODO(nolah) remove inner properties
 				} else if (hasInnerProperties(fieldName, expectedProperties)) {
 					result &= assertInnerProperty(report, field.getValue(),
 							expectedProperties, fieldName);
@@ -122,8 +115,6 @@ class FabutObjectAssert extends Assert {
 				}
 
 			} catch (final Exception e) {
-				// FIXME
-				// report.uncallableMethod(method, actual);
 				result = ASSERT_FAIL;
 			}
 		}
@@ -142,18 +133,6 @@ class FabutObjectAssert extends Assert {
 		removeParentQualification(parent, extracts);
 		report.increaseDepth(parent);
 		final boolean t = assertObjectWithProperties(report, actual, extracts);
-		report.decreaseDepth();
-		return t;
-	}
-
-	boolean assertInnerObject(final FabutReportBuilder report,
-			final Object expected, final Object actual,
-			final List<ISingleProperty> properties, final String parent) {
-		final List<ISingleProperty> extracts = extractPropertiesWithMatchingParent(
-				parent, properties);
-		removeParentQualification(parent, extracts);
-		report.increaseDepth(parent);
-		final boolean t = assertObjects(report, expected, actual, extracts);
 		report.decreaseDepth();
 		return t;
 	}
@@ -245,14 +224,26 @@ class FabutObjectAssert extends Assert {
 		case ENTITY_TYPE:
 			return assertEntityPair(report, propertyName, pair, properties,
 					nodesList);
+		case SCALA_LIST_TYPE:
+			return assertScalaLists(report, propertyName);
+		case SCALA_MAP_TYPE:
+			return assertScalaMaps(report, propertyName);
 		case PRIMITIVE_TYPE:
-			// TODO(nolah) CUT-OFF RECURSION HERE WHEN ASSERTING PROPERTIES AND
-			// INNER PROPERTIES OF COMPLEX OBJECT
 			return assertPrimitives(report, propertyName, pair);
 		default:
 			throw new IllegalStateException("Unknown assert type: "
 					+ pair.getObjectType());
 		}
+	}
+
+	boolean assertScalaLists(FabutReportBuilder report, String propertyName) {
+		report.scalaList(propertyName);
+		return false;
+	}
+
+	boolean assertScalaMaps(FabutReportBuilder report, String propertyName) {
+		report.scalaList(propertyName);
+		return false;
 	}
 
 	/**
@@ -314,9 +305,6 @@ class FabutObjectAssert extends Assert {
 				t &= assertProperty(fieldName, report, property, actual,
 						fieldName, properties, nodesList, true);
 			} catch (final Exception e) {
-				// FIXME, with new way of fetching fields
-				// report.uncallableMethod(expectedMethod, pair.getActual());
-				// e.printStackTrace();
 				t = ASSERT_FAIL;
 			}
 		}
@@ -427,140 +415,6 @@ class FabutObjectAssert extends Assert {
 		}
 
 		throw new IllegalStateException();
-	}
-
-	/**
-	 * Handles list asserting. It traverses trough the list by list index start
-	 * from 0 and going up to list size and asserts every two elements on
-	 * matching index. Lists cannot be asserted if their sizes are different.
-	 * 
-	 * @param propertyName
-	 *            name of current property
-	 * @param report
-	 *            assert report builder
-	 * @param expected
-	 *            expected list
-	 * @param actual
-	 *            actual list
-	 * @param properties
-	 *            list of excluded properties
-	 * @param nodesList
-	 *            list of object that had been asserted
-	 * @param isProperty
-	 *            is it parent object or its member
-	 * @return - <code>true</code> if every element from expected list with
-	 *         index <em>i</em> is asserted with element from actual list with
-	 *         index <em>i</em>, <code>false</code> otherwise.
-	 */
-	boolean assertList(final String propertyName,
-			final FabutReportBuilder report, final List expected,
-			final List actual, final List<ISingleProperty> properties,
-			final NodesList nodesList, final boolean isProperty) {
-
-		// check sizes
-		if (expected.size() != actual.size()) {
-			report.listDifferentSizeComment(propertyName, expected.size(),
-					actual.size());
-			return ASSERT_FAIL;
-		}
-
-		report.increaseDepth(propertyName);
-
-		// assert every element by index
-		boolean assertResult = ASSERTED;
-		for (int i = 0; i < actual.size(); i++) {
-			report.assertingListElement(propertyName, i);
-			assertResult &= assertObjects(report, expected.get(i),
-					actual.get(i), properties);
-		}
-		report.decreaseDepth();
-		return assertResult;
-	}
-
-	/**
-	 * Asserts two maps.
-	 * 
-	 * @param propertyName
-	 * @param report
-	 * @param expected
-	 * @param actual
-	 * @param properties
-	 * @param nodesList
-	 * @param isProperty
-	 * @return
-	 */
-	boolean assertMap(final String propertyName,
-			final FabutReportBuilder report, final Map expected,
-			final Map actual, final List<ISingleProperty> properties,
-			final NodesList nodesList, final boolean isProperty) {
-		// TODO add better reporting when asserting map objects, similar to list
-		final TreeSet expectedKeys = new TreeSet(expected.keySet());
-		final TreeSet actualKeys = new TreeSet(actual.keySet());
-		final TreeSet expectedKeysCopy = new TreeSet(expectedKeys);
-		report.increaseDepth(propertyName);
-		expectedKeysCopy.retainAll(actualKeys);
-		boolean ok = true;
-		for (final Object key : expectedKeysCopy) {
-			final AssertPair assertPair = ConversionUtil.createAssertPair(
-					expected.get(key), actual.get(key), types);
-			report.assertingMapKey(key);
-			ok &= assertPair(EMPTY_STRING, report, assertPair, properties,
-					nodesList);
-		}
-		ok &= assertExcessExpected(propertyName, report, expected,
-				expectedKeysCopy, actualKeys);
-		ok &= assertExcessActual(propertyName, report, actual,
-				expectedKeysCopy, actualKeys);
-		report.decreaseDepth();
-		return ok;
-	}
-
-	/**
-	 * Asserts excess, if any, from expected map.
-	 * 
-	 * @param propertyName
-	 * @param report
-	 * @param expected
-	 * @param expectedKeys
-	 * @param actualKeys
-	 * @return
-	 */
-	boolean assertExcessExpected(final String propertyName,
-			final FabutReportBuilder report, final Map expected,
-			final TreeSet expectedKeys, final TreeSet actualKeys) {
-		final TreeSet expectedKeysCopy = new TreeSet(expectedKeys);
-		expectedKeysCopy.removeAll(actualKeys);
-		if (expectedKeysCopy.size() > 0) {
-			for (final Object key : expectedKeysCopy) {
-				report.excessExpectedMap(key);
-			}
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Asserts excess, if any, from actual map.
-	 * 
-	 * @param propertyName
-	 * @param report
-	 * @param actual
-	 * @param expectedKeys
-	 * @param actualKeys
-	 * @return
-	 */
-	boolean assertExcessActual(final String propertyName,
-			final FabutReportBuilder report, final Map actual,
-			final TreeSet expectedKeys, final TreeSet actualKeys) {
-		final TreeSet actualKeysCopy = new TreeSet(actualKeys);
-		actualKeysCopy.removeAll(expectedKeys);
-		if (actualKeysCopy.size() > 0) {
-			for (final Object key : actualKeysCopy) {
-				report.excessActualMap(key);
-			}
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -705,26 +559,6 @@ class FabutObjectAssert extends Assert {
 	}
 
 	/**
-	 * Asserts current parameters states with snapshot previously taken.
-	 * 
-	 * @param report
-	 *            the report
-	 * @return true, if successful
-	 */
-	boolean assertParameterSnapshot(final FabutReportBuilder report) {
-
-		boolean ok = true;
-		for (final SnapshotPair snapshotPair : parameterSnapshot) {
-			ok &= assertObjects(report, snapshotPair.getExpected(),
-					snapshotPair.getActual(), new LinkedList<ISingleProperty>());
-		}
-
-		initParametersSnapshot();
-
-		return ok;
-	}
-
-	/**
 	 * Extracts properties from specified list that have same parent as
 	 * specified one.
 	 * 
@@ -762,13 +596,6 @@ class FabutObjectAssert extends Assert {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Initialize parameters snapshot.
-	 */
-	void initParametersSnapshot() {
-		parameterSnapshot.clear();
 	}
 
 	/**
@@ -815,15 +642,6 @@ class FabutObjectAssert extends Assert {
 	 */
 	public List<Class<?>> getIgnoredTypes() {
 		return types.get(AssertableType.IGNORED_TYPE);
-	}
-
-	/**
-	 * Gets the parameter snapshot.
-	 * 
-	 * @return the parameter snapshot
-	 */
-	List<SnapshotPair> getParameterSnapshot() {
-		return parameterSnapshot;
 	}
 
 	/**

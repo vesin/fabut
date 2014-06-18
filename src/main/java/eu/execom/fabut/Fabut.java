@@ -1,5 +1,8 @@
 package eu.execom.fabut;
 
+import static eu.execom.fabut.util.ReflectionUtil.checkIfListOrMap;
+import static eu.execom.fabut.util.ReflectionUtil.checkIfOption;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,6 +114,8 @@ public class Fabut {
 	public static void assertObject(final String message, final Object object,
 			final IProperty... properties) {
 		checkValidInit();
+		checkIfOption(object);
+		checkIfListOrMap(object);
 
 		final FabutReportBuilder report = new FabutReportBuilder(message);
 		if (!fabutAssert.assertObjectWithProperties(report, object,
@@ -150,6 +155,8 @@ public class Fabut {
 			final Object expected, final Object actual,
 			final IProperty... expectedChanges) {
 		checkValidInit();
+		checkIfOption(actual);
+		checkIfListOrMap(actual);
 
 		final FabutReportBuilder report = new FabutReportBuilder(message);
 		if (!fabutAssert.assertObjects(report, expected, actual,
@@ -187,6 +194,8 @@ public class Fabut {
 			final IProperty... expectedChanges) {
 		checkValidInit();
 		checkIfEntity(entity);
+		checkIfOption(entity);
+		checkIfListOrMap(entity);
 
 		final FabutReportBuilder report = new FabutReportBuilder();
 		if (!fabutAssert.assertEntityWithSnapshot(report, entity,
@@ -205,6 +214,8 @@ public class Fabut {
 	public static void markAsserted(final Object entity) {
 		checkValidInit();
 		checkIfEntity(entity);
+		checkIfOption(entity);
+		checkIfListOrMap(entity);
 
 		final FabutReportBuilder report = new FabutReportBuilder();
 		if (!fabutAssert.markAsAsserted(report, entity, entity.getClass())) {
@@ -223,6 +234,8 @@ public class Fabut {
 	public static void assertEntityAsDeleted(final Object entity) {
 		checkValidInit();
 		checkIfEntity(entity);
+		checkIfOption(entity);
+		checkIfListOrMap(entity);
 
 		final FabutReportBuilder report = new FabutReportBuilder();
 		if (!fabutAssert.assertEntityAsDeleted(report, entity)) {
@@ -240,6 +253,8 @@ public class Fabut {
 	public static void ignoreEntity(final Object entity) {
 		checkValidInit();
 		checkIfEntity(entity);
+		checkIfOption(entity);
+		checkIfListOrMap(entity);
 
 		final FabutReportBuilder report = new FabutReportBuilder();
 		if (!fabutAssert.ignoreEntity(report, entity)) {

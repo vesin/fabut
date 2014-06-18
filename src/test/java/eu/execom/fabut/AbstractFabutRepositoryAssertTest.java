@@ -11,6 +11,8 @@ import org.junit.Before;
 import fabut.model.Contract;
 import fabut.model.Employee;
 import fabut.model.EmployeeDTO;
+import fabut.model.WithListProperty;
+import fabut.model.WithMapProperty;
 
 /**
  * TODO add comments
@@ -102,6 +104,8 @@ public abstract class AbstractFabutRepositoryAssertTest extends Assert
 		complexTypes.add(Contract.class);
 		complexTypes.add(Technology.class);
 		complexTypes.add(EmployeeDTO.class);
+		complexTypes.add(WithListProperty.class);
+		complexTypes.add(WithMapProperty.class);
 		return complexTypes;
 	}
 

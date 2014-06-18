@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.AssertionFailedError;
 import eu.execom.fabut.enums.AssertableType;
 import eu.execom.fabut.exception.CopyException;
 
@@ -27,6 +28,12 @@ public final class ReflectionUtil {
 		super();
 	}
 
+	/**
+	 * Gets field name from setter.
+	 * 
+	 * @param fromMethod
+	 * @return
+	 */
 	public static String getFieldNameFromSetter(Method fromMethod) {
 		return "_"
 				+ fromMethod.getName().substring(0,
@@ -96,7 +103,7 @@ public final class ReflectionUtil {
 
 	}
 
-	/*
+	/**
 	 * Is specified method for specified class a get method.
 	 */
 	public static boolean isGetMethod(Class<?> clazz, Method method) {
@@ -106,6 +113,12 @@ public final class ReflectionUtil {
 
 	}
 
+	/**
+	 * Gets all fields that need to be asserted within given object.
+	 * 
+	 * @param object
+	 * @return
+	 */
 	public static Map<String, Object> getFieldsForAssertFromMethods(
 			final Object object) {
 		final Map<String, Object> fieldsForAssert = new HashMap<String, Object>();
@@ -122,6 +135,14 @@ public final class ReflectionUtil {
 		return fieldsForAssert;
 	}
 
+	/**
+	 * Gets field value from given object for given field name.
+	 * 
+	 * @param object
+	 * @param fieldName
+	 * @return
+	 * @throws Exception
+	 */
 	public static Object getFieldValue(Object object, String fieldName)
 			throws Exception {
 		try {
@@ -134,8 +155,16 @@ public final class ReflectionUtil {
 		return null;
 	}
 
-	public static AssertableType getObjectType(Object expected, Object actual,
-			Map<AssertableType, List<Class<?>>> types) {
+	/**
+	 * Gets assertable type from expected/actual pair.
+	 * 
+	 * @param expected
+	 * @param actual
+	 * @param types
+	 * @return
+	 */
+	public static AssertableType getAssertableTypeFrom(Object expected,
+			Object actual, Map<AssertableType, List<Class<?>>> types) {
 
 		if (expected == null && actual == null) {
 			return AssertableType.PRIMITIVE_TYPE;
@@ -145,10 +174,10 @@ public final class ReflectionUtil {
 				: expected.getClass();
 
 		if (scala.collection.immutable.List.class.isAssignableFrom(typeClass)) {
-			return AssertableType.IGNORED_TYPE;
+			return AssertableType.SCALA_LIST_TYPE;
 		} else if (scala.collection.immutable.Map.class
 				.isAssignableFrom(typeClass)) {
-			return AssertableType.IGNORED_TYPE;
+			return AssertableType.SCALA_MAP_TYPE;
 
 		} else if (types.get(AssertableType.COMPLEX_TYPE).contains(typeClass)) {
 			return AssertableType.COMPLEX_TYPE;
@@ -161,6 +190,13 @@ public final class ReflectionUtil {
 		}
 	}
 
+	/**
+	 * Creates copy of an given object
+	 * 
+	 * @param object
+	 * @return
+	 * @throws CopyException
+	 */
 	public static Object createCopy(Object object) throws CopyException {
 		for (Constructor<?> constructor : object.getClass().getConstructors()) {
 			if (constructor.getParameterTypes().length == 1
@@ -175,22 +211,12 @@ public final class ReflectionUtil {
 		throw new CopyException(object.getClass().getName());
 	}
 
-	public static Object getNullValueForType(Class<?> type) {
-		if (long.class.equals(type)) {
-			return 0l;
-		} else if (int.class.equals(type)) {
-			return 0;
-		} else if (float.class.equals(type)) {
-			return 0f;
-		} else if (double.class.equals(type)) {
-			return 0.0;
-		} else if (boolean.class.equals(type)) {
-			return false;
-		} else {
-			return null;
-		}
-	}
-
+	/**
+	 * Gets id value from given entity.
+	 * 
+	 * @param entity
+	 * @return
+	 */
 	public static Object getIdValue(Object entity) {
 		try {
 			Method method = entity.getClass().getMethod(ID);
@@ -200,7 +226,46 @@ public final class ReflectionUtil {
 		}
 	}
 
+	/**
+	 * In some cases scala compiler appends "rubbish" prefix to field name. This
+	 * method return "rubbish" prefix from for given class.
+	 * 
+	 * @param clazz
+	 * @return
+	 */
 	public static String getRubbishScalaPrefix(Class<?> clazz) {
 		return clazz.getName().replaceAll("\\.", "\\$") + "$$";
+	}
+
+	/**
+	 * Checks if given object is instance of scala.Some or scala.None.
+	 * 
+	 * @param actual
+	 */
+	public static void checkIfOption(Object actual) {
+		if (actual != null
+				&& (actual.getClass().equals(scala.Some.class) || actual
+						.getClass().equals(scala.None.class))) {
+			throw new AssertionFailedError(
+					"Object is option, please pass option value to assert!");
+		}
+	}
+
+	/**
+	 * Fabut cannot assert scala lists or maps.
+	 * 
+	 * @param actual
+	 */
+	public static void checkIfListOrMap(Object actual) {
+		if (actual != null
+				&& scala.collection.immutable.List.class
+						.isAssignableFrom(actual.getClass())) {
+			throw new AssertionFailedError("Lists cannot be asserted!");
+		}
+		if (actual != null
+				&& scala.collection.immutable.Map.class.isAssignableFrom(actual
+						.getClass())) {
+			throw new AssertionFailedError("Lists cannot be asserted!");
+		}
 	}
 }

@@ -526,15 +526,13 @@ public class FabutReportBuilder {
 
 	public void scalaList(String propertyName) {
 		final String comment = String.format(
-				"Field %s of type scala list cannot be asserted, ignore it",
-				propertyName);
-		addComment(comment, CommentType.FAIL);
+				"Field %s of type scala list will be ignored", propertyName);
+		addComment(comment, CommentType.SUCCESS);
 	}
 
 	public void scalaMap(String propertyName) {
 		final String comment = String.format(
-				"Field %s of type scala map cannot be asserted, ignore it",
-				propertyName);
-		addComment(comment, CommentType.FAIL);
+				"Field %s of type scala map will be ignored", propertyName);
+		addComment(comment, CommentType.SUCCESS);
 	}
 }

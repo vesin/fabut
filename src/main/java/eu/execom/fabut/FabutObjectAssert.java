@@ -238,12 +238,12 @@ class FabutObjectAssert extends Assert {
 
 	boolean assertScalaLists(FabutReportBuilder report, String propertyName) {
 		report.scalaList(propertyName);
-		return false;
+		return true;
 	}
 
 	boolean assertScalaMaps(FabutReportBuilder report, String propertyName) {
 		report.scalaList(propertyName);
-		return false;
+		return true;
 	}
 
 	/**

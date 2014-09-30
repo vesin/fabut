@@ -103,7 +103,9 @@ object ReflectionUtil {
       val classMirror = expectedObjecType.typeSymbol.asClass
       val im = classLoaderMirror.reflect(expectedObject)
       val value = reflectField(objectName)(im)(expectedObjecType)
+
       value
+
     } catch {
       case t: ScalaReflectionException => Nil
     }
@@ -189,7 +191,11 @@ object ReflectionUtil {
    */
   def reflectPrimitives(pathcut: Int, primitives: Map[String, Any], expectedObject: Any, expectedObjectType: Type, report: FabutReport): FabutReport = {
 
-    if (expectedObjectType == null) ()
+    if (expectedObjectType == null) {
+      report.addResult(ASSERT_FAILED)
+      report.addObjectNullExceptionMessage("E", "")
+      return report
+    }
 
     val classMirror = expectedObjectType.typeSymbol.asClass
     val im = classLoaderMirror.reflect(expectedObject)
@@ -204,7 +210,10 @@ object ReflectionUtil {
 
             if (fieldValue != p._2) {
               report.addResult(ASSERT_FAILED)
-              report.addPropertiesExceptionMessage(p._1, p._2.toString, fieldValue.toString)
+              report.addPropertiesExceptionMessage(
+                p._1,
+                if (p._2 == null) "null" else p._2.toString,
+                if (fieldValue == null) "null" else fieldValue.toString)
             }
           } catch {
             case t: ScalaReflectionException => ()

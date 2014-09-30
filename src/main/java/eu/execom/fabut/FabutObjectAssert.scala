@@ -27,39 +27,43 @@ object FabutObjectAssert {
 
   lazy val DOT: String = "."
 
-  def assertObjects(actual: Any, expected: Any, report: FabutReport): Unit = {
+  def assertObjects(actual: Any, expected: Any) {
+
+    val report = new FabutReport()
 
     def assertGraph(
       actual: Any,
       expected: Any,
       pathName: String,
-      cNodes: Map[Any, Int]): Unit =
-      {
+      cNodes: Map[Any, Int]) {
 
-        val checkedNodes: Map[Any, Int] = Map(actual -> getDepth(pathName)) ++ cNodes
-        val nodeValues = getNameValueProperties(actual, pathName, getComplexType(actual))
+      val checkedNodes: Map[Any, Int] = Map(actual -> getDepth(pathName)) ++ cNodes
+      val nodeValues = getNameValueProperties(actual, pathName, getComplexType(actual))
 
-        val (primitives, non_primitives) = nodeValues partition {
-          p: (String, Any) => getValueType(p._2) == PRIMITIVE_TYPE
-        }
-
-        if (primitives nonEmpty)
-          assertPrimitives(0, primitives, expected)
-
-        non_primitives foreach {
-          p =>
-            getValueType(p._2) match {
-              case SCALA_LIST_TYPE => report.addPropertiesExceptionMessage(p._1, p._2.toString, "SCALA_MAP_TYPE not implemented yet")
-              case SCALA_MAP_TYPE => report.addPropertiesExceptionMessage(p._1, p._2.toString, "SCALA_MAP_TYPE not implemented yet")
-              case COMPLEX_TYPE => {
-                if (checkedNodes.contains(p._2))
-                  checkIsomorphism(checkedNodes(p._2), p._1, expected)
-                else
-                  assertGraph(p._2, expected, p._1 + DOT, checkedNodes)
-              }
-            }
-        }
+      val (primitives, non_primitives) = nodeValues partition {
+        p: (String, Any) => getValueType(p._2) == PRIMITIVE_TYPE
       }
+
+      if (primitives nonEmpty)
+        assertPrimitives(0, primitives, expected, report)
+
+      non_primitives foreach {
+        p =>
+          getValueType(p._2) match {
+            case SCALA_LIST_TYPE =>
+              assertList(0, pathName + p._1, p._2, expected)
+            case SCALA_MAP_TYPE => // TO-DO implement map assertation
+              report.addPropertiesExceptionMessage(p._1, p._2.toString, "SCALA_MAP_TYPE not implemented yet")
+            case COMPLEX_TYPE => {
+              if (checkedNodes.contains(p._2))
+                checkIsomorphism(checkedNodes(p._2), p._1, expected, report)
+              else
+                assertGraph(p._2, expected, p._1 + DOT, checkedNodes)
+            }
+          }
+      }
+
+    }
 
     /**
      *  Method returns all properties of given object in a map which
@@ -67,20 +71,6 @@ object FabutObjectAssert {
      */
     def getNameValueProperties(actual: Any, path: String, t: Type) =
       ReflectionUtil.getFieldsForAssertFromObject(actual, path, t)
-
-    /* ATM not in use
-     * 
-     def reflectFieldOfExpected(fieldName: String, actualValue: Any, expectedObject: Any): Any = {
-
-      val expectedValue =
-        ReflectionUtil.getFieldValueFromGetter(fieldName, expectedObject, getComplexType(expectedObject))
-      
-      if (actualValue == expectedValue)
-        null
-      else
-        expectedValue
-    }
-    */
 
     /**
      * Reflects expected object and returns a object that we are looking for inside it
@@ -129,7 +119,7 @@ object FabutObjectAssert {
      *  Asserts primitive types of given object with expected corresponding values
      *  inside expected object
      */
-    def assertPrimitives(pathcut: Int, primitives: Map[String, Any], expectedObject: Any) {
+    def assertPrimitives(pathcut: Int, primitives: Map[String, Any], expectedObject: Any, report: FabutReport) {
 
       val (key, value) = primitives.head
       val depth = key.substring(pathcut).split('.')
@@ -146,9 +136,53 @@ object FabutObjectAssert {
       } else {
         val objectName = depth.head
         val newExpectedObject = reflectObjectOfExpected(objectName, expectedObject)
-        assertPrimitives(pathcut + objectName.size + 1, primitives, newExpectedObject)
+        assertPrimitives(pathcut + objectName.size + 1, primitives, newExpectedObject, report)
       }
 
+    }
+
+    def assertList(pathcut: Int, path: String, actualObject: Any, expectedObject: Any) {
+
+      val depth = path.substring(pathcut).split('.')
+
+      if (depth.size == 1) {
+        val actualList = actualObject.asInstanceOf[List[_]]
+        val expectedList = reflectObjectOfExpected(path, expectedObject).asInstanceOf[List[_]]
+        if (actualList.size != expectedList.size) {
+          report.addResult(ASSERT_FAILED)
+          report.addListSizeExceptionMessage(path, actualList.size, expectedList.size)
+        } else if (actualList.size > 0) {
+          val propertyType = getComplexType(actualList.head)
+          assertListProperties(0, path, actualList, expectedList, propertyType)
+        } else {
+          // TO-DO lists are empty
+        }
+      } else {
+        val objectName = depth.head
+        val newExpectedObject = reflectObjectOfExpected(objectName, expectedObject)
+        assertList(pathcut + objectName.size + 1, path, actualObject, newExpectedObject)
+      }
+    }
+
+    def assertListProperties(position: Int, path: String, actualList: List[_], expectedList: List[_], isComplexType: Type) {
+      actualList match {
+        case head :: tail => {
+          if (isComplexType == null)
+            assertPrimitiveListProperty(position, actualList.head, expectedList.head)
+          else
+            assertGraph(actualList.head, expectedList.head, "", Map())
+
+          assertListProperties(position + 1, path, actualList.tail, expectedList.tail, isComplexType)
+        }
+        case Nil => ()
+      }
+
+      def assertPrimitiveListProperty(position: Int, actualProperty: Any, expectedProperty: Any) {
+        if (actualProperty != expectedProperty) {
+          report.addResult(ASSERT_FAILED)
+          report.addListPropertyException(position, actualProperty, expectedProperty)
+        }
+      }
     }
 
     /**
@@ -159,29 +193,30 @@ object FabutObjectAssert {
      *  until recursion and theh we compare those 2 references, if equal, graphs are isomorphic,
      *  they both return to the same node, else, isomorphic error message is added
      */
-    def checkIsomorphism(depth: Int, path: String, expectedObject: Any) {
+    def checkIsomorphism(depth: Int, path: String, expectedObject: Any, report: FabutReport) {
 
-      def loop(depth: Int, path: String, expectedObject: Any): Any = {
+      def loop(depth: Int, path: String, expectedObject: Any, report: FabutReport): Any = {
         if (depth > 0) {
           val objectNameList = path.split('.').toList
           val objectName = objectNameList.head
           val newExpectedObject = reflectObjectOfExpected(objectName, expectedObject)
-          loop(depth - 1, path.stripPrefix(objectName + DOT), newExpectedObject)
+          loop(depth - 1, path.stripPrefix(objectName + DOT), newExpectedObject, report)
         } else {
           expectedObject
         }
       }
 
       //def checkIsomorphism entry point
-      val recRef = loop(depth, path, expectedObject)
+      val expectedToReturnToRef = loop(depth, path, expectedObject, report)
 
       var depthLevels = 0
 
-      path.split('.').toList.foreach { path => depthLevels += path.size }
+      for { path <- path.split('.').toList }
+        depthLevels += path.size
 
-      val lastRef = loop(depthLevels - depth, path.substring(2 * depth), recRef)
+      val expectedReturnsToRef = loop(depthLevels - depth, path.substring(2 * depth), expectedToReturnToRef, report)
 
-      if (recRef != lastRef) {
+      if (expectedToReturnToRef != expectedReturnsToRef) {
         report.addResult(ASSERT_FAILED)
         report.addIsomorphicGraphExceptionMessage(depth)
       }
@@ -198,18 +233,6 @@ object FabutObjectAssert {
 }
 
 object Main extends App {
-
-  val r = new FabutReport
-
-  r.addPropertiesExceptionMessage("student.faculty.departman.name", "pera", "mica")
-  r.addPropertiesExceptionMessage("student.faculty.id", "3311", "315")
-  println(r.message)
-
-  println("b.".split('.').size)
-  println("b.c.".split('.').size)
-  println("b.c.d.".split('.').size)
-
-  println("peracar".stripPrefix("pera"))
 
 }
 

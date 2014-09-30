@@ -24,7 +24,7 @@ class FabutObjectAssertTest {
     val expected = ObjectWithSimpleProperties("pera", 43, actualInsideSimple)
 
     //	  assert
-    assertObjects(actual, expected, new FabutReport())
+    assertObjects(actual, expected)
   }
 
   @Test(expected = classOf[AssertionError])
@@ -39,22 +39,26 @@ class FabutObjectAssertTest {
     val expected = ObjectWithComplexProperty(900, false, expectedSimpleObject, List(1))
 
     //    assert
-    assertObjects(actual, expected, new FabutReport())
+    assertObjects(actual, expected)
   }
 
-  @Test
-  def testAssertObjectWithComplexPropertiesWithSuccess() = {
+  @Test(expected = classOf[AssertionError])
+  def testAssertObjectWithComplexPropertiesWithListAndFail() = {
 
     //    setup
     val actualInsideSimple = ObjectInsideSimpleProperty("3301")
     val expectedInsideSimple = ObjectInsideSimpleProperty("3301")
+    val a1 = ObjectInsideSimpleProperty("3301")
+    val e1 = ObjectInsideSimpleProperty("3333")
+    val a2 = ObjectInsideSimpleProperty("5000")
+    val e2 = ObjectInsideSimpleProperty("5001")
     val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, actualInsideSimple)
-    val expectedSimpleObject = ObjectWithSimpleProperties("mika", 22, expectedInsideSimple)
-    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(1))
-    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(1))
+    val expectedSimpleObject = ObjectWithSimpleProperties("mika", 221, expectedInsideSimple)
+    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(a1, a2, a1, actualInsideSimple))
+    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(e1, e2, e1, expectedInsideSimple))
 
     //    assert
-    assertObjects(actual, expected, new FabutReport())
+    assertObjects(actual, expected)
   }
 
   @Test(expected = classOf[AssertionError])
@@ -109,7 +113,7 @@ class FabutObjectAssertTest {
     e_b4.c = e_c4
 
     //	assert
-    assertObjects(a_a1, e_a1, new FabutReport())
+    assertObjects(a_a1, e_a1)
   }
 
   @Test
@@ -133,7 +137,39 @@ class FabutObjectAssertTest {
     e_d.e = e_e
 
     //	assert
-    assertObjects(a_a, e_a, new FabutReport())
+    assertObjects(a_a, e_a)
+  }
+
+  @Test
+  def testAssertObjectsWithNullObjectsWithSuccess() = {
+
+    val a_b = new B(null, "pera")
+    val a_a = new A(a_b, "mika")
+    val a_c = new C(null, "zelja")
+    a_b.c = a_c
+
+    val e_b = new B(null, "pera")
+    val e_a = new A(e_b, "mika")
+    val e_c = new C(null, "zelja")
+    e_b.c = e_c
+
+    assertObjects(a_a, e_a)
+  }
+
+  @Test(expected = classOf[AssertionError])
+  def testAssertObjectsWithNullPropertiesWithFail() = {
+
+    val a_b = new B(null, null)
+    val a_a = new A(a_b, "mika")
+    val a_c = new C(a_a, "zelja")
+    a_b.c = a_c
+
+    val e_b = new B(null, "pera")
+    val e_a = new A(e_b, "mika")
+    val e_c = new C(e_a, null)
+    e_b.c = e_c
+
+    assertObjects(a_a, e_a)
   }
 
 }

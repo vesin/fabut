@@ -4,6 +4,6 @@ case class ObjectWithComplexProperty(
   id: Int,
   var state: Boolean,
   complexObject: ObjectWithSimpleProperties,
-  list: List[Int]) {
+  list: List[Any]) {
 
 }

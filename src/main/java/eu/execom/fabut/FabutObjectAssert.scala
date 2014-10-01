@@ -1,6 +1,8 @@
 package eu.execom.fabut
 
 import scala.collection.immutable.Map
+import scala.collection.mutable.{ Map => MutableMap }
+import scala.collection
 import scala.reflect.runtime.universe.{ Type, TypeTag, typeOf, Symbol }
 
 import eu.execom.fabut.enums.AssertType._
@@ -8,219 +10,304 @@ import eu.execom.fabut.enums.AssertableType._
 import eu.execom.fabut.model.ObjectInsideSimpleProperty
 import eu.execom.fabut.model.ObjectWithComplexProperty
 import eu.execom.fabut.model.ObjectWithSimpleProperties
-import eu.execom.fabut.util.ReflectionUtil
+import eu.execom.fabut.util.ReflectionUtil._
 import eu.execom.fabut.model.TrivialClasses._
 
 class FabutObjectAssert
 
 object FabutObjectAssert {
 
-  var complexTypes: List[Type] = List()
-  complexTypes ::= typeOf[ObjectWithSimpleProperties]
-  complexTypes ::= typeOf[ObjectWithComplexProperty]
-  complexTypes ::= typeOf[ObjectInsideSimpleProperty]
-  complexTypes ::= typeOf[A]
-  complexTypes ::= typeOf[B]
-  complexTypes ::= typeOf[C]
-  complexTypes ::= typeOf[D]
-  complexTypes ::= typeOf[E]
-
   lazy val DOT: String = "."
 
+  var types: MutableMap[AssertableType, List[Type]] = MutableMap()
+  types(COMPLEX_TYPE) = List()
+  types(ENTITY_TYPE) = List()
+  types(IGNORED_TYPE) = List()
+
+  /**
+   * Asserts 2 objects.
+   *
+   * @param actual
+   *            actual object
+   * @param object
+   *            expected object
+   */
   def assertObjects(actual: Any, expected: Any) {
 
-    val report = new FabutReport()
+    /**
+     *  Gets properties from actual object, asserts each actual property
+     *   with corresponding in expected object, and for each object as property recursively calls
+     *   itself to assert it
+     *
+     *   @param actual
+     *   	the actual object
+     *   @param expected
+     *   	the expected object
+     *   @param namePath
+     *   	symbolic path of actual object, used to check if properties
+     *      and objects are on same position in expected
+     *   @checkObjects
+     *   	Map that has key as object reference that we've already asserted and value as
+     *    	numeric position in actual objects chain
+     */
+    def assertGraph(actual: Any, expected: Any, namePath: String, checkedObjects: Map[Any, Int]) {
 
-    def assertGraph(
-      actual: Any,
-      expected: Any,
-      pathName: String,
-      cNodes: Map[Any, Int]) {
+      /**
+       *  Reflects and fetches all properties of given actual object
+       *
+       *  @param actual
+       *  	the actual object
+       *  @param namePath
+       *   	symbolic path of actual object
+       *  @param t
+       *  	type of object actual
+       *  @return Map[String, Any]
+       *  	Map ( actual property name with path, value of actual property )
+       */
+      def getNameValueProperties(actual: Any, namePath: String, t: Type) =
+        getFieldsForAssertFromObject(actual, namePath, t)
 
-      val checkedNodes: Map[Any, Int] = Map(actual -> getDepth(pathName)) ++ cNodes
-      val nodeValues = getNameValueProperties(actual, pathName, getComplexType(actual))
+      /**
+       * Reflects expected object and returns an object that
+       *  we are looking for inside it
+       *
+       *  @param objectName
+       *  	name of object inside expected object
+       *  @param expectedObject
+       *  @return
+       *  	object inside expected object
+       */
+      def getObjectFromExpected(objectName: String, expectedObject: Any): Any =
+        reflectObject(objectName, expectedObject, getType(expectedObject, COMPLEX_TYPE))
 
-      val (primitives, non_primitives) = nodeValues partition {
+      /**
+       * Returns a type of given value
+       *
+       * @param value
+       * @return
+       * 		one of assertable type
+       */
+      def getValueType(value: Any) = {
+
+        if (value.isInstanceOf[List[_]])
+          SCALA_LIST_TYPE
+        else if (value.isInstanceOf[Map[_, _]])
+          SCALA_MAP_TYPE
+        else if (getType(value, COMPLEX_TYPE) != null)
+          COMPLEX_TYPE
+        else if (getType(value, ENTITY_TYPE) != null)
+          ENTITY_TYPE
+        else if (getType(value, IGNORED_TYPE) != null)
+          IGNORED_TYPE
+        else
+          PRIMITIVE_TYPE
+      }
+
+      /**
+       * Returns object type from 'types' for given value
+       *
+       *  @param value
+       *  @param t
+       *  	the list from map of types where we should search for value
+       *  @return
+       *  	the specific object type
+       */
+      def getType(value: Any, t: AssertableType): Type = {
+
+        // suspicious, repair?!
+        if (value == null)
+          return null
+
+        types(t).find(v => (v.toString == value.getClass.getCanonicalName)) match {
+          case n: Some[Type] => n.get
+          case _ => null
+        }
+      }
+
+      /**
+       *  Returns the depth of entering inside objects, used for
+       *  checking if actual and expected objects are isomorphic
+       */
+      def getDepth(path: String): Int =
+        if (path == "") 0 else (path.split('.').size)
+
+      /**
+       *  Asserts primitive types of given object with expected corresponding
+       *  values inside expected object
+       *
+       *  @param pathcut
+       *  	the number of characters to be cut from full primitives name
+       *      as we go deeper inside expected object to assert its primitive property
+       *  @param primitives
+       *  	primitive types with name and value to be asserted
+       *  @param expectedObject
+       *
+       *
+       */
+      def assertPrimitives(pathcut: Int, primitives: Map[String, Any], expectedObject: Any) {
+
+        val (key, value) = primitives.head
+        val depth = key.substring(pathcut).split('.')
+
+        if (depth.size == 1) {
+          reflectPrimitives(pathcut, primitives, expectedObject, getType(expectedObject, COMPLEX_TYPE), report)
+        } else {
+          val objectName = depth.head
+          val newExpectedObject = getObjectFromExpected(objectName, expectedObject)
+          assertPrimitives(pathcut + objectName.size + 1, primitives, newExpectedObject)
+        }
+
+      }
+
+      /**
+       * Asserts lists of 2 objects
+       *
+       * @param pathcut
+       * @param path
+       * @param actualObject
+       * @param expectedObject
+       */
+      def assertLists(pathcut: Int, path: String, actualObject: Any, expectedObject: Any) {
+
+        val depth = path.substring(pathcut).split('.')
+
+        if (depth.size == 1) {
+          val actualList = actualObject.asInstanceOf[List[_]]
+          val expectedList = getObjectFromExpected(path, expectedObject).asInstanceOf[List[_]]
+          if (actualList.size != expectedList.size) {
+            report.addResult(ASSERT_FAILED)
+            report.addListSizeExceptionMessage(path, actualList.size, expectedList.size)
+          } else if (actualList.size > 0) {
+            val propertyType = getType(actualList.head, COMPLEX_TYPE)
+            assertListProperties(0, path, actualList, expectedList, propertyType)
+          } else {
+            // TO-DO lists are empty
+          }
+        } else {
+          val objectName = depth.head
+          val newExpectedObject = getObjectFromExpected(objectName, expectedObject)
+          assertLists(pathcut + objectName.size + 1, path, actualObject, newExpectedObject)
+        }
+      }
+
+      /**
+       *  Helper class for asserting lists, goes through each object
+       *   in actual list and asserts with corresponding in expected list
+       *  @param position
+       *  	actual position of objects we are asserting in list
+       *  @param path
+       *   	full name in object chain
+       *  @param actualList
+       *  	list in actual object
+       *  @param expectedList
+       *   	list in expected object
+       *  @param isComplexType
+       *  	if type exists in types complex list, if not null
+       */
+      def assertListProperties(position: Int, path: String, actualList: List[_], expectedList: List[_], isComplexType: Type) {
+        actualList match {
+          case head :: tail => {
+            if (isComplexType == null)
+              assertPrimitiveListProperty(position, actualList.head, expectedList.head)
+            else
+              assertGraph(actualList.head, expectedList.head, "", Map())
+
+            assertListProperties(position + 1, path, actualList.tail, expectedList.tail, isComplexType)
+          }
+          case Nil => ()
+        }
+
+        def assertPrimitiveListProperty(position: Int, actualProperty: Any, expectedProperty: Any) {
+          if (actualProperty != expectedProperty) {
+            report.addResult(ASSERT_FAILED)
+            report.addListPropertyException(position, actualProperty, expectedProperty)
+          }
+        }
+      }
+
+      /**
+       *  Method checks if two objects have isomorphic property graphs
+       *
+       *  How: We pass the position of the node to which recursion returns,
+       *  in actual object 'depth'
+       *
+       *  @param depth
+       *  	if chain of objects is ABCD and returns to B => 1234 returns to node 2,
+       *   	depth is the returning to node number
+       *  @param path
+       *  	used to guide the expected object through reflection, as it should be
+       *   	imaged from actual object
+       *  @expectedObject
+       *
+       *  Now we reflect fully the expected object chain, when we get to the depth
+       *  to which it should be returned, we keep reference of object in 'expectedToReturnToRef'
+       *  now we continue reflection and when we get to end (recursion) we put the value to
+       *  'expectedReturnsToRef' and compares those two references which should be same to
+       *  isomorphism
+       *
+       */
+      def checkIsomorphism(depth: Int, path: String, expectedObject: Any) {
+
+        def loop(depth: Int, path: String, expectedObject: Any): Any = {
+          if (depth > 0) {
+            val objectNameList = path.split('.').toList
+            val objectName = objectNameList.head
+            val newExpectedObject = getObjectFromExpected(objectName, expectedObject)
+            loop(depth - 1, path.stripPrefix(objectName + DOT), newExpectedObject)
+          } else {
+            expectedObject
+          }
+        }
+
+        //def checkIsomorphism entry point
+        val expectedToReturnToRef = loop(depth, path, expectedObject)
+
+        var depthLevels = 0
+
+        for { path <- path.split('.').toList }
+          depthLevels += path.size
+
+        val expectedReturnsToRef = loop(depthLevels - depth, path.substring(2 * depth), expectedToReturnToRef)
+
+        if (expectedToReturnToRef != expectedReturnsToRef) {
+          report.addResult(ASSERT_FAILED)
+          report.addIsomorphicGraphExceptionMessage(depth)
+        }
+      }
+
+      val checkedObjectsWithActual: Map[Any, Int] = checkedObjects ++ Map(actual -> getDepth(namePath))
+      val objectProperties = getNameValueProperties(actual, namePath, getType(actual, COMPLEX_TYPE))
+
+      val (primitives, non_primitives) = objectProperties partition {
         p: (String, Any) => getValueType(p._2) == PRIMITIVE_TYPE
       }
 
       if (primitives nonEmpty)
-        assertPrimitives(0, primitives, expected, report)
+        assertPrimitives(0, primitives, expected)
 
       non_primitives foreach {
         p =>
           getValueType(p._2) match {
             case SCALA_LIST_TYPE =>
-              assertList(0, pathName + p._1, p._2, expected)
+              assertLists(0, namePath + p._1, p._2, expected)
             case SCALA_MAP_TYPE => // TO-DO implement map assertation
               report.addPropertiesExceptionMessage(p._1, p._2.toString, "SCALA_MAP_TYPE not implemented yet")
+            case ENTITY_TYPE =>
+              report.addPropertiesExceptionMessage(p._1, p._2.toString, "ENTITY_TYPE not implemented yet")
+            case IGNORED_TYPE =>
+            // TO-DO what?
             case COMPLEX_TYPE => {
-              if (checkedNodes.contains(p._2))
-                checkIsomorphism(checkedNodes(p._2), p._1, expected, report)
+              if (checkedObjectsWithActual.contains(p._2))
+                checkIsomorphism(checkedObjectsWithActual(p._2), p._1, expected)
               else
-                assertGraph(p._2, expected, p._1 + DOT, checkedNodes)
+                assertGraph(p._2, expected, p._1 + DOT, checkedObjectsWithActual)
             }
           }
       }
 
     }
 
-    /**
-     *  Method returns all properties of given object in a map which
-     *  has a key: value name,  and as value: property value
-     */
-    def getNameValueProperties(actual: Any, path: String, t: Type) =
-      ReflectionUtil.getFieldsForAssertFromObject(actual, path, t)
-
-    /**
-     * Reflects expected object and returns a object that we are looking for inside it
-     */
-    def reflectObjectOfExpected(objectName: String, expectedObject: Any): Any =
-      ReflectionUtil.reflectObject(objectName, expectedObject, getComplexType(expectedObject))
-
-    /**
-     * Returns a type of given value
-     */
-    def getValueType(value: Any) = {
-
-      if (value.isInstanceOf[List[_]])
-        SCALA_LIST_TYPE
-      else if (value.isInstanceOf[Map[_, _]])
-        SCALA_MAP_TYPE
-      else if (getComplexType(value) != null)
-        COMPLEX_TYPE
-      else
-        PRIMITIVE_TYPE
-    }
-
-    /**
-     * Returns a type of complex object used for reflection
-     */
-    def getComplexType(value: Any): Type = {
-
-      // suspicious, repair?!
-      if (value == null)
-        return null
-
-      complexTypes.find(v => (v.toString == value.getClass.getCanonicalName)) match {
-        case n: Some[Type] => n.get
-        case _ => null
-      }
-    }
-
-    /**
-     *  Returns the depth of entering inside objects, used for
-     *  checking if actual and expected objects are isomorphic
-     */
-    def getDepth(path: String): Int =
-      if (path == "") 0 else (path.split('.').size)
-
-    /**
-     *  Asserts primitive types of given object with expected corresponding values
-     *  inside expected object
-     */
-    def assertPrimitives(pathcut: Int, primitives: Map[String, Any], expectedObject: Any, report: FabutReport) {
-
-      val (key, value) = primitives.head
-      val depth = key.substring(pathcut).split('.')
-
-      if (depth.size == 1) {
-        ReflectionUtil
-          .reflectPrimitives(
-            pathcut,
-            primitives,
-            expectedObject,
-            getComplexType(expectedObject),
-            report)
-
-      } else {
-        val objectName = depth.head
-        val newExpectedObject = reflectObjectOfExpected(objectName, expectedObject)
-        assertPrimitives(pathcut + objectName.size + 1, primitives, newExpectedObject, report)
-      }
-
-    }
-
-    def assertList(pathcut: Int, path: String, actualObject: Any, expectedObject: Any) {
-
-      val depth = path.substring(pathcut).split('.')
-
-      if (depth.size == 1) {
-        val actualList = actualObject.asInstanceOf[List[_]]
-        val expectedList = reflectObjectOfExpected(path, expectedObject).asInstanceOf[List[_]]
-        if (actualList.size != expectedList.size) {
-          report.addResult(ASSERT_FAILED)
-          report.addListSizeExceptionMessage(path, actualList.size, expectedList.size)
-        } else if (actualList.size > 0) {
-          val propertyType = getComplexType(actualList.head)
-          assertListProperties(0, path, actualList, expectedList, propertyType)
-        } else {
-          // TO-DO lists are empty
-        }
-      } else {
-        val objectName = depth.head
-        val newExpectedObject = reflectObjectOfExpected(objectName, expectedObject)
-        assertList(pathcut + objectName.size + 1, path, actualObject, newExpectedObject)
-      }
-    }
-
-    def assertListProperties(position: Int, path: String, actualList: List[_], expectedList: List[_], isComplexType: Type) {
-      actualList match {
-        case head :: tail => {
-          if (isComplexType == null)
-            assertPrimitiveListProperty(position, actualList.head, expectedList.head)
-          else
-            assertGraph(actualList.head, expectedList.head, "", Map())
-
-          assertListProperties(position + 1, path, actualList.tail, expectedList.tail, isComplexType)
-        }
-        case Nil => ()
-      }
-
-      def assertPrimitiveListProperty(position: Int, actualProperty: Any, expectedProperty: Any) {
-        if (actualProperty != expectedProperty) {
-          report.addResult(ASSERT_FAILED)
-          report.addListPropertyException(position, actualProperty, expectedProperty)
-        }
-      }
-    }
-
-    /**
-     *  The way graph isomorphic algo works is that we pass the depth of actual object in
-     *  which recursion returns, e.g. if chain is ABCDB, chain is simplified as 1232 and
-     *  depth is 2, it returns to 2nd node(object), now we reflect expected object until that depth
-     *  we keep the reference of expected object in which it should return, we continue reflecting
-     *  until recursion and theh we compare those 2 references, if equal, graphs are isomorphic,
-     *  they both return to the same node, else, isomorphic error message is added
-     */
-    def checkIsomorphism(depth: Int, path: String, expectedObject: Any, report: FabutReport) {
-
-      def loop(depth: Int, path: String, expectedObject: Any, report: FabutReport): Any = {
-        if (depth > 0) {
-          val objectNameList = path.split('.').toList
-          val objectName = objectNameList.head
-          val newExpectedObject = reflectObjectOfExpected(objectName, expectedObject)
-          loop(depth - 1, path.stripPrefix(objectName + DOT), newExpectedObject, report)
-        } else {
-          expectedObject
-        }
-      }
-
-      //def checkIsomorphism entry point
-      val expectedToReturnToRef = loop(depth, path, expectedObject, report)
-
-      var depthLevels = 0
-
-      for { path <- path.split('.').toList }
-        depthLevels += path.size
-
-      val expectedReturnsToRef = loop(depthLevels - depth, path.substring(2 * depth), expectedToReturnToRef, report)
-
-      if (expectedToReturnToRef != expectedReturnsToRef) {
-        report.addResult(ASSERT_FAILED)
-        report.addIsomorphicGraphExceptionMessage(depth)
-      }
-    }
+    lazy val report = new FabutReport()
 
     //def assertObjects entry point
     assertGraph(actual, expected, "", Map())
@@ -233,6 +320,5 @@ object FabutObjectAssert {
 }
 
 object Main extends App {
-
 }
 

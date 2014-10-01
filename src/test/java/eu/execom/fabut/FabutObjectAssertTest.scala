@@ -1,5 +1,6 @@
 package eu.execom.fabut
 
+import scala.reflect.runtime.universe.{ Type, typeOf }
 import eu.execom.fabut.FabutObjectAssert._
 import eu.execom.fabut.util.ReflectionUtil
 import javax.naming.directory.InvalidAttributesException
@@ -7,13 +8,22 @@ import eu.execom.fabut.model.ObjectWithComplexProperty
 import eu.execom.fabut.model.ObjectInsideSimpleProperty
 import eu.execom.fabut.model.ObjectWithSimpleProperties
 import org.junit.Test
-import eu.execom.fabut._
-import eu.execom.fabut.model.ObjectWithComplexProperty
-import eu.execom.fabut.model.ObjectInsideSimpleProperty
-import eu.execom.fabut.model.ObjectWithSimpleProperties
 import eu.execom.fabut.model.TrivialClasses._
+import eu.execom.fabut.enums.AssertableType._
 
 class FabutObjectAssertTest {
+
+  var complexTypes: List[Type] = List()
+  complexTypes ::= typeOf[ObjectWithSimpleProperties]
+  complexTypes ::= typeOf[ObjectWithComplexProperty]
+  complexTypes ::= typeOf[ObjectInsideSimpleProperty]
+  complexTypes ::= typeOf[A]
+  complexTypes ::= typeOf[B]
+  complexTypes ::= typeOf[C]
+  complexTypes ::= typeOf[D]
+  complexTypes ::= typeOf[E]
+
+  types(COMPLEX_TYPE) = complexTypes
 
   @Test
   def testAssertObjectWithSimpleProperties() = {
@@ -28,7 +38,7 @@ class FabutObjectAssertTest {
   }
 
   @Test(expected = classOf[AssertionError])
-  def testAssertObjectWithComplexPropertiesWithFailure() = {
+  def testAssertObjectWithComplexPropertiesAndSimpleList() = {
 
     //    setup
     val actualInsideSimple = ObjectInsideSimpleProperty("3301")
@@ -43,7 +53,7 @@ class FabutObjectAssertTest {
   }
 
   @Test(expected = classOf[AssertionError])
-  def testAssertObjectWithComplexPropertiesWithListAndFail() = {
+  def testAssertObjectWithComplexPropertiesAndComplexList() = {
 
     //    setup
     val actualInsideSimple = ObjectInsideSimpleProperty("3301")
@@ -117,7 +127,7 @@ class FabutObjectAssertTest {
   }
 
   @Test
-  def testWithRecursiveGraphWithABCDA() = {
+  def testWithRecursiveGraphWithTrivialObjects() = {
 
     //	setup
     val a_b = new B(null, "pera")
@@ -141,7 +151,7 @@ class FabutObjectAssertTest {
   }
 
   @Test
-  def testAssertObjectsWithNullObjectsWithSuccess() = {
+  def testAssertObjectsWithNullObjects() = {
 
     val a_b = new B(null, "pera")
     val a_a = new A(a_b, "mika")
@@ -157,7 +167,7 @@ class FabutObjectAssertTest {
   }
 
   @Test(expected = classOf[AssertionError])
-  def testAssertObjectsWithNullPropertiesWithFail() = {
+  def testAssertObjectsWithNullProperties() = {
 
     val a_b = new B(null, null)
     val a_a = new A(a_b, "mika")

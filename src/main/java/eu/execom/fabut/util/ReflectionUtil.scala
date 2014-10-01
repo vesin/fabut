@@ -9,52 +9,56 @@ import eu.execom.fabut.enums.AssertType._
 
 object ReflectionUtil {
 
-  val classLoaderMirror = runtimeMirror(getClass.getClassLoader)
+  lazy val classLoaderMirror = runtimeMirror(getClass.getClassLoader)
+  lazy val SETTER_POSTFIX = "_$eq"
 
   /**
    * Gets all the fields that need to be asserted within given object.
    *
-   * @param obj
+   * @param objectInstance
    * 		object instance of fields
-   * @param path
-   * @param t
-   * 	type of object instance
+   * @param pathName
+   * @param typeOption
+   * 	optioned type of object instance
    *
-   * @return Seq[Symbol]
-   * 		seq of field symbols
+   * @return
+   *    optioned map that has fields asserted from object
    *
    * @throws ScalaReflectionException
    *
    */
-  def getFieldsForAssertFromObject(obj: Any, path: String, t: Type): Map[String, Any] = {
+  def getFieldsForAssertFromObject(objectInstance: Any, pathName: String, objectTypeOption: Option[Type]): Option[Map[String, Any]] = {
 
-    if (t == null) return null
+    if (objectTypeOption == None) return None
 
-    val classMirror = t.typeSymbol.asClass
-    val im = classLoaderMirror.reflect(obj)
+    val objectType = objectTypeOption.get
+
+    val classMirror = objectType.typeSymbol.asClass
+    val im = classLoaderMirror.reflect(objectInstance)
 
     val isField = (sym: Symbol) => {
       sym.asTerm.isVal || sym.asTerm.isVar
     }
     try {
 
-      val result = t.decls.collect {
+      //IMPORTANT TO-DO - value is option, handle it, refactor names
+      val result = objectType.decls.collect {
         case sym:
           Symbol if isField(sym) => {
           val name = sym.toString.split(' ').last
-          val value = reflectField(name)(im)(t)
-          (path + name, value)
+          val value = reflectField(name)(im)(objectType)
+          (pathName + name, value.get)
         }
-      }.toSeq.reverse
+      }.toMap
 
       if (result isEmpty)
-        Map()
+        Some(Map())
       else {
-        result.toMap
+        Some(result)
       }
 
     } catch {
-      case t: ScalaReflectionException => null
+      case t: ScalaReflectionException => None
     }
   }
 
@@ -63,22 +67,23 @@ object ReflectionUtil {
    *
    * returns value from a field name and instance mirror of class
    *
-   * @param fieldName
+   * @param propertyName
+   * 		property name that needs to be asserted
    * @param im
-   * 		InstanceMirror
-   * @param typeOf
+   * 		instance mirror of object instance
+   * @param objectType
    * 	type of object instance
    * @return
-   * 		field value
+   * 		property value
    * @throws ScalaReflectionException
    */
-  def reflectField(fieldName: String)(im: InstanceMirror)(typeOf: Type) = {
+  def reflectField(propertyName: String)(im: InstanceMirror)(objectType: Type) = {
     try {
-      val fieldSymbol = typeOf.decl(TermName(fieldName)).asMethod
+      val fieldSymbol = objectType.decl(TermName(propertyName)).asMethod
       val field = im.reflectMethod(fieldSymbol)
-      field()
+      Some(field())
     } catch {
-      case t: ScalaReflectionException => Nil
+      case t: ScalaReflectionException => None
     }
   }
 
@@ -95,47 +100,52 @@ object ReflectionUtil {
    *  		reflected object
    *  @throws ScalaReflectionException
    */
-  def reflectObject(objectName: String, expectedObject: Any, expectedObjecType: Type): Any = {
+  def reflectObject(objectName: String, expectedObject: Any, expectedObjectTypeOption: Option[Type]): Option[Any] = {
 
-    if (expectedObjecType == null) return null
+    if (expectedObjectTypeOption == None) return None
+
+    val expectedObjectType = expectedObjectTypeOption.get
 
     try {
-      val classMirror = expectedObjecType.typeSymbol.asClass
+      val classMirror = expectedObjectType.typeSymbol.asClass
       val im = classLoaderMirror.reflect(expectedObject)
-      val value = reflectField(objectName)(im)(expectedObjecType)
-
-      value
-
+      val valueOption = reflectField(objectName)(im)(expectedObjectType)
+      if (valueOption != None) {
+        Some(valueOption.get)
+      } else {
+        None
+      }
     } catch {
-      case t: ScalaReflectionException => Nil
+      case t: ScalaReflectionException => None
     }
   }
 
   /**
    * Gets field value from given object for given field name via getter.
    *
-   * @param fieldName
-   * @param obj
+   * @param propertyName
+   * @param objectInstance
    * @param expectedObjectType
    *
    * @return
-   * 	field value or null if it throws exception
+   * 	property value or None if it throws exception
    *
    * @throws ScalaReflectionException
    */
-  def getFieldValueFromGetter(fieldName: String, obj: Any, expectedObjectType: Type): Any = {
+  def getFieldValueFromGetter(propertyName: String, objectInstance: Any, expectedObjectTypeOption: Option[Type]): Option[Any] = {
 
-    if (expectedObjectType == null) return null
+    if (expectedObjectTypeOption == None) return None
 
+    val expectedObjectType = expectedObjectTypeOption.get
     val classMirror = expectedObjectType.typeSymbol.asClass
-    val im = classLoaderMirror.reflect(obj)
+    val im = classLoaderMirror.reflect(objectInstance)
 
     try {
-      val fieldSymbol = expectedObjectType.decl(TermName(fieldName)).asMethod
+      val fieldSymbol = expectedObjectType.decl(TermName(propertyName)).asMethod
       val field = im.reflectMethod(fieldSymbol)
-      field()
+      Some(field())
     } catch {
-      case t: ScalaReflectionException => ()
+      case t: ScalaReflectionException => None
     }
   }
 
@@ -144,9 +154,9 @@ object ReflectionUtil {
    *
    * Sets the field value from given object for given field name via setter.
    *
-   * @param object
-   * @param fieldName
-   * @param newValue
+   * @param objectInstance
+   * @param propertyName
+   * @param newPropertyValue
    *
    * @return
    * 	field value or null if it throws exception
@@ -154,18 +164,19 @@ object ReflectionUtil {
    * @throws ScalaReflectionException
    * @throws IllegalArgumentException
    */
-  def setField[T: TypeTag](obj: T)(fieldName: String)(newValue: Any)(implicit ct: ClassTag[T]) = {
+  def setField[T: TypeTag](objectInstance: T)(propertyName: String)(newPropertyValue: Any)(implicit ct: ClassTag[T]) = {
 
-    val methodName = fieldName + "_$eq"
+    val methodName = propertyName + SETTER_POSTFIX
 
-    val im = classLoaderMirror.reflect(obj)
+    val im = classLoaderMirror.reflect(objectInstance)
     val mSymbol = typeOf[T].decl(TermName(methodName)).asMethod
     val mMirror = im.reflectMethod(mSymbol)
 
     try {
-      mMirror(newValue)
+      mMirror(newPropertyValue)
     } catch {
       case t: IllegalArgumentException => t.printStackTrace()
+      //TO - DO whattt??
       case t: ScalaReflectionException => ()
     }
 
@@ -189,14 +200,14 @@ object ReflectionUtil {
    * 	report with added fail messages if assert fail occurs
    * @throws ScalaReflectionException
    */
-  def reflectPrimitives(pathcut: Int, primitives: Map[String, Any], expectedObject: Any, expectedObjectType: Type, report: FabutReport): FabutReport = {
+  def reflectPrimitives(pathcut: Int, primitives: Map[String, Any], expectedObject: Any, expectedObjectTypeOption: Option[Type], report: FabutReport): FabutReport = {
 
-    if (expectedObjectType == null) {
+    if (expectedObjectTypeOption == None) {
       report.addResult(ASSERT_FAILED)
       report.addObjectNullExceptionMessage("E", "")
       return report
     }
-
+    val expectedObjectType = expectedObjectTypeOption.get
     val classMirror = expectedObjectType.typeSymbol.asClass
     val im = classLoaderMirror.reflect(expectedObject)
 
@@ -216,7 +227,7 @@ object ReflectionUtil {
                 if (fieldValue == null) "null" else fieldValue.toString)
             }
           } catch {
-            case t: ScalaReflectionException => ()
+            case t: ScalaReflectionException => None
           }
         }
     }

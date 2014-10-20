@@ -10,8 +10,8 @@ import eu.execom.fabut.enums.AssertableType._
 import eu.execom.fabut.model.ObjectInsideSimpleProperty
 import eu.execom.fabut.model.ObjectWithComplexProperty
 import eu.execom.fabut.model.ObjectWithSimpleProperties
-import eu.execom.fabut.util.ReflectionUtil._
 import eu.execom.fabut.model.TrivialClasses._
+import eu.execom.fabut.util.ReflectionUtil._
 
 /**
  * not implemented => assert info when List[ComplexTyped] fails assert
@@ -55,34 +55,6 @@ object FabutObjectAssert {
      *    	numeric position in actual objects chain
      */
     def assertGraph(actual: Any, expected: Any, namePath: String, checkedObjects: Map[Any, Int]) {
-
-      /**
-       *  Reflects and fetches all properties of given actual object
-       *
-       *  @param actual
-       *  	the actual object
-       *  @param namePath
-       *   	symbolic path of actual object
-       *  @param t
-       *  	type of object actual
-       *  @return Map[String, Any]
-       *  	Map ( actual property name with path, value of actual property )
-       */
-      def getNameValueProperties(actual: Any, namePath: String, t: Option[Type]) =
-        getFieldsForAssertFromObject(actual, namePath, t)
-
-      /**
-       * Reflects expected object and returns an object that
-       *  we are looking for inside it
-       *
-       *  @param objectName
-       *  	name of object inside expected object
-       *  @param expectedObject
-       *  @return
-       *  	object inside expected object
-       */
-      def getObjectFromExpected(objectName: String, expectedObject: Any): Option[Any] =
-        reflectObject(objectName, expectedObject, getType(expectedObject, COMPLEX_TYPE))
 
       /**
        * Returns a type of given value
@@ -161,7 +133,7 @@ object FabutObjectAssert {
           reflectPrimitives(pathcut, primitives, expectedObject, getType(expectedObject, COMPLEX_TYPE), report)
         } else {
           val objectName = depth.head
-          val newExpectedObjectOption = getObjectFromExpected(objectName, expectedObject)
+          val newExpectedObjectOption = reflectObject(objectName, expectedObject, getType(expectedObject, COMPLEX_TYPE))
           if (newExpectedObjectOption != None) {
             assertPrimitives(pathcut + objectName.size + 1, primitives, newExpectedObjectOption.get)
           }
@@ -184,7 +156,8 @@ object FabutObjectAssert {
 
         if (depth.size == 1) {
           val actualList = actualObject.asInstanceOf[List[_]]
-          val expectedListOption = getObjectFromExpected(path, expectedObject)
+
+          val expectedListOption = reflectObject(path, expectedObject, getType(expectedObject, COMPLEX_TYPE))
           if (expectedListOption != None) {
             val expectedList = expectedListOption.get.asInstanceOf[List[_]]
             if (actualList.size != expectedList.size) {
@@ -200,7 +173,7 @@ object FabutObjectAssert {
 
         } else {
           val objectName = depth.head
-          val newExpectedObjectOption = getObjectFromExpected(objectName, expectedObject)
+          val newExpectedObjectOption = reflectObject(path, expectedObject, getType(expectedObject, COMPLEX_TYPE))
           if (newExpectedObjectOption != None) {
             val newExpectedObject = newExpectedObjectOption.get
             assertLists(pathcut + objectName.size + 1, path, actualObject, newExpectedObject)
@@ -271,7 +244,7 @@ object FabutObjectAssert {
           if (depth > 0) {
             val objectNameList = path.split('.').toList
             val objectName = objectNameList.head
-            val newExpectedObjectOption = getObjectFromExpected(objectName, expectedObject)
+            val newExpectedObjectOption = reflectObject(objectName, expectedObject, getType(expectedObject, COMPLEX_TYPE)) //getObjectFromExpected(objectName, expectedObject)
             if (newExpectedObjectOption != None) {
               val newExpectedObject = newExpectedObjectOption.get
               loop(depth - 1, path.stripPrefix(objectName + DOT), newExpectedObject)
@@ -300,8 +273,7 @@ object FabutObjectAssert {
       //  def assertGraph intro 
 
       val checkedObjectsWithActual: Map[Any, Int] = checkedObjects ++ Map(actual -> getDepth(namePath))
-      val objectPropertiesOption = getNameValueProperties(actual, namePath, getType(actual, COMPLEX_TYPE))
-
+      val objectPropertiesOption = getFieldsForAssertFromObject(actual, namePath, getType(actual, COMPLEX_TYPE))
       if (objectPropertiesOption != None) {
 
         val objectProperties = objectPropertiesOption.get

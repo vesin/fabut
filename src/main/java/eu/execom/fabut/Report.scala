@@ -5,46 +5,61 @@ import eu.execom.fabut.enums.AssertType._
 class FabutReport() {
 
   var _result = ASSERT_SUCCESS
-  var _message: String = "Report:"
+  var _message: String = "\nReport:"
 
   def message: String = _message
 
   def message_=(newMessage: String) =
     _message = newMessage
 
-  def result = _result
+  def result = if (message.size > 9) ASSERT_FAILED else ASSERT_SUCCESS
 
-  def addResult(result: Value) {
-    if (_result != result)
-      _result = result
-  }
-
-  def addPropertiesExceptionMessage(path: String, actualValue: String, expectedValue: String) {
+  def addPropertiesExceptionMessage(prefixMessage: String, path: String, actualValue: Any, expectedValue: Any) {
     message_=(message + "\n"
-      + s"Value of property ${path} ::  is '${actualValue}', expected: '${expectedValue}'")
+      + s"${prefixMessage} value of property ${path} ::  is '${actualValue}', expected: '${expectedValue}'")
   }
 
-  def addIsomorphicGraphExceptionMessage(actualDepth: Int) {
+  def addIsomorphicGraphExceptionMessage(prefixMessage: String, actualDepth: Int) {
     message_=(message + "\n"
       + s"Recursive graphs are not isomorphic: actual object returns to node ${actualDepth}, " +
       s"which is not expected")
   }
 
-  def addObjectNullExceptionMessage(o: String, path: String) {
+  def addObjectNullExceptionMessage(prefixMessage: String, o: String, path: String) {
     message_=(message + "\n"
       + { if (o == "A") "Actual " else "Expected " }
       + "object" + { if (path != "") s" with path ${path}" } + " is null")
   }
 
-  def addListSizeExceptionMessage(path: String, actualListSize: Int, expectedListSize: Int) {
+  def addCollectionSizeExceptionMessage(prefixMessage: String, path: String, actualListSize: Int, expectedListSize: Int) {
     message_=(message + "\n"
-      + s"List sizes are different path: ${path}:: actual list size ${actualListSize}"
-      + s", expected list size ${expectedListSize}")
+      + s"Collection sizes are different path: ${path}:: actual collection size ${actualListSize}"
+      + s", expected collection size ${expectedListSize}")
   }
 
-  def addListPropertyException(position: Int, actualPropertyValue: Any, expectedPropertyValue: Any) {
+  def addListPropertyException(prefixMessage: String, position: Int, actualPropertyValue: Any, expectedPropertyValue: Any) {
     message_=(message + "\n"
       + s"List element value on position $position is $actualPropertyValue, expected $expectedPropertyValue ")
+  }
+
+  def addMissingExpectedPropertyMessage(prefixMessage: String, propertyName: String) {
+    message_=(message + "\n"
+      + s"Missing expected property: ${propertyName}")
+  }
+
+  def addUnusedPropertyMessage(propertyName: String, propertyValue: Any) {
+    message_=(message + "\n"
+      + s"Unused property : ${propertyName} with value '${propertyValue}'")
+  }
+
+  def addKeyNotFoundInExpectedMapMessage(prefixMessage: String, elementName: String) {
+    message_=(message + "\n"
+      + s"${prefixMessage} key not found in expected map for key '${elementName}' ")
+  }
+
+  def addNonMatchingTypesMessage(prefixMessage: String, actualElementType: String, expectedElementType: String) {
+    message_=(message + "\n"
+      + s"${prefixMessage} types of values do not match :: actual ${actualElementType}, expected ${expectedElementType} ")
   }
 
 }

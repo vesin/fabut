@@ -10,6 +10,15 @@ import eu.execom.fabut.model.ObjectWithSimpleProperties
 import org.junit.Test
 import eu.execom.fabut.model.TrivialClasses._
 import eu.execom.fabut.enums.AssertableType._
+import eu.execom.fabut.model.ObjectWithSimpleProperties
+import eu.execom.fabut.model.ObjectInsideSimpleProperty
+import eu.execom.fabut.model.ObjectWithSimpleProperties
+import eu.execom.fabut.model.ObjectWithMap
+import eu.execom.fabut.model.ObjectWithSimpleMap
+import eu.execom.fabut.model.ObjectWithSimpleMap
+import eu.execom.fabut.model.ObjectWithSimpleList
+import eu.execom.fabut.model.ObjectWithSimpleList
+import eu.execom.fabut.model.ObjectWithSimpleMap
 
 class FabutObjectAssertTest {
 
@@ -17,6 +26,9 @@ class FabutObjectAssertTest {
   complexTypes ::= typeOf[ObjectWithSimpleProperties]
   complexTypes ::= typeOf[ObjectWithComplexProperty]
   complexTypes ::= typeOf[ObjectInsideSimpleProperty]
+  complexTypes ::= typeOf[ObjectWithMap]
+  complexTypes ::= typeOf[ObjectWithSimpleMap]
+  complexTypes ::= typeOf[ObjectWithSimpleList]
   complexTypes ::= typeOf[A]
   complexTypes ::= typeOf[B]
   complexTypes ::= typeOf[C]
@@ -25,28 +37,25 @@ class FabutObjectAssertTest {
 
   types(COMPLEX_TYPE) = complexTypes
 
-  @Test
+  @Test(expected = classOf[AssertionError])
   def testAssertObjectWithSimpleProperties() = {
 
     //    setup
-    val actualInsideSimple = ObjectInsideSimpleProperty("3301")
-    val actual = ObjectWithSimpleProperties("pera", 43, actualInsideSimple)
-    val expected = ObjectWithSimpleProperties("pera", 43, actualInsideSimple)
+    val actual = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("marko"))
+    val expected = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("33201"))
 
     //	  assert
-    assertObjects(actual, expected)
+    assertObjects(actual, value("o.id", "marko"))
   }
 
-  @Test(expected = classOf[AssertionError])
+  @Test
   def testAssertObjectWithComplexPropertiesAndSimpleList() = {
 
     //    setup
-    val actualInsideSimple = ObjectInsideSimpleProperty("3301")
-    val expectedInsideSimple = ObjectInsideSimpleProperty("226")
-    val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, actualInsideSimple)
-    val expectedSimpleObject = ObjectWithSimpleProperties("mika1", 22, expectedInsideSimple)
-    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(1))
-    val expected = ObjectWithComplexProperty(900, false, expectedSimpleObject, List(1))
+    val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, ObjectInsideSimpleProperty("3301"))
+    val expectedSimpleObject = ObjectWithSimpleProperties("mika", 22, ObjectInsideSimpleProperty("3301"))
+    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(1, 4))
+    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(1, 4))
 
     //    assert
     assertObjects(actual, expected)
@@ -180,6 +189,79 @@ class FabutObjectAssertTest {
     e_b.c = e_c
 
     assertObjects(a_a, e_a)
+  }
+
+  /**
+   *  unused expected property =>  "unsuedProperty"
+   *  property id is missing
+   */
+  @Test(expected = classOf[AssertionError])
+  def testAssertObjectWithExpectedPropertiesMissingAndUnusedProperty() = {
+
+    //	setup
+    val actualInsideSimple = ObjectInsideSimpleProperty("3301")
+    val expectedInsideSimple = ObjectInsideSimpleProperty("3301")
+    val a1 = ObjectInsideSimpleProperty("3301")
+    val e1 = ObjectInsideSimpleProperty("3333")
+    val a2 = ObjectInsideSimpleProperty("5000")
+    val e2 = ObjectInsideSimpleProperty("5001")
+    val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, actualInsideSimple)
+    val expectedSimpleObject = ObjectWithSimpleProperties("mika", 221, expectedInsideSimple)
+    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(a1, a2))
+    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(e1, e2))
+
+    //	assert
+    assertObjects(
+      actual,
+      value("unsuedProperty", 200),
+      value("state", true),
+      value("complexObject._username", "mika"),
+      value("complexObject._age", 22),
+      value("complexObject.o.id", "3301"),
+      value("list", List(a1, a2)))
+  }
+
+  @Test
+  def testAssertObjectWithAllExpectedProperties() = {
+
+    //	setup
+    val actualSimpleObject = ObjectWithSimpleProperties("pera", 22, ObjectInsideSimpleProperty("33"))
+
+    //	assert
+    assertObjects(actualSimpleObject, value("_username", "pera"), value("_age", 22), value("o.id", "33"))
+
+  }
+
+  @Test(expected = classOf[AssertionError])
+  def testAssertObjectWithExpectedSimpleList() = {
+    //	setup
+    val actualInsideSimple = ObjectInsideSimpleProperty("3301")
+    val expectedInsideSimple = ObjectInsideSimpleProperty("3301")
+    val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, actualInsideSimple)
+    val expectedSimpleObject = ObjectWithSimpleProperties("mika", 22, expectedInsideSimple)
+    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(1, 5))
+    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(1, 4))
+
+    //    assert
+    assertObjects(actual, expected, value("list", List(1, 8)))
+  }
+
+  @Test
+  def testAssertObjectWithMapAndListInsideObjects() = {
+
+    val actual = ObjectWithMap(900, ObjectWithSimpleMap(Map(ObjectInsideSimpleProperty("2") -> 22, 2 -> ObjectInsideSimpleProperty("3301"))), ObjectWithSimpleList(List(1, 2, 3)), Map(1 -> 4))
+    val expected = ObjectWithMap(900, ObjectWithSimpleMap(Map(2 -> ObjectInsideSimpleProperty("331"), 1 -> 5)), ObjectWithSimpleList(List(1, 2, 3)), Map(1 -> 4))
+
+    assertObjects(actual, expected, value("complexMapObject.map", Map(ObjectInsideSimpleProperty("2") -> 22, 2 -> ObjectInsideSimpleProperty("3301"))))
+
+  }
+
+  @Test
+  def testMapsWithAllExpectedProperties() = {
+
+    val actual = ObjectWithSimpleMap(Map(1 -> 2, 2 -> 6))
+
+    assertObjects(actual, value("map", Map(1 -> 2, 2 -> 6)))
   }
 
 }

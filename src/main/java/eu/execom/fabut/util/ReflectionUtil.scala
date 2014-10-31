@@ -58,8 +58,25 @@ object ReflectionUtil {
       }
 
     } catch {
-      case t: ScalaReflectionException => None
+      case t: ScalaReflectionException => {
+        None
+      }
     }
+  }
+
+  def reflectProperty(propertyName: String, parentObject: Any, parentObjectTypeOption: Option[Type]): Option[Any] = {
+
+    if (parentObjectTypeOption == None) return None
+
+    val parentObjectType = parentObjectTypeOption.get
+
+    val classMirror = parentObjectType.typeSymbol.asClass
+    val im = classLoaderMirror.reflect(parentObject)
+
+    val value = reflectField(propertyName)(im)(parentObjectType)
+
+    value
+
   }
 
   /**
@@ -200,37 +217,45 @@ object ReflectionUtil {
    * 	report with added fail messages if assert fail occurs
    * @throws ScalaReflectionException
    */
-  def reflectPrimitives(pathcut: Int, primitives: Map[String, Any], expectedObject: Any, expectedObjectTypeOption: Option[Type], report: FabutReport): FabutReport = {
+  def reflectPrimitives(prefixMessage: String, pathcut: Int, primitives: Map[String, Any], expectedObject: Any, expectedObjectTypeOption: Option[Type], expectedList: Map[String, Any], report: FabutReport): Map[String, Any] = {
+
+    var uncheckedExpectedObjectProperties = expectedList
 
     if (expectedObjectTypeOption == None) {
-      report.addResult(ASSERT_FAILED)
-      report.addObjectNullExceptionMessage("E", "")
-      return report
+      report.addObjectNullExceptionMessage(prefixMessage, "E", "")
+      return uncheckedExpectedObjectProperties
     }
     val expectedObjectType = expectedObjectTypeOption.get
     val classMirror = expectedObjectType.typeSymbol.asClass
     val im = classLoaderMirror.reflect(expectedObject)
 
+    var fieldValue: Any = null
     primitives foreach {
-      p: (String, Any) =>
-        {
-          try {
-            val fieldSymbol = expectedObjectType.decl(TermName(p._1.substring(pathcut))).asMethod
-            val field = im.reflectMethod(fieldSymbol)
-            val fieldValue = field()
 
-            if (fieldValue != p._2) {
-              report.addResult(ASSERT_FAILED)
-              report.addPropertiesExceptionMessage(
-                p._1,
-                if (p._2 == null) "null" else p._2.toString,
-                if (fieldValue == null) "null" else fieldValue.toString)
+      p: (String, Any) =>
+        try {
+          fieldValue = expectedList(p._1)
+          uncheckedExpectedObjectProperties -= p._1
+        } catch {
+          case t: NoSuchElementException =>
+            try {
+              val fieldSymbol = expectedObjectType.decl(TermName(p._1.substring(pathcut))).asMethod
+              val field = im.reflectMethod(fieldSymbol)
+              fieldValue = field()
+            } catch {
+              case t: ScalaReflectionException => None
             }
-          } catch {
-            case t: ScalaReflectionException => None
-          }
+        }
+
+        if (fieldValue != p._2) {
+          report.addPropertiesExceptionMessage(
+            prefixMessage,
+            p._1,
+            if (p._2 == null) "null" else p._2,
+            if (fieldValue == null) "null" else fieldValue)
         }
     }
-    report
+    uncheckedExpectedObjectProperties
+
   }
 }

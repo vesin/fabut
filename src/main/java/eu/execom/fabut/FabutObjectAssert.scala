@@ -30,6 +30,9 @@ import eu.execom.fabut.property.IgnoredProperty
 import eu.execom.fabut.property.Property
 import eu.execom.fabut.property.NullProperty
 import eu.execom.fabut.model.EmptyClass
+import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.property.NotNullProperty
 
 case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
 
@@ -52,7 +55,7 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * 			List of expected regular, ignorable, null or not null properties
    *    for asserting instead of properties from expected object
    */
-  def assert(report: FabutReport, expectedObject: Any, actualObject: Any, customProperties: Map[String, IProperty] /*, expectedObjectProperties: Map[String, Any]*/ ) {
+  def assert(report: FabutReport, expectedObject: Any, actualObject: Any, customProperties: Map[String, IProperty]) {
 
     /* 
      * Contains elements that are not yet expected and after algorithm wrong or unused properties
@@ -299,7 +302,8 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
               case property: Property =>
                 val actualPropertyValue = expectedProperties(property.path).asInstanceOf[Property].value
                 regularExpectedProperties ++= Map(property.path -> Property(property.path, actualPropertyValue))
-              case _ =>
+              case property: NotNullProperty =>
+                regularExpectedProperties ++= Map(property.path -> NotNullProperty(property.path))
             }
         }
 
@@ -309,24 +313,28 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
             property =>
               try {
                 property match {
-                  case property: Property => {
-
+                  case property: Property =>
                     fabutTest.customAssertEquals(property.value, unusedExpectedProperties(property.path).asInstanceOf[Property].value)
-                    unusedExpectedProperties -= property.path
-                  }
-                  case property: NullProperty => {
+
+                  case property: NullProperty =>
                     val propertyValue = expectedProperties(property.path).asInstanceOf[Property].value
                     if (propertyValue != null) {
                       report.addNullExpectedException(property.path, propertyValue)
                     }
-                    unusedExpectedProperties -= property.path
-                  }
+
+                  case property: NotNullProperty =>
+                    val propertyValue = expectedProperties(property.path).asInstanceOf[Property].value
+                    if (propertyValue == null) {
+                      report.addNotNullExpectedException(property.path, propertyValue)
+                    }
                 }
               } catch {
                 case e: AssertionError => {
                   report.addPropertiesExceptionMessage(prefixErrorMessage, property.getNamePath, property.asInstanceOf[Property].value, unusedExpectedProperties(property.getNamePath).asInstanceOf[Property].value)
                 }
               }
+              unusedExpectedProperties -= property.getNamePath
+
           }
         } else { // called from assertObjects
 
@@ -501,11 +509,11 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
         assertNode(expectedObject, actualObject, "", Map(), "")
     }
 
-    //    if (unusedExpectedProperties.nonEmpty)
-    //      unusedExpectedProperties foreach {
-    //        case (propertyName: String, propertyValue: Any) =>
-    //          report.addUnusedPropertyMessage(propertyName, propertyValue)
-    //      }
+    if (unusedExpectedProperties.nonEmpty)
+      unusedExpectedProperties foreach {
+        case (propertyName: String, propertyValue: Any) =>
+          report.addUnusedPropertyMessage(propertyName, propertyValue)
+      }
 
   }
 

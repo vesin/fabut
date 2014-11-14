@@ -71,6 +71,11 @@ class FabutReport() {
     message_=(message + "\n"
       + s"Null expected exception. Actual object ${propertyName} is ${propertyValue}  , expected null ")
   }
+
+  def addNotNullExpectedException(propertyName: String, propertyValue: Any) {
+    message_=(message + "\n"
+      + s"Not null expected exception. Actual object ${propertyName} is ${propertyValue}  , expected not to be null")
+  }
 }
 
 object FabusReport

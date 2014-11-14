@@ -75,35 +75,41 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
      *  @param collectionType
      *  	type of collection from enumeration AssertableType -> SCALA_MAP_TYPE or SCALA_LIST_TYPE
      */
+
+    //    TODO extract all methods to be at the same level, pass report as implict
+    //    TODO no need for prefix error message here, it should be just passed to Fabut methods
     def assertCollection(prefixErrorMessage: String, pathcut: Int, namePath: String, actualCollection: Any, expectedObject: Any, collectionType: AssertableType) {
 
       val propertyDepth = namePath.substring(pathcut).split('.')
+
       var expectedCollection: Any = null
 
+      //      TODO expectedCollection can be modified to be instantiated like this val  expectedCollection = try{...
       try {
         expectedCollection = customProperties(namePath).asInstanceOf[Property].value
         unusedExpectedProperties -= namePath
       } catch {
-        case t: NoSuchElementException => {
+        case t: NoSuchElementException =>
+          {
 
-          if (propertyDepth.size > 1) {
-            val newExpectedObjectName = propertyDepth.head
+            if (propertyDepth.size > 1) {
+              val newExpectedObjectName = propertyDepth.head
 
-            val newExpectedObject = reflectObject(newExpectedObjectName, expectedObject, getTypeFromTypes(expectedObject, COMPLEX_TYPE)).get
-            if (newExpectedObject != None) {
-              assertCollection(prefixErrorMessage, pathcut + newExpectedObjectName.size + 1, namePath, actualCollection, newExpectedObject, collectionType)
-            }
-            return
-          } else {
-            if (propertyDepth.head == "") { // case "" is when assertObjects checks 2 List/Maps
-              expectedCollection = expectedObject
+              val newExpectedObject = reflectObject(newExpectedObjectName, expectedObject, getTypeFromTypes(expectedObject, COMPLEX_TYPE)).get
+              if (newExpectedObject != None) {
+                assertCollection(prefixErrorMessage, pathcut + newExpectedObjectName.size + 1, namePath, actualCollection, newExpectedObject, collectionType)
+              }
+              return
             } else {
-              expectedCollection = getFieldValueFromGetter(propertyDepth.head, expectedObject, getTypeFromTypes(expectedObject, COMPLEX_TYPE)).get
+              if (propertyDepth.head == "") { // case "" is when assertObjects checks 2 List/Maps
+                expectedCollection = expectedObject
+              } else {
+                expectedCollection = getFieldValueFromGetter(propertyDepth.head, expectedObject, getTypeFromTypes(expectedObject, COMPLEX_TYPE)).get
+              }
+
             }
 
           }
-
-        }
       } // end catch
 
       var expectedCollectionSize = 0;
@@ -188,6 +194,7 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
 
       val prefixErrorMessage = s"In map '${namePath}' "
 
+      //      TOOD Remove recursiveLoop, this method should assert by using foreach and assertObjects calls
       def recursiveLoop(actualMapKeys: List[_]) {
 
         actualMapKeys match {
@@ -493,6 +500,8 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
             report.addPropertiesExceptionMessage("", "", actualObject, expectedObject)
         }
       }
+
+      //      TODO what are ""??? 
       case SCALA_LIST_TYPE =>
         assertCollection("", 0, "", actualObject, expectedObject, SCALA_LIST_TYPE)
       case SCALA_MAP_TYPE =>
@@ -548,6 +557,7 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
 
 }
 
+//TODO Remove main
 object Main extends App {
 
 }

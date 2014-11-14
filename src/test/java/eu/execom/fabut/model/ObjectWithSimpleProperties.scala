@@ -13,4 +13,6 @@ case class ObjectWithSimpleProperties(private var _username: String, private var
     _age = newAge
   }
 
+  def this() = this("", 0, null)
+
 }

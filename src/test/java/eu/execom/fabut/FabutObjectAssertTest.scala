@@ -1,8 +1,7 @@
 package eu.execom.fabut
 
 import scala.reflect.runtime.universe.{ Type, typeOf }
-import eu.execom.fabut.FabutObjectAssert._
-import eu.execom.fabut.util.ReflectionUtil
+import eu.execom.fabut.util.ReflectionUtil._
 import javax.naming.directory.InvalidAttributesException
 import eu.execom.fabut.model.ObjectWithComplexProperty
 import eu.execom.fabut.model.ObjectInsideSimpleProperty
@@ -15,37 +14,26 @@ import eu.execom.fabut.model.ObjectInsideSimpleProperty
 import eu.execom.fabut.model.ObjectWithSimpleProperties
 import eu.execom.fabut.model.ObjectWithMap
 import eu.execom.fabut.model.ObjectWithSimpleMap
-import eu.execom.fabut.model.ObjectWithSimpleMap
-import eu.execom.fabut.model.ObjectWithSimpleList
 import eu.execom.fabut.model.ObjectWithSimpleList
 import eu.execom.fabut.model.ObjectWithSimpleMap
+import eu.execom.fabut.model.ObjectInsideSimpleProperty
+import eu.execom.fabut.model.CopyCaseClass
+import eu.execom.fabut.model.ObjectInsideSimpleProperty
+import eu.execom.fabut.model.ObjectInsideSimpleProperty
+import eu.execom.fabut.Fabut._
+import eu.execom.fabut.model.EmptyClass
 
-class FabutObjectAssertTest {
+class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
-  var complexTypes: List[Type] = List()
-  complexTypes ::= typeOf[ObjectWithSimpleProperties]
-  complexTypes ::= typeOf[ObjectWithComplexProperty]
-  complexTypes ::= typeOf[ObjectInsideSimpleProperty]
-  complexTypes ::= typeOf[ObjectWithMap]
-  complexTypes ::= typeOf[ObjectWithSimpleMap]
-  complexTypes ::= typeOf[ObjectWithSimpleList]
-  complexTypes ::= typeOf[A]
-  complexTypes ::= typeOf[B]
-  complexTypes ::= typeOf[C]
-  complexTypes ::= typeOf[D]
-  complexTypes ::= typeOf[E]
-
-  types(COMPLEX_TYPE) = complexTypes
-
-  @Test(expected = classOf[AssertionError])
+  @Test
   def testAssertObjectWithSimpleProperties() = {
 
     //    setup
     val actual = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("marko"))
-    val expected = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("33201"))
+    val expected = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("marko"))
 
     //	  assert
-    assertObjects(actual, value("o.id", "marko"))
+    assertObjects(expected, actual)
   }
 
   @Test
@@ -58,7 +46,7 @@ class FabutObjectAssertTest {
     val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(1, 4))
 
     //    assert
-    assertObjects(actual, expected)
+    assertObjects(expected, actual)
   }
 
   @Test(expected = classOf[AssertionError])
@@ -77,7 +65,7 @@ class FabutObjectAssertTest {
     val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(e1, e2, e1, expectedInsideSimple))
 
     //    assert
-    assertObjects(actual, expected)
+    assertObjects(expected, actual)
   }
 
   @Test(expected = classOf[AssertionError])
@@ -132,7 +120,7 @@ class FabutObjectAssertTest {
     e_b4.c = e_c4
 
     //	assert
-    assertObjects(a_a1, e_a1)
+    assertObjects(e_a1, a_a1)
   }
 
   @Test
@@ -156,12 +144,13 @@ class FabutObjectAssertTest {
     e_d.e = e_e
 
     //	assert
-    assertObjects(a_a, e_a)
+    assertObjects(e_a, a_a)
   }
 
   @Test
   def testAssertObjectsWithNullObjects() = {
 
+    //	setup
     val a_b = new B(null, "pera")
     val a_a = new A(a_b, "mika")
     val a_c = new C(null, "zelja")
@@ -172,12 +161,14 @@ class FabutObjectAssertTest {
     val e_c = new C(null, "zelja")
     e_b.c = e_c
 
-    assertObjects(a_a, e_a)
+    //	assert
+    assertObjects(e_a, a_a)
   }
 
   @Test(expected = classOf[AssertionError])
   def testAssertObjectsWithNullProperties() = {
 
+    //	setup
     val a_b = new B(null, null)
     val a_a = new A(a_b, "mika")
     val a_c = new C(a_a, "zelja")
@@ -188,7 +179,8 @@ class FabutObjectAssertTest {
     val e_c = new C(e_a, null)
     e_b.c = e_c
 
-    assertObjects(a_a, e_a)
+    //	assert
+    assertObjects(e_a, a_a)
   }
 
   /**
@@ -211,7 +203,7 @@ class FabutObjectAssertTest {
     val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(e1, e2))
 
     //	assert
-    assertObjects(
+    assertObject(
       actual,
       value("unsuedProperty", 200),
       value("state", true),
@@ -228,12 +220,13 @@ class FabutObjectAssertTest {
     val actualSimpleObject = ObjectWithSimpleProperties("pera", 22, ObjectInsideSimpleProperty("33"))
 
     //	assert
-    assertObjects(actualSimpleObject, value("_username", "pera"), value("_age", 22), value("o.id", "33"))
+    assertObject(actualSimpleObject, value("_username", "pera"), value("_age", 22), value("o.id", "33"))
 
   }
 
-  @Test(expected = classOf[AssertionError])
+  @Test
   def testAssertObjectWithExpectedSimpleList() = {
+
     //	setup
     val actualInsideSimple = ObjectInsideSimpleProperty("3301")
     val expectedInsideSimple = ObjectInsideSimpleProperty("3301")
@@ -242,26 +235,94 @@ class FabutObjectAssertTest {
     val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(1, 5))
     val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(1, 4))
 
-    //    assert
-    assertObjects(actual, expected, value("list", List(1, 8)))
+    //	assert
+    assertObjects(actual, expected, value("list", List(1, 5)), ignored("list"))
   }
 
   @Test
   def testAssertObjectWithMapAndListInsideObjects() = {
 
+    //	setup
     val actual = ObjectWithMap(900, ObjectWithSimpleMap(Map(ObjectInsideSimpleProperty("2") -> 22, 2 -> ObjectInsideSimpleProperty("3301"))), ObjectWithSimpleList(List(1, 2, 3)), Map(1 -> 4))
     val expected = ObjectWithMap(900, ObjectWithSimpleMap(Map(2 -> ObjectInsideSimpleProperty("331"), 1 -> 5)), ObjectWithSimpleList(List(1, 2, 3)), Map(1 -> 4))
 
-    assertObjects(actual, expected, value("complexMapObject.map", Map(ObjectInsideSimpleProperty("2") -> 22, 2 -> ObjectInsideSimpleProperty("3301"))))
+    //	assert
+    assertObjects(expected, actual, value("complexMapObject.map", Map(ObjectInsideSimpleProperty("2") -> 22, 2 -> ObjectInsideSimpleProperty("3301"))))
 
   }
 
   @Test
-  def testMapsWithAllExpectedProperties() = {
+  def testObjectWithSimpleMapWithAllExpectedProperties() = {
 
+    //	setup
     val actual = ObjectWithSimpleMap(Map(1 -> 2, 2 -> 6))
 
-    assertObjects(actual, value("map", Map(1 -> 2, 2 -> 6)))
+    //	assert
+    assertObject(actual, value("map", Map(1 -> 2, 2 -> 6)))
+  }
+
+  @Test
+  def testCreateCopyPrimitives() = {
+
+    //	setup
+    val actualInsideObject = ObjectInsideSimpleProperty("222")
+    val actualObject = CopyCaseClass("111", "Petar", actualInsideObject, List(ObjectInsideSimpleProperty("1"), ObjectInsideSimpleProperty("2"), ObjectInsideSimpleProperty("3")), Map(1 -> ObjectInsideSimpleProperty("1")))
+    val expectedObject = createCopy(actualObject)
+
+    //	assert
+    assertObjects(expectedObject, actualObject)
+  }
+
+  @Test
+  def testListWithComplexElements() = {
+
+    //	setup
+    val i1 = ObjectInsideSimpleProperty("44")
+    val i2 = ObjectInsideSimpleProperty("44")
+    val o1 = ObjectWithSimpleProperties("Petar", 2, i1)
+    val o2 = ObjectWithSimpleProperties("Petar", 2, i2)
+
+    //	assert
+    assertObjects(List(o1, o1, o1, o1, i1), List(o2, o1, o2, o1, ObjectInsideSimpleProperty("44")))
+  }
+
+  @Test
+  def testObjectsWithSimpleElements() {
+
+    //	setup
+    val actual = "Hello World"
+    val expected = "Hello World"
+
+    //	assert
+    assertObjects(expected, actual)
+  }
+
+  @Test
+  def testMapWithComplexElements() = {
+
+    //	setup
+    val i1 = ObjectInsideSimpleProperty("simple")
+    val i2 = ObjectInsideSimpleProperty("simple")
+    val o1 = ObjectWithSimpleProperties("Petar", 2, i1)
+    val o2 = ObjectWithSimpleProperties("Petar", 2, i2)
+
+    //	assert
+    assertObjects(Map(1 -> i1, 2 -> i2, i1 -> o1), Map(1 -> i2, 2 -> i2, i1 -> o2))
+  }
+
+  @Test(expected = classOf[AssertionError])
+  def testTypeMismatchException() = {
+
+    val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, ObjectInsideSimpleProperty("3301"))
+    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(1, 4))
+
+    assertObjects(actual, List(1, 2, 3))
+  }
+
+  @Test
+  def test() = {
+    val x = new EmptyClass
+    Fabut.assertObjects(x, x)
   }
 
 }

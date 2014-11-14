@@ -25,10 +25,10 @@ class FabutReport() {
       s"which is not expected")
   }
 
-  def addObjectNullExceptionMessage(prefixMessage: String, o: String, path: String) {
+  def addObjectNullExceptionMessage(prefixMessage: String, o: String, namePath: String) {
     message_=(message + "\n"
       + { if (o == "A") "Actual " else "Expected " }
-      + "object" + { if (path != "") s" with path ${path}" } + " is null")
+      + "object" + { if (namePath != "") s" with path ${namePath}" } + " is null")
   }
 
   def addCollectionSizeExceptionMessage(prefixMessage: String, path: String, actualListSize: Int, expectedListSize: Int) {
@@ -62,6 +62,15 @@ class FabutReport() {
       + s"${prefixMessage} types of values do not match :: actual ${actualElementType}, expected ${expectedElementType} ")
   }
 
+  def addTypeMissmatchException(expectedObject: Any, actualObject: Any) {
+    message_=(message + "\n"
+      + s"Type mismatch. Actual object is ${actualObject.getClass} , expected ${expectedObject.getClass} ")
+  }
+
+  def addNullExpectedException(propertyName: String, propertyValue: Any) {
+    message_=(message + "\n"
+      + s"Null expected exception. Actual object ${propertyName} is ${propertyValue}  , expected null ")
+  }
 }
 
 object FabusReport

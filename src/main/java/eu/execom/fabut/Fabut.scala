@@ -7,6 +7,8 @@ import scala.collection.mutable.{ Map => MutableMap }
 import eu.execom.fabut.property.IProperty
 import eu.execom.fabut.property.IgnoredProperty
 import eu.execom.fabut.property.NullProperty
+import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.property.NotNullProperty
 
 object Fabut {
 
@@ -60,10 +62,10 @@ object Fabut {
     val report = new FabutReport
 
     if (expectedObject == null)
-      report.addObjectNullExceptionMessage("", "E", "")
+      report.addObjectNullExceptionMessage("E", "")
 
     if (actualObject == null)
-      report.addObjectNullExceptionMessage("", "A", "")
+      report.addObjectNullExceptionMessage("A", "")
 
     if (actualObject != null && expectedObject != null) {
 
@@ -116,5 +118,7 @@ object Fabut {
   def ignored(namePath: String): IgnoredProperty = IgnoredProperty(namePath)
 
   def isNull(namePath: String): NullProperty = NullProperty(namePath)
+
+  def notNull(namePath: String): NotNullProperty = NotNullProperty(namePath)
 }
 

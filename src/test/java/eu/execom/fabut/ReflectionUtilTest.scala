@@ -131,7 +131,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     val fabutReport = new FabutReport
 
     //	method
-    val unexpectedPrimitiveProperties = reflectPrimitiveProperties("", 0, actualObjectPrimitvePropertiesList, actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE), Map(), fabutReport)
+    val unexpectedPrimitiveProperties = reflectPrimitiveProperties(0, actualObjectPrimitvePropertiesList, actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE), Map(), fabutReport)
 
     assertEquals(fabutReport.result, AssertType.ASSERT_SUCCESS)
     assertEquals(unexpectedPrimitiveProperties.size, 0)
@@ -149,7 +149,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     val fabutReport = new FabutReport
 
     //	method
-    val unexpectedPrimitiveProperties = reflectPrimitiveProperties("", 0, actualObjectPrimitvePropertiesList, actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE), actualObjectPropertiesList, fabutReport)
+    val unexpectedPrimitiveProperties = reflectPrimitiveProperties(0, actualObjectPrimitvePropertiesList, actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE), actualObjectPropertiesList, fabutReport)
 
     //	assert
     assertEquals(fabutReport.result, AssertType.ASSERT_SUCCESS)

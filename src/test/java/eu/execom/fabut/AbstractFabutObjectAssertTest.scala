@@ -16,15 +16,20 @@ import eu.execom.fabut.model.TierOneType
 import eu.execom.fabut.model.EntityTierThreeType
 import eu.execom.fabut.model.EntityTierTwoType
 import eu.execom.fabut.model.EmptyClass
+import eu.execom.fabut.model.IgnoredType
+import org.junit.Before
+import org.junit.After
 
 class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
 
   var fabutObjectAssert: FabutObjectAssert = null
 
+  @Before
   override def fabutBeforeTest() {
     fabutObjectAssert = new FabutObjectAssert(this)
   }
 
+  @After
   override def fabutAfterTest() {
 
   }
@@ -62,8 +67,10 @@ class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
   }
 
   override def getIgnoredTypes(): List[Type] = {
-    println("TODO - in AbstractFabutObjectAssertTest getIgnoredTypes")
-    List()
+    var ignoredTypes: List[Type] = List()
+    ignoredTypes ::= typeOf[IgnoredType]
+
+    return ignoredTypes
   }
 
   override def customAssertEquals(expectedObject: Any, actualObject: Any) {

@@ -44,11 +44,11 @@ object ReflectionUtil {
       SCALA_LIST_TYPE
     else if (value.isInstanceOf[Map[_, _]])
       SCALA_MAP_TYPE
-    else if (getTypeFromTypes(value, COMPLEX_TYPE) != None)
+    else if (getObjectType(value, COMPLEX_TYPE) != None)
       COMPLEX_TYPE
-    else if (getTypeFromTypes(value, ENTITY_TYPE) != None)
+    else if (getObjectType(value, ENTITY_TYPE) != None)
       ENTITY_TYPE
-    else if (getTypeFromTypes(value, IGNORED_TYPE) != None)
+    else if (getObjectType(value, IGNORED_TYPE) != None)
       IGNORED_TYPE
     else
       PRIMITIVE_TYPE
@@ -65,18 +65,24 @@ object ReflectionUtil {
    *  	the specific type of object
    */
 
-  //  TODO rename :)
-  def getTypeFromTypes(objectValue: Any, assertableType: AssertableType): Option[Type] = {
+  def getObjectType(objectValue: Any, assertableType: AssertableType): Option[Type] = {
 
     if (objectValue == null) {
       return None
     }
 
-    fabutAssert.getTypes(assertableType).find(typeName =>
-      (typeName.toString == objectValue.getClass.getCanonicalName)) match {
-      case n: Some[Type] => Some(n.get)
-      case _ => None
+    try {
+      fabutAssert.getTypes(assertableType).find(
+        typeName => (typeName.toString == objectValue.getClass.getCanonicalName)) match {
+          case n: Some[Type] => Some(n.get)
+          case _ => None
+        }
+    } catch {
+      case e: NoSuchElementException =>
+        println("TODO 1: Add message for forgeting to add to complex or any list types a type of class ")
+        None
     }
+
   }
 
   /**
@@ -94,9 +100,9 @@ object ReflectionUtil {
    * @throws ScalaReflectionException
    *
    */
-  def getObjectProperties(objectInstance: Any, pathName: String, objectTypeOption: Option[Type]): Map[String, IProperty] = {
+  def getObjectProperties(objectInstance: Any, pathName: String, objectTypeOption: Option[Type]): Map[String, Property] = {
 
-    var result: Map[String, IProperty] = Map()
+    var result: Map[String, Property] = Map()
 
     if (objectTypeOption == None) {
       return result
@@ -270,12 +276,12 @@ object ReflectionUtil {
    * 	report with added fail messages if assert fail occurs
    * @throws ScalaReflectionException
    */
-  def reflectPrimitiveProperties(prefixMessage: String, pathcut: Int, primitiveProperties: Map[String, IProperty], expectedObject: Any, expectedObjectTypeOption: Option[Type], expectedObjectPropertiesList: Map[String, IProperty], report: FabutReport): Map[String, IProperty] = {
+  def reflectPrimitiveProperties(pathcut: Int, primitiveProperties: Map[String, IProperty], expectedObject: Any, expectedObjectTypeOption: Option[Type], expectedObjectPropertiesList: Map[String, IProperty], report: FabutReport): Map[String, IProperty] = {
 
     var uncheckedExpectedObjectProperties = expectedObjectPropertiesList
 
     if (expectedObjectTypeOption == None) {
-      report.addObjectNullExceptionMessage(prefixMessage, "E", "")
+      report.addObjectNullExceptionMessage("E", "")
       return uncheckedExpectedObjectProperties
     }
 
@@ -306,7 +312,7 @@ object ReflectionUtil {
           fabutAssert.fabutTest.customAssertEquals(fieldValue, property.asInstanceOf[Property].value)
         } catch {
           case e: AssertionError => {
-            report.addPropertiesExceptionMessage(prefixMessage, property.getNamePath, property.asInstanceOf[Property].value, fieldValue)
+            report.addPropertiesExceptionMessage(property.getNamePath, property.asInstanceOf[Property].value, fieldValue)
           }
         }
     }
@@ -366,7 +372,7 @@ object ReflectionUtil {
   def copyProperty(propertyName: String, instanceMirror: InstanceMirror, objectInstance: Any, newObjectInstance: Any, assertableType: AssertableType) {
 
     try {
-      val objectType = getTypeFromTypes(objectInstance, assertableType).get
+      val objectType = getObjectType(objectInstance, assertableType).get
       val propertyValue = reflectField(propertyName, objectType, instanceMirror)
       setField(propertyName, propertyValue.get, newObjectInstance, objectType)
     } catch {
@@ -409,7 +415,7 @@ object ReflectionUtil {
       }
 
       val checkedObjects = checkedObjectsMap ++ Map(originalObject -> 0)
-      val objectProperties = getObjectProperties(originalObject, "", getTypeFromTypes(originalObject, assertableType))
+      val objectProperties = getObjectProperties(originalObject, "", getObjectType(originalObject, assertableType))
 
       if (objectProperties nonEmpty) {
 
@@ -426,7 +432,7 @@ object ReflectionUtil {
           case (nodeName: String, nodeObject: Any) =>
             getValueType(nodeObject) match {
               case SCALA_LIST_TYPE | SCALA_MAP_TYPE =>
-                setField(nodeName, nodeObject, copiedObject, getTypeFromTypes(copiedObject, assertableType).get)
+                setField(nodeName, nodeObject, copiedObject, getObjectType(copiedObject, assertableType).get)
               case ENTITY_TYPE =>
                 println("TODO tralalal")
               case IGNORED_TYPE =>
@@ -435,9 +441,9 @@ object ReflectionUtil {
                 if (checkedObjects.contains(nodeObject))
                   return copiedObject
                 else {
-                  val newEmptyObjectInstance = createEmptyCopy(nodeObject, getTypeFromTypes(nodeObject, COMPLEX_TYPE))
-                  setField(nodeName, newEmptyObjectInstance, copiedObject, getTypeFromTypes(copiedObject, COMPLEX_TYPE).get)
-                  val newCopiedObject = reflectObject(nodeName, copiedObject, getTypeFromTypes(copiedObject, COMPLEX_TYPE)).get
+                  val newEmptyObjectInstance = createEmptyCopy(nodeObject, getObjectType(nodeObject, COMPLEX_TYPE))
+                  setField(nodeName, newEmptyObjectInstance, copiedObject, getObjectType(copiedObject, COMPLEX_TYPE).get)
+                  val newCopiedObject = reflectObject(nodeName, copiedObject, getObjectType(copiedObject, COMPLEX_TYPE)).get
                   loop(nodeObject, newCopiedObject, checkedObjects)
                 }
               }
@@ -447,7 +453,7 @@ object ReflectionUtil {
       }
     }
 
-    val emptyCopy = createEmptyCopy(originalObject, getTypeFromTypes(originalObject, COMPLEX_TYPE))
+    val emptyCopy = createEmptyCopy(originalObject, getObjectType(originalObject, COMPLEX_TYPE))
     loop(originalObject, emptyCopy, Map())
   }
 }

@@ -64,6 +64,8 @@ object ReflectionUtil {
    *  @return
    *  	the specific type of object
    */
+
+  //  TODO rename :)
   def getTypeFromTypes(objectValue: Any, assertableType: AssertableType): Option[Type] = {
 
     if (objectValue == null) {

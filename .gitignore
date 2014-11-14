@@ -4,5 +4,6 @@ bin/
 .metadata/
 .classpath
 .project
+.cache
 *.class
 *.tmp

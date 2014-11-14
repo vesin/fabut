@@ -87,15 +87,15 @@ object Fabut {
 
   }
 
-  //  /**
-  //   *  Turns Seq of expected properties to Map
-  //   *
-  //   *  @param properties
-  //   *  		Seq of properties
-  //   *
-  //   *  @preturn properties map
-  //   *
-  //   */
+  /**
+   *  Turns Seq of properties to Map
+   *
+   *  @param properties
+   *  		Seq of properties
+   *
+   *  @preturn properties map
+   *
+   */
   def createExpectedPropertiesMap(properties: Seq[IProperty]): Map[String, IProperty] = {
     properties.map { property => (property.getNamePath, property) } toMap
   }

@@ -33,11 +33,11 @@ import eu.execom.fabut.model.EmptyClass
 import eu.execom.fabut.property.NotNullProperty
 import eu.execom.fabut.property.NotNullProperty
 import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.property.IgnoredProperty
 
 case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
 
-  lazy val DOT: String = "."
-
+  val DOT: String = "."
   var types: MutableMap[AssertableType, List[Type]] = MutableMap()
 
   types(COMPLEX_TYPE) = fabutTest.getComplexTypes
@@ -338,25 +338,8 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
           }
         } else { // called from assertObjects
 
-          regularExpectedProperties = removeIgnoredAndNullProperties(properties, customProperties, report)
-
-          /*val preCheckList = customProperties.values.filter(property => !property.isInstanceOf[Property])
-
-          preCheckList.foreach {
-            case property: NullProperty =>
-              try {
-                if (properties(property.path).asInstanceOf[Property].value != null) {
-                  println("IT is expected to be NULL")
-                }
-              } catch { case e: NoSuchElementException => }
-
-              regularExpectedProperties -= property.path
-            case property: IgnoredProperty =>
-              regularExpectedProperties -= property.path
-            case _ =>
-          }*/
-
           val propertyDepth = properties.head._1.substring(pathcut).split('.')
+          val (regularLALSD, unusdee) = removeIgnoredAndNullProperties(properties, customProperties, unusedExpectedProperties, report)
           if (propertyDepth.size == 1) {
             unusedExpectedProperties = reflectPrimitiveProperties(prefixErrorMessage, pathcut, regularExpectedProperties, expectedObject, getTypeFromTypes(expectedObject, COMPLEX_TYPE), unusedExpectedProperties, report)
           } else {
@@ -467,7 +450,9 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
           assertPrimitiveProperties(0, primitiveProperties, expected)
         }
 
-        removeIgnoredAndNullProperties(nonPrimitiveProperties, customProperties, report).values foreach {
+        val (filteredProperties, unusuedPropertiez) = removeIgnoredAndNullProperties(nonPrimitiveProperties, customProperties, unusedExpectedProperties, report)
+        unusedExpectedProperties = unusuedPropertiez
+        filteredProperties.values foreach {
           case (property: Property) =>
             getValueType(property.value) match {
               case SCALA_LIST_TYPE =>
@@ -517,24 +502,37 @@ case class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
 
   }
 
-  def removeIgnoredAndNullProperties(properties: Map[String, IProperty], customProperties: Map[String, IProperty], report: FabutReport): Map[String, IProperty] = {
+  def removeIgnoredAndNullProperties(properties: Map[String, IProperty], customProperties: Map[String, IProperty], unusedPropertiez: Map[String, IProperty], report: FabutReport): (Map[String, IProperty], Map[String, IProperty]) = {
 
     val ignoreAndNullProperties = customProperties.values.filter(property => !property.isInstanceOf[Property])
+
+    var unusedProperties = unusedPropertiez
     var filteredProperties = properties
+
     ignoreAndNullProperties.foreach {
-      case property: NullProperty =>
+      property =>
         try {
-          val propertyValue = properties(property.path).asInstanceOf[Property].value
-          if (propertyValue != null) {
-            report.addNullExpectedException(property.path, propertyValue)
+          property match {
+            case _: NullProperty =>
+              val propertyValue = properties(property.getNamePath).asInstanceOf[Property].value
+              if (propertyValue != null) {
+                report.addNullExpectedException(property.getNamePath, propertyValue)
+              }
+            case _: NotNull =>
+              val propertyValue = properties(property.getNamePath).asInstanceOf[Property].value
+              if (propertyValue == null) {
+                report.addNullExpectedException(property.getNamePath, propertyValue)
+              }
+            case _: IgnoredProperty =>
           }
-        } catch { case e: NoSuchElementException => }
-        filteredProperties -= property.path
-      case property: IgnoredProperty =>
-        filteredProperties -= property.path
-      case property => println("notNull")
+          filteredProperties -= property.getNamePath
+          unusedProperties -= property.getNamePath
+        } catch {
+          case e: NoSuchElementException =>
+        }
+
     }
-    filteredProperties
+    (filteredProperties, unusedProperties)
   }
 
   /**

@@ -236,7 +236,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(1, 4))
 
     //	assert
-    assertObjects(actual, expected, value("list", List(1, 5)), ignored("list"))
+    assertObjects(actual, expected, value("list", List(1, 5)), ignored("list") /*, value("mika", "hello")*/ )
   }
 
   @Test

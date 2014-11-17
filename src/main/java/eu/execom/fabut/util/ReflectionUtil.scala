@@ -17,15 +17,16 @@ import eu.execom.fabut.FabutObjectAssert
 import eu.execom.fabut.property.Property
 import eu.execom.fabut.property.IProperty
 import eu.execom.fabut.property.IgnoredProperty
+import eu.execom.fabut.FabutObjectAssert
 
 object ReflectionUtil {
 
   lazy val classLoaderMirror = runtimeMirror(getClass.getClassLoader)
   lazy val SETTER_POSTFIX = "_$eq"
 
-  var fabutAssert: FabutRepositoryAssert = null;
+  var fabutAssert: FabutObjectAssert = null;
 
-  def setFabutAssert(fabutAssert: FabutRepositoryAssert) {
+  def setFabutAssert(fabutAssert: FabutObjectAssert) {
     this.fabutAssert = fabutAssert
   }
 
@@ -295,12 +296,12 @@ object ReflectionUtil {
     primitiveProperties.values.foreach {
       property =>
         try {
-          fieldValue = expectedObjectPropertiesList(property.getNamePath).asInstanceOf[Property].value
-          uncheckedExpectedObjectProperties -= property.getNamePath
+          fieldValue = expectedObjectPropertiesList(property.getPath).asInstanceOf[Property].value
+          uncheckedExpectedObjectProperties -= property.getPath
         } catch {
           case t: NoSuchElementException =>
             try {
-              val fieldSymbol = expectedObjectType.decl(TermName(property.getNamePath.substring(pathcut))).asMethod
+              val fieldSymbol = expectedObjectType.decl(TermName(property.getPath.substring(pathcut))).asMethod
               val field = instanceMirror.reflectMethod(fieldSymbol)
               fieldValue = field()
             } catch {
@@ -312,7 +313,7 @@ object ReflectionUtil {
           fabutAssert.fabutTest.customAssertEquals(fieldValue, property.asInstanceOf[Property].value)
         } catch {
           case e: AssertionError => {
-            report.addPropertiesExceptionMessage(property.getNamePath, property.asInstanceOf[Property].value, fieldValue)
+            report.addPropertiesExceptionMessage(property.getPath, property.asInstanceOf[Property].value, fieldValue)
           }
         }
     }

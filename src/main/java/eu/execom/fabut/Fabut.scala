@@ -99,7 +99,7 @@ object Fabut {
    *
    */
   def createExpectedPropertiesMap(properties: Seq[IProperty]): Map[String, IProperty] = {
-    properties.map { property => (property.getNamePath, property) } toMap
+    properties.map { property => (property.getPath, property) } toMap
   }
 
   /**

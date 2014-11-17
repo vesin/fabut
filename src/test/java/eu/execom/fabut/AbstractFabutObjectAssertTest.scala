@@ -19,6 +19,9 @@ import eu.execom.fabut.model.EmptyClass
 import eu.execom.fabut.model.IgnoredType
 import org.junit.Before
 import org.junit.After
+import eu.execom.fabut.model.TierTwoType
+import eu.execom.fabut.model.ListType
+import eu.execom.fabut.util.ReflectionUtil._
 
 class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
 
@@ -27,6 +30,7 @@ class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
   @Before
   override def fabutBeforeTest() {
     fabutObjectAssert = new FabutObjectAssert(this)
+    setFabutAssert(fabutObjectAssert)
   }
 
   @After
@@ -45,17 +49,14 @@ class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
     complexTypes ::= typeOf[ObjectWithSimpleList]
     complexTypes ::= typeOf[CopyCaseClass]
     complexTypes ::= typeOf[Person]
-    complexTypes ::= typeOf[A]
-    complexTypes ::= typeOf[B]
-    complexTypes ::= typeOf[C]
-    complexTypes ::= typeOf[D]
-    complexTypes ::= typeOf[E]
     complexTypes ::= typeOf[EntityTierOneType]
     complexTypes ::= typeOf[EntityTierThreeType]
     complexTypes ::= typeOf[EntityTierTwoType]
     complexTypes ::= typeOf[EntityTierOneType]
     complexTypes ::= typeOf[TierOneType]
+    complexTypes ::= typeOf[TierTwoType]
     complexTypes ::= typeOf[EmptyClass]
+    complexTypes ::= typeOf[ListType]
     return complexTypes
   }
 

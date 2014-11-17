@@ -17,14 +17,7 @@ import eu.execom.fabut.model.ObjectInsideSimpleProperty
 import eu.execom.fabut.model.ObjectWithComplexProperty
 import eu.execom.fabut.model.ObjectWithSimpleProperties
 import eu.execom.fabut.property.Property
-import eu.execom.fabut.util.ReflectionUtil.createCopy
-import eu.execom.fabut.util.ReflectionUtil.createEmptyCopy
-import eu.execom.fabut.util.ReflectionUtil.getFieldValueFromGetter
-import eu.execom.fabut.util.ReflectionUtil.getObjectProperties
-import eu.execom.fabut.util.ReflectionUtil.getTypeFromTypes
-import eu.execom.fabut.util.ReflectionUtil.reflectObject
-import eu.execom.fabut.util.ReflectionUtil.reflectPrimitiveProperties
-import eu.execom.fabut.util.ReflectionUtil.setField
+import eu.execom.fabut.util.ReflectionUtil._
 
 class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
 
@@ -70,7 +63,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
 
     //	method
     val parentObject = ObjectWithSimpleProperties("pera", 40, ObjectInsideSimpleProperty("200"))
-    val actualObject = reflectObject("o", parentObject, getTypeFromTypes(parentObject, COMPLEX_TYPE)).get
+    val actualObject = reflectObject("o", parentObject, getObjectType(parentObject, COMPLEX_TYPE)).get
 
     //	assert
     assertEquals(actualObject, expectedObject)
@@ -84,9 +77,9 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     val actualObject = ObjectWithSimpleProperties("pera", 40, ObjectInsideSimpleProperty("200"))
 
     //	method
-    val actualFieldUsername = getFieldValueFromGetter("_username", actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE)).get
-    val actualFieldAge = getFieldValueFromGetter("_age", actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE)).get
-    val actualFieldObjectInside = getFieldValueFromGetter("o", actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE)).get
+    val actualFieldUsername = getFieldValueFromGetter("_username", actualObject, getObjectType(actualObject, COMPLEX_TYPE)).get
+    val actualFieldAge = getFieldValueFromGetter("_age", actualObject, getObjectType(actualObject, COMPLEX_TYPE)).get
+    val actualFieldObjectInside = getFieldValueFromGetter("o", actualObject, getObjectType(actualObject, COMPLEX_TYPE)).get
 
     //	assert
     assertEquals(actualFieldUsername, "pera")
@@ -101,7 +94,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     val actualObject = ObjectInsideSimpleProperty("100")
 
     //	method
-    val actualUnknownField = getFieldValueFromGetter("_sid", actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE))
+    val actualUnknownField = getFieldValueFromGetter("_sid", actualObject, getObjectType(actualObject, COMPLEX_TYPE))
 
     //	assert
     assertEquals(actualUnknownField, None)
@@ -131,7 +124,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     val fabutReport = new FabutReport
 
     //	method
-    val unexpectedPrimitiveProperties = reflectPrimitiveProperties(0, actualObjectPrimitvePropertiesList, actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE), Map(), fabutReport)
+    val unexpectedPrimitiveProperties = reflectPrimitiveProperties(0, actualObjectPrimitvePropertiesList, actualObject, getObjectType(actualObject, COMPLEX_TYPE), Map(), fabutReport)
 
     assertEquals(fabutReport.result, AssertType.ASSERT_SUCCESS)
     assertEquals(unexpectedPrimitiveProperties.size, 0)
@@ -149,7 +142,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     val fabutReport = new FabutReport
 
     //	method
-    val unexpectedPrimitiveProperties = reflectPrimitiveProperties(0, actualObjectPrimitvePropertiesList, actualObject, getTypeFromTypes(actualObject, COMPLEX_TYPE), actualObjectPropertiesList, fabutReport)
+    val unexpectedPrimitiveProperties = reflectPrimitiveProperties(0, actualObjectPrimitvePropertiesList, actualObject, getObjectType(actualObject, COMPLEX_TYPE), actualObjectPropertiesList, fabutReport)
 
     //	assert
     assertEquals(fabutReport.result, AssertType.ASSERT_SUCCESS)

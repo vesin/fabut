@@ -3,9 +3,9 @@ import scala.collection.immutable.StringOps._
 
 class AbstractProperty(path: String) extends IProperty {
 
-  override def getNamePath = path
+  override def getPath = path
 
   override def equals(property: Any): Boolean = {
-    path.equalsIgnoreCase(property.asInstanceOf[IProperty].getNamePath)
+    path.equalsIgnoreCase(property.asInstanceOf[IProperty].getPath)
   }
 }

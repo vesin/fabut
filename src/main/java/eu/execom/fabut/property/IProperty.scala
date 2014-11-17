@@ -2,5 +2,5 @@ package eu.execom.fabut.property
 
 trait IProperty {
 
-  def getNamePath: String
+  def getPath: String
 }

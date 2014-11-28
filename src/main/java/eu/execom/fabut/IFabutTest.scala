@@ -8,7 +8,6 @@ trait IFabutTest {
 
   def getComplexTypes(): List[Type]
   def getIgnoredTypes(): List[Type]
-  def getEntityTypes(): List[Type]
 
   def customAssertEquals(expectedObject: Any, actualObject: Any)
 }

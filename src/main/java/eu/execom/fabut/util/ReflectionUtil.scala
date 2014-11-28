@@ -11,13 +11,14 @@ import eu.execom.fabut.enums.AssertableType._
 import eu.execom.fabut.model.ObjectInsideSimpleProperty
 import eu.execom.fabut.model.ObjectWithSimpleProperties
 import eu.execom.fabut.model.ObjectInsideSimpleProperty
-import eu.execom.fabut.exception.TypeMissingException
 import eu.execom.fabut.FabutRepositoryAssert
 import eu.execom.fabut.FabutObjectAssert
 import eu.execom.fabut.property.Property
 import eu.execom.fabut.property.IProperty
 import eu.execom.fabut.property.IgnoredProperty
 import eu.execom.fabut.FabutObjectAssert
+import eu.execom.fabut.exception.CopyException
+import eu.execom.fabut.graph.NodesList
 
 object ReflectionUtil {
 
@@ -74,14 +75,16 @@ object ReflectionUtil {
 
     try {
       fabutAssert.getTypes(assertableType).find(
-        typeName => (typeName.toString == objectValue.getClass.getCanonicalName)) match {
-          case n: Some[Type] => Some(n.get)
-          case _ => None
+        typeName =>
+          (typeName.toString == objectValue.getClass.getCanonicalName)) match {
+          case n: Some[Type] =>
+            return Some(n.get)
+          case _ =>
+            return None
         }
     } catch {
       case e: NoSuchElementException =>
-        println("TODO 1: Add message for forgeting to add to complex or any list types a type of class ")
-        None
+        return None
     }
 
   }
@@ -101,7 +104,7 @@ object ReflectionUtil {
    * @throws ScalaReflectionException
    *
    */
-  def getObjectProperties(objectInstance: Any, pathName: String, objectTypeOption: Option[Type]): Map[String, Property] = {
+  def getObjectProperties(objectInstance: Any, objectTypeOption: Option[Type]): Map[String, Property] = {
 
     var result: Map[String, Property] = Map()
 
@@ -124,13 +127,30 @@ object ReflectionUtil {
           TermSymbol if isField(sym) => {
           val name = sym.toString.split(' ').last
           val value = reflectField(name, objectType, im)
-          (pathName + name, Property(pathName + name, value.get))
+          (name, Property(name, value.get))
         }
       }.toMap
     } catch {
       case t: ScalaReflectionException => println("//TODO")
     }
     result
+  }
+
+  def pullMembers[T: TypeTag](objectInstance: T)(implicit ct: ClassTag[T]) {
+
+    val objectType = typeOf[T]
+
+    val classMirror = objectType.typeSymbol.asClass
+    val im = classLoaderMirror.reflect(objectInstance)
+
+    val all = objectType.members
+    val getters = objectType.members.collect {
+      case symbol: TermSymbol => if (symbol.isGetter) symbol
+    }
+    //    val 
+
+    println(getters.foreach { g => println(g) })
+
   }
 
   /**
@@ -238,21 +258,21 @@ object ReflectionUtil {
    * @throws ScalaReflectionException
    * @throws IllegalArgumentException
    */
-  def setField(fieldName: String, newFieldValue: Any, objectInstance: Any, objectType: Type) {
+  def setField(fieldName: String, newFieldValue: Any, objectInstance: Any, objectType: Type): Boolean = {
 
-    var methodName = fieldName + SETTER_POSTFIX
-
-    val im = classLoaderMirror.reflect(objectInstance)
-    val mSymbol = objectType.decl(TermName(methodName)).asMethod
-    val methodMirror = im.reflectMethod(mSymbol)
+    val methodName = fieldName + SETTER_POSTFIX
 
     try {
+      val im = classLoaderMirror.reflect(objectInstance)
+      val mSymbol = objectType.decl(TermName(methodName)).asMethod
+      val methodMirror = im.reflectMethod(mSymbol)
       methodMirror(newFieldValue)
+      return true
     } catch {
       case e: IllegalArgumentException => println(e.getMessage())
       case e: ScalaReflectionException => println(e.getMessage())
     }
-
+    return false
   }
 
   /**
@@ -277,49 +297,49 @@ object ReflectionUtil {
    * 	report with added fail messages if assert fail occurs
    * @throws ScalaReflectionException
    */
-  def reflectPrimitiveProperties(pathcut: Int, primitiveProperties: Map[String, IProperty], expectedObject: Any, expectedObjectTypeOption: Option[Type], expectedObjectPropertiesList: Map[String, IProperty], report: FabutReport): Map[String, IProperty] = {
-
-    var uncheckedExpectedObjectProperties = expectedObjectPropertiesList
-
-    if (expectedObjectTypeOption == None) {
-      report.addObjectNullExceptionMessage("E", "")
-      return uncheckedExpectedObjectProperties
-    }
-
-    val expectedObjectType = expectedObjectTypeOption.get
-    val classMirror = expectedObjectType.typeSymbol.asClass
-    val instanceMirror = classLoaderMirror.reflect(expectedObject)
-
-    var fieldValue: Any = null
-    var property: IProperty = null
-
-    primitiveProperties.values.foreach {
-      property =>
-        try {
-          fieldValue = expectedObjectPropertiesList(property.getPath).asInstanceOf[Property].value
-          uncheckedExpectedObjectProperties -= property.getPath
-        } catch {
-          case t: NoSuchElementException =>
-            try {
-              val fieldSymbol = expectedObjectType.decl(TermName(property.getPath.substring(pathcut))).asMethod
-              val field = instanceMirror.reflectMethod(fieldSymbol)
-              fieldValue = field()
-            } catch {
-              case t: ScalaReflectionException => None
-            }
-        }
-
-        try {
-          fabutAssert.fabutTest.customAssertEquals(fieldValue, property.asInstanceOf[Property].value)
-        } catch {
-          case e: AssertionError => {
-            report.addPropertiesExceptionMessage(property.getPath, property.asInstanceOf[Property].value, fieldValue)
-          }
-        }
-    }
-    uncheckedExpectedObjectProperties
-
-  }
+  //  def reflectPrimitiveProperties(pathcut: Int, primitiveProperties: Map[String, IProperty], expectedObject: Any, expectedObjectTypeOption: Option[Type], expectedObjectPropertiesList: Map[String, IProperty], report: FabutReport): Map[String, IProperty] = {
+  //
+  //    var uncheckedExpectedObjectProperties = expectedObjectPropertiesList
+  //
+  //    if (expectedObjectTypeOption == None) {
+  //      report.addObjectNullExceptionMessage("E", "")
+  //      return uncheckedExpectedObjectProperties
+  //    }
+  //
+  //    val expectedObjectType = expectedObjectTypeOption.get
+  //    val classMirror = expectedObjectType.typeSymbol.asClass
+  //    val instanceMirror = classLoaderMirror.reflect(expectedObject)
+  //
+  //    var fieldValue: Any = null
+  //    var property: IProperty = null
+  //
+  //    primitiveProperties.values.foreach {
+  //      property =>
+  //        try {
+  //          fieldValue = expectedObjectPropertiesList(property.getPath).asInstanceOf[Property].value
+  //          uncheckedExpectedObjectProperties -= property.getPath
+  //        } catch {
+  //          case t: NoSuchElementException =>
+  //            try {
+  //              val fieldSymbol = expectedObjectType.decl(TermName(property.getPath.substring(pathcut))).asMethod
+  //              val field = instanceMirror.reflectMethod(fieldSymbol)
+  //              fieldValue = field()
+  //            } catch {
+  //              case t: ScalaReflectionException => None
+  //            }
+  //        }
+  //
+  //        try {
+  //          fabutAssert.fabutTest.customAssertEquals(fieldValue, property.asInstanceOf[Property].value)
+  //        } catch {
+  //          case e: AssertionError => {
+  //            report.addPropertiesExceptionMessage(property.getPath, property.asInstanceOf[Property].value, fieldValue)
+  //          }
+  //        }
+  //    }
+  //    uncheckedExpectedObjectProperties
+  //
+  //  }
 
   /**
    * Creates copy of given object with empty properties
@@ -328,30 +348,33 @@ object ReflectionUtil {
    * @param objectTypeOption
    *
    */
-  def createEmptyCopy(objectInstance: Any, objectTypeOption: Option[Type]): Any = {
+  def createEmptyCopy(objectInstance: Any, objectTypeOption: Option[Type]): Option[Any] = {
 
-    if (objectTypeOption == None) return Nil
+    if (objectTypeOption == None) throw new CopyException("")
 
-    try {
+    val objectType = objectTypeOption.get
+    val classSymbol = objectType.typeSymbol.asClass
+    val classMirror = classLoaderMirror.reflectClass(classSymbol)
 
-      val objectType = objectTypeOption.get
-      val classSymbol = objectType.typeSymbol.asClass
-      val classMirror = classLoaderMirror.reflectClass(classSymbol)
+    val constructorsList = objectType.decl(termNames.CONSTRUCTOR).asTerm.alternatives.collect {
+      case constructor: MethodSymbol if constructor.paramLists.head.size == 1 || constructor.paramLists.head.size == 0 =>
+        constructor
+    }.sortBy { constructor => constructor.paramLists.head.size }
 
-      val constructorsList = objectType.decl(termNames.CONSTRUCTOR).asTerm.alternatives.collect {
-        case constructor: MethodSymbol if constructor.paramLists.head.size == 1 || constructor.paramLists.head.size == 0 =>
-          constructor
-      }.sortBy { constructor => constructor.paramLists.head.size }
-
+    if (constructorsList.nonEmpty) {
       val constructor = constructorsList.head
       val paramSize = constructor.paramLists.head.size
       val reflectConstructor = classMirror.reflectConstructor(constructor)
 
-      reflectConstructor()
-
-    } catch {
-      case e: NoSuchElementException => println(s"TODO - add to report that default constructor or copy constuctor is missing in ${objectInstance}")
+      Some(reflectConstructor())
+    } else {
+      throw new CopyException("Default or copy constructor is missing")
     }
+
+  }
+
+  def getIdValue(entity: Any): Any = {
+    getFieldValueFromGetter("id", entity, getObjectType(entity, ENTITY_TYPE)).get
   }
 
   /**
@@ -401,22 +424,13 @@ object ReflectionUtil {
    *  @return copied object
    *
    */
-  def createCopy(originalObject: Any): Any = {
-    def loop(originalObject: Any, copiedObject: Any, checkedObjectsMap: Map[Any, Int]): Any = {
+  def createCopyc(originalObject: Any): Option[Any] = {
+    def loop(originalObject: Any, copiedObject: Any, checkedObjectsMap: Map[Any, Int]): Option[Any] = {
 
-      var assertableType: AssertableType = null
-
-      getValueType(originalObject) match {
-        case ENTITY_TYPE =>
-          assertableType = ENTITY_TYPE
-        case IGNORED_TYPE =>
-          assertableType = IGNORED_TYPE
-        case COMPLEX_TYPE =>
-          assertableType = COMPLEX_TYPE
-      }
+      val assertableType: AssertableType = getValueType(originalObject)
 
       val checkedObjects = checkedObjectsMap ++ Map(originalObject -> 0)
-      val objectProperties = getObjectProperties(originalObject, "", getObjectType(originalObject, assertableType))
+      val objectProperties = getObjectProperties(originalObject, getObjectType(originalObject, assertableType))
 
       if (objectProperties nonEmpty) {
 
@@ -440,7 +454,7 @@ object ReflectionUtil {
                 println("TODO tralalal")
               case COMPLEX_TYPE => {
                 if (checkedObjects.contains(nodeObject))
-                  return copiedObject
+                  return Some(copiedObject)
                 else {
                   val newEmptyObjectInstance = createEmptyCopy(nodeObject, getObjectType(nodeObject, COMPLEX_TYPE))
                   setField(nodeName, newEmptyObjectInstance, copiedObject, getObjectType(copiedObject, COMPLEX_TYPE).get)
@@ -450,11 +464,95 @@ object ReflectionUtil {
               }
             }
         }
-        return copiedObject
+
       }
+      return Some(copiedObject)
     }
 
-    val emptyCopy = createEmptyCopy(originalObject, getObjectType(originalObject, COMPLEX_TYPE))
+    val emptyCopy = createEmptyCopy(originalObject, getObjectType(originalObject, getValueType(originalObject))).get
+
     loop(originalObject, emptyCopy, Map())
   }
+
+  def createCopy(objectInstance: Any): Any = {
+
+    if (objectInstance == null) {
+      return null
+    }
+    getValueType(objectInstance) match {
+      case SCALA_LIST_TYPE =>
+        return copyList(objectInstance.asInstanceOf[List[_]])
+      case SCALA_MAP_TYPE =>
+        return copyMap(objectInstance.asInstanceOf[Map[_, _]])
+      case _ =>
+        return createCopyObject(objectInstance, new NodesList).get
+    }
+  }
+
+  def createCopyObject(objectInstance: Any, nodesList: NodesList): Option[Any] = {
+
+    var flag = 0
+    val copy = nodesList.getExpected(objectInstance).getOrElse {
+      flag = 1
+      createEmptyCopy(objectInstance, getObjectType(objectInstance, getValueType(objectInstance)))
+        .getOrElse {
+          throw new CopyException(objectInstance.getClass.getSimpleName)
+          return None
+        }
+    }
+
+    if (flag == 0) {
+      return Some(copy)
+    }
+
+    nodesList.addPair(copy, objectInstance)
+    val fieldsForCopy = getObjectProperties(objectInstance, getObjectType(objectInstance, getValueType(objectInstance)))
+
+    fieldsForCopy.foreach {
+      field =>
+        {
+          val copiedProperty = copyProperty(field._2.value, nodesList)
+          copyValueTo(objectInstance, field._1, copiedProperty, copy)
+        }
+    }
+    return Some(copy)
+  }
+
+  def copyProperty(propertyForCopy: Any, nodesList: NodesList): Any = {
+
+    if (propertyForCopy == null) {
+      return null
+    }
+    getValueType(propertyForCopy) match {
+      case COMPLEX_TYPE =>
+        return createCopyObject(propertyForCopy, nodesList).get
+      case SCALA_LIST_TYPE =>
+        return copyList(propertyForCopy.asInstanceOf[List[_]])
+      case SCALA_MAP_TYPE =>
+        return copyMap(propertyForCopy.asInstanceOf[Map[_, _]])
+      case _ =>
+        return propertyForCopy
+    }
+  }
+
+  def copyList(list: List[_]): List[Any] = {
+    list.map { property => copyProperty(property, new NodesList) }
+  }
+
+  def copyMap(mapForCopy: Map[_, _]): Map[Any, Any] = {
+    mapForCopy.map { case (key, value) => (key, copyProperty(value, new NodesList)) }
+  }
+
+  def isComplexType(objectInstance: Any): Boolean = {
+    getValueType(objectInstance) == COMPLEX_TYPE
+  }
+
+  def copyValueTo(objectInstance: Any, propertyName: String, copiedProperty: Any, copiedObject: Any): Boolean = {
+
+    val objectType = getObjectType(copiedObject, getValueType(copiedObject)).getOrElse {
+      return false
+    }
+    return setField(propertyName, copiedProperty, copiedObject, objectType)
+  }
+
 }

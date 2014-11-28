@@ -1,18 +1,17 @@
 package eu.execom.fabut.model
 
-class EntityTierTwoType extends TierOneType {
+class EntityTierTwoType(var property: String, var _subProperty: EntityTierOneType, var _id: Int) extends TierOneType(property) {
 
-  var a_id: Int = 0
-  var a_subProperty: EntityTierOneType = null
-
-  def id: Int = a_id
+  def id: Int = _id
 
   def id_=(id: Int) =
-    a_id = id
+    _id = id
 
-  def subProperty: EntityTierOneType = a_subProperty
+  def subProperty: EntityTierOneType = _subProperty
 
   def subProperty_=(subProperty: EntityTierOneType) =
-    a_subProperty = subProperty
+    _subProperty = subProperty
+
+  def this() = this("", null, 0)
 
 }

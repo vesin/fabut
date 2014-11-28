@@ -6,6 +6,6 @@ case class ObjectWithComplexProperty(
   var complexObject: ObjectWithSimpleProperties,
   var list: List[Any]) {
 
-  def this() = this(0, false, null, List())
+  def this() = this(0, false, null, null)
 }
 

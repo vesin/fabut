@@ -9,21 +9,61 @@ import eu.execom.fabut.property.IgnoredProperty
 import eu.execom.fabut.property.NullProperty
 import eu.execom.fabut.property.NotNullProperty
 import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.util.ReflectionUtil._
+import eu.execom.fabut.property.IgnoredProperty
+import eu.execom.fabut.property.NullProperty
+import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.util.ConversionUtil._
+import eu.execom.fabut.enums.AssertType._
+import junit.framework.AssertionFailedError
 
 object Fabut {
 
-  var fabutAssert: FabutRepositoryAssert = new FabutRepositoryAssert((new AbstractFabutObjectAssertTest).asInstanceOf[IFabutTest])
+  val ASSERT_SUCCESS = true
+  var assertType = UNSUPPORTED_ASSERT
+
+  var fabutAssert: FabutRepositoryAssert = null //new FabutRepositoryAssert((new AbstractFabutRepositoryAssertTest).asInstanceOf[IFabutRepositoryTest])
 
   def beforeTest(testInstance: Any) {
-    /**
-     *  TODO1
-     */
+    assertType = getAssertType(testInstance)
+    assertType match {
+      case OBJECT_ASSERT =>
+        fabutAssert = new FabutRepositoryAssert(testInstance.asInstanceOf[IFabutTest], assertType)
+      case REPOSITORY_ASSERT =>
+        fabutAssert = new FabutRepositoryAssert(testInstance.asInstanceOf[IFabutRepositoryTest], assertType)
+      case _ =>
+        throw new IllegalArgumentException("This test must implement IFabutAssert or IRepositoryFabutAssert")
+    }
   }
 
   def afterTest {
-    /**
-     *  TODO2
-     */
+
+    var ok = true
+
+    if (!fabutAssert.assertParameterSnapshot(new FabutReport)) {
+      ok = false
+    }
+
+    if (assertType == REPOSITORY_ASSERT) {
+      //      if()
+    }
+  }
+
+  def takeSnapshot(parameters: Any*) = {
+    checkValidInit
+    if (assertType == UNSUPPORTED_ASSERT) {
+      throw new IllegalArgumentException("Test must implement IRepositoryFabutAssert")
+    }
+
+    if (!fabutAssert.takeSnapshot(new FabutReport, parameters)) {
+      throw new AssertionFailedError("TODO report.getMessage")
+    }
+
+  }
+
+  def checkValidInit = {
+    if (fabutAssert == null)
+      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
   }
   /**
    *  Asserts object with expected properties
@@ -36,8 +76,9 @@ object Fabut {
    */
   def assertObject(objectInstance: Any, properties: IProperty*) {
 
+    // val changedProperties = createExpectedPropertiesMap(properties)
     val report = new FabutReport
-    fabutAssert.assert(report, Nil, objectInstance, createExpectedPropertiesMap(properties))
+    //    fabutAssert.assert(report, Nil, objectInstance, createExpectedPropertiesMap(properties))
 
     report.result match {
       case ASSERT_SUCCESS => ()
@@ -70,13 +111,17 @@ object Fabut {
     if (actualObject != null && expectedObject != null) {
 
       if (actualObject.getClass.equals(expectedObject.getClass)) {
+
         var properties: Map[String, IProperty] = Map()
 
         if (propertiesList.nonEmpty) {
           properties = createExpectedPropertiesMap(propertiesList)
+        } else {
+          properties = Map()
         }
 
-        fabutAssert.assert(report, expectedObject, actualObject, properties)
+        //        fabutAssert.assertObjects(report, expectedObject, actualObject, properties)
+
       } else {
         report.addTypeMissmatchException(expectedObject, actualObject)
       }
@@ -99,7 +144,8 @@ object Fabut {
    *
    */
   def createExpectedPropertiesMap(properties: Seq[IProperty]): Map[String, IProperty] = {
-    properties.map { property => (property.getPath, property) } toMap
+    Map()
+    //    properties.map { property => (property.getPath, property) } toMap
   }
 
   /**
@@ -113,12 +159,25 @@ object Fabut {
    *  @return property object
    *
    */
-  def value(namePath: String, expectedValue: Any): IProperty = Property(namePath, expectedValue)
+  def value(namePath: String, expectedValue: Any): Property = Property(namePath, expectedValue)
 
   def ignored(namePath: String): IgnoredProperty = IgnoredProperty(namePath)
 
   def isNull(namePath: String): NullProperty = NullProperty(namePath)
 
   def notNull(namePath: String): NotNullProperty = NotNullProperty(namePath)
+
+  def ignored(paths: Seq[String]): Seq[IgnoredProperty] = {
+    paths.map(path => IgnoredProperty(path)).toSeq
+  }
+
+  def isNull(paths: Seq[String]): Seq[NullProperty] = {
+    paths.map(path => NullProperty(path)).toSeq
+  }
+
+  def notNull(paths: Seq[String]): Seq[NotNullProperty] = {
+    paths.map(path => NotNullProperty(path)).toSeq
+  }
+
 }
 

@@ -1,5 +1,5 @@
 package eu.execom.fabut.model
 
-class IgnoredType extends Type {
+case class IgnoredType(private var _property: String) extends Type {
 
 }

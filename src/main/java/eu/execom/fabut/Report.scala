@@ -1,8 +1,9 @@
 package eu.execom.fabut
 
-import eu.execom.fabut.enums.AssertType._
-
 class FabutReport() {
+
+  val ASSERT_SUCCESS = true
+  val ASSERT_FAILED = false
 
   var _result = ASSERT_SUCCESS
   var _message: String = "\nReport:"

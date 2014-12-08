@@ -12,14 +12,13 @@ class FabutReportBuilder(newMessage: String) {
   val COLON = ":"
 
   val builder: StringBuilder = new StringBuilder()
+  var assertDepth: Integer = 0
 
   if (!StringUtils.isEmpty(newMessage)) {
     builder.append(NEW_LINE)
     builder.append(newMessage)
 
   }
-
-  var assertDepth: Integer = 0
 
   def this() = this("")
   def message: String = builder.toString

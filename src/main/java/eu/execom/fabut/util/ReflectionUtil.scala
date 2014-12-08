@@ -79,13 +79,12 @@ object ReflectionUtil {
         typeName =>
           (typeName.toString == objectValue.getClass.getCanonicalName)) match {
           case n: Some[Type] =>
-            return Some(n.get)
+            Some(n.get)
           case _ =>
-            return None
+            None
         }
     } catch {
-      case e: NoSuchElementException =>
-        return None
+      case e: NoSuchElementException => None
     }
 
   }
@@ -134,24 +133,24 @@ object ReflectionUtil {
   }
 
   /** testing */
-  def pullMembers[T: TypeTag](objectInstance: T)(implicit ct: ClassTag[T]) {
-
-    val objectType = typeOf[T]
-
-    val classMirror = objectType.typeSymbol.asClass
-    val im = classLoaderMirror.reflect(objectInstance)
-
-    val terms = objectType.members.collect({ case x if x.isTerm => x.asTerm }).filter(_.isGetter)
-    //val vars = terms.filter(field => field.isGetter && terms.exists(field.setter == _)).map(_.name.toString)
-    val all = objectType.members
-    val getters = objectType.members.collect {
-      case symbol: TermSymbol => if (symbol.isAccessor) symbol
-    }
-    //
-    //    println(terms.foreach { g => println(g) })
-    //    println(objectType.baseClasses)
-
-  }
+  //  def pullMembers[T: TypeTag](objectInstance: T)(implicit ct: ClassTag[T]) {
+  //
+  //    val objectType = typeOf[T]
+  //
+  //    val classMirror = objectType.typeSymbol.asClass
+  //    val im = classLoaderMirror.reflect(objectInstance)
+  //
+  //    val terms = objectType.members.collect({ case x if x.isTerm => x.asTerm }).filter(_.isGetter)
+  //    //val vars = terms.filter(field => field.isGetter && terms.exists(field.setter == _)).map(_.name.toString)
+  //    val all = objectType.members
+  //    val getters = objectType.members.collect {
+  //      case symbol: TermSymbol => if (symbol.isAccessor) symbol
+  //    }
+  //    //
+  //    //    println(terms.foreach { g => println(g) })
+  //    //    println(objectType.baseClasses)
+  //
+  //  }
 
   def extractAllGetMethods(classType: Type): List[TermSymbol] = {
 
@@ -165,18 +164,14 @@ object ReflectionUtil {
         val membersOfClazz = terms filter { member: TermSymbol => member.isGetter && isVariable(member, terms.toList) }
         membersOfClazz foreach { member => allMembers += member }
     }
-    return allMembers.toList
+    allMembers.toList
   }
 
   def isVariable(termMember: TermSymbol, termMembers: List[TermSymbol]): Boolean = {
     val variable = termMembers.exists {
       member => (member.name.toString.contains(termMember.name.toString) && member.isVar)
     }
-    if (variable) {
-      true
-    } else {
-      false
-    }
+    if (variable) true else false
   }
 
   /**
@@ -231,7 +226,7 @@ object ReflectionUtil {
       Some(field())
     } catch {
       case t: ScalaReflectionException =>
-        return None
+        None
     }
   }
 
@@ -264,7 +259,7 @@ object ReflectionUtil {
       case e: IllegalArgumentException => println(e.getMessage())
       case e: ScalaReflectionException => println(e.getMessage() + " " + fieldName) // throw new ili sta?
     }
-    return false
+    false
   }
 
   /**
@@ -321,11 +316,11 @@ object ReflectionUtil {
     }
     getAssertableType(objectInstance) match {
       case SCALA_LIST_TYPE =>
-        return copyList(objectInstance.asInstanceOf[List[_]])
+        copyList(objectInstance.asInstanceOf[List[_]])
       case SCALA_MAP_TYPE =>
-        return copyMap(objectInstance.asInstanceOf[Map[_, _]])
+        copyMap(objectInstance.asInstanceOf[Map[_, _]])
       case _ =>
-        return createCopyObject(objectInstance, new NodesList).get
+        createCopyObject(objectInstance, new NodesList).get
     }
   }
 
@@ -350,12 +345,10 @@ object ReflectionUtil {
 
     fieldsForCopy.foreach {
       field =>
-        {
-          val copiedProperty = copyProperty(field._2.value, nodesList)
-          copyValueTo(objectInstance, field._1, copiedProperty, copy)
-        }
+        val copiedProperty = copyProperty(field._2.value, nodesList)
+        copyValueTo(objectInstance, field._1, copiedProperty, copy)
     }
-    return Some(copy)
+    Some(copy)
   }
 
   def copyProperty(propertyForCopy: Any, nodesList: NodesList): Any = {
@@ -365,13 +358,13 @@ object ReflectionUtil {
     }
     getAssertableType(propertyForCopy) match {
       case COMPLEX_TYPE =>
-        return createCopyObject(propertyForCopy, nodesList).get
+        createCopyObject(propertyForCopy, nodesList).get
       case SCALA_LIST_TYPE =>
-        return copyList(propertyForCopy.asInstanceOf[List[_]])
+        copyList(propertyForCopy.asInstanceOf[List[_]])
       case SCALA_MAP_TYPE =>
-        return copyMap(propertyForCopy.asInstanceOf[Map[_, _]])
+        copyMap(propertyForCopy.asInstanceOf[Map[_, _]])
       case _ =>
-        return propertyForCopy
+        propertyForCopy
     }
   }
 
@@ -392,7 +385,7 @@ object ReflectionUtil {
     val objectType = getObjectType(copiedObject, getAssertableType(copiedObject)).getOrElse {
       return false
     }
-    return setField(propertyName, copiedProperty, copiedObject, objectType)
+    setField(propertyName, copiedProperty, copiedObject, objectType)
   }
 
 }

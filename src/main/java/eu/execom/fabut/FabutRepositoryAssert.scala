@@ -29,11 +29,11 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
 
   setFabutAssert(this)
 
-  override def assertEntityPair(report: FabutReportBuilder, propertyName: String, pair: AssertPair, properties: Map[String, IProperty], nodesList: NodesList): Boolean = {
+  override def assertEntityPair(propertyName: String, pair: AssertPair, properties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReportBuilder): Boolean = {
 
     assertType match {
       case OBJECT_ASSERT =>
-        super.assertEntityPair(report, propertyName, pair, properties, nodesList)
+        super.assertEntityPair(propertyName, pair, properties, nodesList)(report)
       case REPOSITORY_ASSERT if (pair.isProperty) =>
         assertEntityById(propertyName, pair)(report)
       case REPOSITORY_ASSERT =>
@@ -41,12 +41,12 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
     }
   }
 
-  override def takeSnapshot(report: FabutReportBuilder, parameters: Seq[Any]): Boolean = {
+  override def takeSnapshot(parameters: Seq[Any])(implicit report: FabutReportBuilder): Boolean = {
 
     initDbSnapshot
 
     val isParameterSnapshotOk = if (parameters.nonEmpty) {
-      super.takeSnapshot(report, parameters)
+      super.takeSnapshot(parameters)
     } else {
       ASSERTED
     }
@@ -130,7 +130,7 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
         return ASSERT_FAIL
     }
 
-    assertObjects(report, expected, entity, properties)
+    assertObjects(expected, entity, properties)(report)
   }
 
   def assertEntityAsDeleted(report: FabutReportBuilder, entity: Any): Boolean = {
@@ -256,13 +256,13 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
     beforeIdsCopy.foreach {
       id =>
         if (!beforeEntities(id).asserted) {
-          ok &= assertObjects(report, beforeEntities(id).entity, afterEntities(id), Map())
+          ok &= assertObjects(beforeEntities(id).entity, afterEntities(id), Map())
         }
     }
     ok
   }
 
-  def assertDbSnapshot(report: FabutReportBuilder): Boolean = {
+  def assertDbSnapshot(implicit report: FabutReportBuilder): Boolean = {
 
     var ok = ASSERTED
     dbSnapshot.foreach {
@@ -272,9 +272,9 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
           val beforeIds = snapshotEntry._2.keySet.toSet
           val afterIds = afterEntities.keySet
 
-          ok &= checkNotExistingInAfterDbState(beforeIds, afterIds, snapshotEntry._2.toMap)(report)
-          ok &= checkNewToAfterDbState(beforeIds, afterIds, afterEntities)(report)
-          ok &= assertDbSnapshotWithAfterState(beforeIds, afterIds, snapshotEntry._2.toMap, afterEntities)(report)
+          ok &= checkNotExistingInAfterDbState(beforeIds, afterIds, snapshotEntry._2.toMap)
+          ok &= checkNewToAfterDbState(beforeIds, afterIds, afterEntities)
+          ok &= assertDbSnapshotWithAfterState(beforeIds, afterIds, snapshotEntry._2.toMap, afterEntities)
         }
     }
     ok

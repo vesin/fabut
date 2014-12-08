@@ -26,10 +26,12 @@ object Fabut {
   val ASSERT_SUCCESS = true
   var assertType = UNSUPPORTED_ASSERT
 
-  var fabutAssert: FabutRepositoryAssert = null //new FabutRepositoryAssert((new AbstractFabutRepositoryAssertTest).asInstanceOf[IFabutRepositoryTest])
+  var fabutAssert: FabutRepositoryAssert = null
 
   def beforeTest(testInstance: Any) {
+
     assertType = getAssertType(testInstance)
+
     assertType match {
       case OBJECT_ASSERT =>
         fabutAssert = new FabutRepositoryAssert(testInstance.asInstanceOf[IFabutTest], assertType)
@@ -75,7 +77,7 @@ object Fabut {
     }
 
     val report = new FabutReportBuilder
-    if (!fabutAssert.takeSnapshot(report, parameters)) {
+    if (!fabutAssert.takeSnapshot(parameters)(report)) {
       throw new AssertionFailedError(report.message)
     }
 
@@ -96,7 +98,7 @@ object Fabut {
 
     val changedProperties = createExpectedPropertiesMap(properties)
     val report = new FabutReportBuilder
-    if (!fabutAssert.assertObjectWithProperties(report, objectInstance, changedProperties)) {
+    if (!fabutAssert.assertObjectWithProperties(objectInstance, changedProperties)(report)) {
       throw new AssertionError(report.message)
     }
   }
@@ -138,7 +140,7 @@ object Fabut {
         properties = Map()
       }
 
-      if (!fabutAssert.assertObjects(report, expectedObject, actualObject, properties)) {
+      if (!fabutAssert.assertObjects(expectedObject, actualObject, properties)(report)) {
         throw new AssertionFailedError(report.message)
       }
 

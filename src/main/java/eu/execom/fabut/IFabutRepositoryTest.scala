@@ -6,5 +6,5 @@ trait IFabutRepositoryTest extends IFabutTest {
   def findAll(clazz: Type): List[Any]
   def findById(entityClass: Type, id: Any): Any
 
-  def getEntityTypes(): List[Type]
+  def entityTypes: List[Type]
 }

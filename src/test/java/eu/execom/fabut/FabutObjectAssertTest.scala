@@ -46,26 +46,24 @@ import eu.execom.fabut.pair.AssertPair
 import eu.execom.fabut.model.TierThreeType
 import eu.execom.fabut.model.TierFiveType
 import eu.execom.fabut.model.TierFourType
+import eu.execom.fabut.pair.AssertPair
 
 class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
-
-  //	setup
-  //    method
-  //	assert
 
   val TEST = "test"
   val DOT = "."
   val TIER_ONE_TYPE_PROPERTY = "_property"
   val TIER_TWO_TYPE_PROPERTY = "_property._property"
   val LIST_PROPERTY = "_property"
+  val EMPTY_STRING = ""
 
   @Test
   def testAssertObjectWithPropertiesIgnoreType = {
     //	setup
-    val ignoredType = new IgnoredType(TEST)
+    val ignoredType = IgnoredType(TEST)
 
     //	method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, ignoredType, Map(), new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, ignoredType, Map())
 
     //	assert
     assertTrue(assertResult)
@@ -77,7 +75,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val noGettersType = new NoGettersType(TEST)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, noGettersType, Map(), new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, noGettersType, Map())
 
     //	assert
     assertTrue(assertResult)
@@ -89,7 +87,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val tierOneType = new TierOneType(TEST)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, Map(), new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, Map())
 
     //	assert
     assertFalse(assertResult)
@@ -104,7 +102,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val tierOneType = new EmptyClass
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, Map(), new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, Map())
 
     //	assert
     assertTrue(assertResult)
@@ -113,13 +111,13 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesNotNullPropertyActuallyNull() = {
     //	setup
-    val tierOneType = TierOneType(null)
+    val tierOneType = new TierOneType(null)
     val notNullProperty = notNull(TIER_ONE_TYPE_PROPERTY)
     val ignoredProperty = ignored("PROPERTY")
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> notNullProperty, "PROPERTY" -> ignoredProperty)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertFalse(assertResult)
@@ -128,12 +126,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesNotNullProperty() = {
     //	setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     val notNullProperty = Fabut.notNull(TIER_ONE_TYPE_PROPERTY)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> notNullProperty)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertTrue(assertResult)
@@ -142,12 +140,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesNullPropertyActuallyNotNull() = {
     //	setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     val isNullProperty = Fabut.isNull(TIER_ONE_TYPE_PROPERTY)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> isNullProperty)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertFalse(assertResult)
@@ -156,11 +154,11 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesNullProperty() = {
     //	setup
-    val tierOneType = TierOneType(null)
+    val tierOneType = new TierOneType(null)
     val isNullProperty = Fabut.isNull(TIER_ONE_TYPE_PROPERTY)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> isNullProperty)
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertTrue(assertResult)
@@ -169,12 +167,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesIgnoredProperty() = {
     //	setup
-    val tierOneType = TierOneType(null)
+    val tierOneType = new TierOneType(null)
     val ignoredProperty = Fabut.ignored(TIER_ONE_TYPE_PROPERTY)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> ignoredProperty)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertTrue(assertResult)
@@ -183,12 +181,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesChangedPropertyExpectedNullActualNull() = {
     //	setup
-    val tierOneType = TierOneType(null)
+    val tierOneType = new TierOneType(null)
     val valueProperty = Fabut.value(TIER_ONE_TYPE_PROPERTY, null)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> valueProperty)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertTrue(assertResult)
@@ -197,11 +195,11 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesChangedPropertyActualNull() = {
     //	setup
-    val tierOneType = TierOneType(null)
+    val tierOneType = new TierOneType(null)
     val property = Fabut.value(TIER_ONE_TYPE_PROPERTY, TEST)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> property)
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertFalse(assertResult)
@@ -210,12 +208,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesChangedPropertyExpectedNull() = {
     //	setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     val property = Fabut.value(TIER_ONE_TYPE_PROPERTY, null)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> property)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertFalse(assertResult)
@@ -224,12 +222,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesChangedPropertyEqual = {
     //	setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     val property = Fabut.value(TIER_ONE_TYPE_PROPERTY, TEST)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> property)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertTrue(assertResult)
@@ -238,12 +236,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectWithPropertiesChangedPropertyNotEqual = {
     //	setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     val property = Fabut.value(TIER_ONE_TYPE_PROPERTY, TEST + TEST)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> property)
 
     //  method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierOneType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierOneType, properties)
 
     //	assert
     assertFalse(assertResult)
@@ -251,14 +249,15 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
   @Test
   def testAssertObjectsWithPropertiesTierTwoTypeChangedPropertyEqual = {
-
     //	setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     val tierTwoType = new TierTwoType(tierOneType)
     val property = value(TIER_TWO_TYPE_PROPERTY, TEST)
     val properties = Map(TIER_TWO_TYPE_PROPERTY -> property)
+
     //	method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierTwoType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierTwoType, properties)
+
     //    assert
     assertTrue(assertResult)
   }
@@ -266,34 +265,35 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectsWithPropertiesTierTwoTypeChangedPropertyNotEqual = {
     //	  setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     val tierTwoType = new TierTwoType(tierOneType)
     val property = value(TIER_TWO_TYPE_PROPERTY, TEST + TEST)
-    val properties = Map(TIER_ONE_TYPE_PROPERTY -> property)
+    val properties = Map(TIER_TWO_TYPE_PROPERTY -> property)
+
     //    method
-    val report = new FabutReport
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(report, tierTwoType, properties, new NodesList)
+    val report = new FabutReportBuilder
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(report, tierTwoType, properties)
+
     //    assert
     assertFalse(assertResult)
   }
 
   @Test
   def testAssertObjectsWithPropertiesTierTwoTypeWithIgnoredTierOneType = {
-
+    //	setup
     val ignoredType = new IgnoredType(TEST + TEST)
     val tierTwoTypeWithIgnoredType = new TierTwoTypeWithIgnoredType(ignoredType)
     val property = value(TIER_TWO_TYPE_PROPERTY, TEST)
     val properties = Map(TIER_ONE_TYPE_PROPERTY -> property)
-
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, tierTwoTypeWithIgnoredType, properties, new NodesList)
-
+    //    method
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, tierTwoTypeWithIgnoredType, properties)
+    //    assert
     assertTrue(assertResult)
 
   }
 
   @Test
   def testAssertObjectsWithPropertiesComplexObjectEqualValues = {
-
     //	setup
     val actualInsideSimple = ObjectInsideSimpleProperty("3301")
     val a1 = ObjectInsideSimpleProperty("3301")
@@ -312,7 +312,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
       "list" -> Property("list", List(e1, e2)))
 
     //	method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, actual, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, actual, properties)
 
     //	assert
     assertTrue(assertResult)
@@ -320,7 +320,6 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
   @Test
   def testAssertObjectWithComplexPropertiesAndComplexListEqual = {
-
     //    setup
     val actualInsideSimple = ObjectInsideSimpleProperty("property")
     val expectedInsideSimple = ObjectInsideSimpleProperty("property")
@@ -328,15 +327,17 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val e1 = ObjectInsideSimpleProperty("3301")
     val a2 = ObjectInsideSimpleProperty("200")
     val e2 = ObjectInsideSimpleProperty("200")
+    val a3 = ObjectInsideSimpleProperty("200")
+    val e3 = ObjectInsideSimpleProperty("200")
     val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, actualInsideSimple)
     val expectedSimpleObject = ObjectWithSimpleProperties("mika", 22, expectedInsideSimple)
-    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(a1, a2, a1, actualInsideSimple))
-    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(e1, e2, e1, expectedInsideSimple))
+    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(a1, a2, a3, actualInsideSimple))
+    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(e1, e2, e3, expectedInsideSimple))
 
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected, actual, Map())
-    //    assert
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected, actual, Map())
 
+    //    assert
     assertTrue(assertResult)
   }
 
@@ -345,8 +346,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actualList = List(1, 2, 3)
     val expectedList = List(1, 2, 3)
+
     //    method
-    val assertResult = fabutObjectAssert.assertListElements(0, actualList, expectedList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertListElements(EMPTY_STRING, 0, actualList, expectedList)(new FabutReportBuilder)
+
     //    assert
     assertTrue(assertResult)
   }
@@ -356,8 +359,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actualList = List(3, 2, 5, 8)
     val expectedList = List(4, 3, 6, 7)
+
     //    method	
-    val assertResult = fabutObjectAssert.assertListElements(0, actualList, expectedList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertListElements(EMPTY_STRING, 0, actualList, expectedList)(new FabutReportBuilder)
+
     //    assert
     assertFalse(assertResult)
   }
@@ -367,8 +372,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actualList = List(3, 2, 3)
     val expectedList = List(4, 3, 6, 7)
+
     //    method
-    val assertResult = fabutObjectAssert.assertListElements(0, actualList, expectedList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertListElements(EMPTY_STRING, 0, actualList, expectedList)(new FabutReportBuilder)
+
     //    assert
     assertFalse(assertResult)
   }
@@ -378,8 +385,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actualList = List(3, 22l, "pera", true)
     val expectedList = List(3, 22l, "pera", true)
+
     //    method
-    val assertResult = fabutObjectAssert.assertListElements(0, actualList, expectedList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertListElements(EMPTY_STRING, 0, actualList, expectedList)(new FabutReportBuilder)
+
     //    assert
     assertTrue(assertResult)
 
@@ -391,8 +400,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val listType = new ListType(List(6, 5, 4, 3, 2, 1))
     val property = value(LIST_PROPERTY, List(6, 5, 4, 3, 2, 1))
     val properties = Map(LIST_PROPERTY -> property)
+
     //    method
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, listType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, listType, properties)
+
     //    assert
     assertTrue(assertResult)
   }
@@ -403,9 +414,11 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val listType = new ListType(List(6, 5, 0, 1, 2, 1))
     val property = value(LIST_PROPERTY, List(6, 5, 4, 3, 2, 1))
     val properties = Map(LIST_PROPERTY -> property)
+
     //    method
-    val report = new FabutReport
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(report, listType, properties, new NodesList)
+    val report = new FabutReportBuilder
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(report, listType, properties)
+
     //    assert
     assertFalse(assertResult)
 
@@ -416,8 +429,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actualMap: Map[Any, Any] = Map(1 -> 10, 2 -> 20)
     val expectedMap: Map[Any, Any] = Map(1 -> 10, 2 -> 20, 3 -> 30)
+
     //    method
-    val assertResult = fabutObjectAssert.assertMapElements(actualMap, expectedMap)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertMapElements(EMPTY_STRING, actualMap, expectedMap)(new FabutReportBuilder)
+
     //    assert
     assertFalse(assertResult)
   }
@@ -426,8 +441,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	setup
     val actualMap: Map[Any, Any] = Map(1 -> 10, 3 -> 30, 2 -> 20)
     val expectedMap: Map[Any, Any] = Map(1 -> 10, 2 -> 20, 3 -> 30)
+
     //    method
-    val assertResult = fabutObjectAssert.assertMapElements(actualMap, expectedMap)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertMapElements(EMPTY_STRING, actualMap, expectedMap)(new FabutReportBuilder)
+
     //    assert
     assertTrue(assertResult)
   }
@@ -436,8 +453,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	setup
     val actualMap: Map[Any, Any] = Map(1 -> 10, 3 -> 21, 2 -> 31)
     val expectedMap: Map[Any, Any] = Map(1 -> 10, 2 -> 20, 3 -> 30)
+
     //    method
-    val assertResult = fabutObjectAssert.assertMapElements(actualMap, expectedMap)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertMapElements(EMPTY_STRING, actualMap, expectedMap)(new FabutReportBuilder)
+
     //    assert
     assertFalse(assertResult)
   }
@@ -447,10 +466,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertMapElementsTierOneTypeValuesEqual = {
     //	setup
-    val actualMap: Map[Any, Any] = Map(1 -> TierOneType(TEST), 3 -> TierOneType(TEST + TEST + TEST), 2 -> TierOneType(TEST + TEST))
-    val expectedMap: Map[Any, Any] = Map(1 -> TierOneType(TEST), 2 -> TierOneType(TEST + TEST), 3 -> TierOneType(TEST + TEST + TEST))
+    val actualMap: Map[Any, Any] = Map(1 -> new TierOneType(TEST), 3 -> new TierOneType(TEST + TEST + TEST), 2 -> new TierOneType(TEST + TEST))
+    val expectedMap: Map[Any, Any] = Map(1 -> new TierOneType(TEST), 2 -> new TierOneType(TEST + TEST), 3 -> new TierOneType(TEST + TEST + TEST))
+
     //    method
-    val assertResult = fabutObjectAssert.assertMapElements(actualMap, expectedMap)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertMapElements(EMPTY_STRING, actualMap, expectedMap)(new FabutReportBuilder)
+
     //    assert
     assertTrue(assertResult)
   }
@@ -458,29 +479,38 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertMapElementsTierOneTypeValuesNotEqual = {
     //	setup
-    val actualMap: Map[Any, Any] = Map(1 -> TierOneType(TEST + TEST), 3 -> TierOneType(TEST + TEST + TEST), 2 -> TierOneType(TEST + TEST))
-    val expectedMap: Map[Any, Any] = Map(1 -> TierOneType(TEST), 2 -> TierOneType(TEST), 3 -> TierOneType(TEST + TEST + TEST))
+    val actualMap: Map[Any, Any] = Map(1 -> new TierOneType(TEST + TEST), 3 -> new TierOneType(TEST + TEST + TEST), 2 -> new TierOneType(TEST + TEST))
+    val expectedMap: Map[Any, Any] = Map(1 -> new TierOneType(TEST), 2 -> new TierOneType(TEST), 3 -> new TierOneType(TEST + TEST + TEST))
+
     //    method
-    val assertResult = fabutObjectAssert.assertMapElements(actualMap, expectedMap)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertMapElements(EMPTY_STRING, actualMap, expectedMap)(new FabutReportBuilder)
+
     //    assert
     assertFalse(assertResult)
   }
 
   @Test
   def testAssertMapElementsTierOneTypeKeysEqual = {
+    //	setup
+
+    val t1 = new TierOneType(TEST)
+    val t2 = new TierOneType(TEST + TEST)
+    val t3 = new TierOneType(TEST + TEST + TEST)
 
     val actualMap: Map[Any, Any] = Map(
-      TierOneType(TEST) -> TEST,
-      TierOneType(TEST + TEST) -> (TEST + TEST),
-      TierOneType(TEST + TEST + TEST) -> (TEST + TEST + TEST))
+      t1 -> TEST,
+      t2 -> (TEST + TEST),
+      t3 -> (TEST + TEST + TEST))
 
     val expectedMap: Map[Any, Any] = Map(
-      TierOneType(TEST + TEST) -> (TEST + TEST),
-      TierOneType(TEST) -> TEST,
-      TierOneType(TEST + TEST + TEST) -> (TEST + TEST + TEST))
+      t2 -> (TEST + TEST),
+      t1 -> TEST,
+      t3 -> (TEST + TEST + TEST))
 
     //    method
-    val assertResult = fabutObjectAssert.assertMapElements(actualMap, expectedMap)(new FabutReport)
+
+    val report = new FabutReportBuilder
+    val assertResult = fabutObjectAssert.assertMapElements(EMPTY_STRING, actualMap, expectedMap)(report)
     //    assert
     assertTrue(assertResult)
   }
@@ -490,11 +520,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actual = new TierOneType(TEST)
     val expected = new TierOneType(TEST)
+
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected, actual, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected, actual, Map())
+
     //    assert
     assertTrue(assertResult)
-
   }
 
   @Test
@@ -502,8 +533,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actual = new TierOneType(TEST)
     val expected = new TierOneType(TEST + TEST)
+
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected, actual, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected, actual, Map())
+
     //    assert
     assertFalse(assertResult)
   }
@@ -513,8 +546,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actual = new TierTwoType(new TierOneType(TEST))
     val expected = new TierTwoType(new TierOneType(TEST))
+
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected, actual, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected, actual, Map())
+
     //    assert  
     assertTrue(assertResult)
   }
@@ -524,8 +559,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val actual = new TierTwoType(new TierOneType(TEST + TEST))
     val expected = new TierTwoType(new TierOneType(TEST))
+
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected, actual, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected, actual, Map())
+
     //    assert  
     assertFalse(assertResult)
   }
@@ -535,31 +572,30 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //    setup
     val actual = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("marko"))
     val expected = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("marko"))
+
     //	  method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected, actual, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected, actual, Map())
+
     //	  assert
     assertTrue(assertResult)
   }
 
   @Test
   def testAssertObjectWithSimplePropertiesNotEqual() = {
-
     //    setup
     val actual = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("markoooo"))
     val expected = ObjectWithSimpleProperties("pera", 43, ObjectInsideSimpleProperty("marko"))
 
     //	  method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected, actual, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected, actual, Map())
 
     //	  assert
     assertFalse(assertResult)
   }
 
-  // recursive graphs
-
   @Test
   def testAssertObjectsTrivialClassesWithRecursiveGraphsEqual = {
-
+    //	setup
     val actual_a = new A(null, "mika")
     val actual_b = new B(actual_a, "pera")
     actual_a.b = actual_b
@@ -569,7 +605,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     expected_a.b = expected_b
 
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected_a, actual_a, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected_a, actual_a, Map())
 
     //    assert
     assertTrue(assertResult)
@@ -591,7 +627,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val eTierSixType = TierSixType(eTierFiveType)
     eTierThreeType._property = eTierSixType
 
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, eTierSixType, aTierSixType, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, eTierSixType, aTierSixType, Map())
 
     assertTrue(assertResult)
   }
@@ -601,17 +637,17 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
     val aTierThreeType = TierThreeType(null)
     val aTierFourType = TierFourType(aTierThreeType)
-    val aTierFiveType = TierFiveType(aTierFourType, TEST)
+    val aTierFiveType = TierFiveType(aTierFourType, TEST + TEST)
     val aTierSixType = TierSixType(aTierFiveType)
     aTierThreeType._property = aTierSixType
 
     val eTierThreeType = TierThreeType(null)
     val eTierFourType = TierFourType(eTierThreeType)
-    val eTierFiveType = TierFiveType(eTierFourType, TEST + TEST)
+    val eTierFiveType = TierFiveType(eTierFourType, TEST)
     val eTierSixType = TierSixType(eTierFiveType)
     eTierThreeType._property = eTierSixType
 
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, eTierSixType, aTierSixType, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, eTierThreeType, aTierThreeType, Map())
 
     assertFalse(assertResult)
   }
@@ -638,7 +674,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
       "_property._property._property" -> Property("_property._property._property", eTierThreeType),
       "_property._property._property._property" -> Property("_property._property._property._property", eTierSixType))
 
-    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReport, aTierSixType, properties, new NodesList)
+    val assertResult = fabutObjectAssert.assertObjectWithProperties(new FabutReportBuilder, aTierSixType, properties)
 
     assertTrue(assertResult)
   }
@@ -664,7 +700,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     expected_d.e = expected_e
 
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, expected_a, actual_a, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, expected_a, actual_a, Map())
 
     //    assert
     assertTrue(assertResult)
@@ -722,7 +758,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     e_b4.c = e_c4
 
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, e_a1, a_a1, Map())
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, e_a1, a_a1, Map())
     //    assert
     assertFalse(assertResult)
   }
@@ -730,14 +766,14 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectsTierOneTypeChangedPropertyEqual = {
     //	  setup
-    val aTierOneType = TierOneType(TEST + TEST)
+    val aTierOneType = new TierOneType(TEST + TEST)
 
-    val eTierOneType = TierOneType(TEST)
+    val eTierOneType = new TierOneType(TEST)
 
     val properties = Map(
       "_property" -> Property("_property", TEST + TEST))
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, eTierOneType, aTierOneType, properties)
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, eTierOneType, aTierOneType, properties)
     //    assert
     assertTrue(assertResult)
   }
@@ -745,13 +781,13 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectsTierOneTypeChangedPropertyNotEqual = {
     //	  setup
-    val aTierOneType = TierOneType(TEST)
-    val eTierOneType = TierOneType(TEST + TEST + TEST)
+    val aTierOneType = new TierOneType(TEST)
+    val eTierOneType = new TierOneType(TEST + TEST + TEST)
 
     val properties = Map(
       "_property" -> Property("_property", TEST + TEST))
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, eTierOneType, aTierOneType, properties)
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, eTierOneType, aTierOneType, properties)
     //    assert
     assertFalse(assertResult)
   }
@@ -759,13 +795,13 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectsTierOneTypeIgnored = {
     //	  setup
-    val aTierOneType = TierOneType(TEST)
-    val eTierOneType = TierOneType(TEST + TEST + TEST)
+    val aTierOneType = new TierOneType(TEST)
+    val eTierOneType = new TierOneType(TEST + TEST + TEST)
 
     val properties = Map(
       "_property" -> IgnoredProperty("_property"))
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, eTierOneType, aTierOneType, properties)
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, eTierOneType, aTierOneType, properties)
     //    assert
     assertTrue(assertResult)
   }
@@ -773,16 +809,17 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectsTierTwoTypeChangedPropertyEqual = {
     //	  setup
-    val aTierOneType = TierOneType(TEST)
+    val aTierOneType = new TierOneType(TEST + TEST)
     val aTierTwoType = TierTwoType(aTierOneType)
 
-    val eTierOneType = TierOneType(TEST + TEST + TEST)
+    val eTierOneType = new TierOneType(TEST + TEST + TEST)
     val eTierTwoType = TierTwoType(eTierOneType)
 
-    val properties = Map(
-      "_property._property" -> Property("_property._property", TEST))
+    val property = Fabut.value("_property", new TierOneType(TEST + TEST))
+    val properties = Fabut.createExpectedPropertiesMap(Seq(property))
+
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, eTierTwoType, aTierTwoType, properties)
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, eTierTwoType, aTierTwoType, properties)
     //    assert
     assertTrue(assertResult)
   }
@@ -790,33 +827,35 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertObjectsTierTwoTypeChangedPropertyNotEqual = {
     //	  setup
-    val aTierOneType = TierOneType(TEST)
+    val aTierOneType = new TierOneType(TEST)
     val aTierTwoType = TierTwoType(aTierOneType)
 
-    val eTierOneType = TierOneType(TEST + TEST)
+    val eTierOneType = new TierOneType(TEST + TEST)
     val eTierTwoType = TierTwoType(eTierOneType)
 
-    val properties = Map(
-      "_property._property" -> Property("_property._property", TEST))
+    val property = Fabut.value("_property", new TierOneType(TEST + TEST + TEST))
+    val properties = Fabut.createExpectedPropertiesMap(Seq(property))
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, eTierTwoType, aTierTwoType, properties)
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, eTierTwoType, aTierTwoType, properties)
     //    assert
-    assertTrue(assertResult)
+    assertFalse(assertResult)
   }
 
   @Test
   def testAssertObjectsTierTwoTypeChangedPropertyIgnored = {
     //	  setup
-    val aTierOneType = TierOneType(TEST)
+    val aTierOneType = new TierOneType(TEST)
     val aTierTwoType = TierTwoType(aTierOneType)
 
-    val eTierOneType = TierOneType(TEST + TEST)
+    val eTierOneType = new TierOneType(TEST + TEST)
     val eTierTwoType = TierTwoType(eTierOneType)
 
-    val properties = Map(
-      "_property._property" -> Property("_property._property", TEST + TEST + TEST), "_property._property" -> IgnoredProperty("_property._property"))
+    val property = Fabut.value("_property", new TierOneType(TEST + TEST + TEST))
+    val ignoredProperty = Fabut.ignored("_property")
+    val properties = Fabut.createExpectedPropertiesMap(Seq(property, ignoredProperty))
+
     //    method
-    val assertResult = fabutObjectAssert.assertObjects(new FabutReport, eTierTwoType, aTierTwoType, properties)
+    val assertResult = fabutObjectAssert.assertObjects(new FabutReportBuilder, eTierTwoType, aTierTwoType, properties)
     //    assert
     assertTrue(assertResult)
   }
@@ -824,10 +863,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertPropertyExpectedPropertyIsIgnoredProperty = {
     //	  setup
-    val aProperty = Property(TEST, TierOneType(TEST))
+    val aProperty = Property(TEST, new TierOneType(TEST))
     val eProperty = ignored(TIER_ONE_TYPE_PROPERTY)
     //    method
-    val assertResult = fabutObjectAssert.assertProperty(aProperty, eProperty, Map(), new NodesList, true)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertProperty(aProperty.path, aProperty, eProperty, Map(), new NodesList, true)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -835,10 +874,9 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertPropertyExpectedPropertyIsNullProperty = {
     //    setup
-    val aProperty = Property(TEST, null)
     val eProperty = isNull(TIER_ONE_TYPE_PROPERTY)
     //    method
-    val assertResult = fabutObjectAssert.assertProperty(aProperty, eProperty, Map(), new NodesList, true)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertProperty(TEST, null, eProperty, Map(), new NodesList, true)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -846,10 +884,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertPropertyExpectedPropertyIsNullPropertyNotNull = {
     //    setup
-    val aProperty = Property(TEST, TierOneType(TEST))
+    val aProperty = Property(TEST, new TierOneType(TEST))
     val eProperty = isNull(TIER_ONE_TYPE_PROPERTY)
     //    method
-    val assertResult = fabutObjectAssert.assertProperty(aProperty, eProperty, Map(), new NodesList, true)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertProperty(aProperty.path, aProperty.value, eProperty, Map(), new NodesList, true)(new FabutReportBuilder)
     //    assert
     assertFalse(assertResult)
   }
@@ -857,10 +895,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertPropertyExpectedPropertyIsNotNullProperty = {
     //    setup
-    val aProperty = Property(TEST, TierOneType(TEST))
+    val aProperty = Property(TEST, new TierOneType(TEST))
     val eProperty = notNull(TIER_ONE_TYPE_PROPERTY)
     //    method
-    val assertResult = fabutObjectAssert.assertProperty(aProperty, eProperty, Map(), new NodesList, true)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertProperty(aProperty.path, aProperty.value, eProperty, Map(), new NodesList, true)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -871,7 +909,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val aProperty = Property(TEST, null)
     val eProperty = notNull(TIER_ONE_TYPE_PROPERTY)
     //    method
-    val assertResult = fabutObjectAssert.assertProperty(aProperty, eProperty, Map(), new NodesList, true)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertProperty(aProperty.path, aProperty.value, eProperty, Map(), new NodesList, true)(new FabutReportBuilder)
     //    assert
     assertFalse(assertResult)
   }
@@ -882,7 +920,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val aProperty = Property(TEST, 2000)
     val eProperty = Property(TEST, 2000)
     //    method
-    val assertResult = fabutObjectAssert.assertProperty(aProperty, eProperty, Map(), new NodesList, true)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertProperty(aProperty.path, aProperty.value, eProperty, Map(), new NodesList, true)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -893,7 +931,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val aProperty = Property(TEST, 2000)
     val eProperty = Property(TEST, 200000)
     //    method
-    val assertResult = fabutObjectAssert.assertProperty(aProperty, eProperty, Map(), new NodesList, true)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertProperty(aProperty.path, aProperty.value, eProperty, Map(), new NodesList, true)(new FabutReportBuilder)
     //    assert
     assertFalse(assertResult)
   }
@@ -901,10 +939,10 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertPropertyExpectedPropertyisComplexEqual = {
     //	  setup
-    val aProperty = Property(TEST, TierOneType(TEST))
-    val eProperty = Property(TEST, TierOneType(TEST))
+    val aProperty = Property(TEST, new TierOneType(TEST))
+    val eProperty = Property(TEST, new TierOneType(TEST))
     //    method
-    val assertResult = fabutObjectAssert.assertProperty(aProperty, eProperty, Map(), new NodesList, true)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertProperty(aProperty.path, aProperty.value, eProperty, Map(), new NodesList, true)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -914,7 +952,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	setup
     val assertPair = AssertPair(TEST, List(TEST), List(TEST), SCALA_LIST_TYPE, false)
     //    method	
-    val assertResult = fabutObjectAssert.assertPair(assertPair, Map(), new NodesList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertPair(EMPTY_STRING, assertPair, Map(), new NodesList)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -924,7 +962,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val assertPair = AssertPair(TEST, Map(TEST -> TEST), Map(TEST -> TEST), SCALA_MAP_TYPE, false)
     //    method
-    val assertResult = fabutObjectAssert.assertPair(assertPair, Map(), new NodesList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertPair(EMPTY_STRING, assertPair, Map(), new NodesList)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -934,7 +972,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  setup
     val assertPair = AssertPair(TEST, IgnoredType(TEST), IgnoredType(TEST), IGNORED_TYPE, false)
     //    method
-    val assertResult = fabutObjectAssert.assertPair(assertPair, Map(), new NodesList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertPair(EMPTY_STRING, assertPair, Map(), new NodesList)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -942,9 +980,9 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertPairCaseComplexType = {
     //	 setup
-    val assertPair = new AssertPair(TEST, TierOneType(TEST), TierOneType(TEST), COMPLEX_TYPE, false)
+    val assertPair = new AssertPair(TEST, new TierOneType(TEST), new TierOneType(TEST), COMPLEX_TYPE, false)
     //   method
-    val assertResult = fabutObjectAssert.assertPair(assertPair, Map(TIER_ONE_TYPE_PROPERTY -> Property(TIER_ONE_TYPE_PROPERTY, TEST)), new NodesList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertPair(EMPTY_STRING, assertPair, Map(TIER_ONE_TYPE_PROPERTY -> Property(TIER_ONE_TYPE_PROPERTY, TEST)), new NodesList)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -954,7 +992,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	 setup
     val assertPair = new AssertPair(TEST, 123, 123, PRIMITIVE_TYPE, false)
     //   method
-    val assertResult = fabutObjectAssert.assertPair(assertPair, Map(TIER_ONE_TYPE_PROPERTY -> Property(TIER_ONE_TYPE_PROPERTY, TEST)), new NodesList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertPair(EMPTY_STRING, assertPair, Map(TIER_ONE_TYPE_PROPERTY -> Property(TIER_ONE_TYPE_PROPERTY, TEST)), new NodesList)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -979,9 +1017,9 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testAssertInnerProperty = {
     //	 setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     //    method
-    val assertResult = fabutObjectAssert.assertInnerProperty(TIER_ONE_TYPE_PROPERTY, tierOneType, Map(TIER_TWO_TYPE_PROPERTY -> Property(TIER_TWO_TYPE_PROPERTY, TEST)), new NodesList, new FabutReport)
+    val assertResult = fabutObjectAssert.assertInnerProperty(TIER_ONE_TYPE_PROPERTY, tierOneType, Map(TIER_TWO_TYPE_PROPERTY -> Property(TIER_TWO_TYPE_PROPERTY, TEST)), new NodesList, new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -1014,11 +1052,12 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
   @Test
   def testAssertSubfieldsExistInChangedProperties = {
-
     //    setup
-    val tierOneType = TierOneType(TEST)
+    val actual = new TierOneType(TEST)
+    val expected = new TierOneType(TEST + TEST)
+    val assertPair = AssertPair("", expected, actual, COMPLEX_TYPE, true)
     //    method
-    val assertResult = fabutObjectAssert.assertSubfields(tierOneType, Map(TIER_ONE_TYPE_PROPERTY -> Property(TIER_ONE_TYPE_PROPERTY, TEST)), new NodesList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertSubfields(EMPTY_STRING, assertPair, Map(TIER_ONE_TYPE_PROPERTY -> Property(TIER_ONE_TYPE_PROPERTY, TEST)), new NodesList)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -1027,9 +1066,11 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   def testAssertSubfieldsDontExistInChangedProperties = {
 
     //    setup
-    val tierOneType = TierOneType(TEST)
+    val actual = new TierOneType(TEST)
+    val expected = new TierOneType(TEST + TEST)
+    val assertPair = AssertPair("", actual, expected, COMPLEX_TYPE, true)
     //    method
-    val assertResult = fabutObjectAssert.assertSubfields(tierOneType, Map(), new NodesList)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertSubfields(EMPTY_STRING, assertPair, Map(), new NodesList)(new FabutReportBuilder)
     //    assert
     assertFalse(assertResult)
   }
@@ -1039,7 +1080,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	setup
     val pair = AssertPair(TEST, 200, 200, PRIMITIVE_TYPE, false)
     //    method
-    val assertResult = fabutObjectAssert.assertPrimitives(pair)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertPrimitives(pair, EMPTY_STRING)(new FabutReportBuilder)
     //    assert
     assertTrue(assertResult)
   }
@@ -1049,7 +1090,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	setup
     val pair = AssertPair(TEST, 200, 250, PRIMITIVE_TYPE, false)
     //    method
-    val assertResult = fabutObjectAssert.assertPrimitives(pair)(new FabutReport)
+    val assertResult = fabutObjectAssert.assertPrimitives(pair, EMPTY_STRING)(new FabutReportBuilder)
     //    assert
     assertFalse(assertResult)
   }
@@ -1057,14 +1098,14 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
   @Test
   def testTakeSnapshotWithNormalClass = {
     //	setup
-    val tierOneType = TierOneType(TEST)
+    val tierOneType = new TierOneType(TEST)
     //    method
-    val assertResult = fabutObjectAssert.takeSnapshot(new FabutReport, tierOneType)
+    val assertResult = fabutObjectAssert.takeSnapshot(new FabutReportBuilder, Seq(tierOneType))
     val parameterSnapshot = fabutObjectAssert.parameterSnapshot
     assertEquals(parameterSnapshot.size, 1)
 
-    fabutObjectAssert.assertObjects(new FabutReport, parameterSnapshot.head.actual, TierOneType(TEST), Map())
-    fabutObjectAssert.assertObjects(new FabutReport, parameterSnapshot.head.expected, TierOneType(TEST), Map())
+    fabutObjectAssert.assertObjects(new FabutReportBuilder, parameterSnapshot.head.actual, new TierOneType(TEST), Map())
+    fabutObjectAssert.assertObjects(new FabutReportBuilder, parameterSnapshot.head.expected, new TierOneType(TEST), Map())
     //    assert
     assertTrue(assertResult)
   }
@@ -1074,19 +1115,18 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	setup
     val tierOneType = new BadCopyClass(TEST, TEST)
     //    method
-    val assertResult = fabutObjectAssert.takeSnapshot(new FabutReport, tierOneType)
+    val assertResult = fabutObjectAssert.takeSnapshot(new FabutReportBuilder, Seq(tierOneType))
     //    assert
     assertFalse(assertResult)
   }
 
-  /** TEST NODELIST*/
   @Test
   def testNodesListContainsPairTrue = {
 
     val nodesList = new NodesList
 
-    val actual = TierOneType(TEST)
-    val expected = TierOneType(TEST)
+    val actual = new TierOneType(TEST)
+    val expected = new TierOneType(TEST)
 
     val pair = AssertPair(TEST, expected, actual, COMPLEX_TYPE, false)
 
@@ -1096,190 +1136,5 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
     assertTrue(assertResult)
   }
-
-  //	 setup
-
-  //   method
-
-  //	 assert
-
-  //
-  //  @Test
-  //  def testAssertObjectsWithNullObjects() = {
-  //
-  //    //	setup
-  //    val a_b = new B(null, "pera")
-  //    val a_a = new A(a_b, "mika")
-  //    val a_c = new C(null, "zelja")
-  //    a_b.c = a_c
-  //
-  //    val e_b = new B(null, "pera")
-  //    val e_a = new A(e_b, "mika")
-  //    val e_c = new C(null, "zelja")
-  //    e_b.c = e_c
-  //
-  //    //	assert
-  //    assertObjects(e_a, a_a)
-  //  }
-  //
-  //  @Test(expected = classOf[AssertionError])
-  //  def testAssertObjectsWithNullProperties() = {
-  //
-  //    //	setup
-  //    val a_b = new B(null, null)
-  //    val a_a = new A(a_b, "mika")
-  //    val a_c = new C(a_a, "zelja")
-  //    a_b.c = a_c
-  //
-  //    val e_b = new B(null, "pera")
-  //    val e_a = new A(e_b, "mika")
-  //    val e_c = new C(e_a, null)
-  //    e_b.c = e_c
-  //
-  //    //	assert
-  //    assertObjects(e_a, a_a)
-  //  }
-  //
-  //  /**
-  //   *  unused expected property =>  "unsuedProperty"
-  //   *  property id is missing
-  //   */
-  //  @Test(expected = classOf[AssertionError])
-  //  def testAssertObjectWithExpectedPropertiesMissingAndUnusedProperty() = {
-  //
-  //    //	setup
-  //    val actualInsideSimple = ObjectInsideSimpleProperty("3301")
-  //    val expectedInsideSimple = ObjectInsideSimpleProperty("3301")
-  //    val a1 = ObjectInsideSimpleProperty("3301")
-  //    val e1 = ObjectInsideSimpleProperty("3333")
-  //    val a2 = ObjectInsideSimpleProperty("5000")
-  //    val e2 = ObjectInsideSimpleProperty("5001")
-  //    val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, actualInsideSimple)
-  //    val expectedSimpleObject = ObjectWithSimpleProperties("mika", 221, expectedInsideSimple)
-  //    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(a1, a2))
-  //    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(e1, e2))
-  //
-  //    //	assert
-  //    assertObject(
-  //      actual,
-  //      value("unsuedProperty", 200),
-  //      value("state", true),
-  //      value("complexObject._username", "mika"),
-  //      value("complexObject._age", 22),
-  //      value("complexObject.o.id", "3301"),
-  //      value("list", List(a1, a2)))
-  //  }
-  //
-  //  @Test
-  //  def testAssertObjectWithAllExpectedProperties() = {
-  //
-  //    //	setup
-  //    val actualSimpleObject = ObjectWithSimpleProperties("pera", 22, ObjectInsideSimpleProperty("33"))
-  //
-  //    //	assert
-  //    assertObject(actualSimpleObject, value("_username", "pera"), value("_age", 22), value("o.id", "33"))
-  //
-  //  }
-  //
-  //  @Test
-  //  def testAssertObjectWithExpectedSimpleList() = {
-  //
-  //    //	setup
-  //    val actualInsideSimple = ObjectInsideSimpleProperty("3301")
-  //    val expectedInsideSimple = ObjectInsideSimpleProperty("3301")
-  //    val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, actualInsideSimple)
-  //    val expectedSimpleObject = ObjectWithSimpleProperties("mika", 22, expectedInsideSimple)
-  //    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(1, 5))
-  //    val expected = ObjectWithComplexProperty(900, true, expectedSimpleObject, List(1, 4))
-  //
-  //    //	assert
-  //    assertObjects(actual, expected, value("list", List(1, 5)), ignored("list") /*, value("mika", "hello")*/ )
-  //  }
-  //
-  //  @Test
-  //  def testAssertObjectWithMapAndListInsideObjects() = {
-  //
-  //    //	setup
-  //    val actual = ObjectWithMap(900, ObjectWithSimpleMap(Map(ObjectInsideSimpleProperty("2") -> 22, 2 -> ObjectInsideSimpleProperty("3301"))), ObjectWithSimpleList(List(1, 2, 3)), Map(1 -> 4))
-  //    val expected = ObjectWithMap(900, ObjectWithSimpleMap(Map(2 -> ObjectInsideSimpleProperty("331"), 1 -> 5)), ObjectWithSimpleList(List(1, 2, 3)), Map(1 -> 4))
-  //
-  //    //	assert
-  //    assertObjects(expected, actual, value("complexMapObject.map", Map(ObjectInsideSimpleProperty("2") -> 22, 2 -> ObjectInsideSimpleProperty("3301"))))
-  //
-  //  }
-  //
-  //  @Test
-  //  def testObjectWithSimpleMapWithAllExpectedProperties() = {
-  //
-  //    //	setup
-  //    val actual = ObjectWithSimpleMap(Map(1 -> 2, 2 -> 6))
-  //
-  //    //	assert
-  //    assertObject(actual, value("map", Map(1 -> 2, 2 -> 6)))
-  //  }
-  //
-  //  @Test
-  //  def testCreateCopyPrimitives() = {
-  //
-  //    //	setup
-  //    val actualInsideObject = ObjectInsideSimpleProperty("222")
-  //    val actualObject = CopyCaseClass("111", "Petar", actualInsideObject, List(ObjectInsideSimpleProperty("1"), ObjectInsideSimpleProperty("2"), ObjectInsideSimpleProperty("3")), Map(1 -> ObjectInsideSimpleProperty("1")))
-  //    val expectedObject = createCopy(actualObject)
-  //
-  //    //	assert
-  //    assertObjects(expectedObject, actualObject)
-  //  }
-  //
-  //  @Test
-  //  def testListWithComplexElements() = {
-  //
-  //    //	setup
-  //    val i1 = ObjectInsideSimpleProperty("44")
-  //    val i2 = ObjectInsideSimpleProperty("44")
-  //    val o1 = ObjectWithSimpleProperties("Petar", 2, i1)
-  //    val o2 = ObjectWithSimpleProperties("Petar", 2, i2)
-  //
-  //    //	assert
-  //    assertObjects(List(o1, o1, o1, o1, i1), List(o2, o1, o2, o1, ObjectInsideSimpleProperty("44")))
-  //  }
-  //
-  //  @Test
-  //  def testObjectsWithSimpleElements() {
-  //
-  //    //	setup
-  //    val actual = "Hello World"
-  //    val expected = "Hello World"
-  //
-  //    //	assert
-  //    assertObjects(expected, actual)
-  //  }
-  //
-  //  @Test
-  //  def testMapWithComplexElements() = {
-  //
-  //    //	setup
-  //    val i1 = ObjectInsideSimpleProperty("simple")
-  //    val i2 = ObjectInsideSimpleProperty("simple")
-  //    val o1 = ObjectWithSimpleProperties("Petar", 2, i1)
-  //    val o2 = ObjectWithSimpleProperties("Petar", 2, i2)
-  //
-  //    //	assert
-  //    assertObjects(Map(1 -> i1, 2 -> i2, i1 -> o1), Map(1 -> i2, 2 -> i2, i1 -> o2))
-  //  }
-  //
-  //  @Test(expected = classOf[AssertionError])
-  //  def testTypeMismatchException() = {
-  //
-  //    val actualSimpleObject = ObjectWithSimpleProperties("mika", 22, ObjectInsideSimpleProperty("3301"))
-  //    val actual = ObjectWithComplexProperty(900, true, actualSimpleObject, List(1, 4))
-  //
-  //    assertObjects(actual, List(1, 2, 3))
-  //  }
-  //
-  //  @Test
-  //  def test() = {
-  //    val x = new EmptyClass
-  //    Fabut.assertObjects(x, x)
-  //  }
 
 }

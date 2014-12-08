@@ -29,60 +29,60 @@ import eu.execom.fabut.model.TierFiveType
 import eu.execom.fabut.model.TierFourType
 import eu.execom.fabut.model.TierThreeType
 import eu.execom.fabut.util.ReflectionUtil
+import scala.collection.mutable.ListBuffer
 
 class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
 
-  var fabutObjectAssert: FabutObjectAssert = null
+  var _fabutObjectAssert: FabutObjectAssert = null
+
+  def fabutObjectAssert: FabutObjectAssert = _fabutObjectAssert
 
   @Before
   override def fabutBeforeTest() {
-    fabutObjectAssert = new FabutObjectAssert(this)
+    _fabutObjectAssert = new FabutObjectAssert(this)
     ReflectionUtil.setFabutAssert(fabutObjectAssert)
   }
 
   @After
-  override def fabutAfterTest() {
+  override def fabutAfterTest() {}
 
+  override def complexTypes: List[Type] = {
+
+    val complexTypes: ListBuffer[Type] = ListBuffer()
+
+    complexTypes += typeOf[ObjectWithSimpleProperties]
+    complexTypes += typeOf[ObjectWithComplexProperty]
+    complexTypes += typeOf[ObjectInsideSimpleProperty]
+    complexTypes += typeOf[ObjectWithMap]
+    complexTypes += typeOf[ObjectWithSimpleMap]
+    complexTypes += typeOf[ObjectWithSimpleList]
+    complexTypes += typeOf[CopyCaseClass]
+    complexTypes += typeOf[Person]
+    complexTypes += typeOf[TierOneType]
+    complexTypes += typeOf[TierTwoType]
+    complexTypes += typeOf[TierThreeType]
+    complexTypes += typeOf[TierFourType]
+    complexTypes += typeOf[TierFiveType]
+    complexTypes += typeOf[TierSixType]
+    complexTypes += typeOf[TierTwoTypeWithIgnoredType]
+    complexTypes += typeOf[EmptyClass]
+    complexTypes += typeOf[EntityTierOneType]
+    complexTypes += typeOf[ListType]
+    complexTypes += typeOf[A]
+    complexTypes += typeOf[B]
+    complexTypes += typeOf[C]
+    complexTypes += typeOf[D]
+    complexTypes += typeOf[E]
+
+    return complexTypes.toList
   }
 
-  override def getComplexTypes(): List[Type] = {
+  override def ignoredTypes: List[Type] = {
 
-    var complexTypes: List[Type] = List()
-    complexTypes ::= typeOf[ObjectWithSimpleProperties]
-    complexTypes ::= typeOf[ObjectWithComplexProperty]
-    complexTypes ::= typeOf[ObjectInsideSimpleProperty]
-    complexTypes ::= typeOf[ObjectWithMap]
-    complexTypes ::= typeOf[ObjectWithSimpleMap]
-    complexTypes ::= typeOf[ObjectWithSimpleList]
-    complexTypes ::= typeOf[CopyCaseClass]
-    complexTypes ::= typeOf[Person]
-    complexTypes ::= typeOf[EntityTierOneType]
-    complexTypes ::= typeOf[EntityTierThreeType]
-    complexTypes ::= typeOf[EntityTierTwoType]
-    complexTypes ::= typeOf[EntityTierOneType]
-    complexTypes ::= typeOf[TierOneType]
-    complexTypes ::= typeOf[TierTwoType]
-    complexTypes ::= typeOf[TierThreeType]
-    complexTypes ::= typeOf[TierFourType]
-    complexTypes ::= typeOf[TierFiveType]
-    complexTypes ::= typeOf[TierSixType]
-    complexTypes ::= typeOf[TierTwoTypeWithIgnoredType]
-    complexTypes ::= typeOf[EmptyClass]
-    complexTypes ::= typeOf[ListType]
-    complexTypes ::= typeOf[A]
-    complexTypes ::= typeOf[B]
-    complexTypes ::= typeOf[C]
-    complexTypes ::= typeOf[D]
-    complexTypes ::= typeOf[E]
+    val ignoredTypes: ListBuffer[Type] = ListBuffer()
+    ignoredTypes += typeOf[IgnoredType]
 
-    return complexTypes
-  }
-
-  override def getIgnoredTypes(): List[Type] = {
-    var ignoredTypes: List[Type] = List()
-    ignoredTypes ::= typeOf[IgnoredType]
-
-    return ignoredTypes
+    return ignoredTypes.toList
   }
 
   override def customAssertEquals(expectedObject: Any, actualObject: Any) {

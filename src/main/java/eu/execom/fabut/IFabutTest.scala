@@ -6,8 +6,8 @@ trait IFabutTest {
   def fabutBeforeTest
   def fabutAfterTest
 
-  def getComplexTypes(): List[Type]
-  def getIgnoredTypes(): List[Type]
+  def complexTypes: List[Type]
+  def ignoredTypes: List[Type]
 
   def customAssertEquals(expectedObject: Any, actualObject: Any)
 }

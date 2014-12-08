@@ -1,18 +1,19 @@
 package eu.execom.fabut.model
 
-class EntityTierOneType(_property: String, private var _id: Int) extends TierOneType(_property) {
+case class EntityTierOneType(property: String, var _id: Any) extends TierOneType(property) {
 
-  def id: Int = _id
+  def id: Any = _id
 
-  def id_=(id: Int) =
+  def id_=(id: Any) =
     _id = id
+
   def this() = this("", 0)
 }
 
 object EntityTierOneType {
 
-  val PROPERTY = "property"
+  val PROPERTY = "_property"
 
-  val ID = "id"
+  val ID = "_id"
 
 }

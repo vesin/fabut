@@ -5,7 +5,7 @@ import scala.collection.mutable.{ Map => MutableMap }
 import scala.reflect.ClassTag
 import eu.execom.fabut.model.ObjectWithSimpleProperties
 import sun.reflect.generics.tree.TypeSignature
-import eu.execom.fabut.FabutReport
+import eu.execom.fabut.FabutReportBuilder
 import eu.execom.fabut.enums.AssertType._
 import eu.execom.fabut.enums.AssertableType._
 import eu.execom.fabut.model.ObjectInsideSimpleProperty
@@ -19,6 +19,7 @@ import eu.execom.fabut.property.IgnoredProperty
 import eu.execom.fabut.FabutObjectAssert
 import eu.execom.fabut.exception.CopyException
 import eu.execom.fabut.graph.NodesList
+import scala.collection.mutable.ListBuffer
 
 object ReflectionUtil {
 
@@ -40,7 +41,7 @@ object ReflectionUtil {
    * @return
    * 		one of assertable types
    */
-  def getValueType(value: Any) = {
+  def getAssertableType(value: Any) = {
 
     if (value.isInstanceOf[List[_]])
       SCALA_LIST_TYPE
@@ -74,7 +75,7 @@ object ReflectionUtil {
     }
 
     try {
-      fabutAssert.getTypes(assertableType).find(
+      fabutAssert.types(assertableType).find(
         typeName =>
           (typeName.toString == objectValue.getClass.getCanonicalName)) match {
           case n: Some[Type] =>
@@ -104,38 +105,35 @@ object ReflectionUtil {
    * @throws ScalaReflectionException
    *
    */
-  def getObjectProperties(objectInstance: Any, objectTypeOption: Option[Type]): Map[String, Property] = {
+  def getObjectProperties(objectInstance: Any, classTypeOption: Option[Type]): Map[String, Property] = {
 
     var result: Map[String, Property] = Map()
 
-    if (objectTypeOption == None) {
+    if (classTypeOption == None) {
       return result
     }
 
-    val objectType = objectTypeOption.get
+    val classType = classTypeOption.get
 
-    val classMirror = objectType.typeSymbol.asClass
-    val im = classLoaderMirror.reflect(objectInstance)
+    val classMirror = classType.typeSymbol.asClass
+    val instanceMirror = classLoaderMirror.reflect(objectInstance)
 
-    val isField = (sym: TermSymbol) => {
-      sym.isGetter
-    }
+    val allMembers = extractAllGetMethods(classType)
+
     try {
-
-      result ++= objectType.members.collect {
-        case sym:
-          TermSymbol if isField(sym) => {
-          val name = sym.toString.split(' ').last
-          val value = reflectField(name, objectType, im)
+      result ++= allMembers map {
+        case member: TermSymbol =>
+          val name = member.name.toString
+          val value = reflectField(member, classType, instanceMirror)
           (name, Property(name, value.get))
-        }
-      }.toMap
+      }
     } catch {
-      case t: ScalaReflectionException => println("//TODO")
+      case e: ScalaReflectionException => println("which field failed with reflection")
     }
-    result
+    return result
   }
 
+  /** testing */
   def pullMembers[T: TypeTag](objectInstance: T)(implicit ct: ClassTag[T]) {
 
     val objectType = typeOf[T]
@@ -143,14 +141,42 @@ object ReflectionUtil {
     val classMirror = objectType.typeSymbol.asClass
     val im = classLoaderMirror.reflect(objectInstance)
 
+    val terms = objectType.members.collect({ case x if x.isTerm => x.asTerm }).filter(_.isGetter)
+    //val vars = terms.filter(field => field.isGetter && terms.exists(field.setter == _)).map(_.name.toString)
     val all = objectType.members
     val getters = objectType.members.collect {
-      case symbol: TermSymbol => if (symbol.isGetter) symbol
+      case symbol: TermSymbol => if (symbol.isAccessor) symbol
     }
-    //    val 
+    //
+    //    println(terms.foreach { g => println(g) })
+    //    println(objectType.baseClasses)
 
-    println(getters.foreach { g => println(g) })
+  }
 
+  def extractAllGetMethods(classType: Type): List[TermSymbol] = {
+
+    val allMembers = new ListBuffer[TermSymbol]
+
+    val classes = classType.baseClasses.map(clazz => clazz.typeSignature)
+
+    val members = classes foreach {
+      clazz =>
+        val terms = clazz.members.collect { case member if member.isTerm => member.asTerm }
+        val membersOfClazz = terms filter { member: TermSymbol => member.isGetter && isVariable(member, terms.toList) }
+        membersOfClazz foreach { member => allMembers += member }
+    }
+    return allMembers.toList
+  }
+
+  def isVariable(termMember: TermSymbol, termMembers: List[TermSymbol]): Boolean = {
+    val variable = termMembers.exists {
+      member => (member.name.toString.contains(termMember.name.toString) && member.isVar)
+    }
+    if (variable) {
+      true
+    } else {
+      false
+    }
   }
 
   /**
@@ -169,46 +195,11 @@ object ReflectionUtil {
    * 		property value
    * @throws ScalaReflectionException
    */
-  def reflectField(propertyName: String, objectType: Type, instanceMirror: InstanceMirror) = {
+  def reflectField(propertyName: TermSymbol, objectType: Type, instanceMirror: InstanceMirror) = {
 
     try {
-      val fieldSymbol = objectType.member(TermName(propertyName)).asMethod
-      val field = instanceMirror.reflectMethod(fieldSymbol)
+      val field = instanceMirror.reflectMethod(propertyName.asMethod)
       Some(field())
-    } catch {
-      case t: ScalaReflectionException => None
-    }
-  }
-
-  /**
-   * Method reflects object inside object, used in checking if graphs
-   * are isomorphic and for reflecting the expected object until the depth
-   * where actual and expected value should be asserted
-   *
-   *  @param objectName
-   *  @param expectedObject
-   *  @param expectedObjectType
-   *  		type of expected object
-   *
-   *  @return
-   *  		reflected object
-   *  @throws ScalaReflectionException
-   */
-  def reflectObject(objectName: String, expectedObject: Any, expectedObjectTypeOption: Option[Type]): Option[Any] = {
-
-    if (expectedObjectTypeOption == None) return None
-
-    val expectedObjectType = expectedObjectTypeOption.get
-
-    try {
-      val classMirror = expectedObjectType.typeSymbol.asClass
-      val im = classLoaderMirror.reflect(expectedObject)
-      val valueOption = reflectField(objectName, expectedObjectType, im)
-      if (valueOption != None) {
-        Some(valueOption.get)
-      } else {
-        None
-      }
     } catch {
       case t: ScalaReflectionException => None
     }
@@ -234,12 +225,13 @@ object ReflectionUtil {
     val classMirror = expectedObjectType.typeSymbol.asClass
     try {
       val instanceMirror = classLoaderMirror.reflect(objectInstance)
-
-      val fieldSymbol = expectedObjectType.decl(TermName(fieldName)).asMethod
-      val field = instanceMirror.reflectMethod(fieldSymbol)
+      val terms = expectedObjectType.members.collect { case member if member.isTerm => member.asTerm }
+      val idSymbol = terms find { member: TermSymbol => member.name.toString.contains(fieldName) && member.isGetter } getOrElse (throw new NoSuchElementException("Cannot find getter for id"))
+      val field = instanceMirror.reflectMethod(idSymbol.asMethod)
       Some(field())
     } catch {
-      case t: ScalaReflectionException => None
+      case t: ScalaReflectionException =>
+        return None
     }
   }
 
@@ -264,82 +256,16 @@ object ReflectionUtil {
 
     try {
       val im = classLoaderMirror.reflect(objectInstance)
-      val mSymbol = objectType.decl(TermName(methodName)).asMethod
+      val mSymbol = objectType.member(TermName(methodName)).asMethod
       val methodMirror = im.reflectMethod(mSymbol)
       methodMirror(newFieldValue)
       return true
     } catch {
       case e: IllegalArgumentException => println(e.getMessage())
-      case e: ScalaReflectionException => println(e.getMessage())
+      case e: ScalaReflectionException => println(e.getMessage() + " " + fieldName) // throw new ili sta?
     }
     return false
   }
-
-  /**
-   * Method is used to assert each primitive element from map on given depth
-   * with its corresponding element from expected object, returns report that is
-   * fulfilled with messages if any of the actual primitive value is not as
-   * expected value
-   *
-   * @param prefixMessage
-   * 	prefix message for report that is used if the depth entered a collection
-   * @param pathcut
-   * 	number of chars we cut from pathname so we could have a name of object
-   * @param primitiveProperties
-   * 	map that contains name and value of each primitive on given depth
-   * @param expectedObject
-   * @param expectedObjectType
-   * @param expectedObjectPropertiesList
-   * @param report
-   * 	fabut report
-   *
-   * @return
-   * 	report with added fail messages if assert fail occurs
-   * @throws ScalaReflectionException
-   */
-  //  def reflectPrimitiveProperties(pathcut: Int, primitiveProperties: Map[String, IProperty], expectedObject: Any, expectedObjectTypeOption: Option[Type], expectedObjectPropertiesList: Map[String, IProperty], report: FabutReport): Map[String, IProperty] = {
-  //
-  //    var uncheckedExpectedObjectProperties = expectedObjectPropertiesList
-  //
-  //    if (expectedObjectTypeOption == None) {
-  //      report.addObjectNullExceptionMessage("E", "")
-  //      return uncheckedExpectedObjectProperties
-  //    }
-  //
-  //    val expectedObjectType = expectedObjectTypeOption.get
-  //    val classMirror = expectedObjectType.typeSymbol.asClass
-  //    val instanceMirror = classLoaderMirror.reflect(expectedObject)
-  //
-  //    var fieldValue: Any = null
-  //    var property: IProperty = null
-  //
-  //    primitiveProperties.values.foreach {
-  //      property =>
-  //        try {
-  //          fieldValue = expectedObjectPropertiesList(property.getPath).asInstanceOf[Property].value
-  //          uncheckedExpectedObjectProperties -= property.getPath
-  //        } catch {
-  //          case t: NoSuchElementException =>
-  //            try {
-  //              val fieldSymbol = expectedObjectType.decl(TermName(property.getPath.substring(pathcut))).asMethod
-  //              val field = instanceMirror.reflectMethod(fieldSymbol)
-  //              fieldValue = field()
-  //            } catch {
-  //              case t: ScalaReflectionException => None
-  //            }
-  //        }
-  //
-  //        try {
-  //          fabutAssert.fabutTest.customAssertEquals(fieldValue, property.asInstanceOf[Property].value)
-  //        } catch {
-  //          case e: AssertionError => {
-  //            report.addPropertiesExceptionMessage(property.getPath, property.asInstanceOf[Property].value, fieldValue)
-  //          }
-  //        }
-  //    }
-  //    uncheckedExpectedObjectProperties
-  //
-  //  }
 
   /**
    * Creates copy of given object with empty properties
@@ -374,34 +300,7 @@ object ReflectionUtil {
   }
 
   def getIdValue(entity: Any): Any = {
-    getFieldValueFromGetter("id", entity, getObjectType(entity, ENTITY_TYPE)).get
-  }
-
-  /**
-   *  Copies property value from original object instance to new object instance by reflecting the field value
-   *  from original
-   *
-   *  @param propertyName
-   *  		name of the property
-   *  @param instanceMirror
-   *  		instance mirror of original object
-   *  @param objectInstance
-   *  		original object instance
-   *  @param newObjectInstance
-   *  		new object instance
-   *  @param assertableType
-   *  		assertable type used for lookup of object type from the given assertable map
-   *
-   */
-  def copyProperty(propertyName: String, instanceMirror: InstanceMirror, objectInstance: Any, newObjectInstance: Any, assertableType: AssertableType) {
-
-    try {
-      val objectType = getObjectType(objectInstance, assertableType).get
-      val propertyValue = reflectField(propertyName, objectType, instanceMirror)
-      setField(propertyName, propertyValue.get, newObjectInstance, objectType)
-    } catch {
-      case e: NoSuchElementException => println("Object type is not found in the types map")
-    }
+    getFieldValueFromGetter("id", entity, getObjectType(entity, ENTITY_TYPE)).getOrElse(null)
   }
 
   /**
@@ -415,71 +314,12 @@ object ReflectionUtil {
     symbol.isCaseClass
   }
 
-  /**
-   *  Creates a deep copy from original object
-   *
-   *  @param originalObject
-   *  		object that needs to be copied\
-   *
-   *  @return copied object
-   *
-   */
-  def createCopyc(originalObject: Any): Option[Any] = {
-    def loop(originalObject: Any, copiedObject: Any, checkedObjectsMap: Map[Any, Int]): Option[Any] = {
-
-      val assertableType: AssertableType = getValueType(originalObject)
-
-      val checkedObjects = checkedObjectsMap ++ Map(originalObject -> 0)
-      val objectProperties = getObjectProperties(originalObject, getObjectType(originalObject, assertableType))
-
-      if (objectProperties nonEmpty) {
-
-        val (primitiveProperties, nonPrimitiveProperties) = objectProperties partition {
-          p: (String, Any) => getValueType(p._2) == PRIMITIVE_TYPE
-        }
-
-        if (primitiveProperties nonEmpty) {
-          val im = getClassLoaderMirror.reflect(originalObject)
-          primitiveProperties foreach { property => copyProperty(property._1, im, originalObject, copiedObject, assertableType) }
-        }
-
-        nonPrimitiveProperties foreach {
-          case (nodeName: String, nodeObject: Any) =>
-            getValueType(nodeObject) match {
-              case SCALA_LIST_TYPE | SCALA_MAP_TYPE =>
-                setField(nodeName, nodeObject, copiedObject, getObjectType(copiedObject, assertableType).get)
-              case ENTITY_TYPE =>
-                println("TODO tralalal")
-              case IGNORED_TYPE =>
-                println("TODO tralalal")
-              case COMPLEX_TYPE => {
-                if (checkedObjects.contains(nodeObject))
-                  return Some(copiedObject)
-                else {
-                  val newEmptyObjectInstance = createEmptyCopy(nodeObject, getObjectType(nodeObject, COMPLEX_TYPE))
-                  setField(nodeName, newEmptyObjectInstance, copiedObject, getObjectType(copiedObject, COMPLEX_TYPE).get)
-                  val newCopiedObject = reflectObject(nodeName, copiedObject, getObjectType(copiedObject, COMPLEX_TYPE)).get
-                  loop(nodeObject, newCopiedObject, checkedObjects)
-                }
-              }
-            }
-        }
-
-      }
-      return Some(copiedObject)
-    }
-
-    val emptyCopy = createEmptyCopy(originalObject, getObjectType(originalObject, getValueType(originalObject))).get
-
-    loop(originalObject, emptyCopy, Map())
-  }
-
   def createCopy(objectInstance: Any): Any = {
 
     if (objectInstance == null) {
       return null
     }
-    getValueType(objectInstance) match {
+    getAssertableType(objectInstance) match {
       case SCALA_LIST_TYPE =>
         return copyList(objectInstance.asInstanceOf[List[_]])
       case SCALA_MAP_TYPE =>
@@ -494,7 +334,7 @@ object ReflectionUtil {
     var flag = 0
     val copy = nodesList.getExpected(objectInstance).getOrElse {
       flag = 1
-      createEmptyCopy(objectInstance, getObjectType(objectInstance, getValueType(objectInstance)))
+      createEmptyCopy(objectInstance, getObjectType(objectInstance, getAssertableType(objectInstance)))
         .getOrElse {
           throw new CopyException(objectInstance.getClass.getSimpleName)
           return None
@@ -506,7 +346,7 @@ object ReflectionUtil {
     }
 
     nodesList.addPair(copy, objectInstance)
-    val fieldsForCopy = getObjectProperties(objectInstance, getObjectType(objectInstance, getValueType(objectInstance)))
+    val fieldsForCopy = getObjectProperties(objectInstance, getObjectType(objectInstance, getAssertableType(objectInstance)))
 
     fieldsForCopy.foreach {
       field =>
@@ -523,7 +363,7 @@ object ReflectionUtil {
     if (propertyForCopy == null) {
       return null
     }
-    getValueType(propertyForCopy) match {
+    getAssertableType(propertyForCopy) match {
       case COMPLEX_TYPE =>
         return createCopyObject(propertyForCopy, nodesList).get
       case SCALA_LIST_TYPE =>
@@ -544,12 +384,12 @@ object ReflectionUtil {
   }
 
   def isComplexType(objectInstance: Any): Boolean = {
-    getValueType(objectInstance) == COMPLEX_TYPE
+    getAssertableType(objectInstance) == COMPLEX_TYPE
   }
 
   def copyValueTo(objectInstance: Any, propertyName: String, copiedProperty: Any, copiedObject: Any): Boolean = {
 
-    val objectType = getObjectType(copiedObject, getValueType(copiedObject)).getOrElse {
+    val objectType = getObjectType(copiedObject, getAssertableType(copiedObject)).getOrElse {
       return false
     }
     return setField(propertyName, copiedProperty, copiedObject, objectType)

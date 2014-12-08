@@ -36,6 +36,8 @@ import eu.execom.fabut.graph.IsomorphicNodePair
 import eu.execom.fabut.pair.SnapshotPair
 import eu.execom.fabut.exception.CopyException
 import eu.execom.fabut.pair.SnapshotPair
+import scala.collection.mutable.ListBuffer
+import eu.execom.fabut.pair.AssertPair
 
 class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
 
@@ -46,16 +48,19 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
   val ISOMORPHIC_GRAPH = true
   val NOT_ISOMORPHIC_GRAPH = false
 
-  private var _parameterSnapshot: List[SnapshotPair] = List()
-  def parameterSnapshot: List[SnapshotPair] = _parameterSnapshot
+  private val _parameterSnapshot: ListBuffer[SnapshotPair] = ListBuffer()
 
-  var nameStack: String = ""
-  var depth: Int = 0
-  var types: MutableMap[AssertableType, List[Type]] = MutableMap()
+  def parameterSnapshot: List[SnapshotPair] = _parameterSnapshot.toList
 
-  types(COMPLEX_TYPE) = fabutTest.getComplexTypes
-  types(IGNORED_TYPE) = fabutTest.getIgnoredTypes
-  types(ENTITY_TYPE) = List()
+  def initParametersSnapshot {
+    _parameterSnapshot.clear
+  }
+
+  private var _types: MutableMap[AssertableType, List[Type]] = MutableMap()
+
+  _types(COMPLEX_TYPE) = fabutTest.complexTypes
+  _types(IGNORED_TYPE) = fabutTest.ignoredTypes
+  _types(ENTITY_TYPE) = List()
 
   /**
    * Asserts object with with expected properties, every field of object must have property for it or assert will fail.
@@ -71,36 +76,43 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * 	<code> true </code> if objects can be asserted, <code> false </code> otherwise.
    *
    */
-  def assertObjectWithProperties(report: FabutReport, actualObject: Any, properties: Map[String, IProperty], nodesList: NodesList): Boolean = {
+  def assertObjectWithProperties(report: FabutReportBuilder, actualObject: Any, properties: Map[String, IProperty]): Boolean = {
 
-    if (getValueType(actualObject) == IGNORED_TYPE)
-      return true
+    val actualObjectType = getAssertableType(actualObject) match {
+      case IGNORED_TYPE =>
+        return ASSERTED
+      case assertableType =>
+        assertableType
+    }
 
-    val actualObjectType = getValueType(actualObject)
     val actualProperties: Map[String, Property] = getObjectProperties(actualObject, getObjectType(actualObject, actualObjectType))
-
-    var ret: Boolean = true
+    var result = ASSERTED
 
     actualProperties.values.foreach {
       case actualProperty: Property =>
 
-        val expectedProperty: Option[IProperty] = try {
+        val expectedProperty = if (properties.contains(actualProperty.path)) {
           Some(properties(actualProperty.path))
-        } catch {
-          case e: NoSuchElementException => None
+        } else {
+          None
         }
 
         expectedProperty match {
           case expectedProperty if (expectedProperty.isDefined) =>
-            ret &= assertProperty(actualProperty, expectedProperty.get, properties, nodesList, true)(report)
+            result &= assertProperty(actualProperty.path, actualProperty.value, expectedProperty.get, properties, new NodesList, true)(report)
           case expectedProperty if (hasInnerProperties(actualProperty.path, properties)) =>
-            ret &= assertInnerProperty(actualProperty.path, actualProperty.value, properties, nodesList, report)
+            result &= assertInnerProperty(actualProperty.path, actualProperty.value, properties, new NodesList, report)
           case _ =>
-            report.addMissingExpectedPropertyMessage(actualProperty.path)
-            ret &= false
+            // there is no matching property for field -- check if good 
+            report.noPropertyForField(actualProperty.path, actualProperty)
+            result &= ASSERT_FAIL
         }
     }
-    ret
+    if (result) {
+      this.afterAssertObject(actualObject, false)
+    }
+
+    result
   }
 
   /**
@@ -116,21 +128,23 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    *  		<code> true </code> if objects can be asserted, <code> false </code> otherwise.
    *
    */
-  def assertObjects(report: FabutReport, expectedObject: Any, actualObject: Any, expectedChangedProperties: Map[String, IProperty]): Boolean = {
+  def assertObjects(report: FabutReportBuilder, expectedObject: Any, actualObject: Any, expectedChangedProperties: Map[String, IProperty]): Boolean = {
 
-    val pair = AssertPair(EMPTY_STRING, expectedObject, actualObject, getValueType(actualObject), false)
+    val isProperty = false
+    val pair = AssertPair(EMPTY_STRING, expectedObject, actualObject, getAssertableType(actualObject), isProperty)
+
     val expectedProperties = if (expectedChangedProperties.isEmpty) {
-      getObjectProperties(expectedObject, getObjectType(expectedObject, getValueType(expectedObject)))
+      getObjectProperties(expectedObject, getObjectType(expectedObject, getAssertableType(expectedObject)))
     } else {
       expectedChangedProperties
     }
 
-    val assertResult = assertPair(pair, expectedProperties, new NodesList)(report)
-    //    if (assertResult) {
-    //      afterAssertResult(actual, false)
-    //    }
-    return assertResult
+    val assertResult = assertPair(EMPTY_STRING, pair, expectedProperties, new NodesList)(report)
 
+    if (assertResult) {
+      afterAssertObject(actualObject, false)
+    }
+    assertResult
   }
 
   /**
@@ -145,29 +159,22 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    *  @return
    *  	<code> true </code> if actual property is successfully asserted with expected <code> false </code> otherwise.
    */
-  def assertProperty(actualProperty: Property, expectedProperty: IProperty, changedProperties: Map[String, IProperty], nodesList: NodesList, isProperty: Boolean)(implicit report: FabutReport): Boolean = {
-    expectedProperty match {
-      case _: IgnoredProperty =>
+  def assertProperty(fieldName: String, actualObject: Any, property: IProperty, changedProperties: Map[String, IProperty], nodesList: NodesList, isProperty: Boolean)(implicit report: FabutReportBuilder): Boolean = {
+    property match {
+      case field: IgnoredProperty =>
+        report.reportIgnoreProperty(field.path)
         ASSERTED
-      case _: NullProperty =>
-        if (actualProperty.value != null) {
-          report.addNullExpectedException(actualProperty.path, actualProperty.value)
-          ASSERT_FAIL
-        } else {
-          ASSERTED
-        }
-
-      case _: NotNullProperty =>
-        if (actualProperty.value == null) {
-          report.addNotNullExpectedException(actualProperty.path, actualProperty.value)
-          ASSERT_FAIL
-        } else {
-          ASSERTED
-        }
-
+      case field: NullProperty =>
+        val ok = if (actualObject == null) ASSERTED else ASSERT_FAIL
+        report.notNullProperty(field.path, ok)
+        ok
+      case field: NotNullProperty =>
+        val ok = if (actualObject != null) ASSERTED else ASSERT_FAIL
+        report.nullProperty(field.path, ok)
+        ok
       case expectedProperty: Property => {
 
-        val pair = AssertPair(actualProperty.getPath, expectedProperty.value, actualProperty.value, getValueType(actualProperty.value), isProperty)
+        val pair = AssertPair(fieldName, expectedProperty.value, actualObject, getAssertableType(actualObject), isProperty)
         val properties = getObjectProperties(pair.expected, getObjectType(pair.expected, pair.assertableType))
 
         if (pair.assertableType == COMPLEX_TYPE) {
@@ -177,18 +184,21 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
           nodeCheckType match {
             case NEW_PAIR =>
               nodesList.addPair(pair.expected, pair.actual)
-              assertPair(pair, properties, nodesList)
+              assertPair(fieldName, pair, properties, nodesList)
             case CONTAINS_PAIR =>
-              if (nodesList.containsPair(pair.expected, pair.actual))
+              if (nodesList.containsPair(pair.expected, pair.actual)) {
                 ISOMORPHIC_GRAPH
-              else
+              } else {
+                report.checkByReference(pair.path, pair.actual, false)
                 NOT_ISOMORPHIC_GRAPH
+              }
           }
         } else {
-          assertPair(pair, properties, nodesList)
+          assertPair(fieldName, pair, properties, nodesList)
         }
 
       }
+      case _ => ASSERTED
     }
   }
 
@@ -197,42 +207,44 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    */
   def hasInnerProperties(parent: String, properties: Map[String, IProperty]): Boolean = {
 
-    val ret = properties.keys.find(property => property.startsWith(parent))
+    properties.keys.find(property => property.startsWith(parent)).getOrElse(return ASSERT_FAIL)
 
-    if (ret.isDefined)
-      ASSERTED
-    else
-      ASSERT_FAIL
+    ASSERTED
 
   }
 
-  def assertPair(pair: AssertPair, changedProperties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReport): Boolean = {
+  def assertPair(fieldName: String, pair: AssertPair, changedProperties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReportBuilder): Boolean = {
 
     pair.assertableType match {
       case SCALA_LIST_TYPE =>
-        assertListElements(0, pair.actual.asInstanceOf[List[Any]], pair.expected.asInstanceOf[List[Any]])(report)
+        assertListElements(fieldName, 0, pair.actual.asInstanceOf[List[Any]], pair.expected.asInstanceOf[List[Any]])(report)
       case SCALA_MAP_TYPE =>
-        assertMapElements(pair.actual.asInstanceOf[Map[Any, Any]], pair.expected.asInstanceOf[Map[Any, Any]])(report)
+        assertMapElements(fieldName, pair.actual.asInstanceOf[Map[Any, Any]], pair.expected.asInstanceOf[Map[Any, Any]])(report)
       case ENTITY_TYPE =>
-        assertEntityById(pair.path, pair.actual, pair.expected)
+        assertEntityPair(report, pair.path, pair, changedProperties, nodesList)
       case IGNORED_TYPE =>
-        println("Report ignored type? ")
-        true
-      // TO-DO what?
+        report.ignoredType(pair)
+        ASSERTED
       case COMPLEX_TYPE =>
-
-        assertSubfields(pair.actual, changedProperties, nodesList)
-
-      case PRIMITIVE_TYPE => {
-        assertPrimitives(pair)
-      }
+        assertSubfields(fieldName, pair, changedProperties, nodesList)
+      case PRIMITIVE_TYPE =>
+        assertPrimitives(pair, fieldName)
+      case _ =>
+        throw new IllegalStateException("Uknown assert type: " + pair.assertableType)
     }
 
   }
 
-  def assertInnerProperty(parentName: String, parentObject: Any, changedProperties: Map[String, IProperty], nodesList: NodesList, report: FabutReport): Boolean = {
+  def assertEntityPair(report: FabutReportBuilder, propertyName: String, pair: AssertPair, properties: Map[String, IProperty], nodesList: NodesList): Boolean = {
+    throw new IllegalStateException("Entities are not supported!")
+  }
+
+  def assertInnerProperty(parentName: String, parentObject: Any, changedProperties: Map[String, IProperty], nodesList: NodesList, report: FabutReportBuilder): Boolean = {
     val extracts = extractPropertiesWithMatchingParent(parentName, changedProperties)
-    assertObjectWithProperties(report, parentObject, extracts, nodesList)
+    report.increaseDepth(parentName)
+    val result = assertObjectWithProperties(report, parentObject, extracts)
+    report.decreaseDepth
+    result
   }
 
   def extractPropertiesWithMatchingParent(parent: String, properties: Map[String, IProperty]): Map[String, IProperty] =
@@ -252,40 +264,46 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    *  @param isComplexType
    *  	if type exists in types complex list, if not it is valued as None
    */
-  def assertListElements(position: Int, actualList: List[_], expectedList: List[_])(implicit report: FabutReport): Boolean = {
+  def assertListElements(propertyName: String, position: Int, actualList: List[_], expectedList: List[_])(implicit report: FabutReportBuilder): Boolean = {
 
-    var ret: Boolean = true
+    var result: Boolean = true
 
-    if (actualList != expectedList) {
-      report.addCollectionSizeExceptionMessage("", actualList.size, expectedList.size)
+    if (actualList.size != expectedList.size) {
+      report.listDifferentSizeComment(propertyName, expectedList.size, actualList.size)
+      //      report.addCollectionSizeExceptionMessage("", actualList.size, expectedList.size)
       return ASSERT_FAIL
     }
+
+    report.increaseDepth(propertyName)
+    report.assertingListElements(propertyName, position)
 
     actualList match {
       case head :: tail => {
         val actual = actualList.head
         val expected = expectedList.head
-        if (getValueType(head) == PRIMITIVE_TYPE) {
+
+        if (getAssertableType(head) == PRIMITIVE_TYPE) {
           try {
             fabutTest.customAssertEquals(expected, actual)
-            ret &= ASSERTED
+            result &= ASSERTED
           } catch {
             case e: AssertionError =>
-              report.addListPropertyException(position, actual, expected)
-              ret &= ASSERT_FAIL
+              val pair = new AssertPair(EMPTY_STRING, expected, actual, PRIMITIVE_TYPE, true)
+              report.assertFail(pair, propertyName)
+              result &= ASSERT_FAIL
           }
         } else {
           assertObjects(report, expected, actual, Map())
         }
-        ret &= assertListElements(position + 1, actualList.tail, expectedList.tail)
+        result &= assertListElements(propertyName, position + 1, actualList.tail, expectedList.tail)
       }
-      case Nil => return ret
+      case Nil => return result
     }
 
-    ret
+    report.decreaseDepth
 
+    result
   }
-
   /**
    *  Helper class for asserting maps, for each key from actual map,
    *    checks if it exists in expected and asserts values
@@ -297,578 +315,125 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    *  @param expectedMap
    *   	map in expected object
    */
-  def assertMapElements(actualMap: Map[Any, Any], expectedMap: Map[Any, Any])(implicit report: FabutReport): Boolean = {
+  def assertMapElements(propertyName: String, actualMap: Map[Any, Any], expectedMap: Map[Any, Any])(implicit report: FabutReportBuilder): Boolean = {
 
-    var ret = true
+    var result = ASSERTED
 
     if (actualMap.size != expectedMap.size) {
-      report.addCollectionSizeExceptionMessage("", actualMap.size, expectedMap.size)
+      report.mapDifferentSizeComment(propertyName, expectedMap.size, actualMap.size)
+      //      report.addCollectionSizeExceptionMessage("", actualMap.size, expectedMap.size)
       return ASSERT_FAIL
     }
+
+    report.increaseDepth(propertyName)
 
     actualMap.keys.foreach {
       (name: Any) =>
         try {
+          report.assertingMapKey(name)
+
           val actual = actualMap(name)
           val expected = expectedMap(name)
-          val actualType = getObjectType(actual, getValueType(actual))
-          val expectedType = getObjectType(expected, getValueType(expected))
-          if (actualType != expectedType) {
-            report.addNonMatchingTypesMessage(actualType.toString, expectedType.toString)
-            ret &= ASSERT_FAIL
-          } else if (!actualType.isDefined) {
-            try {
-              fabutTest.customAssertEquals(actual, expected)
-            } catch {
-              case e: AssertionError =>
-                report.addPropertiesExceptionMessage(s" for key ${name} ", actual, expected)
-                ret &= ASSERT_FAIL
-            }
-          } else {
-            ret &= assertObjects(report, expected, actual, Map())
-          }
+
+          val actualType = getObjectType(actual, getAssertableType(actual))
+          val expectedType = getObjectType(expected, getAssertableType(expected))
+
+          result &= assertObjects(report, expected, actual, Map())
+
         } catch {
+
           case e: NoSuchElementException =>
-            report.addKeyNotFoundInExpectedMapMessage(name.toString)
+            report.mapMissingKeyInExpected(name)
+            val differentExpectedKey = expectedMap.keys.toList diff (actualMap.keys.toList)
+            report.mapMissingKeyInActual(differentExpectedKey.head)
+            result &= ASSERT_FAIL
         }
     }
-    ret
+
+    report.decreaseDepth
+    result
 
   }
 
-  def assertParameterSnapshot(report: FabutReport): Boolean = {
-    var ok = false
+  def assertParameterSnapshot(report: FabutReportBuilder): Boolean = {
+    var ok = true
     parameterSnapshot.foreach {
       case snapshotPair: SnapshotPair => {
         ok &= assertObjects(report, snapshotPair.expected, snapshotPair.actual, Map())
       }
     }
-
     initParametersSnapshot
-    return ok
+    ok
   }
 
-  def initParametersSnapshot {
-    _parameterSnapshot = List()
+  def afterAssertObject(theObject: Any, isSubproperty: Boolean): Boolean = {
+    ASSERT_FAIL
   }
 
-  /** NOT USED*/
-  def getReference(depth: Int, path: String, expectedObject: Any): Any = {
-    if (depth > 0) {
-      try {
-        val newExpectedObjectName = path.split('.').toList.head
-        val newExpectedObject = reflectObject(newExpectedObjectName, expectedObject, getObjectType(expectedObject, COMPLEX_TYPE)).get
-        getReference(depth - 1, path.stripPrefix(newExpectedObjectName + DOT), newExpectedObject)
-      } catch {
-        case e: NoSuchElementException =>
-      }
-    } else {
-      expectedObject
-    }
-  }
+  def assertPrimitives(pair: AssertPair, propertyName: String)(implicit report: FabutReportBuilder) = {
 
-  /** NOT USED*/
-  /**
-   *  Method checks if two objects have isomorphic property graphs
-   *
-   *  How: We pass the position of the node to which recursion returns,
-   *  in actual object 'depth'
-   *
-   *  @param depth
-   *  	if chain of objects is ABCD and returns to object B is 2nd => 1234 returns to node 2,
-   *   	depth is the returning to node number
-   *  @param namePath
-   *  	used to guide the expected object through reflection, as it should be
-   *   	imaged from actual object
-   *  @param expectedObject
-   *
-   *  Now we reflect fully the expected object chain, when we get to the depth
-   *  to which it should be returned, we keep reference of object in 'actualReference'
-   *  now we continue reflection and when we get to end (recursion) we put the value to
-   *  'expectedReference' and compare those two references which should be same to satisfy
-   *  isomorphism
-   *
-   */
-  def checkIsomorphism(depth: Int, namePath: String, expectedObject: Any)(implicit report: FabutReport): Boolean = {
-
-    var depthLevels = 0
-    val actualReference = getReference(depth, namePath, expectedObject)
-
-    println(s"actual ${actualReference}")
-    for { path <- namePath.split('.').toList }
-      depthLevels += path.size
-
-    val expectedReference = getReference(depthLevels - depth, namePath.substring(2 * depth), actualReference)
-    println(s"expected ${expectedReference}")
-    if (actualReference != expectedReference) {
-      report.addIsomorphicGraphExceptionMessage(depth)
-      return false
-    }
-
-    true
-  }
-
-  /**
-   *  Returns the depth of entering inside objects, used
-   *  for checking if actual and expected objects are isomorphic
-   *
-   *  @param namePath
-   *
-   *  @return
-   * 	numeric depth level
-   */
-  def getGraphDepth(namePath: String): Int = {
-    if (namePath == "") {
-      0
-    } else {
-      (namePath.split('.').size)
-    }
-  }
-
-  def assertPrimitives(pair: AssertPair)(implicit report: FabutReport) = {
     try {
       fabutTest.customAssertEquals(pair.expected, pair.actual)
+      report.asserted(pair, propertyName)
       ASSERTED
     } catch {
       case e: AssertionError =>
-        report.addPropertiesExceptionMessage(pair.path, pair.actual, pair.expected)
+        report.assertFail(pair, propertyName)
+        //        report.addPropertiesExceptionMessage(pair.path, pair.actual, pair.expected)
         ASSERT_FAIL
     }
   }
 
-  def assertSubfields(actualObject: Any, changedProperties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReport) = {
+  def assertSubfields(propertyName: String, pair: AssertPair, changedProperties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReportBuilder) = {
 
-    val actualObjectType = getValueType(actualObject)
-    val actualProperties: Map[String, Property] = getObjectProperties(actualObject, getObjectType(actualObject, actualObjectType))
+    val objectType = getObjectType(pair.expected, getAssertableType(pair.expected))
+    val propertiesToBeAsserted = getObjectProperties(pair.expected, objectType)
 
-    var ret: Boolean = true
+    report.increaseDepth(propertyName)
+    var ret = ASSERTED
 
-    actualProperties.values.foreach {
-      case actualProperty: Property =>
+    propertiesToBeAsserted foreach {
+      case (propertyName, property) =>
+        val expectedProperty = obtainProperty(property, propertyName, changedProperties)
+        val actual = getFieldValueFromGetter(propertyName, pair.actual, objectType).getOrElse(throw new NoSuchElementException("Actual doesnt exist"))
 
-        val expectedProperty: Option[IProperty] = try {
-          Some(changedProperties(actualProperty.path))
-        } catch {
-          case e: NoSuchElementException => None
-        }
-
-        if (expectedProperty.isDefined) {
-          ret &= assertProperty(actualProperty, expectedProperty.get, changedProperties, nodesList, true)
-        } else if (hasInnerProperties(actualProperty.path, changedProperties)) {
-          ret &= assertInnerProperty(actualProperty.path, actualProperty.value, changedProperties, nodesList, report)
-        } else {
-          report.addMissingExpectedPropertyMessage(actualProperty.path)
-          ret &= false
-        }
+        ret &= assertProperty(propertyName, actual, expectedProperty, changedProperties, nodesList, true)
     }
+
+    report.decreaseDepth
+
     ret
   }
 
-  def assertEntityById(entityObjectName: String, entityObject: Any, expectedObject: Any)(implicit report: FabutReport): Boolean = {
-    val actualValue = getFieldValueFromGetter("id", entityObject, getObjectType(entityObject, ENTITY_TYPE))
-    // val expectedEntityObject = reflectObject(entityObjectName, expectedObject, getObjectType(entityObject, ENTITY_TYPE))
-    val expectedValue = getFieldValueFromGetter("id", expectedObject, getObjectType(expectedObject, ENTITY_TYPE))
-    try {
-      fabutTest.customAssertEquals(expectedValue, actualValue)
-      ASSERTED
+  def obtainProperty(property: IProperty, propertyPath: String, properties: Map[String, IProperty]) = {
 
-    } catch {
-      case e: AssertionError => {
-        report.addPropertiesExceptionMessage(entityObjectName + "id", actualValue, expectedValue)
-        ASSERT_FAIL
-      }
+    if (properties.contains(propertyPath)) {
+      properties(propertyPath)
+    } else {
+      property
     }
   }
 
   /**
    *  Makes snapshot of specified
    */
-  def takeSnapshot(report: FabutReport, parameters: Any*): Boolean = {
+  def takeSnapshot(report: FabutReportBuilder, parameters: Seq[Any]): Boolean = {
 
-    _parameterSnapshot = List()
+    initParametersSnapshot
 
-    var ret = ASSERTED
+    var result = ASSERTED
     parameters.foreach {
-      objectInstance =>
+      entity =>
         try {
-          val snapshotPair = SnapshotPair(false, objectInstance, createCopy(objectInstance))
-          _parameterSnapshot ::= snapshotPair
+          val snapshotPair = SnapshotPair(false, entity, createCopy(entity))
+          _parameterSnapshot += snapshotPair
         } catch {
           case e: CopyException => // TODO add to report copy exception message
-            ret &= ASSERT_FAIL;
-            println(objectInstance);
-            println("SRANJE");
+            report.noCopy(entity)
+            result &= ASSERT_FAIL;
         }
-
     }
-    return ret
-  }
-
-  /**BLAAA old crap*/
-
-  /**
-   * Asserts 2 objects.
-   *
-   * @param actualObject
-   *            actual object
-   * @param expectedObject
-   *            expected object
-   * @param customProperties
-   * 			List of expected regular, ignorable, null or not null properties
-   *    for asserting instead of properties from expected object
-   */
-  def assert(report: FabutReport, expectedObject: Any, actualObject: Any, customProperties: Map[String, IProperty]) {
-
-    /* 
-     * Contains elements that are not yet expected and after algorithm wrong or unused properties
-     * 
-     * */
-    var unusedExpectedProperties: Map[String, IProperty] = customProperties
-
-    /**
-     *  Asserts two collections, either scala map or scala list
-     *
-     *  @param pathcut
-     *  	  the number of characters to be cut from full primitives name
-     *      as we go deeper inside expected object to assert its primitive property
-     *  @param namePath
-     *  	  full path name where the property is positioned in graph
-     *  @param actualCollection
-     *  	  actual collection to be asserted
-     *  @param expectedObject
-     *  	  expected object to be reflected for getting the expected collection if depth is bigger then 1
-     *  @param collectionType
-     *  	type of collection from enumeration AssertableType -> SCALA_MAP_TYPE or SCALA_LIST_TYPE
-     */
-
-    //    TODO extract all methods to be at the same level, pass report as implict
-    //    TODO no need for prefix error message here, it should be just passed to Fabut methods
-    def assertCollection(pathcut: Int, namePath: String, actualCollection: Any, expectedObject: Any, collectionType: AssertableType) {
-
-      val propertyDepth = namePath.substring(pathcut).split('.')
-
-      var expectedCollection: Any = null
-
-      //      TODO expectedCollection can be modified to be instantiated like this val  expectedCollection = try{...
-      try {
-        expectedCollection = customProperties(namePath).asInstanceOf[Property].value
-        unusedExpectedProperties -= namePath
-      } catch {
-        case t: NoSuchElementException =>
-          {
-
-            if (propertyDepth.size > 1) {
-              val newExpectedObjectName = propertyDepth.head
-
-              val newExpectedObject = reflectObject(newExpectedObjectName, expectedObject, getObjectType(expectedObject, COMPLEX_TYPE)).get
-              if (newExpectedObject != None) {
-                assertCollection(pathcut + newExpectedObjectName.size + 1, namePath, actualCollection, newExpectedObject, collectionType)
-              }
-              return
-            } else {
-              if (propertyDepth.head == "") { // case "" is when assertObjects checks 2 List/Maps
-                expectedCollection = expectedObject
-              } else {
-                expectedCollection = getFieldValueFromGetter(propertyDepth.head, expectedObject, getObjectType(expectedObject, COMPLEX_TYPE)).get
-              }
-
-            }
-
-          }
-      } // end catch
-
-      var expectedCollectionSize = 0;
-      var actualCollectionSize = 0;
-
-      collectionType match {
-        case SCALA_LIST_TYPE =>
-          actualCollectionSize = actualCollection.asInstanceOf[List[Any]].size
-          expectedCollectionSize = expectedCollection.asInstanceOf[List[Any]].size
-        case SCALA_MAP_TYPE =>
-          actualCollectionSize = actualCollection.asInstanceOf[Map[Any, Any]].size
-          expectedCollectionSize = expectedCollection.asInstanceOf[Map[Any, Any]].size
-        case _ =>
-          throw new Error("For future implementation of more collections")
-      }
-
-      if (actualCollectionSize != expectedCollectionSize) {
-        report.addCollectionSizeExceptionMessage(namePath, actualCollectionSize, expectedCollectionSize)
-      } else {
-        collectionType match {
-          case SCALA_LIST_TYPE =>
-            println("TODO - modify assert list a lil bit")
-            assertListElements(0, namePath, actualCollection.asInstanceOf[List[Any]], expectedCollection.asInstanceOf[List[Any]], getObjectType(actualCollection.asInstanceOf[List[_]].head, COMPLEX_TYPE))
-          case SCALA_MAP_TYPE =>
-          //assertMapElements(namePath, actualCollection.asInstanceOf[Map[Any, Any]], expectedCollection.asInstanceOf[Map[Any, Any]])
-          case _ => throw new Error("For future implementation of more collections")
-        }
-      }
-
-    }
-
-    /**
-     *  Helper class for asserting lists, goes through each object
-     *    in actual list and asserts with corresponding in expected list
-     *  @param position
-     *  	actual position of objects we are asserting in list
-     *  @param namePath
-     *   	full name in object chain
-     *  @param actualList
-     *  	list in actual object
-     *  @param expectedList
-     *   	list in expected object
-     *  @param isComplexType
-     *  	if type exists in types complex list, if not it is valued as None
-     */
-    def assertListElements(position: Int, namePath: String, actualList: List[_], expectedList: List[_], isComplexType: Option[Type]) {
-
-      actualList match {
-        case head :: tail => {
-
-          if (isComplexType == None) {
-            try {
-              fabutTest.customAssertEquals(expectedList.head, actualList.head)
-            } catch {
-              case e: AssertionError =>
-                report.addListPropertyException(position, actualList.head, expectedList.head)
-            }
-          } else {
-            assertNode(expectedList.head, actualList.head, "", Map())
-          }
-          assertListElements(position + 1, namePath, actualList.tail, expectedList.tail, isComplexType)
-        }
-        case Nil => return
-      }
-
-    }
-
-    /**
-     *  Fetches properties from actual object, asserts each actual property
-     *   with corresponding in expected object or with one from expected property map,
-     *   and for each complex object as property recursively calls itself to assert it
-     *
-     * 	 @param expected
-     *   	the expected object
-     *   @param actual
-     *   	the actual object
-     *   @param namePath
-     *   	symbolic path of actual object, used to check if properties
-     *      and objects are on same position in expected
-     *   @checkedObjects
-     *   	Map that has key as object reference that we've already asserted and value as
-     *    	numeric position in actual objects chain
-     *   @prefixErrorMessage
-     *   	Part of message used if algorithm gets inside collection for remembering the path
-     *      because of recursive usage of assertGraph method
-     */
-    def assertNode(expected: Any, actual: Any, namePath: String, checkedObjectsMap: Map[Any, Int]) {
-
-      /**
-       * Asserts primitive properties from actual object with corresponding pairs from expected object
-       *   via abstract method assertEqualsObjects, adds mismatch into report.
-       *   Primitive property is any class not marked as complex, entity or ignored type
-       *
-       *  @param pathcut
-       *  	the number of characters to be cut from full primitives name
-       *      as we go deeper inside expected object to assert its primitive property
-       *  @param properties
-       *  	primitive types with name and value to be asserted
-       *  @param expectedObject
-       *  	the expected object
-       *
-       */
-      def assertPrimitiveProperties(pathcut: Int, properties: Map[String, IProperty], expectedObject: Any) {
-
-        /**
-         * - Checks if all properties are specified in case of assertObject call of the algorithm,
-         * 	    or in case of assertObjects call, it partitions the expected properties
-         *      to assert from the predefined expected properties list
-         *
-         *  @param propertyName
-         *  	property name to be checked in expected map
-         *
-         * 	@return
-         *  	true if exists in expected properties list else false
-         */
-        def splitExpectedProperties(propertyName: String): Boolean = {
-          try {
-            customProperties(propertyName); true
-          } catch {
-            case e: NoSuchElementException =>
-              if (expected == Nil) {
-                report.addMissingExpectedPropertyMessage(propertyName)
-              }; false
-          }
-        }
-
-        if (properties.size == 0) return
-
-        var regularExpectedProperties: Map[String, IProperty] = Map()
-
-        val (expectedProperties, unexpectedProperties) = properties partition {
-          case (name: String, property: IProperty) => splitExpectedProperties(name)
-        }
-
-        // transform all actual Property to custom Property (NullProperty, IgnoredProperty)..
-        expectedProperties.keys.foreach {
-          propertyName =>
-            customProperties(propertyName) match {
-              case property: NullProperty =>
-                regularExpectedProperties ++= Map(property.path -> NullProperty(property.path))
-              case property: Property =>
-                val actualPropertyValue = expectedProperties(property.path).asInstanceOf[Property].value
-                regularExpectedProperties ++= Map(property.path -> Property(property.path, actualPropertyValue))
-              case property: NotNullProperty =>
-                regularExpectedProperties ++= Map(property.path -> NotNullProperty(property.path))
-            }
-        }
-
-        if (expected == Nil) { // called from asertObject
-
-          regularExpectedProperties.values.foreach {
-            property =>
-              try {
-                property match {
-                  case property: Property =>
-                    fabutTest.customAssertEquals(property.value, unusedExpectedProperties(property.path).asInstanceOf[Property].value)
-
-                  case property: NullProperty =>
-                    val propertyValue = expectedProperties(property.path).asInstanceOf[Property].value
-                    if (propertyValue != null) {
-                      report.addNullExpectedException(property.path, propertyValue)
-                    }
-
-                  case property: NotNullProperty =>
-                    val propertyValue = expectedProperties(property.path).asInstanceOf[Property].value
-                    if (propertyValue == null) {
-                      report.addNotNullExpectedException(property.path, propertyValue)
-                    }
-                }
-              } catch {
-                case e: AssertionError => {
-                  //report.addPropertiesExceptionMessage(property.getPath, property.asInstanceOf[Property].value, unusedExpectedProperties(property.getPath).asInstanceOf[Property].value)
-                }
-              }
-            //unusedExpectedProperties -= property.getPath
-
-          }
-        } else { // called from assertObjects
-
-          val propertyDepth = properties.head._1.substring(pathcut).split('.')
-          val (reg, unu) = removeIgnoredAndNullProperties(properties, customProperties, unusedExpectedProperties, report)
-          regularExpectedProperties = reg
-          if (propertyDepth.size == 1) {
-            //            unusedExpectedProperties = reflectPrimitiveProperties(pathcut, regularExpectedProperties, expectedObject, getObjectType(expectedObject, COMPLEX_TYPE), unusedExpectedProperties, report)
-          } else {
-            try {
-              val newExpectedObjectName = propertyDepth.head
-              val newExpectedObject = reflectObject(newExpectedObjectName, expectedObject, getObjectType(expectedObject, COMPLEX_TYPE)).get
-              assertPrimitiveProperties(pathcut + newExpectedObjectName.size + 1, properties, newExpectedObject)
-            } catch {
-              case e: NoSuchElementException => println("Cannot get expected object, missing type?")
-            }
-          }
-        }
-      }
-
-      //  method assertGraph entrance 
-
-      val checkedObjects: Map[Any, Int] = checkedObjectsMap ++ Map(actual -> getGraphDepth(namePath))
-      val objectProperties = getObjectProperties(actual, getObjectType(actual, getValueType(actual)))
-
-      if (objectProperties nonEmpty) {
-
-        val (primitiveProperties, nonPrimitiveProperties) = objectProperties partition {
-          case (name: String, property: Property) => getValueType(property.value) == PRIMITIVE_TYPE
-        }
-
-        if (primitiveProperties nonEmpty) {
-          assertPrimitiveProperties(0, primitiveProperties, expected)
-        }
-
-        val (filteredProperties, unusuedPropertiez) = removeIgnoredAndNullProperties(nonPrimitiveProperties, customProperties, unusedExpectedProperties, report)
-        unusedExpectedProperties = unusuedPropertiez
-        filteredProperties.values foreach {
-          case (property: Property) =>
-            getValueType(property.value) match {
-              case SCALA_LIST_TYPE =>
-                assertCollection(0, property.path, property.value, expected, SCALA_LIST_TYPE)
-              case SCALA_MAP_TYPE =>
-                assertCollection(0, property.path, property.value, expected, SCALA_MAP_TYPE)
-              case ENTITY_TYPE =>
-                assertEntityById(property.path, property.value, expected)(report)
-              case IGNORED_TYPE =>
-              // TO-DO what?
-              case COMPLEX_TYPE => {
-                if (checkedObjects.contains(property.value))
-                  checkIsomorphism(checkedObjects(property.value), property.path, expected)(report)
-                else
-                  assertNode(expected, property.value, property.path + DOT, checkedObjects)
-              }
-            }
-        }
-
-      } else {
-
-      }
-    }
-
-    getValueType(actualObject) match {
-      case PRIMITIVE_TYPE => {
-        try {
-          fabutTest.customAssertEquals(expectedObject, actualObject)
-        } catch {
-          case e: AssertionError =>
-            report.addPropertiesExceptionMessage("", actualObject, expectedObject)
-        }
-      }
-
-      //      TODO what are ""??? 
-      case SCALA_LIST_TYPE =>
-        assertCollection(0, "", actualObject, expectedObject, SCALA_LIST_TYPE)
-      case SCALA_MAP_TYPE =>
-        assertCollection(0, "", actualObject, expectedObject, SCALA_MAP_TYPE)
-      case _ =>
-        assertNode(expectedObject, actualObject, "", Map())
-    }
-
-    if (unusedExpectedProperties.nonEmpty)
-      unusedExpectedProperties foreach {
-        case (propertyName: String, propertyValue: Any) =>
-          report.addUnusedPropertyMessage(propertyName, propertyValue)
-      }
-
-  }
-
-  def removeIgnoredAndNullProperties(properties: Map[String, IProperty], customProperties: Map[String, IProperty], unusedPropertiez: Map[String, IProperty], report: FabutReport): (Map[String, IProperty], Map[String, IProperty]) = {
-
-    val ignoreAndNullProperties = customProperties.values.filter(property => !property.isInstanceOf[Property])
-
-    var unusedProperties = unusedPropertiez
-    var filteredProperties = properties
-
-    //    ignoreAndNullProperties.foreach {
-    //      property =>
-    //        try {
-    //          property match {
-    //            case _: NullProperty =>
-    //              val propertyValue = properties(property.getPath).asInstanceOf[Property].value
-    //              if (propertyValue != null) {
-    //                report.addNullExpectedException(property.getPath, propertyValue)
-    //              }
-    //            case _: NotNull =>
-    //              val propertyValue = properties(property.getPath).asInstanceOf[Property].value
-    //              if (propertyValue == null) {IProperty
-    //                report.addNullExpectedException(property.getPath, propertyValue)
-    //              }
-    //            case _: IgnoredProperty =>
-    //          }
-    //          filteredProperties -= property.getPath
-    //          unusedProperties -= property.getPath
-    //        } catch {
-    //          case e: NoSuchElementException =>
-    //        }
-    (filteredProperties, unusedProperties)
+    result
   }
 
   /**
@@ -877,19 +442,10 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    *  @return the types
    */
 
-  def getTypes: MutableMap[AssertableType, List[Type]] = types
-
-  /**
-   *  Sets the types map
-   *
-   *  @param types
-   *  		the Fabut object types
-   */
-  def setTypes(types: MutableMap[AssertableType, List[Type]]) =
-    this.types = types
+  def types: MutableMap[AssertableType, List[Type]] = _types
 
   def getEntityTypes =
-    this.types(ENTITY_TYPE)
+    _types(ENTITY_TYPE)
 
 }
 

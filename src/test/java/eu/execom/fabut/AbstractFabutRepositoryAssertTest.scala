@@ -29,41 +29,48 @@ import eu.execom.fabut.model.EntityTierTwoType
 import org.junit.Before
 import org.junit.After
 import eu.execom.fabut.enums.AssertType
+import eu.execom.fabut.model.NoDefaultConstructorEntity
+import scala.collection.mutable.ListBuffer
+import eu.execom.fabut.model.TierOneTypeDuplicate
 
 class AbstractFabutRepositoryAssertTest extends Assert with IFabutRepositoryTest {
 
   //mock lists
-  var entityTierOneTypes: List[EntityTierOneType] = List()
-  var entityTierTwoTypes: List[EntityTierTwoType] = List()
-  var entityTierThreeTypes: List[EntityTierThreeType] = List()
+  var entityTierOneTypes: ListBuffer[EntityTierOneType] = ListBuffer()
+  var entityTierTwoTypes: ListBuffer[EntityTierTwoType] = ListBuffer()
+  var noDefaultConstructorEntities: ListBuffer[NoDefaultConstructorEntity] = ListBuffer()
 
-  var fabutRepositoryAssert: FabutRepositoryAssert = null
+  var _fabutRepositoryAssert: FabutRepositoryAssert = null
 
   @Before
   override def fabutBeforeTest = {
-    fabutRepositoryAssert = new FabutRepositoryAssert(this, AssertType.REPOSITORY_ASSERT)
+    _fabutRepositoryAssert = new FabutRepositoryAssert(this, AssertType.REPOSITORY_ASSERT)
   }
 
   @After
-  override def fabutAfterTest = {}
+  override def fabutAfterTest = {
+  }
 
-  override def getEntityTypes(): List[Type] = {
+  def fabutRepositoryAssert = _fabutRepositoryAssert
 
-    var entityTypes: List[Type] = List()
-    entityTypes ::= typeOf[EntityTierOneType]
-    entityTypes ::= typeOf[EntityTierTwoType]
-    entityTypes ::= typeOf[EntityTierThreeType]
-    return entityTypes
+  override def entityTypes: List[Type] = {
+
+    val entityTypes: ListBuffer[Type] = ListBuffer()
+    entityTypes += typeOf[EntityTierOneType]
+    entityTypes += typeOf[EntityTierTwoType]
+    entityTypes += typeOf[EntityTierThreeType]
+    entityTypes += typeOf[NoDefaultConstructorEntity]
+    return entityTypes.toList
   }
 
   override def findAll(clazz: Type) = {
 
     if (typeOf[EntityTierOneType] == clazz) {
-      entityTierOneTypes
+      entityTierOneTypes.toList
     } else if (typeOf[EntityTierTwoType] == clazz) {
-      entityTierTwoTypes
+      entityTierTwoTypes.toList
     } else {
-      entityTierThreeTypes
+      noDefaultConstructorEntities.toList
     }
 
   }
@@ -74,54 +81,57 @@ class AbstractFabutRepositoryAssertTest extends Assert with IFabutRepositoryTest
     } else if (typeOf[EntityTierTwoType] == entityClass) {
       entityTierTwoTypes.find(entity => entity.id == id)
     } else {
-      entityTierThreeTypes.find(entity => entity.id == id)
+      noDefaultConstructorEntities.find(entity => entity.id == id)
     }
-
-    //TODO no default constructor 
   }
 
-  override def getComplexTypes(): List[Type] = {
+  override def complexTypes: List[Type] = {
 
-    var complexTypes: List[Type] = List()
-    complexTypes ::= typeOf[ObjectWithSimpleProperties]
-    complexTypes ::= typeOf[ObjectWithComplexProperty]
-    complexTypes ::= typeOf[ObjectInsideSimpleProperty]
-    complexTypes ::= typeOf[ObjectWithMap]
-    complexTypes ::= typeOf[ObjectWithSimpleMap]
-    complexTypes ::= typeOf[ObjectWithSimpleList]
-    complexTypes ::= typeOf[CopyCaseClass]
-    complexTypes ::= typeOf[Person]
-    complexTypes ::= typeOf[EntityTierOneType]
-    complexTypes ::= typeOf[EntityTierThreeType]
-    complexTypes ::= typeOf[EntityTierTwoType]
-    complexTypes ::= typeOf[EntityTierOneType]
-    complexTypes ::= typeOf[TierOneType]
-    complexTypes ::= typeOf[TierTwoType]
-    complexTypes ::= typeOf[TierThreeType]
-    complexTypes ::= typeOf[TierFourType]
-    complexTypes ::= typeOf[TierFiveType]
-    complexTypes ::= typeOf[TierSixType]
-    complexTypes ::= typeOf[TierTwoTypeWithIgnoredType]
-    complexTypes ::= typeOf[EmptyClass]
-    complexTypes ::= typeOf[ListType]
-    complexTypes ::= typeOf[A]
-    complexTypes ::= typeOf[B]
-    complexTypes ::= typeOf[C]
-    complexTypes ::= typeOf[D]
-    complexTypes ::= typeOf[E]
+    val complexTypes: ListBuffer[Type] = ListBuffer()
+    complexTypes += typeOf[ObjectWithSimpleProperties]
+    complexTypes += typeOf[EntityTierThreeType]
+    complexTypes += typeOf[ObjectWithComplexProperty]
+    complexTypes += typeOf[ObjectInsideSimpleProperty]
+    complexTypes += typeOf[ObjectWithMap]
+    complexTypes += typeOf[ObjectWithSimpleMap]
+    complexTypes += typeOf[ObjectWithSimpleList]
+    complexTypes += typeOf[CopyCaseClass]
+    complexTypes += typeOf[Person]
+    complexTypes += typeOf[TierOneType]
+    complexTypes += typeOf[TierTwoType]
+    complexTypes += typeOf[TierThreeType]
+    complexTypes += typeOf[TierFourType]
+    complexTypes += typeOf[TierFiveType]
+    complexTypes += typeOf[TierSixType]
+    complexTypes += typeOf[TierTwoTypeWithIgnoredType]
+    complexTypes += typeOf[EmptyClass]
+    complexTypes += typeOf[ListType]
+    complexTypes += typeOf[TierOneTypeDuplicate]
+    complexTypes += typeOf[A]
+    complexTypes += typeOf[B]
+    complexTypes += typeOf[C]
+    complexTypes += typeOf[D]
+    complexTypes += typeOf[E]
 
-    return complexTypes
+    return complexTypes.toList
   }
 
-  override def getIgnoredTypes(): List[Type] = {
-    var ignoredTypes: List[Type] = List()
-    ignoredTypes ::= typeOf[IgnoredType]
-
-    return ignoredTypes
+  override def ignoredTypes: List[Type] = {
+    val ignoredTypes: ListBuffer[Type] = ListBuffer()
+    ignoredTypes += typeOf[IgnoredType]
+    return ignoredTypes.toList
   }
 
   override def customAssertEquals(expectedObject: Any, actualObject: Any) {
     Assert.assertEquals(expectedObject, actualObject)
+  }
+
+  def setEntityTierOneTypes(entityTierOneTypes1: ListBuffer[EntityTierOneType]) {
+    entityTierOneTypes = entityTierOneTypes1
+  }
+
+  def setEntityTierTwoTypes(entityTierTwoTypes1: ListBuffer[EntityTierTwoType]) {
+    entityTierTwoTypes = entityTierTwoTypes1
   }
 
 }

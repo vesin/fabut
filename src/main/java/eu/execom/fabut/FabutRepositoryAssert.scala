@@ -38,12 +38,9 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
   override def assertEntityPair(propertyName: String, pair: AssertPair, properties: Map[String, AbstractProperty], nodesList: NodesList)(implicit report: FabutReportBuilder): Boolean = {
 
     assertType match {
-      case OBJECT_ASSERT =>
-        super.assertEntityPair(propertyName, pair, properties, nodesList)
-      case REPOSITORY_ASSERT if (pair.isProperty) =>
-        assertEntityById(propertyName, pair)
-      case REPOSITORY_ASSERT =>
-        assertSubfields(propertyName, pair, properties, nodesList)
+      case OBJECT_ASSERT => super.assertEntityPair(propertyName, pair, properties, nodesList)
+      case REPOSITORY_ASSERT if pair.isProperty => assertEntityById(propertyName, pair)
+      case REPOSITORY_ASSERT => assertSubfields(propertyName, pair, properties, nodesList)
     }
   }
 
@@ -63,8 +60,7 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
     val expected = try {
       dbSnapshot(entityType)(id).entity
     } catch {
-      case e: NoSuchElementException =>
-        return ASSERT_FAIL
+      case e: NoSuchElementException => return ASSERT_FAIL
     }
 
     assertObjects(expected, entity, properties)(report)
@@ -82,7 +78,7 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
     val ignoredEntity = ignoreEntity(entity)
 
     val foundByIdObject = findById(getObjectType(entity, ENTITY_TYPE).get, getIdValue(entity))
-    val isDeletedInRepository = foundByIdObject == None;
+    val isDeletedInRepository = foundByIdObject == None
 
     if (!isDeletedInRepository) {
       report.notDeletedInRepositoy(entity)
@@ -121,12 +117,9 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
     }
 
     dbSnapshot.foreach {
-      case (entryKey, entryValue: MutableMap[Any, CopyAssert]) => {
-
+      case (entryKey, entryValue: MutableMap[Any, CopyAssert]) =>
         val foundAll: List[_] = findAll(entryKey)
-
-        foundAll.foreach {
-          entity =>
+        foundAll.foreach { entity =>
             try {
               val copy = createCopy(entity)
               entryValue += getFieldValueFromGetter("id", entity, getObjectType(entity, ENTITY_TYPE)).get -> CopyAssert(copy)
@@ -136,7 +129,6 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
                 ok = ASSERT_FAIL
             }
         }
-      }
     }
 
     ok && isParameterSnapshotOk
@@ -175,10 +167,9 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
       ASSERTED
 
     } catch {
-      case e: AssertionError => {
+      case e: AssertionError =>
         report.assertFail(pair, propertyName)
         ASSERT_FAIL
-      }
     }
   }
 
@@ -241,7 +232,7 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
           dbSnapshot(entityType) += id -> copyAssert
           copyAssert
       }
-      copyAssert.asserted_=(true)
+      copyAssert.asserted = true
 
     }
 
@@ -279,11 +270,8 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
    * Initialize database snapshot.
    */
   def initDbSnapshot = {
-    dbSnapshot.clear
-    getEntityTypes.foreach {
-      entity =>
-        dbSnapshot += entity -> MutableMap()
-    }
+    dbSnapshot.clear()
+    getEntityTypes.foreach (entity => dbSnapshot += entity -> MutableMap())
   }
 
   /**
@@ -402,22 +390,14 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
    *            the report
    * @return true, if successful
    */
-  def assertDbSnapshot(implicit report: FabutReportBuilder): Boolean = {
-
-    var ok = ASSERTED
-    dbSnapshot.foreach {
-      snapshotEntry =>
-        {
+  def assertDbSnapshot(implicit report: FabutReportBuilder): Boolean =
+    dbSnapshot.forall(snapshotEntry => {
           val afterEntities = getAfterEntities(snapshotEntry._1)
           val beforeIds = snapshotEntry._2.keySet.toSet
           val afterIds = afterEntities.keySet
 
-          ok &= checkNotExistingInAfterDbState(beforeIds, afterIds, snapshotEntry._2.toMap)
-          ok &= checkNewToAfterDbState(beforeIds, afterIds, afterEntities)
-          ok &= assertDbSnapshotWithAfterState(beforeIds, afterIds, snapshotEntry._2.toMap, afterEntities)
-        }
-    }
-    ok
-  }
-
+          checkNotExistingInAfterDbState(beforeIds, afterIds, snapshotEntry._2.toMap) &&
+            checkNewToAfterDbState(beforeIds, afterIds, afterEntities) &&
+            assertDbSnapshotWithAfterState(beforeIds, afterIds, snapshotEntry._2.toMap, afterEntities)
+        })
 }

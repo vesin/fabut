@@ -1,6 +1,5 @@
 package eu.execom.fabut.report
 
-import org.apache.commons.lang3.StringUtils
 import eu.execom.fabut.enums.CommentType._
 import eu.execom.fabut.pair.AssertPair
 
@@ -8,7 +7,7 @@ import eu.execom.fabut.pair.AssertPair
  * Report builder used for creating clean and readable reports. Its point is to emphasize failed asserts so developer
  * can track them easy.
  */
-class FabutReportBuilder(newMessage: String) {
+class FabutReportBuilder(newMessage: String = "") {
 
   val ARROW = ">"
   val NEW_LINE = "\n"
@@ -16,49 +15,47 @@ class FabutReportBuilder(newMessage: String) {
   val COLON = ":"
 
   val builder: StringBuilder = new StringBuilder
-  var assertDepth: Integer = 0
+  var assertDepth: Int = 0
 
-  def this() = this("")
-  def message: String = builder.toString
+  def message: String = builder.toString()
 
-  if (!StringUtils.isEmpty(newMessage)) {
+  if (!newMessage.isEmpty) {
     builder.append(NEW_LINE)
     builder.append(newMessage)
-
   }
 
   def increaseDepth(parent: String) {
-    if (!StringUtils.isEmpty(parent)) {
+    if (parent.isEmpty) {
       builder.append(addIdentation + parent + COLON)
     }
     assertDepth += 1
   }
-  def decreaseDepth {
+
+  def decreaseDepth() {
     assertDepth -= 1
   }
 
-  def addIdentation: String = {
-    val part = new StringBuilder(builder.toString)
+  def addIdentation(): String = {
+    val part = new StringBuilder(builder.toString())
     builder.setLength(0)
     part.append(NEW_LINE)
 
-    for (i <- 0 to assertDepth) {
-      part.append(TAB)
-    }
-    part.toString
+    for (i <- 0 to assertDepth) part.append(TAB)
+
+    part.toString()
   }
 
-  def addComment(comment: String, commentType: CommentType) {
-    val part = new StringBuilder(addIdentation)
+  def addComment(comment: String, commentType: CommentType): Unit = {
+    val part = new StringBuilder(addIdentation())
 
     part.append(commentType)
     part.append(ARROW)
-
     part.append(comment)
-    builder.append(part.toString)
+
+    builder.append(part.toString())
   }
 
-  def listDifferentSizeComment(propertyName: String, expectedSize: Int, actualSize: Int) {
+  def listDifferentSizeComment(propertyName: String, expectedSize: Int, actualSize: Int) : Unit ={
     val comment = s"Expected size for list $propertyName is: $expectedSize, but was: $actualSize"
     addComment(comment, FAIL)
   }
@@ -134,59 +131,61 @@ class FabutReportBuilder(newMessage: String) {
   }
 
   def entityNotAssertedInAfterState(entity: Any) {
-    val comment = s"Entity ${entity} is created in system after last snapshot but hasnt been asserted in test."
+    val comment = s"Entity $entity is created in system after last snapshot but hasnt been asserted in test."
     addComment(comment, FAIL)
   }
 
-  def nullReference {
+  def nullReference() {
     val comment = s"Object that was passed to assertObject was null, it must not be null!"
     addComment(comment, FAIL)
   }
 
   def asserted(pair: AssertPair, propertyName: String) {
-    val comment = s"${propertyName}: expected: ${pair.expected} and was: ${pair.actual}"
+    val comment = s"$propertyName: expected: ${pair.expected} and was: ${pair.actual}"
     addComment(comment, SUCCESS)
   }
 
   def assertFail(pair: AssertPair, propertyName: String) {
-    val comment = s"${propertyName}: expected: ${pair.expected}, but was: ${pair.actual}"
+    val comment = s"$propertyName: expected: ${pair.expected}, but was: ${pair.actual}"
     addComment(comment, FAIL)
   }
 
-  def idNull(clazz: Any) {
+  def idNull(clazz: Any): Unit = {
     val comment = s"Id of ${clazz.getClass.getSimpleName} cannot be null"
     addComment(comment, FAIL)
   }
 
-  def noExistingInSnapshot(entity: Any) {
-    val comment = s"Entity: ${entity} cannot be found in snapshot"
+  def noExistingInSnapshot(entity: Any): Unit = {
+    val comment = s"Entity: $entity cannot be found in snapshot"
     addComment(comment, FAIL)
   }
 
-  def notDeletedInRepositoy(entity: Any) {
-    val comment = s"Entity: ${entity} was not deleted in repository"
+  def notDeletedInRepositoy(entity: Any): Unit = {
+    val comment = s"Entity: $entity was not deleted in repository"
     addComment(comment, FAIL)
   }
 
-  def noCopy(entity: Any) {
-    val comment = s"Entity: ${entity} cannot be copied into snapshot"
+  def noCopy(entity: Any): Unit = {
+    val comment = s"Entity: $entity cannot be copied into snapshot"
     addComment(comment, FAIL)
   }
 
-  def excessExpectedMap(key: Any) {
-    val comment = s"No match for expected key: ${key}"
+  def excessExpectedMap(key: Any): Unit = {
+    val comment = s"No match for expected key: $key"
     addComment(comment, FAIL)
   }
 
-  def excessActualMap(key: Any) {
-    val comment = s"No match for actual key: ${key}"
+  def excessActualMap(key: Any): Unit = {
+    val comment = s"No match for actual key: $key"
     addComment(comment, FAIL)
   }
 
-  def assertingMapKey(key: Any) {
-    val comment = s"Map key: ${key}"
+  def assertingMapKey(key: Any): Unit = {
+    val comment = s"Map key: $key"
     addComment(comment, COLLECTION)
   }
+
+  //TODO make successComment and fail comment
 
 }
 

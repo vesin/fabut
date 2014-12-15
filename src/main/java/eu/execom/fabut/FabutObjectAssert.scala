@@ -1,45 +1,18 @@
 package eu.execom.fabut
 
-import scala.collection.immutable.Map
-import scala.collection
-import scala.reflect.runtime.universe.{ Type, TypeTag, typeOf, Symbol, InstanceMirror }
-import eu.execom.fabut.enums.AssertType._
 import eu.execom.fabut.enums.AssertableType._
 import eu.execom.fabut.enums.NodeCheckType._
-import eu.execom.fabut.model.ObjectInsideSimpleProperty
-import eu.execom.fabut.model.ObjectWithComplexProperty
-import eu.execom.fabut.model.ObjectWithSimpleProperties
-import eu.execom.fabut.model.TrivialClasses._
-import eu.execom.fabut.util.ReflectionUtil._
-import scala.collection.mutable.{ Map => MutableMap }
-import eu.execom.fabut.model.ObjectInsideSimpleProperty
-import org.junit.Assert
-import eu.execom.fabut.model.ObjectWithComplexProperty
-import eu.execom.fabut.model.NormalClass
-import eu.execom.fabut.model.TierTwoType
-import eu.execom.fabut.model.EntityTierOneType
-import eu.execom.fabut.model.EntityTierThreeType
-import eu.execom.fabut.property.Property
-import eu.execom.fabut.property.AbstractProperty
-import eu.execom.fabut.property.IgnoredProperty
-import eu.execom.fabut.property.Property
-import eu.execom.fabut.property.NullProperty
-import eu.execom.fabut.model.EmptyClass
-import eu.execom.fabut.property.NotNullProperty
-import eu.execom.fabut.property.IgnoredProperty
-import eu.execom.fabut.property.NullProperty
-import eu.execom.fabut.property.NotNullProperty
-import eu.execom.fabut.pair.AssertPair
-import eu.execom.fabut.model.IgnoredType
-import eu.execom.fabut.graph.NodesList
-import eu.execom.fabut.graph.IsomorphicNodePair
-import eu.execom.fabut.pair.SnapshotPair
 import eu.execom.fabut.exception.CopyException
-import eu.execom.fabut.pair.SnapshotPair
-import scala.collection.mutable.ListBuffer
-import eu.execom.fabut.pair.AssertPair
+import eu.execom.fabut.graph.NodesList
+import eu.execom.fabut.pair.{AssertPair, SnapshotPair}
+import eu.execom.fabut.property.{AbstractProperty, IgnoredProperty, NotNullProperty, NullProperty, Property}
 import eu.execom.fabut.report.FabutReportBuilder
-import grizzled.slf4j.Logging
+import eu.execom.fabut.util.ReflectionUtil._
+import org.junit.Assert
+
+import scala.collection.immutable.Map
+import scala.collection.mutable.{ListBuffer, Map => MutableMap}
+import scala.reflect.runtime.universe.Type
 
 /**
  * Tool for smart asserting two objecting, or asserting object with list of
@@ -82,13 +55,13 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    *
    *
    * @param actualObject
-   * 	the actual object
+   * the actual object
    * @param expectedProperties
-   * 	expected properties for actual object
+   * expected properties for actual object
    * @param report
    *
    * @return
-   * 	<code> true </code> if objects can be asserted, <code> false </code> otherwise.
+   * <code> true </code> if objects can be asserted, <code> false </code> otherwise.
    *
    */
   def assertObjectWithProperties(actual: Any, expectedProperties: Map[String, AbstractProperty])(implicit report: FabutReportBuilder): Boolean = {
@@ -134,13 +107,13 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * user assert for primitives, if objects are complex it will assert them by
    * values of their fields.
    *
-   *  @param expectedObject
-   *  @param actualObject
-   *  @param expectedChangedProperties
-   *  		properties from this collection take priority over the fields from expected object
-   *  @param report
+   * @param expectedObject
+   * @param actualObject
+   * @param expectedChangedProperties
+   * properties from this collection take priority over the fields from expected object
+   * @param report
    *
-   *  @return <code> true </code> if objects can be asserted, <code> false </code> otherwise.
+   * @return <code> true </code> if objects can be asserted, <code> false </code> otherwise.
    *
    */
   def assertObjects(expected: Any, actual: Any, expectedChangedProperties: Map[String, AbstractProperty])(implicit report: FabutReportBuilder): Boolean = {
@@ -165,7 +138,7 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * Makes snapshot of specified parameters.
    *
    * @param parameters
-   * 		array of parameters
+   * array of parameters
    */
   def takeSnapshot(parameters: Any*)(implicit report: FabutReportBuilder): Boolean = {
 
@@ -187,18 +160,18 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
   }
 
   /**
-   *  Asserts object pair
+   * Asserts object pair
    *
-   *  @param propertyName
-   *  		name of current property
-   *  @param pair
-   *  		object pair for asserting
-   *  @param properties
-   *  		properties collection of expected changed properties
-   *  @param nodesList
-   *  		list of objects that have been asserted\
+   * @param propertyName
+   * name of current property
+   * @param pair
+   * object pair for asserting
+   * @param properties
+   * properties collection of expected changed properties
+   * @param nodesList
+   * list of objects that have been asserted\
    *
-   *  @return <code>true</code> if objects can be asserted, <code>false</code>
+   * @return <code>true</code> if objects can be asserted, <code>false</code>
    *         otherwise.
    */
   def assertPair(propertyName: String, pair: AssertPair, properties: Map[String, AbstractProperty], nodesList: NodesList)(implicit report: FabutReportBuilder): Boolean = {
@@ -226,24 +199,24 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
   }
 
   /**
-   *  Handles asserting of actual object by checking expected object type of property
-   *   and by the type it creates a pair for assert or ignores it.
+   * Handles asserting of actual object by checking expected object type of property
+   * and by the type it creates a pair for assert or ignores it.
    *
-   *  @param propertyName
-   *  		name of the current property
-   *  @param actualObject
-   *  		actual object
-   *  @param property
-   *  		the expected property containing expected information
-   *  @param changedProperties
-   *  		collection of properties that exclude fields from expected object
-   *  @param nodesList
-   *  		list of object that have already been asserted
-   *  @param isProperty
-   *  		is actual property, important for entities
-   *  @param report
+   * @param propertyName
+   * name of the current property
+   * @param actualObject
+   * actual object
+   * @param property
+   * the expected property containing expected information
+   * @param changedProperties
+   * collection of properties that exclude fields from expected object
+   * @param nodesList
+   * list of object that have already been asserted
+   * @param isProperty
+   * is actual property, important for entities
+   * @param report
    *
-   *  @return <code> true </code> if actual property is successfully asserted with expected <code> false </code> otherwise.
+   * @return <code> true </code> if actual property is successfully asserted with expected <code> false </code> otherwise.
    */
   def assertProperty(propertyName: String, actualObject: Any, property: AbstractProperty, changedProperties: Map[String, AbstractProperty], nodesList: NodesList, isProperty: Boolean)(implicit report: FabutReportBuilder): Boolean = {
 
@@ -307,15 +280,15 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
   }
 
   /**
-   *  Asserts inner properties of parent object
+   * Asserts inner properties of parent object
    *
-   *  @param parentName
-   *  @param parentObject
-   *  @param properties
-   *  @param nodesList
-   *  @param report
+   * @param parentName
+   * @param parentObject
+   * @param properties
+   * @param nodesList
+   * @param report
    *
-   *  @return <code> true </code> if inner object properties are successfully asserted with expected properties<code> false </code> otherwise.
+   * @return <code> true </code> if inner object properties are successfully asserted with expected properties<code> false </code> otherwise.
    */
   def assertInnerProperty(parentName: String, parentObject: Any, properties: Map[String, AbstractProperty], nodesList: NodesList)(implicit report: FabutReportBuilder): Boolean = {
     val extracts = extractPropertiesWithMatchingParent(parentName, properties)
@@ -347,9 +320,9 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * reflection, properties passed have priority over expected object fields.
    *
    * @param parentName
-   * 		name of subfields parent object
+   * name of subfields parent object
    * @param pair
-   * 		the subfield pair
+   * the subfield pair
    * @param properties
    * @param nodesList
    * @param report
@@ -369,7 +342,9 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
       case (propertyName, property) =>
         val expectedProperty = obtainProperty(property, propertyName, properties)
 
-        val actual = getFieldValueFromGetter(propertyName, pair.actual, objectType).getOrElse { throw new NoSuchElementException("Actual doesnt exist") }
+        val actual = getFieldValueFromGetter(propertyName, pair.actual, objectType).getOrElse {
+          throw new NoSuchElementException("Actual doesnt exist")
+        }
 
         ret &= assertProperty(propertyName, actual, expectedProperty, properties, nodesList, PROPERTY)
     }
@@ -386,11 +361,11 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    *
    *
    * @param propertyName
-   * 		 name of the current property
+   * name of the current property
    * @param pair
    * @param report
    * @return - <code> true </code> if and only if objects are asserted, <code>false</code>
-   *         if method customAssertEquals throws  {@link AssertionError}.
+   *         if method customAssertEquals throws  { @link AssertionError}.
    */
   def assertPrimitives(pair: AssertPair, propertyName: String)(implicit report: FabutReportBuilder) = {
 
@@ -406,29 +381,29 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
   }
 
   /**
-   *   Handles list asserting. It traverses through the list by list index start
+   * Handles list asserting. It traverses through the list by list index start
    * from 0 and going up to list size and asserts every two elements on
    * matching index. Lists cannot be asserted if their sizes are different.
    * @param propertyName
-   * 		name of current property
+   * name of current property
    * @param report
-   * 		 assert report builder
+   * assert report builder
    * @param expected
-   * 		expected list
+   * expected list
    * @param actual
-   * 		 actual list
+   * actual list
    * @param properties
-   * 		list of excluded properties
+   * list of excluded properties
    * @param nodesList
-   * 		list of object that had been asserted
+   * list of object that had been asserted
    * @param isProperty
-   * 		is it parent object or its member
+   * is it parent object or its member
    * @return - <code>true</code> if every element from expected list with
    *         index <em>i</em> is asserted with element from actual list with
    *         index <em>i</em>, <code>false</code> otherwise.
    */
   def assertList(propertyName: String, position: Int, actualList: List[_], expectedList: List[_], properties: Map[String, AbstractProperty],
-    nodesList: NodesList, isProperty: Boolean)(implicit report: FabutReportBuilder): Boolean = {
+                 nodesList: NodesList, isProperty: Boolean)(implicit report: FabutReportBuilder): Boolean = {
 
     var result = ASSERTED
 
@@ -467,8 +442,9 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
 
     result
   }
+
   /**
-   *  Asserts two maps.
+   * Asserts two maps.
    *
    * @param propertyName
    * @param actualMap
@@ -481,7 +457,7 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * @return
    */
   def assertMap(propertyName: String, actualMap: Map[Any, Any], expectedMap: Map[Any, Any], properties: Map[String, AbstractProperty],
-    nodesList: NodesList, isProperty: Boolean)(implicit report: FabutReportBuilder): Boolean = {
+                nodesList: NodesList, isProperty: Boolean)(implicit report: FabutReportBuilder): Boolean = {
 
     var result = ASSERTED
 
@@ -525,12 +501,12 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * in the collection of properties matching path with fieldName, it returns it. Otherwise, it returns the expected property
    *
    * @param property
-   * 		expected property
-   * 		property path
+   * expected property
+   * property path
    * @param properties
-   * 		collection of properties
-   * @return {@link IProperty} if there is property with same path as
-   *         specified in list of properties, otherwise from expected property
+   * collection of properties
+   * @return { @link IProperty} if there is property with same path as
+   *                 specified in list of properties, otherwise from expected property
    */
   def obtainProperty(property: AbstractProperty, propertyPath: String, properties: Map[String, AbstractProperty]) = {
 
@@ -580,9 +556,9 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * in other case do nothing.
    *
    * @param object
-   * 		the object
+   * the object
    * @param isSubproperty
-   * 		is object subproperty
+   * is object subproperty
    *
    * @return true, if successful
    */
@@ -593,7 +569,7 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
   /**
    * Get the types
    *
-   *  @return the types
+   * @return the types
    */
 
   def types: MutableMap[AssertableType, List[Type]] = _types

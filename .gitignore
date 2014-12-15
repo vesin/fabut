@@ -7,3 +7,4 @@ bin/
 .cache
 *.class
 *.tmp
+fabut4scala.iml

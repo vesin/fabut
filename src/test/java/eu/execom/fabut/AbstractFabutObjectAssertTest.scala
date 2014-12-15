@@ -30,6 +30,10 @@ import eu.execom.fabut.model.TierFourType
 import eu.execom.fabut.model.TierThreeType
 import eu.execom.fabut.util.ReflectionUtil
 import scala.collection.mutable.ListBuffer
+import eu.execom.fabut.model.test.Faculty
+import eu.execom.fabut.model.test.Student
+import eu.execom.fabut.model.test.Teacher
+import eu.execom.fabut.model.test.Address
 
 class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
 
@@ -40,7 +44,6 @@ class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
   @Before
   override def fabutBeforeTest() {
     _fabutObjectAssert = new FabutObjectAssert(this)
-    ReflectionUtil.setFabutAssert(fabutObjectAssert)
   }
 
   @After

@@ -17,8 +17,12 @@ import eu.execom.fabut.model.TierOneType
 import eu.execom.fabut.model.UnknownEntityType
 import eu.execom.fabut.model.UnknownEntityType
 import eu.execom.fabut.property.CopyAssert
+import eu.execom.fabut.report.FabutReportBuilder
+import grizzled.slf4j.Logging
+import org.junit.Before
+import grizzled.slf4j.Logger
 
-class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
+class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest with Logging {
 
   val TEST = "test"
   val TEST_ID = 105
@@ -407,7 +411,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     //    method
     val entity = new EntityTierOneType(TEST + TEST, 1)
     val property = Fabut.value(EntityTierOneType.PROPERTY, TEST + TEST)
-    val properties = Fabut.createExpectedPropertiesMap(Seq(property))
+    val properties = Fabut.createExpectedPropertiesMap(property)
     val report = new FabutReportBuilder
 
     fabutRepositoryAssert.takeSnapshot(Seq())(report)
@@ -429,9 +433,9 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     //    method
     val entity = new EntityTierOneType(TEST + TEST, 1)
     val property = Fabut.value(EntityTierOneType.PROPERTY, TEST + TEST)
-    val properties = Fabut.createExpectedPropertiesMap(Seq(property))
+    val properties = Fabut.createExpectedPropertiesMap(property)
 
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert.takeSnapshot()(report)
     val assertEntityWithSnapshot = fabutRepositoryAssert.assertEntityWithSnapshot(new FabutReportBuilder, entity, properties)
     val assertDbSnapshot = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
 

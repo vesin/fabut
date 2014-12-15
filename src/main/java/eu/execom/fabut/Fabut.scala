@@ -1,33 +1,45 @@
 package eu.execom.fabut
 
-import eu.execom.fabut.enums.AssertType._
-import eu.execom.fabut.property.Property
-import eu.execom.fabut.property.IProperty
 import scala.collection.mutable.{ Map => MutableMap }
-import eu.execom.fabut.property.IProperty
-import eu.execom.fabut.property.IgnoredProperty
-import eu.execom.fabut.property.NullProperty
-import eu.execom.fabut.property.NotNullProperty
-import eu.execom.fabut.property.NotNullProperty
-import eu.execom.fabut.util.ReflectionUtil._
-import eu.execom.fabut.property.IgnoredProperty
-import eu.execom.fabut.property.NullProperty
-import eu.execom.fabut.property.NotNullProperty
-import eu.execom.fabut.util.ConversionUtil._
-import eu.execom.fabut.enums.AssertType._
-import junit.framework.AssertionFailedError
-import eu.execom.fabut.enums.AssertableType
-import eu.execom.fabut.property.NullProperty
-import eu.execom.fabut.property.IgnoredProperty
-import eu.execom.fabut.property.NotNullProperty
 
+import eu.execom.fabut.enums.AssertType._
+import eu.execom.fabut.enums.AssertType._
+import eu.execom.fabut.enums.AssertableType
+import eu.execom.fabut.property.AbstractProperty
+import eu.execom.fabut.property.AbstractProperty
+import eu.execom.fabut.property.IgnoredProperty
+import eu.execom.fabut.property.IgnoredProperty
+import eu.execom.fabut.property.IgnoredProperty
+import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.property.NotNullProperty
+import eu.execom.fabut.property.NullProperty
+import eu.execom.fabut.property.NullProperty
+import eu.execom.fabut.property.NullProperty
+import eu.execom.fabut.property.Property
+import eu.execom.fabut.report.FabutReportBuilder
+import eu.execom.fabut.util.ConversionUtil._
+import eu.execom.fabut.util.ReflectionUtil._
+import junit.framework.AssertionFailedError
+
+/**
+ * Set of method for advanced asserting.
+ *
+ */
 object Fabut {
 
+  val EMPTY_STRING = ""
   val ASSERT_SUCCESS = true
   var assertType = UNSUPPORTED_ASSERT
-
   var fabutAssert: FabutRepositoryAssert = null
 
+  /**
+   * This method needs to be called in @Before method of a test in order for {@link Fabut} to work.
+   *
+   * @param testInstance
+   *            the test instance
+   */
   def beforeTest(testInstance: Any) {
 
     assertType = getAssertType(testInstance)
@@ -44,23 +56,24 @@ object Fabut {
     }
   }
 
+  /**
+   * This method needs to be called in @After method of a test in order for {@link Fabut} to work.
+   */
   def afterTest {
-
     var ok = true
-
     val sb = new StringBuilder
 
     val parameterReport = new FabutReportBuilder("Parameter snapshot assert")
     if (!fabutAssert.assertParameterSnapshot(parameterReport)) {
-      ok = false
       sb.append(parameterReport.message)
+      ok = false
     }
 
     val snapshotReport = new FabutReportBuilder("Repository snapshot assert")
     if (assertType == REPOSITORY_ASSERT) {
       if (!fabutAssert.assertDbSnapshot(snapshotReport)) {
-        ok = false
         sb.append(snapshotReport.message)
+        ok = false
       }
     }
 
@@ -69,6 +82,9 @@ object Fabut {
     }
   }
 
+  /**
+   * Creates repository snapshot so it can be asserted with after state after the test execution.
+   */
   def takeSnapshot(parameters: Any*) = {
     checkValidInit
 
@@ -77,10 +93,30 @@ object Fabut {
     }
 
     val report = new FabutReportBuilder
-    if (!fabutAssert.takeSnapshot(parameters)(report)) {
+    if (!fabutAssert.takeSnapshot(parameters: _*)(report)) {
       throw new AssertionFailedError(report.message)
     }
 
+  }
+
+  /**
+   * Asserts object with expected properties.
+   *
+   * @param message
+   *            custom message to be added on top of the report
+   * @param objectInstance
+   *            the object that needs to be asserted
+   * @param properties
+   *            expected properties for asserting object
+   */
+  def assertObject(message: String, objectInstance: Any, properties: AbstractProperty*) {
+    checkValidInit
+
+    val changedProperties = createExpectedPropertiesMap(properties: _*)
+    val report = new FabutReportBuilder
+    if (!fabutAssert.assertObjectWithProperties(objectInstance, changedProperties)(report)) {
+      throw new AssertionError(report.message)
+    }
   }
 
   /**
@@ -92,20 +128,8 @@ object Fabut {
    *  		expected properties for asserting object
    *
    */
-  def assertObject(objectInstance: Any, properties: IProperty*) {
-
-    checkValidInit
-
-    val changedProperties = createExpectedPropertiesMap(properties)
-    val report = new FabutReportBuilder
-    if (!fabutAssert.assertObjectWithProperties(objectInstance, changedProperties)(report)) {
-      throw new AssertionError(report.message)
-    }
-  }
-
-  def checkValidInit = {
-    if (fabutAssert == null)
-      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
+  def assertObject(objectInstance: Any, properties: AbstractProperty*) {
+    assertObject(EMPTY_STRING, objectInstance, properties: _*)
   }
 
   /**
@@ -116,11 +140,27 @@ object Fabut {
    *  @param actualObject
    *  		the actual object
    *  @param propertiesList
-   *  		elements of this list are properties from the expected object
-   *        which should be asserted with actual corresponding pairs instead of the properties from expected object
+   *  		property difference between expected and actual
    *
    */
-  def assertObjects(expectedObject: Any, actualObject: Any, propertiesList: IProperty*) {
+  def assertObjects(expectedObject: Any, actualObject: Any, expectedChanges: AbstractProperty*) {
+    assertObjects(EMPTY_STRING, expectedObject, actualObject, expectedChanges: _*)
+  }
+
+  /**
+   *  Asserts two objects
+   *
+   *  @param message
+   *        custom message to be added on top of the report
+   *  @param expectedObject
+   *  		the expected object
+   *  @param actualObject
+   *  		the actual object
+   *  @param propertiesList
+   *  		property difference between expected and actual
+   *
+   */
+  def assertObjects(message: String, expectedObject: Any, actualObject: Any, expectedChanges: AbstractProperty*) {
 
     val report = new FabutReportBuilder
 
@@ -132,12 +172,10 @@ object Fabut {
 
     if (actualObject != null && expectedObject != null) {
 
-      var properties: Map[String, IProperty] = Map()
-
-      if (propertiesList.nonEmpty) {
-        properties = createExpectedPropertiesMap(propertiesList)
+      val properties: Map[String, AbstractProperty] = if (expectedChanges.nonEmpty) {
+        createExpectedPropertiesMap(expectedChanges: _*)
       } else {
-        properties = Map()
+        Map()
       }
 
       if (!fabutAssert.assertObjects(expectedObject, actualObject, properties)(report)) {
@@ -145,36 +183,67 @@ object Fabut {
       }
 
     }
-
   }
 
+  /**
+   * Asserts list of expected and array of actual objects.
+   *
+   * @param expected
+   *            the expected list
+   * @param actuals
+   *            the actual array
+   */
+  def assertList(expected: List[_], actuals: Any*) {
+    checkValidInit
+
+    val actualAsList = actuals.toList
+    assertObjects(EMPTY_STRING, expected, actualAsList)
+  }
+
+  /**
+   * Asserts entity with one saved in snapshot.
+   *
+   * @param entity
+   *            the entity
+   * @param expectedChanges
+   *            properties changed after the snapshot has been taken
+   */
+  def assertEntityWithSnapshot(entity: Any, expectedChanges: AbstractProperty*) = {
+    checkValidInit
+    checkIfEntity(entity)
+
+    val report = new FabutReportBuilder
+    val changedProperties = createExpectedPropertiesMap(expectedChanges: _*)
+    if (!fabutAssert.assertEntityWithSnapshot(report, entity, changedProperties)) {
+      throw new AssertionFailedError(report.message)
+    }
+  }
+
+  /**
+   * Marks object as asserted.
+   *
+   * @param entity
+   *            the entity
+   */
   def markAsserted(entity: Any) {
 
     checkValidInit
     checkIfEntity(entity)
 
     val report = new FabutReportBuilder
-    if (!fabutAssert.markAsAsserted(report, entity, getObjectType(entity, AssertableType.ENTITY_TYPE))) {
+    val entityType = getObjectType(entity, AssertableType.ENTITY_TYPE)
+    if (!fabutAssert.markAsAsserted(report, entity, entityType)) {
       throw new AssertionFailedError(report.message)
     }
   }
 
-  def checkIfRepositoryAssert = {
-    if (assertType != REPOSITORY_ASSERT) {
-      throw new IllegalStateException("Test class must implement IRepositoryFabutAssert")
-    }
-  }
-
-  def checkIfEntity(entity: Any) = {
-    checkIfRepositoryAssert
-    if (entity == null) {
-      throw new NullPointerException("assertEntityWithSnapshot cannot take null entity!")
-    }
-    if (!getObjectType(entity, AssertableType.ENTITY_TYPE).isDefined) {
-      throw new IllegalStateException(entity.getClass.getSimpleName + " is not registered as entity type")
-    }
-  }
-
+  /**
+   *
+   * Assert entity as deleted. It will fail if entity can still be found in snapshot.
+   *
+   * @param entity
+   *            the entity
+   */
   def assertEntityAsDeleted(entity: Any) = {
     checkValidInit
     checkIfEntity(entity)
@@ -186,17 +255,12 @@ object Fabut {
 
   }
 
-  def assertEntityWithSnapshot(entity: Any, propertiesList: IProperty*) = {
-    checkValidInit
-    checkIfEntity(entity)
-
-    val report = new FabutReportBuilder
-    val changedProperties = createExpectedPropertiesMap(propertiesList)
-    if (!fabutAssert.assertEntityWithSnapshot(report, entity, changedProperties)) {
-      throw new AssertionFailedError(report.message)
-    }
-  }
-
+  /**
+   * Ignores the entity.
+   *
+   * @param entity
+   *            the entity
+   */
   def ignoreEntity(entity: Any) = {
     checkValidInit
     checkIfEntity(entity)
@@ -208,6 +272,40 @@ object Fabut {
   }
 
   /**
+   * Checks if specified object is entity.
+   *
+   * @param entity
+   *            the entity
+   */
+  def checkIfEntity(entity: Any) = {
+    checkIfRepositoryAssert
+
+    if (entity == null) {
+      throw new NullPointerException("assertEntityWithSnapshot cannot take null entity!")
+    }
+    if (!getObjectType(entity, AssertableType.ENTITY_TYPE).isDefined) {
+      throw new IllegalStateException(entity.getClass.getSimpleName + " is not registered as entity type")
+    }
+  }
+
+  /**
+   * Checks if current test is repository test.
+   */
+  def checkIfRepositoryAssert = {
+    if (assertType != REPOSITORY_ASSERT) {
+      throw new IllegalStateException("Test class must implement IRepositoryFabutAssert")
+    }
+  }
+
+  /**
+   *  Checks if Fabut repository or object assert is initialized
+   */
+  def checkValidInit = {
+    if (fabutAssert == null)
+      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
+  }
+
+  /**
    *  Turns Seq of properties to Map
    *
    *  @param properties
@@ -216,7 +314,7 @@ object Fabut {
    *  @preturn properties map
    *
    */
-  def createExpectedPropertiesMap(properties: Seq[IProperty]): Map[String, IProperty] = {
+  def createExpectedPropertiesMap(properties: AbstractProperty*): Map[String, AbstractProperty] = {
     properties.map {
       case property: NullProperty => (property.path, property)
       case property: IgnoredProperty => (property.path, property)
@@ -226,35 +324,76 @@ object Fabut {
   }
 
   /**
-   *  Creates a property with provided parameters
+   * Create {@link Property} with provided parameters.
    *
-   *  @param namePath
-   *  		property path in the object
-   *  @param expectedValue
-   *  		expected value
-   *
-   *  @return property object
+   * @param path
+   *            property path.
+   * @param expectedValue
+   *            expected values
+   * @return created object.
    *
    */
-  def value(namePath: String, expectedValue: Any): Property = Property(namePath, expectedValue)
+  def value(path: String, expectedValue: Any): Property = Property(path, expectedValue)
 
+  /**
+   * Create {@link IgnoredProperty} with provided parameter.
+   *
+   * @param path
+   *            property path.
+   * @return created object.
+   */
   def ignored(namePath: String): IgnoredProperty = IgnoredProperty(namePath)
 
-  def isNull(namePath: String): NullProperty = NullProperty(namePath)
-
-  def notNull(namePath: String): NotNullProperty = NotNullProperty(namePath)
-
+  /**
+   * Create {@link IgnoredProperty} with provided parameters.
+   *
+   * @param paths
+   *            property path.
+   * @return created objects.
+   */
   def ignored(paths: Seq[String]): Seq[IgnoredProperty] = {
     paths.map(path => IgnoredProperty(path)).toSeq
   }
 
-  def isNull(paths: Seq[String]): Seq[NullProperty] = {
-    paths.map(path => NullProperty(path)).toSeq
-  }
+  /**
+   * Create {@link NotNullProperty} with provided parameter.
+   *
+   * @param path
+   *            property path.
+   * @return created object.
+   */
+  def notNull(path: String): NotNullProperty = NotNullProperty(path)
 
+  /**
+   * Create {@link NotNullProperty} with provided parameters.
+   *
+   * @param paths
+   *            property paths.
+   * @return created objects.
+   */
   def notNull(paths: Seq[String]): Seq[NotNullProperty] = {
     paths.map(path => NotNullProperty(path)).toSeq
   }
 
+  /**
+   * Create {@link NullProperty} with provided parameter.
+   *
+   * @param path
+   *            property path.
+   * @return created object.
+   */
+
+  def isNull(path: String): NullProperty = NullProperty(path)
+
+  /**
+   * Create {@link NullProperty} with provided parameters.
+   *
+   * @param paths
+   *            property paths.
+   * @return created objects.
+   */
+  def isNull(paths: Seq[String]): Seq[NullProperty] = {
+    paths.map(path => NullProperty(path)).toSeq
+  }
 }
 

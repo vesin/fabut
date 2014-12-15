@@ -35,6 +35,11 @@ import eu.execom.fabut.model.TierOneType
 import eu.execom.fabut.model.TierOneTypeDuplicate
 import eu.execom.fabut.model.TierOneType
 import eu.execom.fabut.model.TierOneType
+import eu.execom.fabut.model.test.Student
+import eu.execom.fabut.model.test.Address
+import eu.execom.fabut.model.test.Faculty
+import eu.execom.fabut.model.test.Teacher
+import org.apache.commons.lang3.StringUtils
 
 class FabutTest extends AbstractFabutRepositoryAssertTest {
 
@@ -57,7 +62,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
       (property, multiProperty) =>
         {
           assertTrue(multiProperty.isInstanceOf[IgnoredProperty])
-          assertEquals(property, multiProperty.asInstanceOf[IgnoredProperty].getPath)
+          assertEquals(property, multiProperty.asInstanceOf[IgnoredProperty].path)
         }
     }
   }
@@ -77,7 +82,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
       (property, multiProperty) =>
         {
           assertTrue(multiProperty.isInstanceOf[NullProperty])
-          assertEquals(property, multiProperty.asInstanceOf[NullProperty].getPath)
+          assertEquals(property, multiProperty.asInstanceOf[NullProperty].path)
         }
     }
   }
@@ -97,7 +102,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
       (property, multiProperty) =>
         {
           assertTrue(multiProperty.isInstanceOf[NotNullProperty])
-          assertEquals(property, multiProperty.asInstanceOf[NotNullProperty].getPath)
+          assertEquals(property, multiProperty.asInstanceOf[NotNullProperty].path)
         }
     }
   }
@@ -509,6 +514,44 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
   }
 
   //integracioni 
+  @Test
+  def testAssertObject {
+    //	  method
+    Fabut.beforeTest(this)
+    var student = new Student()
+    student.name = "Branko"
+    student.lastName = "Gvoka"
+    var address = new Address()
+    student.address = new Address()
+    student.address.city = "Ruma"
+    student.address.street = "15. Maja"
+    student.address.streetNumber = "97"
+
+    var teacher = new Teacher()
+    teacher.name = "Ilija"
+    teacher.student = student
+    teacher.address = new Address()
+    teacher.address.city = "Novi Sad"
+    teacher.address.street = "Puskinova"
+    teacher.address.streetNumber = "22"
+
+    var faculty = new Faculty("FTN", teacher)
+    student.faculty = faculty
+
+    Fabut.takeSnapshot()
+
+    //    assert
+    Fabut.assertObject("", student, Fabut.value("name", "Branko"),
+      Fabut.value("lastName", "Gvoka"),
+      Fabut.value("address.city", "Ruma"), Fabut.value("address.street", "15. Maja"),
+      Fabut.value("address.streetNumber", "97"), Fabut.value("faculty.name", "FTN"),
+      Fabut.value("faculty.teacher.name", "Ilija"), Fabut.value("faculty.teacher.address.city", "Novi Sad"),
+      Fabut.value("faculty.teacher.address.street", "Puskinova"),
+      Fabut.value("faculty.teacher.student", student),
+      Fabut.value("faculty.teacher.address.streetNumber", "22"))
+
+    Fabut.afterTest
+  }
 
   @Test(expected = classOf[AssertionFailedError])
   def testAssertObjectMapsFail {

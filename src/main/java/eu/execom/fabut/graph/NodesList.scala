@@ -7,15 +7,15 @@ class NodesList extends IsomorphicGraph {
 
   var isomorphicNodes: List[IsomorphicNodePair] = List()
 
-  override def addPair(expected: Any, actual: Any) {
+  override def addPair(expected: AnyRef, actual: AnyRef) {
     isomorphicNodes ::= IsomorphicNodePair(expected, actual)
   }
 
-  override def containsPair(expected: Any, actual: Any) = {
+  override def containsPair(expected: AnyRef, actual: AnyRef) = {
     isomorphicNodes contains (IsomorphicNodePair(expected, actual))
   }
 
-  override def containsExpected(expected: Any) = {
+  override def containsExpected(expected: AnyRef) = {
     val pair = isomorphicNodes find (pair => pair.expected == expected)
 
     if (pair.isDefined) true else false
@@ -27,10 +27,10 @@ class NodesList extends IsomorphicGraph {
   //    if (pair.isDefined) true else false
   //  }
 
-  override def getExpected(actual: Any): Option[Any] = {
-    val pair = isomorphicNodes find (pair => pair.actual == actual)
+  override def expected(actual: AnyRef): Option[AnyRef] = {
+    val pair = isomorphicNodes find (pair => pair.actual.asInstanceOf[AnyRef] eq actual)
 
-    if (pair.isDefined) Some(pair.get.expected) else None
+    if (pair.isDefined) Some(pair.get.expected.asInstanceOf[AnyRef]) else None
   }
 
   //  override def getActual(expected: Any): Option[Any] = {
@@ -41,10 +41,12 @@ class NodesList extends IsomorphicGraph {
 
   override def nodeCheck(pair: AssertPair): NodeCheckType = {
 
-    if (containsExpected(pair.expected))
+    if (containsExpected(pair.expected.asInstanceOf[AnyRef])) {
       CONTAINS_PAIR
-    else
+    } else {
       NEW_PAIR
+    }
+
   }
 
 }

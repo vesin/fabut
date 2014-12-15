@@ -1,9 +1,13 @@
-package eu.execom.fabut
+package eu.execom.fabut.report
 
 import org.apache.commons.lang3.StringUtils
 import eu.execom.fabut.enums.CommentType._
 import eu.execom.fabut.pair.AssertPair
 
+/**
+ * Report builder used for creating clean and readable reports. Its point is to emphasize failed asserts so developer
+ * can track them easy.
+ */
 class FabutReportBuilder(newMessage: String) {
 
   val ARROW = ">"
@@ -11,17 +15,17 @@ class FabutReportBuilder(newMessage: String) {
   val TAB = "\t\t"
   val COLON = ":"
 
-  val builder: StringBuilder = new StringBuilder()
+  val builder: StringBuilder = new StringBuilder
   var assertDepth: Integer = 0
+
+  def this() = this("")
+  def message: String = builder.toString
 
   if (!StringUtils.isEmpty(newMessage)) {
     builder.append(NEW_LINE)
     builder.append(newMessage)
 
   }
-
-  def this() = this("")
-  def message: String = builder.toString
 
   def increaseDepth(parent: String) {
     if (!StringUtils.isEmpty(parent)) {
@@ -133,9 +137,6 @@ class FabutReportBuilder(newMessage: String) {
     val comment = s"Entity ${entity} is created in system after last snapshot but hasnt been asserted in test."
     addComment(comment, FAIL)
   }
-
-  //TODO
-  //  def uncallableMethod()
 
   def nullReference {
     val comment = s"Object that was passed to assertObject was null, it must not be null!"

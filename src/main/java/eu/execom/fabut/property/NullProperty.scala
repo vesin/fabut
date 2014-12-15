@@ -1,5 +1,6 @@
 package eu.execom.fabut.property
 
-case class NullProperty(path: String) extends AbstractProperty(path) {
-  override def getPath = path
-}
+/**
+ *  {@link AbstractProperty} extension with limited checking is property only different then null.
+ */
+case class NullProperty(override val path: String) extends AbstractProperty

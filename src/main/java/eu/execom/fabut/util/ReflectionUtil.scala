@@ -5,7 +5,7 @@ import scala.collection.mutable.{ Map => MutableMap }
 import scala.reflect.ClassTag
 import eu.execom.fabut.model.ObjectWithSimpleProperties
 import sun.reflect.generics.tree.TypeSignature
-import eu.execom.fabut.FabutReportBuilder
+import eu.execom.fabut.report.FabutReportBuilder
 import eu.execom.fabut.enums.AssertType._
 import eu.execom.fabut.enums.AssertableType._
 import eu.execom.fabut.model.ObjectInsideSimpleProperty
@@ -14,25 +14,22 @@ import eu.execom.fabut.model.ObjectInsideSimpleProperty
 import eu.execom.fabut.FabutRepositoryAssert
 import eu.execom.fabut.FabutObjectAssert
 import eu.execom.fabut.property.Property
-import eu.execom.fabut.property.IProperty
+import eu.execom.fabut.property.AbstractProperty
 import eu.execom.fabut.property.IgnoredProperty
 import eu.execom.fabut.FabutObjectAssert
 import eu.execom.fabut.exception.CopyException
 import eu.execom.fabut.graph.NodesList
 import scala.collection.mutable.ListBuffer
 
+/**
+ * Util class for reflection logic needed by testutil.
+ */
 object ReflectionUtil {
 
   lazy val classLoaderMirror = runtimeMirror(getClass.getClassLoader)
   lazy val SETTER_POSTFIX = "_$eq"
 
   var fabutAssert: FabutObjectAssert = null;
-
-  def setFabutAssert(fabutAssert: FabutObjectAssert) {
-    this.fabutAssert = fabutAssert
-  }
-
-  def getClassLoaderMirror() = classLoaderMirror
 
   /**
    * Returns a type of given value
@@ -78,10 +75,8 @@ object ReflectionUtil {
       fabutAssert.types(assertableType).find(
         typeName =>
           (typeName.toString == objectValue.getClass.getCanonicalName)) match {
-          case n: Some[Type] =>
-            Some(n.get)
-          case _ =>
-            None
+          case n: Some[Type] => n
+          case _ => None
         }
     } catch {
       case e: NoSuchElementException => None
@@ -106,10 +101,10 @@ object ReflectionUtil {
    */
   def getObjectProperties(objectInstance: Any, classTypeOption: Option[Type]): Map[String, Property] = {
 
-    var result: Map[String, Property] = Map()
+    val result: scala.collection.mutable.Map[String, Property] = MutableMap()
 
     if (classTypeOption == None) {
-      return result
+      return result.toMap
     }
 
     val classType = classTypeOption.get
@@ -129,28 +124,8 @@ object ReflectionUtil {
     } catch {
       case e: ScalaReflectionException => println("which field failed with reflection")
     }
-    return result
+    result.toMap
   }
-
-  /** testing */
-  //  def pullMembers[T: TypeTag](objectInstance: T)(implicit ct: ClassTag[T]) {
-  //
-  //    val objectType = typeOf[T]
-  //
-  //    val classMirror = objectType.typeSymbol.asClass
-  //    val im = classLoaderMirror.reflect(objectInstance)
-  //
-  //    val terms = objectType.members.collect({ case x if x.isTerm => x.asTerm }).filter(_.isGetter)
-  //    //val vars = terms.filter(field => field.isGetter && terms.exists(field.setter == _)).map(_.name.toString)
-  //    val all = objectType.members
-  //    val getters = objectType.members.collect {
-  //      case symbol: TermSymbol => if (symbol.isAccessor) symbol
-  //    }
-  //    //
-  //    //    println(terms.foreach { g => println(g) })
-  //    //    println(objectType.baseClasses)
-  //
-  //  }
 
   def extractAllGetMethods(classType: Type): List[TermSymbol] = {
 
@@ -257,7 +232,7 @@ object ReflectionUtil {
       return true
     } catch {
       case e: IllegalArgumentException => println(e.getMessage())
-      case e: ScalaReflectionException => println(e.getMessage() + " " + fieldName) // throw new ili sta?
+      case e: ScalaReflectionException => println(e.getMessage()) // throw new ili sta?
     }
     false
   }
@@ -327,7 +302,7 @@ object ReflectionUtil {
   def createCopyObject(objectInstance: Any, nodesList: NodesList): Option[Any] = {
 
     var flag = 0
-    val copy = nodesList.getExpected(objectInstance).getOrElse {
+    val copy = nodesList.expected(objectInstance.asInstanceOf[AnyRef]).getOrElse {
       flag = 1
       createEmptyCopy(objectInstance, getObjectType(objectInstance, getAssertableType(objectInstance)))
         .getOrElse {
@@ -340,7 +315,7 @@ object ReflectionUtil {
       return Some(copy)
     }
 
-    nodesList.addPair(copy, objectInstance)
+    nodesList.addPair(copy.asInstanceOf[AnyRef], objectInstance.asInstanceOf[AnyRef])
     val fieldsForCopy = getObjectProperties(objectInstance, getObjectType(objectInstance, getAssertableType(objectInstance)))
 
     fieldsForCopy.foreach {

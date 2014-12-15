@@ -32,6 +32,10 @@ import eu.execom.fabut.enums.AssertType
 import eu.execom.fabut.model.NoDefaultConstructorEntity
 import scala.collection.mutable.ListBuffer
 import eu.execom.fabut.model.TierOneTypeDuplicate
+import eu.execom.fabut.model.test.Student
+import eu.execom.fabut.model.test.Faculty
+import eu.execom.fabut.model.test.Address
+import eu.execom.fabut.model.test.Teacher
 
 class AbstractFabutRepositoryAssertTest extends Assert with IFabutRepositoryTest {
 
@@ -112,6 +116,10 @@ class AbstractFabutRepositoryAssertTest extends Assert with IFabutRepositoryTest
     complexTypes += typeOf[C]
     complexTypes += typeOf[D]
     complexTypes += typeOf[E]
+    complexTypes += typeOf[Student]
+    complexTypes += typeOf[Faculty]
+    complexTypes += typeOf[Address]
+    complexTypes += typeOf[Teacher]
 
     return complexTypes.toList
   }

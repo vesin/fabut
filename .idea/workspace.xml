@@ -2,85 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="94c1f8ec-3775-404a-8301-a537838debc8" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/FabutObjectAssert.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/property/IgnoredProperty.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/property/NullProperty.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/util/ReflectionUtil.scala" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/FabutObjectAssert.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/enums/AssertType.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/enums/AssertableType.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/enums/CommentType.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/enums/NodeCheckType.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/property/IgnoredProperty.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/property/NullProperty.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/util/ReflectionUtil.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/NoGettersType.scala" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/Fabut.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/Fabut.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/FabutRepositoryAssert.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/FabutRepositoryAssert.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/IFabutRepositoryTest.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/IFabutRepositoryTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/IFabutTest.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/IFabutTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/exception/CopyException.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/exception/CopyException.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/graph/IsomorphicGraph.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/graph/IsomorphicGraph.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/pair/AssertPair.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/pair/AssertPair.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/pair/Pair.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/pair/Pair.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/pair/SnapshotPair.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/pair/SnapshotPair.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/property/AbstractProperty.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/property/IProperty.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/property/CopyAssert.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/property/CopyAssert.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/property/NotNullProperty.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/property/NotNullProperty.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/property/Property.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/property/Property.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/report/FabutReportBuilder.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/report/FabutReportBuilder.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/eu/execom/fabut/util/ConversionUtil.scala" afterPath="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/util/ConversionUtil.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/AbstractFabutObjectAssertTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/AbstractFabutObjectAssertTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/AbstractFabutRepositoryAssertTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/AbstractFabutRepositoryAssertTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/ConversionUtilTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/util/ConversionUtilTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/FabutObjectAssertTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutObjectAssertTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/FabutRepositoryAssertTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutRepositoryAssertTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/FabutTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/ReflectionUtilTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/util/ReflectionUtilTest.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/BadCopyClass.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/BadCopyClass.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ChildClass.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ChildClass.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/CopyCaseClass.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/CopyCaseClass.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/DifferentPropertyCaseClass.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/DifferentPropertyCaseClass.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/DifferentPropertyClass.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/DifferentPropertyClass.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/EmptyClass.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/EmptyClass.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/EntityTierOneType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/EntityTierOneType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/EntityTierThreeType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/EntityTierThreeType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/EntityTierTwoType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/EntityTierTwoType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/IgnoredType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/IgnoredType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ListType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ListType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/NoDefaultConstructorEntity.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/NoDefaultConstructorEntity.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/NoDefaultConstructorType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/NoDefaultConstructorType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/NormalClass.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/NormalClass.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/NotInTypes.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/NotInTypes.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ObjectInsideSimpleProperty.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ObjectInsideSimpleProperty.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ObjectWithComplexProperty.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ObjectWithComplexProperty.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ObjectWithMap.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ObjectWithMap.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ObjectWithSimpleList.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ObjectWithSimpleList.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ObjectWithSimpleMap.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ObjectWithSimpleMap.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ObjectWithSimpleProperties.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ObjectWithSimpleProperties.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/ParentClass.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/ParentClass.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/Person.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/Person.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TierFiveType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TierFiveType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TierFourType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TierFourType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TierOneType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TierOneType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TierOneTypeDuplicate.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TierOneTypeDuplicate.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TierSixType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TierSixType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TierThreeType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TierThreeType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TierTwoType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TierTwoType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TierTwoTypeWithIgnoredType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TierTwoTypeWithIgnoredType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/TrivialClasses.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/TrivialClasses.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/Type.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/Type.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/UnknownEntityType.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/UnknownEntityType.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/test/Address.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/test/Address.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/test/Faculty.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/test/Faculty.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/test/Student.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/test/Student.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/eu/execom/fabut/model/test/Teacher.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/test/Teacher.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/scala/fabut/model/Contract.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/scalatest/Contract.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/scala/fabut/model/Employee.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/scalatest/Employee.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/scala/fabut/model/EmployeeDTO.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/scalatest/EmployeeDTO.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/scala/fabut/model/WithListPropery.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/scalatest/WithListPropery.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/scala/fabut/model/WithMapProperty.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/scalatest/WithMapProperty.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutRepositoryAssertTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutRepositoryAssertTest.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="fabut.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -143,8 +66,8 @@
       <file leaf-file-name="FabutRepositoryAssertTest.scala" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutRepositoryAssertTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.61785716" vertical-offset="3614" max-vertical-offset="7776">
-              <caret line="227" column="26" selection-start-line="227" selection-start-column="26" selection-end-line="227" selection-end-column="26" />
+            <state vertical-scroll-proportion="0.3321617" vertical-offset="3807" max-vertical-offset="7776">
+              <caret line="229" column="6" selection-start-line="229" selection-start-column="6" selection-end-line="229" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -153,8 +76,8 @@
       <file leaf-file-name="FabutTest.scala" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutTest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="8739" max-vertical-offset="9630">
-              <caret line="518" column="11" selection-start-line="518" selection-start-column="11" selection-end-line="518" selection-end-column="11" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="4304" max-vertical-offset="9630">
+              <caret line="259" column="52" selection-start-line="259" selection-start-column="6" selection-end-line="259" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -273,8 +196,8 @@
         <option value="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/pair/AssertPair.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/graph/IsomorphicGraph.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/exception/CopyException.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutRepositoryAssertTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/eu/execom/fabut/FabutRepositoryAssert.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutRepositoryAssertTest.scala" />
       </list>
     </option>
   </component>
@@ -396,30 +319,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.FabutRepositoryAssertTest.testMarkAssertedNotTypeSupportedTypeTrue">
-    <configuration default="false" name="All in fabut4scala (2)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="fabut4scala" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="package" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="JUnit.All in fabut4scala">
     <configuration default="false" name="All in fabut4scala (3)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="fabut4scala" />
@@ -519,6 +419,29 @@
         <option name="LOCAL" value="true" />
       </RunnerSettings>
       <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
+    <configuration default="false" name="All in fabut4scala" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="fabut4scala" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="package" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
@@ -723,19 +646,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (2)" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (3)" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (4)" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (5)" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.FabutRepositoryAssertTest.testMarkAssertedNotTypeSupportedTypeTrue" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (3)" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (4)" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (5)" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.FabutRepositoryAssertTest.testMarkAssertedNotTypeSupportedTypeTrue" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.All in fabut4scala" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.FabutRepositoryAssertTest.testMarkAssertedNotTypeSupportedTypeTrue" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (5)" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (4)" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (3)" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (2)" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.All in fabut4scala" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.FabutRepositoryAssertTest.testMarkAssertedNotTypeSupportedTypeTrue" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (5)" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (4)" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.All in fabut4scala (3)" />
       </list>
     </recent_temporary>
   </component>
@@ -783,7 +706,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3865717" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3865717" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -794,7 +717,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24073079" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.37741607" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.37741607" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960325" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1268,14 +1191,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="8739" max-vertical-offset="9630">
-          <caret line="518" column="11" selection-start-line="518" selection-start-column="11" selection-end-line="518" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/scala/eu/execom/fabut/model/EntityTierThreeType.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="180">
@@ -1304,10 +1219,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="4304" max-vertical-offset="9630">
+          <caret line="259" column="52" selection-start-line="259" selection-start-column="6" selection-end-line="259" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/scala/eu/execom/fabut/FabutRepositoryAssertTest.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.61785716" vertical-offset="3614" max-vertical-offset="7776">
-          <caret line="227" column="26" selection-start-line="227" selection-start-column="26" selection-end-line="227" selection-end-column="26" />
+        <state vertical-scroll-proportion="0.3321617" vertical-offset="3807" max-vertical-offset="7776">
+          <caret line="229" column="6" selection-start-line="229" selection-start-column="6" selection-end-line="229" selection-end-column="6" />
           <folding />
         </state>
       </provider>

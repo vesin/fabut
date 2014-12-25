@@ -104,7 +104,7 @@
 
 	<build>
 
-		<sourceDirectory>src/main/java</sourceDirectory>
+		<sourceDirectory>src/main/scala</sourceDirectory>
 		<testSourceDirectory>src/test/java</testSourceDirectory>
 
 		<pluginManagement>

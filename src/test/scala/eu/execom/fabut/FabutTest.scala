@@ -17,7 +17,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
   val PROPERTY = "_property"
 
   @Test
-  def testIgnoredVarArgs = {
+  def testIgnoredVarArgs() = {
     //    setup
     val properties = Seq(EntityTierOneType.PROPERTY, EntityTierOneType.ID)
 
@@ -30,13 +30,13 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     (properties, multiProperties).zipped.foreach {
       (property, multiProperty) => {
         assertTrue(multiProperty.isInstanceOf[IgnoredProperty])
-        assertEquals(property, multiProperty.asInstanceOf[IgnoredProperty].path)
+        assertEquals(property, multiProperty.path)
       }
     }
   }
 
   @Test
-  def testNullVarArgs = {
+  def testNullVarArgs() = {
     //    setup
     val properties = Seq(EntityTierOneType.PROPERTY, EntityTierOneType.ID)
 
@@ -49,13 +49,13 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     (properties, multiProperties).zipped.foreach {
       (property, multiProperty) => {
         assertTrue(multiProperty.isInstanceOf[NullProperty])
-        assertEquals(property, multiProperty.asInstanceOf[NullProperty].path)
+        assertEquals(property, multiProperty.path)
       }
     }
   }
 
   @Test
-  def testNotNullVarArgs = {
+  def testNotNullVarArgs() = {
     //    setup
     val properties = Seq(EntityTierOneType.PROPERTY, EntityTierOneType.ID)
 
@@ -68,13 +68,13 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     (properties, multiProperties).zipped.foreach {
       (property, multiProperty) => {
         assertTrue(multiProperty.isInstanceOf[NotNullProperty])
-        assertEquals(property, multiProperty.asInstanceOf[NotNullProperty].path)
+        assertEquals(property, multiProperty.path)
       }
     }
   }
 
   @Test
-  def testNull = {
+  def testNull() = {
     //    setup
     val property = EntityTierOneType.PROPERTY
 
@@ -87,7 +87,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testNotNull = {
+  def testNotNull() = {
     //    setup
     val property = EntityTierOneType.PROPERTY
 
@@ -100,7 +100,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testIgnored = {
+  def testIgnored() = {
     //    setup
     val property = EntityTierOneType.PROPERTY
 
@@ -113,10 +113,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testValue = {
-    //    setup
-    val property = EntityTierOneType.PROPERTY
-
+  def testValue() = {
     //    method
     val valueProperty: Property = Fabut.value(EntityTierOneType.PROPERTY, TEST)
 
@@ -128,34 +125,34 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
 
   /** SNAPSHOT and stuff assert */
   @Test(expected = classOf[IllegalStateException])
-  def testBeforeTest {
+  def testBeforeTest() = {
     //    method
     Fabut.beforeTest(new Object)
   }
 
   @Test
-  def testAfterTestSuccess {
+  def testAfterTestSuccess() = {
     //    setup
     Fabut.beforeTest(this)
     Fabut.takeSnapshot()
 
     //    method
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionFailedError])
-  def testAfterTestFail {
+  def testAfterTestFail() = {
     //    setup
     Fabut.beforeTest(this)
     Fabut.takeSnapshot()
     _entityTierOneTypes += new EntityTierOneType(TEST, TEST_ID)
 
     //    method
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionFailedError])
-  def testTakeSnapshotFail {
+  def testTakeSnapshotFail() = {
     //    setup
     Fabut.beforeTest(this)
     _noDefaultConstructorEntities += new NoDefaultConstructorEntity(TEST_ID, TEST)
@@ -165,18 +162,18 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testTakeSnapshotSuccess {
+  def testTakeSnapshotSuccess() = {
     //    setup
     Fabut.beforeTest(this)
     _entityTierOneTypes += new EntityTierOneType(TEST, TEST_ID)
     Fabut.takeSnapshot()
 
     //    method
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testAssertObjectWithComplexType {
+  def testAssertObjectWithComplexType() = {
     //    setup
     Fabut.beforeTest(this)
     val tierOneType = new TierOneType(TEST)
@@ -184,11 +181,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
 
     //    method
     Fabut.assertObject(tierOneType, value(PROPERTY, TEST))
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testAssertObjectWithEntityTypeUsualCase {
+  def testAssertObjectWithEntityTypeUsualCase(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val entityTierOneType = new EntityTierOneType(TEST, TEST_ID)
@@ -198,12 +195,12 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     _entityTierOneTypes += entityTierOneType
     Fabut.assertObject(entityTierOneType, value(PROPERTY, TEST), notNull("_id"))
 
-    Fabut.afterTest
+    Fabut.afterTest()
 
   }
 
   @Test
-  def testAssertObjectWithEntityType {
+  def testAssertObjectWithEntityType(): Unit = {
     //    setup
     val entity = new EntityTierOneType(TEST, 1)
     Fabut.beforeTest(this)
@@ -214,11 +211,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
 
     Fabut.assertObject(entity, value(EntityTierOneType.ID, 1), value(EntityTierOneType.PROPERTY, TEST))
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionError])
-  def testAssertObjectWithEntityTypeFail {
+  def testAssertObjectWithEntityTypeFail(): Unit = {
     //    setup
     val entity = new EntityTierOneType(TEST, 1)
     Fabut.beforeTest(this)
@@ -229,11 +226,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
 
     Fabut.assertObject(entity, value(EntityTierOneType.ID, 1), value(EntityTierOneType.PROPERTY, "fail"))
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testAssertObjectsComplexSuccess {
+  def testAssertObjectsComplexSuccess(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val expected = new TierOneType(TEST)
@@ -241,11 +238,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
 
     //    method
     Fabut.assertObjects(expected, actual)
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionError])
-  def testAssertObjectsComplexFail {
+  def testAssertObjectsComplexFail(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val expected = new TierOneType(TEST)
@@ -253,11 +250,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
 
     //    method
     Fabut.assertObjects(expected, actual)
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testAssertObjectsComplexWithPropertyDifference {
+  def testAssertObjectsComplexWithPropertyDifference(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val expected = new TierOneType(TEST)
@@ -265,11 +262,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
 
     //    method
     Fabut.assertObjects(expected, actual, value(PROPERTY, TEST + TEST))
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionFailedError])
-  def testMarkAssertedFail {
+  def testMarkAssertedFail(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val entityTierOneType = new EntityTierOneType(TEST, null)
@@ -279,25 +276,25 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     //    method
     Fabut.markAsserted(entityTierOneType)
 
-    Fabut.afterTest
+    Fabut.afterTest()
 
   }
 
   @Test(expected = classOf[IllegalStateException])
-  def testMarkAssertedNotEntity {
+  def testMarkAssertedNotEntity(): Unit = {
     // setup
     Fabut.beforeTest(this)
     val entity = new TierOneType
     Fabut.takeSnapshot()
 
     // method
-    Fabut.markAsserted(entity);
+    Fabut.markAsserted(entity)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testAssertObjectsEntitySuccess {
+  def testAssertObjectsEntitySuccess(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val expected = new EntityTierOneType(TEST, 1)
@@ -308,11 +305,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     _entityTierOneTypes += actual
     Fabut.assertObjects(expected, actual)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionError])
-  def testAssertObjectsEntityFail {
+  def testAssertObjectsEntityFail(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val expected = new EntityTierOneType(TEST, 1)
@@ -323,11 +320,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     _entityTierOneTypes += actual
     Fabut.assertObjects(expected, actual)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testAssertEntityWithSnapshotSuccess {
+  def testAssertEntityWithSnapshotSuccess(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val entityTierOneType = new EntityTierOneType(TEST, 10)
@@ -335,15 +332,15 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     Fabut.takeSnapshot()
 
     //    method
-    _entityTierOneTypes.head._property = (TEST + TEST)
+    _entityTierOneTypes.head._property = TEST + TEST
 
     Fabut.assertEntityWithSnapshot(entityTierOneType, Fabut.value(PROPERTY, TEST + TEST))
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionFailedError])
-  def testAssertEntityWithSnapshotFail {
+  def testAssertEntityWithSnapshotFail(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val entityTierOneType = new EntityTierOneType(TEST, 10)
@@ -351,14 +348,14 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     Fabut.takeSnapshot()
 
     //    method
-    _entityTierOneTypes.head._property = (TEST + TEST)
+    _entityTierOneTypes.head._property = TEST + TEST
     Fabut.assertEntityWithSnapshot(entityTierOneType, Fabut.value(PROPERTY, TEST + TEST + TEST))
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[IllegalStateException])
-  def testAssertEntityWithSnapshotNotEntity {
+  def testAssertEntityWithSnapshotNotEntity(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     Fabut.takeSnapshot()
@@ -368,7 +365,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test(expected = classOf[NullPointerException])
-  def testAssertEntityWithSnapshotNullEntity {
+  def testAssertEntityWithSnapshotNullEntity(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val entityTierOneType = new EntityTierOneType(TEST, 10)
@@ -376,15 +373,15 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     Fabut.takeSnapshot()
 
     //    method
-    _entityTierOneTypes.head._property = (TEST + TEST)
+    _entityTierOneTypes.head._property = TEST + TEST
 
     Fabut.assertEntityWithSnapshot(null, Fabut.value(PROPERTY, TEST + TEST))
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testMarkAssertedSuccess {
+  def testMarkAssertedSuccess(): Unit = {
     // setup
     Fabut.beforeTest(this)
     val entity = new EntityTierOneType(TEST, 1)
@@ -392,13 +389,13 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     _entityTierOneTypes ++= List(entity)
 
     // method
-    Fabut.markAsserted(entity);
+    Fabut.markAsserted(entity)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testAssertEntityAsDeletedSuccess {
+  def testAssertEntityAsDeletedSuccess(): Unit = {
     // setup
     Fabut.beforeTest(this)
     val entity = new EntityTierOneType(TEST, 1)
@@ -410,11 +407,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     _entityTierOneTypes = ListBuffer()
     Fabut.assertEntityAsDeleted(entity)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionFailedError])
-  def testAssertEntityAsDeletedFail {
+  def testAssertEntityAsDeletedFail(): Unit = {
     // setup
     Fabut.beforeTest(this)
     val entity = new EntityTierOneType(TEST, 1)
@@ -424,11 +421,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     // method
     Fabut.assertEntityAsDeleted(entity)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[IllegalStateException])
-  def testAssertEntityAsDeletedNotEntity {
+  def testAssertEntityAsDeletedNotEntity(): Unit = {
     // setup
     Fabut.beforeTest(this)
     val entity = new TierOneType(TEST)
@@ -437,11 +434,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     // method
     Fabut.assertEntityAsDeleted(entity)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test
-  def testIgnoreEntitySuccess {
+  def testIgnoreEntitySuccess(): Unit = {
     // setup
     Fabut.beforeTest(this)
     val entity = new EntityTierOneType(TEST, 1)
@@ -450,11 +447,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     // method
     Fabut.ignoreEntity(entity)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[IllegalStateException])
-  def testIgnoreEntityNotEntity {
+  def testIgnoreEntityNotEntity(): Unit = {
     Fabut.beforeTest(this)
     val entity = new TierOneType(TEST)
     Fabut.takeSnapshot()
@@ -462,13 +459,14 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     // method
     Fabut.ignoreEntity(entity)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionFailedError])
-  def testIgnoreEntityFail {
+  def testIgnoreEntityFail(): Unit = {
     // setup
     Fabut.beforeTest(this)
+
     val entity = new EntityTierOneType(TEST, null)
     Fabut.takeSnapshot()
     _entityTierOneTypes ++= List(entity)
@@ -476,24 +474,24 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     // method
     Fabut.ignoreEntity(entity)
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   //integracioni
   @Test
-  def testAssertObject {
+  def testAssertObject(): Unit = {
     //	  method
     Fabut.beforeTest(this)
-    var student = new Student()
+
+    val student = new Student()
     student.name = "Branko"
     student.lastName = "Gvoka"
-    var address = new Address()
     student.address = new Address()
     student.address.city = "Ruma"
     student.address.street = "15. Maja"
     student.address.streetNumber = "97"
 
-    var teacher = new Teacher()
+    val teacher = new Teacher()
     teacher.name = "Ilija"
     teacher.student = student
     teacher.address = new Address()
@@ -501,7 +499,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     teacher.address.street = "Puskinova"
     teacher.address.streetNumber = "22"
 
-    var faculty = new Faculty("FTN", teacher)
+    val faculty = new Faculty("FTN", teacher)
     student.faculty = faculty
 
     Fabut.takeSnapshot()
@@ -516,11 +514,11 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
       Fabut.value("faculty.teacher.student", student),
       Fabut.value("faculty.teacher.address.streetNumber", "22"))
 
-    Fabut.afterTest
+    Fabut.afterTest()
   }
 
   @Test(expected = classOf[AssertionFailedError])
-  def testAssertObjectMapsFail {
+  def testAssertObjectMapsFail(): Unit = {
     //    setup
     Fabut.beforeTest(this)
     val expected = Map("first" -> new TierOneType(TEST), "second" -> new TierOneType(TEST), "third2" -> new TierOneType(TEST))
@@ -531,7 +529,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     //    method
     Fabut.assertObjects(expected, actual)
 
-    Fabut.afterTest
+    Fabut.afterTest()
 
   }
 

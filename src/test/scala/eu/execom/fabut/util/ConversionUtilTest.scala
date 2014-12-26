@@ -8,7 +8,7 @@ import org.junit.{Assert, Test}
 class ConversionUtilTest extends Assert {
 
   @Test
-  def testAssertTypeUnsupportedAssert {
+  def testAssertTypeUnsupportedAssert(): Unit = {
     //    setup
     val testInstance = new Object
     //    method
@@ -18,7 +18,7 @@ class ConversionUtilTest extends Assert {
   }
 
   @Test
-  def testAssertTypeRepositoryAssert {
+  def testAssertTypeRepositoryAssert(): Unit = {
     //    setup
     val testInstance = new AbstractFabutRepositoryAssertTest
     //    method
@@ -28,7 +28,7 @@ class ConversionUtilTest extends Assert {
   }
 
   @Test
-  def testAssertTypeObjectAssert {
+  def testAssertTypeObjectAssert(): Unit = {
     //    setup
     val testInstance = new AbstractFabutObjectAssertTest
     //    method

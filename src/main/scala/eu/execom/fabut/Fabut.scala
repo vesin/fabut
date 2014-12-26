@@ -1,16 +1,19 @@
 package eu.execom.fabut
 
+import eu.execom.fabut.AssertType._
 import eu.execom.fabut.property.{IProperty, IgnoredProperty, NotNullProperty, NullProperty, Property}
 import eu.execom.fabut.report.FabutReportBuilder
 import eu.execom.fabut.util.ConversionUtil._
 import eu.execom.fabut.util.ReflectionUtil._
 import junit.framework.AssertionFailedError
-import eu.execom.fabut.AssertType._
 
 /**
  * Set of method for advanced asserting.
  *
  */
+//TODO dusko trait?
+class Fabut
+
 object Fabut {
 
   val EMPTY_STRING = ""
@@ -44,14 +47,14 @@ object Fabut {
 
     val parameterReport = new FabutReportBuilder("Parameter snapshot assert")
     if (!fabutAssert.assertParameterSnapshot(parameterReport)) {
-      sb.append(parameterReport.message)
+      sb.append(parameterReport.message())
       ok = false
     }
 
     val snapshotReport = new FabutReportBuilder("Repository snapshot assert")
     if (assertType == REPOSITORY_ASSERT) {
       if (!fabutAssert.assertDbSnapshot(snapshotReport)) {
-        sb.append(snapshotReport.message)
+        sb.append(snapshotReport.message())
         ok = false
       }
     }
@@ -73,18 +76,10 @@ object Fabut {
 
     val report = new FabutReportBuilder
     if (!fabutAssert.takeSnapshot(parameters: _*)(report)) {
-      throw new AssertionFailedError(report.message)
+      throw new AssertionFailedError(report.message())
     }
 
   }
-
-  /**
-   * Checks if Fabut repository or object assert is initialized
-   */
-  def checkValidInit(): Unit =
-    if (fabutAssert == null)
-      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
-
 
   /**
    * Asserts object with expected properties
@@ -97,7 +92,6 @@ object Fabut {
    */
   def assertObject(objectInstance: Any, properties: IProperty*): Unit =
     assertObject(EMPTY_STRING, objectInstance, properties: _*)
-
 
   /**
    * Asserts object with expected properties.
@@ -115,7 +109,7 @@ object Fabut {
     val changedProperties = createExpectedPropertiesMap(properties: _*)
     val report = new FabutReportBuilder
     if (!fabutAssert.assertObjectWithProperties(objectInstance, changedProperties)(report)) {
-      throw new AssertionError(report.message)
+      throw new AssertionError(report.message())
     }
   }
 
@@ -133,6 +127,18 @@ object Fabut {
   def assertObjects(expectedObject: Any, actualObject: Any, expectedChanges: IProperty*): Unit =
     assertObjects(EMPTY_STRING, expectedObject, actualObject, expectedChanges: _*)
 
+  /**
+   * Asserts list of expected and array of actual objects.
+   *
+   * @param expected
+   * the expected list
+   * @param actuals
+   * the actual array
+   */
+  def assertList(expected: List[_], actuals: Any*): Unit = {
+    checkValidInit()
+    assertObjects(EMPTY_STRING, expected, actuals.toList)
+  }
 
   /**
    * Asserts two objects
@@ -167,23 +173,21 @@ object Fabut {
       }
 
       if (!fabutAssert.assertObjects(expectedObject, actualObject, properties)(report)) {
-        throw new AssertionFailedError(report.message)
+        throw new AssertionFailedError(report.message())
       }
     }
   }
 
   /**
-   * Asserts list of expected and array of actual objects.
+   * Turns Seq of properties to Map
    *
-   * @param expected
-   * the expected list
-   * @param actuals
-   * the actual array
+   * @param properties
+   * Seq of properties
+   *
+   * @return properties map
+   *
    */
-  def assertList(expected: List[_], actuals: Any*): Unit = {
-    checkValidInit()
-    assertObjects(EMPTY_STRING, expected, actuals.toList)
-  }
+  def createExpectedPropertiesMap(properties: IProperty*): Map[String, IProperty] = properties.map(property => (property.path(), property)).toMap
 
   /**
    * Asserts entity with one saved in snapshot.
@@ -200,22 +204,52 @@ object Fabut {
     val report = new FabutReportBuilder
     val changedProperties = createExpectedPropertiesMap(expectedChanges: _*)
     if (!fabutAssert.assertEntityWithSnapshot(report, entity, changedProperties)) {
-      throw new AssertionFailedError(report.message)
+      throw new AssertionFailedError(report.message())
     }
   }
 
   /**
-   * Turns Seq of properties to Map
+   * Marks object as asserted.
    *
-   * @param properties
-   * Seq of properties
-   *
-   * @return properties map
-   *
+   * @param entity
+   * the entity
    */
-  def createExpectedPropertiesMap(properties: IProperty*): Map[String, IProperty] = {
-    properties.map { property => (property.path, property)}.toMap
+  def markAsserted(entity: Any): Unit = {
+
+    checkValidInit()
+    checkIfEntity(entity)
+
+    val report = new FabutReportBuilder
+    val entityType = getClassType(entity, AssertableType.ENTITY_TYPE)
+    if (!fabutAssert.markAsAsserted(report, entity, entityType)) {
+      throw new AssertionFailedError(report.message())
+    }
   }
+
+  /**
+   *
+   * Assert entity as deleted. It will fail if entity can still be found in snapshot.
+   *
+   * @param entity
+   * the entity
+   */
+  def assertEntityAsDeleted(entity: Any): Unit = {
+    checkValidInit()
+    checkIfEntity(entity)
+
+    val report = new FabutReportBuilder
+    if (!fabutAssert.assertEntityAsDeleted(report, entity)) {
+      throw new AssertionFailedError(report.message())
+    }
+
+  }
+
+  /**
+   * Checks if Fabut repository or object assert is initialized
+   */
+  def checkValidInit(): Unit =
+    if (fabutAssert == null)
+      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
 
   /**
    * Checks if specified object is entity.
@@ -244,42 +278,6 @@ object Fabut {
   }
 
   /**
-   * Marks object as asserted.
-   *
-   * @param entity
-   * the entity
-   */
-  def markAsserted(entity: Any): Unit = {
-
-    checkValidInit()
-    checkIfEntity(entity)
-
-    val report = new FabutReportBuilder
-    val entityType = getClassType(entity, AssertableType.ENTITY_TYPE)
-    if (!fabutAssert.markAsAsserted(report, entity, entityType)) {
-      throw new AssertionFailedError(report.message)
-    }
-  }
-
-  /**
-   *
-   * Assert entity as deleted. It will fail if entity can still be found in snapshot.
-   *
-   * @param entity
-   * the entity
-   */
-  def assertEntityAsDeleted(entity: Any): Unit = {
-    checkValidInit()
-    checkIfEntity(entity)
-
-    val report = new FabutReportBuilder
-    if (!fabutAssert.assertEntityAsDeleted(report, entity)) {
-      throw new AssertionFailedError(report.message)
-    }
-
-  }
-
-  /**
    * Ignores the entity.
    *
    * @param entity
@@ -291,7 +289,7 @@ object Fabut {
 
     val report = new FabutReportBuilder
     if (!fabutAssert.ignoreEntity(entity)(report)) {
-      throw new AssertionFailedError(report.message)
+      throw new AssertionFailedError(report.message())
     }
   }
 

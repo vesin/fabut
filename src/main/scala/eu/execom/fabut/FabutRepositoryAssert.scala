@@ -1,29 +1,27 @@
 package eu.execom.fabut
 
-import scala.collection.mutable.{Map => MutableMap}
-import scala.reflect.runtime.universe.Type
-import eu.execom.fabut.AssertableType._
 import eu.execom.fabut.AssertType._
+import eu.execom.fabut.AssertableType._
 import eu.execom.fabut.exception.CopyException
 import eu.execom.fabut.graph.NodesList
 import eu.execom.fabut.pair.AssertPair
-import eu.execom.fabut.property.CopyAssert
-import eu.execom.fabut.property.IProperty
-import eu.execom.fabut.util.ReflectionUtil.createCopy
-import eu.execom.fabut.util.ReflectionUtil.getIdValue
-import eu.execom.fabut.util.ReflectionUtil.getClassType
+import eu.execom.fabut.property.{CopyAssert, IProperty}
 import eu.execom.fabut.report.FabutReportBuilder
+import eu.execom.fabut.util.ReflectionUtil.{createCopy, getClassType, getIdValue}
 
+import scala.collection.mutable.{Map => MutableMap}
+import scala.reflect.runtime.universe.Type
+
+//TODO inline comment wtf dusko?
 /**
  * Extension of {@link FabutObjectAssert} with functionality to assert db snapshot with its after state.
  */
 class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value) extends FabutObjectAssert(fabutTest) {
 
   /** The db snapshot. */
-  private val _dbSnapshot: MutableMap[Type, MutableMap[Any, CopyAssert]] = MutableMap()
-  private val _repositoryFabutTest = fabutTest.asInstanceOf[IFabutRepositoryTest]
-  private var isRepositoryValid = false
-
+  private[this] val _dbSnapshot: MutableMap[Type, MutableMap[Any, CopyAssert]] = MutableMap()
+  private[this] val _repositoryFabutTest = fabutTest.asInstanceOf[IFabutRepositoryTest]
+  private[this] var isRepositoryValid = false
   types(ENTITY_TYPE) = _repositoryFabutTest.entityTypes()
 
   override def assertEntityPair(propertyName: String, pair: AssertPair, properties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReportBuilder): Boolean =
@@ -43,18 +41,18 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
    * @return - <code> true </code> if and only if id's of two specified objects are equal, <code> false </code> otherwise
    */
   def assertEntityById(propertyName: String, pair: AssertPair)(implicit report: FabutReportBuilder): Boolean = try {
-      val actualValue = getIdValue(pair.expected).get
-      val expectedValue =getIdValue(pair.actual).get
-      fabutTest.customAssertEquals(expectedValue, actualValue)
-      ASSERTED
-    } catch {
-      case e: AssertionError =>
-        report.assertFail(pair, propertyName)
-        ASSERT_FAIL
-      case e: NoSuchElementException =>
-        report.missingPropertyInClass("id",pair.expected.getClass.getSimpleName)
-        ASSERT_FAIL
-    }
+    val actualValue = getIdValue(pair.expected).get
+    val expectedValue = getIdValue(pair.actual).get
+    fabutTest.customAssertEquals(expectedValue, actualValue)
+    ASSERTED
+  } catch {
+    case e: AssertionError =>
+      report.assertFail(pair, propertyName)
+      ASSERT_FAIL
+    case e: NoSuchElementException =>
+      report.missingPropertyInClass("id", pair.expected.getClass.getSimpleName)
+      ASSERT_FAIL
+  }
 
   /**
    * Asserts entity with one saved in snapshot.
@@ -91,7 +89,7 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
   def assertEntityAsDeleted(implicit report: FabutReportBuilder, entity: Any): Boolean = {
     val ignoredEntity = ignoreEntity(entity)
     val foundByIdObject = findById(getClassType(entity, ENTITY_TYPE).get, getIdValue(entity).get)
-    val isDeletedInRepository = foundByIdObject == None
+    val isDeletedInRepository = foundByIdObject == null
 
     if (!isDeletedInRepository) {
       report.notDeletedInRepositoy(entity)
@@ -125,13 +123,13 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
     val isParameterSnapshotOk = if (parameters.nonEmpty) {
       super.takeSnapshot(parameters: _*)
     } else {
-       ASSERTED
+      ASSERTED
     }
 
     _dbSnapshot.foreach {
-      case ( tableName, table) =>
+      case (tableName, table) =>
         val entities = findAll(tableName)
-        entities.foreach( entity =>
+        entities.foreach(entity =>
           try {
             val copy = createCopy(entity)
             table += getIdValue(entity).get -> CopyAssert(copy)
@@ -157,6 +155,15 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
   }
 
   /**
+   * Find all entities of type entity class in DB.
+   *
+   * @param entityClassType
+   * the entity class
+   * @return the list
+   */
+  def findAll(entityClassType: Type): List[_] = _repositoryFabutTest.findAll(entityClassType)
+
+  /**
    * Marks the specified entity as asserted.
    *
    * @param report
@@ -168,11 +175,11 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
    * @return <code>true</code> if entity is successfully asserted else return <code>false</code>.
    */
   def markAsAsserted(report: FabutReportBuilder, entity: Any, entityType: Option[Type]): Boolean = try {
-    val id = getIdValue(entity)//.getOrElse(throw new NoSuchElementException(s"Property with name 'id' doesn't exist in ${entity.getClass.getSimpleName}")*/)
-    if(id.isDefined && id.get != null){
+    val id = getIdValue(entity) //.getOrElse(throw new NoSuchElementException(s"Property with name 'id' doesn't exist in ${entity.getClass.getSimpleName}")*/)
+    if (id.isDefined && id.get != null) {
       val copy = createCopy(entity)
       val marked = markAsserted(id.get, copy, entityType.get)(report)
-      if(!marked) {
+      if (!marked) {
         report.notExistingInSnapshot(entity)
         ASSERT_FAIL
       } else {
@@ -244,8 +251,7 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
    *
    * @return true, if successful
    */
-  override def afterAssertObject(theObject: Any, isSubproperty: Boolean): Boolean =
-    afterAssertEntity(new FabutReportBuilder, theObject, isSubproperty)
+  override def afterAssertObject(theObject: Any, isSubproperty: Boolean): Boolean = afterAssertEntity(new FabutReportBuilder, theObject, isSubproperty)
 
   /**
    * Find specific entity of type entity class and with specific id in DB.
@@ -256,8 +262,7 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
    * the id
    * @return the entity type
    */
-  def findById(entityClassType: Type, id: Any): Any =
-    _repositoryFabutTest.findById(entityClassType, id)
+  def findById(entityClassType: Type, id: Any): Any = _repositoryFabutTest.findById(entityClassType, id)
 
   /**
    * Asserts db snapshot with after db state.
@@ -293,16 +298,6 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
     }
     afterEntities.toMap
   }
-
-  /**
-   * Find all entities of type entity class in DB.
-   *
-   * @param entityClassType
-   * the entity class
-   * @return the list
-   */
-  def findAll(entityClassType: Type): List[_] =
-    _repositoryFabutTest.findAll(entityClassType)
 
   /**
    * Performs assert check on entities that are contained in db snapshot but do not exist in after db state.

@@ -14,11 +14,8 @@ import scala.reflect.runtime.universe._
  */
 object ReflectionUtil {
 
-
   val classLoaderMirror = runtimeMirror(getClass.getClassLoader)
-
   val SETTER_POSTFIX = "_$eq"
-
   var fabutAssert: FabutObjectAssert = null
 
   /**
@@ -61,9 +58,7 @@ object ReflectionUtil {
    * the list of term symbols of all getters for given class
    **/
   def extractGetters(classType: Type): List[TermSymbol] = {
-
     val getters = new ListBuffer[TermSymbol]
-
     val classTypes = classType.baseClasses.map(clazz => clazz.typeSignature)
 
     classTypes.foreach { clazz =>
@@ -86,8 +81,7 @@ object ReflectionUtil {
    * @return <code> true </code> if a term is variable <code> false </code> if term is immutable value
    **/
   def isVariable(termMember: TermSymbol, termMembers: List[TermSymbol]): Boolean =
-    termMembers.exists(member =>
-      member.name.toString.contains(termMember.name.toString) && member.isVar)
+    termMembers.exists(member => member.name.toString.contains(termMember.name.toString.replaceFirst("_", "")) && member.isVar)
 
   /**
    * Reflects a value for given term symbol and instance mirror
@@ -179,13 +173,13 @@ object ReflectionUtil {
    **/
   def getIdValue(entity: Any): Option[Any] = {
     val entityType = getClassType(entity, getAssertableType(entity))
-    if(entityType.isDefined){
+    if (entityType.isDefined) {
       getFieldValueFromGetter("id", entity, entityType.get)
     } else {
       None
     }
     //val entityType = getClassType(entity, getAssertableType(entity)).get
-   // val entityType = getClassType(entity, ENTITY_TYPE).getOrElse(throw new IllegalStateException(s"Undefined class type or not entity ${entity.getClass.getSimpleName}"))
+    // val entityType = getClassType(entity, ENTITY_TYPE).getOrElse(throw new IllegalStateException(s"Undefined class type or not entity ${entity.getClass.getSimpleName}"))
   }
 
 
@@ -212,6 +206,39 @@ object ReflectionUtil {
   }.toOption
 
   /**
+   * Returns a type of given object
+   *
+   * @param value
+   * the object value
+   * @return
+   * one of assertable types
+   */
+  def getAssertableType(value: Any): AssertableType = value match {
+    case _: List[_] => SCALA_LIST_TYPE
+    case _: Map[_, _] => SCALA_MAP_TYPE
+    case _ if getClassType(value, COMPLEX_TYPE).isDefined => COMPLEX_TYPE
+    case _ if getClassType(value, ENTITY_TYPE).isDefined => ENTITY_TYPE
+    case _ if getClassType(value, IGNORED_TYPE).isDefined => IGNORED_TYPE
+    case _ => PRIMITIVE_TYPE
+  }
+
+  /**
+   * Returns class type from 'types' for given object
+   *
+   * @param objectValue
+   * the object value
+   * @param assertableType
+   * the object type
+   * @return
+   * the specific type of class in case it exists for the given object type
+   */
+
+  def getClassType(objectValue: Any, assertableType: AssertableType): Option[Type] = util.Try {
+    fabutAssert.types(assertableType).find(typeName =>
+      typeName.toString == objectValue.getClass.getCanonicalName).get
+  }.toOption
+
+  /**
    * Determines if a given object is instance of case class
    * edit: Unused ATM
    *
@@ -224,7 +251,6 @@ object ReflectionUtil {
     val typeMirror = runtimeMirror(objectInstance.getClass.getClassLoader)
     val instanceMirror = typeMirror.reflect(objectInstance)
     val symbol = instanceMirror.symbol
-
     symbol.isCaseClass
   }
 
@@ -242,12 +268,10 @@ object ReflectionUtil {
       getAssertableType(objectInstance) match {
         case SCALA_LIST_TYPE => copyList(objectInstance.asInstanceOf[List[_]])
         case SCALA_MAP_TYPE => copyMap(objectInstance.asInstanceOf[Map[_, _]])
-        case UNDEFINED_TYPE =>
-          throw new IllegalStateException(s"Unknown class type: ${objectInstance.getClass}")
-        case _ => createInnerObjectCopy(objectInstance, new NodesList).get
+        case _ => createObjectCopy(objectInstance, new NodesList).get
       }
     } else {
-      objectInstance // TODO should this happen?
+      objectInstance
     }
 
   /**
@@ -261,9 +285,8 @@ object ReflectionUtil {
    * @return
    * deep copy of object
    **/
-  def createInnerObjectCopy(objectInstance: Any, nodesList: NodesList): Option[Any] = {
+  def createObjectCopy(objectInstance: Any, nodesList: NodesList): Option[Any] = {
     var inList = true
-
     val copy = nodesList.expected(objectInstance.asInstanceOf[AnyRef]).getOrElse({
       inList = false
       createEmptyCopy(objectInstance, getClassType(objectInstance, getAssertableType(objectInstance)).get)
@@ -298,8 +321,7 @@ object ReflectionUtil {
   def copyProperty(property: Any, nodesList: NodesList): Any =
     if (property != null) {
       getAssertableType(property) match {
-        case UNDEFINED_TYPE => throw new IllegalStateException("Uknown class type: " + property.getClass.getSimpleName)
-        case COMPLEX_TYPE => createInnerObjectCopy(property, nodesList).get
+        case COMPLEX_TYPE => createObjectCopy(property, nodesList).get
         case SCALA_LIST_TYPE => copyList(property.asInstanceOf[List[_]])
         case SCALA_MAP_TYPE => copyMap(property.asInstanceOf[Map[_, _]])
         case _ => property
@@ -317,8 +339,7 @@ object ReflectionUtil {
    * @return
    * the copied list
    **/
-  def copyList(list: List[_]): List[Any] =
-    list.map { property => copyProperty(property, new NodesList)}
+  def copyList(list: List[_]): List[Any] = list.map { property => copyProperty(property, new NodesList)}
 
   /**
    * Creates a copy of map by creating a deep copy for each object in the map if its not primitive
@@ -329,8 +350,7 @@ object ReflectionUtil {
    * @return
    * the copied map
    **/
-  def copyMap(mapForCopy: Map[_, _]): Map[Any, Any] =
-    mapForCopy.map { case (key, value) => (key, copyProperty(value, new NodesList))}
+  def copyMap(mapForCopy: Map[_, _]): Map[Any, Any] = mapForCopy.map { case (key, value) => (key, copyProperty(value, new NodesList))}
 
   /**
    * Checks if object is of complex type
@@ -340,65 +360,7 @@ object ReflectionUtil {
    *
    * @return <code> true </code> if object is complex , <code> false </code> otherwise.
    */
-  def isComplexType(objectInstance: Any): Boolean =
-    getAssertableType(objectInstance) == COMPLEX_TYPE
-
-  /**
-   * Returns a type of given object
-   *
-   * @param value
-   * the object value
-   * @return
-   * one of assertable types
-   */
-  def getAssertableType(value: Any) = value match {
-    case _: List[_] => SCALA_LIST_TYPE
-    case _: Map[_, _] => SCALA_MAP_TYPE
-    case _ if isPrimitive(value) => PRIMITIVE_TYPE
-    case _ if getClassType(value, COMPLEX_TYPE).isDefined => COMPLEX_TYPE
-    case _ if getClassType(value, ENTITY_TYPE).isDefined => ENTITY_TYPE
-    case _ if getClassType(value, IGNORED_TYPE).isDefined => IGNORED_TYPE
-    case _ => UNDEFINED_TYPE
-  }
-
-  /**
-   * Returns class type from 'types' for given object
-   *
-   * @param objectValue
-   * the object value
-   * @param assertableType
-   * the object type
-   * @return
-   * the specific type of class in case it exists for the given object type
-   */
-
-  def getClassType(objectValue: Any, assertableType: AssertableType): Option[Type] = util.Try {
-    fabutAssert.types(assertableType).find(typeName =>
-      typeName.toString == objectValue.getClass.getCanonicalName).get
-  }.toOption
-
-  /**
-   * Checks if the value is primitive
-   *
-   * @param value
-   * the value
-   *
-   * @return <code> true </code> if value is primitive </code> otherwise.
-   **/
-  def isPrimitive(value: Any): Boolean = value match {
-    case _: Byte => true
-    case _: Short => true
-    case _: Int => true
-    case _: Long => true
-    case _: Float => true
-    case _: Double => true
-    case _: Char => true
-    case _: Boolean => true
-    case _: Unit => true
-    case _: String => true
-    case null => true
-    case _ => false
-  }
+  def isComplexType(objectInstance: Any): Boolean = getAssertableType(objectInstance) == COMPLEX_TYPE
 
   /**
    * Sets the copied property to copied object

@@ -55,8 +55,8 @@ trait IsomorphicGraph {
    * @param pair
    * the pair of expected and actual objects
    * @return - if graph contains object pair return   `NodeCheckType`.CONTAINS_PAIR,
-   * if and only if one of the nodes is contained in nodes list return `NodeCheckType`.SINGLE_NODE,
-   * otherwise it is new pair and
+   *         if and only if one of the nodes is contained in nodes list return `NodeCheckType`.SINGLE_NODE,
+   *         otherwise it is new pair and
    */
   def nodeCheck(pair: AssertPair): NodeCheckType
 
@@ -64,12 +64,12 @@ trait IsomorphicGraph {
 
 /**
  * Class representing object pair from `IsomorphicGraph`
- * */
+ **/
 case class IsomorphicNodePair(expected: AnyRef, actual: AnyRef) extends Pair
 
 /**
  * Class implementation of `IsomorphicGraph`
- * */
+ **/
 class NodesList extends IsomorphicGraph {
 
   val isomorphicNodes: ListBuffer[IsomorphicNodePair] = new ListBuffer[IsomorphicNodePair]
@@ -80,9 +80,6 @@ class NodesList extends IsomorphicGraph {
   override def containsPair(expected: AnyRef, actual: AnyRef) =
     isomorphicNodes.contains(IsomorphicNodePair(expected, actual))
 
-  override def containsExpected(expected: AnyRef) =
-    isomorphicNodes.exists(pair => pair.expected.eq(expected))
-
   override def expected(actual: AnyRef): Option[AnyRef] =
     isomorphicNodes.find(pair => pair.actual.eq(actual)).map(_.expected)
 
@@ -92,4 +89,7 @@ class NodesList extends IsomorphicGraph {
     } else {
       NEW_PAIR
     }
+
+  override def containsExpected(expected: AnyRef) =
+    isomorphicNodes.exists(pair => pair.expected.eq(expected))
 }

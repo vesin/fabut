@@ -14,11 +14,12 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   val TEST = "test"
   val TEST_ID = 105
   val PROPERTY = "_property"
+  val IS_PROPERTY = true
   val DOT = "."
   val ENTITY_TWO_PROPERTY = "_subProperty._property"
 
   @Test
-  def testAssertDbStateTrue {
+  def testAssertDbStateTrue(): Unit = {
     //    setup
     val beforeList1 = ListBuffer(new EntityTierOneType(TEST, 1), new EntityTierOneType(TEST, 2))
     setEntityTierOneTypes(beforeList1)
@@ -28,7 +29,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     setEntityTierTwoTypes(beforeList2)
 
     val report = new FabutReportBuilder
-    fabutRepositoryAssert.takeSnapshot()(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
 
     val afterList1 = ListBuffer(new EntityTierOneType(TEST, 1), new EntityTierOneType(TEST, 2))
     setEntityTierOneTypes(afterList1)
@@ -36,14 +37,14 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     setEntityTierTwoTypes(afterList2)
 
     //    method
-    val assertResult = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val assertResult = fabutRepositoryAssert().assertDbSnapshot(new FabutReportBuilder)
 
     //    assert
     assertTrue(assertResult)
   }
 
   @Test
-  def testAssertDbStateFalse {
+  def testAssertDbStateFalse(): Unit = {
     //    setup
     val beforeList1 = ListBuffer(new EntityTierOneType(TEST, 1), new EntityTierOneType(TEST, 2))
     setEntityTierOneTypes(beforeList1)
@@ -53,7 +54,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     setEntityTierTwoTypes(beforeList2)
 
     val report = new FabutReportBuilder
-    fabutRepositoryAssert.takeSnapshot()(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
 
     val afterList1 = ListBuffer(new EntityTierOneType(TEST, 1), new EntityTierOneType(TEST, 2))
     setEntityTierOneTypes(afterList1)
@@ -61,7 +62,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     setEntityTierTwoTypes(afterList2)
 
     //    method
-    val assertResult = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val assertResult = fabutRepositoryAssert().assertDbSnapshot(new FabutReportBuilder)
 
     //    assert
     assertFalse(assertResult)
@@ -69,7 +70,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testAssertEntityAsDeletedEntity {
+  def testAssertEntityAsDeletedEntity(): Unit = {
     //    setup
     val list1: ListBuffer[EntityTierOneType] = ListBuffer()
     list1 += new EntityTierOneType(TEST, 1)
@@ -78,15 +79,15 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
 
     val report = new FabutReportBuilder
     val actual = new EntityTierOneType(TEST, 1)
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
 
     val list2: ListBuffer[EntityTierOneType] = ListBuffer()
     list2 += new EntityTierOneType(TEST, 2)
     setEntityTierOneTypes(list2)
 
     //    method
-    val assertEntityAsDeleted = fabutRepositoryAssert.assertEntityAsDeleted(new FabutReportBuilder, actual)
-    val assertDbState = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val assertEntityAsDeleted = fabutRepositoryAssert().assertEntityAsDeleted(new FabutReportBuilder, actual)
+    val assertDbState = fabutRepositoryAssert().assertDbSnapshot(new FabutReportBuilder)
 
     //    assert
     assertTrue(assertEntityAsDeleted)
@@ -94,7 +95,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testIgnoreEntityEntity {
+  def testIgnoreEntityEntity(): Unit = {
     //    setup
     val list1: ListBuffer[EntityTierOneType] = ListBuffer()
     list1 += new EntityTierOneType(TEST, 1)
@@ -103,15 +104,15 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
 
     val report = new FabutReportBuilder
     val actual = new EntityTierOneType(TEST, 1)
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
 
     val list2: ListBuffer[EntityTierOneType] = ListBuffer()
     list2 += new EntityTierOneType(TEST, 2)
     setEntityTierOneTypes(list2)
 
     //    method
-    val ignoreEntity = fabutRepositoryAssert.ignoreEntity(actual)(new FabutReportBuilder)
-    val assertDbState = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val ignoreEntity = fabutRepositoryAssert().ignoreEntity(actual)(report)
+    val assertDbState = fabutRepositoryAssert().assertDbSnapshot(report)
 
     //    assert
     assertTrue(ignoreEntity)
@@ -119,7 +120,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testAfterAssertEntityParentEntityNotProperty {
+  def testAfterAssertEntityParentEntityNotProperty(): Unit = {
     //    setup
     val list1: ListBuffer[EntityTierOneType] = ListBuffer()
     list1 += new EntityTierOneType(TEST, 1)
@@ -128,15 +129,15 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
 
     val report = new FabutReportBuilder
     val actual = new EntityTierOneType(TEST, 1)
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
 
     val list2: ListBuffer[EntityTierOneType] = ListBuffer()
     list2 += new EntityTierOneType(TEST, 2)
     setEntityTierOneTypes(list2)
 
     //    method
-    val afterAssertEntity = fabutRepositoryAssert.afterAssertEntity(new FabutReportBuilder, actual, false)
-    val assertDbState = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val afterAssertEntity = fabutRepositoryAssert().afterAssertEntity(report, actual, !IS_PROPERTY)
+    val assertDbState = fabutRepositoryAssert().assertDbSnapshot(report)
 
     //    assert
     assertTrue(afterAssertEntity)
@@ -144,7 +145,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test(expected = classOf[AssertionError])
-  def testAfterAssertEntityIsProperty {
+  def testAfterAssertEntityIsProperty(): Unit = {
     //    setup
     val list1: ListBuffer[EntityTierOneType] = ListBuffer()
     list1 += new EntityTierOneType(TEST, 1)
@@ -153,22 +154,22 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
 
     val report = new FabutReportBuilder
     val actual = new EntityTierOneType(TEST, 1)
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
 
     val list2: ListBuffer[EntityTierOneType] = ListBuffer()
     list2 += new EntityTierOneType(TEST, 2)
     setEntityTierOneTypes(list2)
 
     //    method
-    fabutRepositoryAssert.afterAssertEntity(new FabutReportBuilder, actual, true)
-    val assertResult = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    fabutRepositoryAssert().afterAssertEntity(report, actual, IS_PROPERTY)
+    val assertResult = fabutRepositoryAssert().assertDbSnapshot(report)
 
     //    assert
     assertTrue(assertResult)
   }
 
   @Test
-  def testAfterAssertEntityNotEntity {
+  def testAfterAssertEntityNotEntity(): Unit = {
     //    setup
     val list1: ListBuffer[EntityTierOneType] = ListBuffer()
     list1 += new EntityTierOneType(TEST, 1)
@@ -177,21 +178,21 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
 
     val report = new FabutReportBuilder
     val actual = FakeEntity()
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
 
     val list2: ListBuffer[EntityTierOneType] = ListBuffer()
     list2 += new EntityTierOneType(TEST, 2)
     setEntityTierOneTypes(list2)
 
     //    method
-    val assertResult = fabutRepositoryAssert.afterAssertEntity(new FabutReportBuilder, actual, false)
+    val assertResult = fabutRepositoryAssert().afterAssertEntity(report, actual, !IS_PROPERTY)
 
     //    assert
     assertFalse(assertResult)
   }
 
   @Test
-  def testAfterAssertEntityWithoutID {
+  def testAfterAssertEntityWithoutID(): Unit = {
     //    setup
     val list1: ListBuffer[EntityTierOneType] = ListBuffer()
     list1 += new EntityTierOneType(TEST, 1)
@@ -200,11 +201,11 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
 
     val report = new FabutReportBuilder
     val actual = new EntityTierOneType(TEST, 1)
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
 
     //    method
-    val afterAssertEntity = fabutRepositoryAssert.afterAssertEntity(new FabutReportBuilder, actual, false)
-    val assertDbState = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val afterAssertEntity = fabutRepositoryAssert().afterAssertEntity(report, actual, !IS_PROPERTY)
+    val assertDbState = fabutRepositoryAssert().assertDbSnapshot(report)
 
     //    assert
     assertTrue(afterAssertEntity)
@@ -212,31 +213,31 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testMarkAssertedNotTypeSupportedTypeTrue {
+  def testMarkAssertedNotTypeSupportedTypeTrue(): Unit = {
 
     val list: ListBuffer[EntityTierTwoType] = ListBuffer()
     setEntityTierTwoTypes(list)
     val report = new FabutReportBuilder
 
     //    method
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
     list += new EntityTierTwoType(TEST, new EntityTierOneType(TEST + TEST, 10), 1)
-    val assertValue = fabutRepositoryAssert.markAsAsserted(new FabutReportBuilder, new EntityTierThreeType(TEST, new EntityTierOneType(TEST + TEST, 10), 1), Some(typeOf[EntityTierThreeType]))
-    val assertDbState = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val assertValue = fabutRepositoryAssert().markAsAsserted(report, new EntityTierThreeType(TEST, new EntityTierOneType(TEST + TEST, 10), 1), Some(typeOf[EntityTierThreeType]))
+    val assertDbState = fabutRepositoryAssert().assertDbSnapshot(report)
 
     //    assert
-   // println("baguje testMarkAssertedNotTypeSupportedTypeTrue")
-   //    assertTrue(assertValue)
+    //println("baguje testMarkAssertedNotTypeSupportedTypeTrue")
+    //    assertTrue(assertValue)
     //   assertTrue(assertDbState)
   }
 
   @Test
-  def testMarkAssertedNotTypeSupportedTypeFalse {
+  def testMarkAssertedNotTypeSupportedTypeFalse(): Unit = {
     val report = new FabutReportBuilder
     //    method
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
-    val assertValue = fabutRepositoryAssert.markAsAsserted(new FabutReportBuilder, new UnknownEntityType(4), Some(typeOf[UnknownEntityType]))
-    val assertDbState = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    fabutRepositoryAssert().takeSnapshot()(report)
+    val assertValue = fabutRepositoryAssert().markAsAsserted(new FabutReportBuilder, new UnknownEntityType(4), Some(typeOf[UnknownEntityType]))
+    val assertDbState = fabutRepositoryAssert().assertDbSnapshot(new FabutReportBuilder)
 
     //    assert
     assertFalse(assertValue)
@@ -244,16 +245,16 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testMarkAssertedCopyAssertNull {
+  def testMarkAssertedCopyAssertNull(): Unit = {
     val list: ListBuffer[EntityTierTwoType] = ListBuffer()
     setEntityTierTwoTypes(list)
     val report = new FabutReportBuilder
 
     //    method
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
     list += new EntityTierTwoType(TEST, new EntityTierOneType(TEST + TEST, 10), 1)
-    val assertValue = fabutRepositoryAssert.markAsAsserted(new FabutReportBuilder, new EntityTierTwoType(TEST, new EntityTierOneType(TEST + TEST, 10), 1), Some(typeOf[EntityTierTwoType]))
-    val assertDbState = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val assertValue = fabutRepositoryAssert().markAsAsserted(new FabutReportBuilder, new EntityTierTwoType(TEST, new EntityTierOneType(TEST + TEST, 10), 1), Some(typeOf[EntityTierTwoType]))
+    val assertDbState = fabutRepositoryAssert().assertDbSnapshot(new FabutReportBuilder)
 
     //    assert
     assertTrue(assertValue)
@@ -261,7 +262,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testMarkAssertedCopyAssertNotNull {
+  def testMarkAssertedCopyAssertNotNull(): Unit = {
 
     val entity: EntityTierTwoType = new EntityTierThreeType(TEST, new EntityTierOneType(TEST + TEST, 10), 1)
     val list: ListBuffer[EntityTierTwoType] = ListBuffer()
@@ -270,10 +271,10 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     val report = new FabutReportBuilder
 
     //    method
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
+    fabutRepositoryAssert().takeSnapshot()(report)
     entity.property_=("new" + TEST)
-    val assertValue = fabutRepositoryAssert.markAsAsserted(new FabutReportBuilder, new EntityTierTwoType(TEST, new EntityTierOneType(TEST + TEST, 10), 1), Some(typeOf[EntityTierTwoType]))
-    val assertDbState = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    val assertValue = fabutRepositoryAssert().markAsAsserted(new FabutReportBuilder, new EntityTierTwoType(TEST, new EntityTierOneType(TEST + TEST, 10), 1), Some(typeOf[EntityTierTwoType]))
+    val assertDbState = fabutRepositoryAssert().assertDbSnapshot(new FabutReportBuilder)
 
     //    assert
     assertTrue(assertValue)
@@ -281,7 +282,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testCheckNotExistingInAfterDbStateTrue {
+  def testCheckNotExistingInAfterDbStateTrue(): Unit = {
     //    setup
     val beforeIds: Set[Any] = Set(1, 2, 3)
     val afterIds: Set[Any] = Set(1, 3)
@@ -291,56 +292,56 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     copyAssert2.asserted_=(true)
     val beforeEntities: Map[Any, CopyAssert] = Map(1 -> CopyAssert(new EntityTierOneType), 2 -> copyAssert2, 3 -> CopyAssert(new EntityTierOneType))
     //    method
-    val assertResult = fabutRepositoryAssert.checkNotExistingInAfterDbState(beforeIds, afterIds, beforeEntities)(new FabutReportBuilder)
+    val assertResult = fabutRepositoryAssert().checkNotExistingInAfterDbState(beforeIds, afterIds, beforeEntities)(report)
 
     //    assert
     assertTrue(assertResult)
   }
 
   @Test
-  def testCheckNotExistingInAfterDbStateFalse {
+  def testCheckNotExistingInAfterDbStateFalse(): Unit = {
     //    setup
     val beforeIds: Set[Any] = Set(1, 2, 3)
     val afterIds: Set[Any] = Set(1, 3)
 
     val beforeEntities: Map[Any, CopyAssert] = Map(1 -> CopyAssert(new EntityTierOneType), 2 -> CopyAssert(new EntityTierOneType), 3 -> CopyAssert(new EntityTierOneType))
     //    method
-    val assertResult = fabutRepositoryAssert.checkNotExistingInAfterDbState(beforeIds, afterIds, beforeEntities)(new FabutReportBuilder)
+    val assertResult = fabutRepositoryAssert().checkNotExistingInAfterDbState(beforeIds, afterIds, beforeEntities)(new FabutReportBuilder)
 
     //    assert
     assertFalse(assertResult)
   }
 
   @Test
-  def testCheckAddedToAfterDbStateFalse {
+  def testCheckAddedToAfterDbStateFalse(): Unit = {
     //    setup
     val beforeIds: Set[Any] = Set(1, 2)
     val afterIds: Set[Any] = Set(1, 3)
 
     val afterEntities: Map[Any, Any] = Map(1 -> new EntityTierOneType, 3 -> new EntityTierOneType)
     //    method
-    val assertResult = fabutRepositoryAssert.checkNewToAfterDbState(beforeIds, afterIds, afterEntities)(new FabutReportBuilder)
+    val assertResult = fabutRepositoryAssert().checkNewToAfterDbState(beforeIds, afterIds, afterEntities)(new FabutReportBuilder)
 
     //    assert
     assertFalse(assertResult)
   }
 
   @Test
-  def testCheckAddedToAfterDbStateTrue {
+  def testCheckAddedToAfterDbStateTrue(): Unit = {
     //    setup
     val beforeIds: Set[Any] = Set(1, 3)
     val afterIds: Set[Any] = Set(1, 3)
 
     val afterEntities: Map[Any, Any] = Map(1 -> new EntityTierOneType, 3 -> new EntityTierOneType)
     //    method
-    val assertResult = fabutRepositoryAssert.checkNewToAfterDbState(beforeIds, afterIds, afterEntities)(new FabutReportBuilder)
+    val assertResult = fabutRepositoryAssert().checkNewToAfterDbState(beforeIds, afterIds, afterEntities)(new FabutReportBuilder)
 
     //    assert
     assertTrue(assertResult)
   }
 
   @Test
-  def testAssertDbSnapshotWithAfterStateTrue {
+  def testAssertDbSnapshotWithAfterStateTrue(): Unit = {
     //    setup
     val beforeIds: Set[Any] = Set(1, 3)
     val afterIds: Set[Any] = Set(1, 3)
@@ -357,14 +358,14 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
 
     val beforeEntities: Map[Any, CopyAssert] = Map(1 -> copyAssert1, 2 -> copyAssert2, 3 -> copyAssert3)
     //    method
-    val assertResult = fabutRepositoryAssert.assertDbSnapshotWithAfterState(beforeIds, afterIds, beforeEntities, afterEntities)(new FabutReportBuilder)
+    val assertResult = fabutRepositoryAssert().assertDbSnapshotWithAfterState(beforeIds, afterIds, beforeEntities, afterEntities)(new FabutReportBuilder)
 
     //    assert
     assertTrue(assertResult)
   }
 
   @Test
-  def testAssertDbSnapshotWithAfterStateFalse {
+  def testAssertDbSnapshotWithAfterStateFalse(): Unit = {
     //    setup
     val beforeIds: Set[Any] = Set(1, 3)
     val afterIds: Set[Any] = Set(1, 3)
@@ -382,14 +383,14 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     val beforeEntities: Map[Any, CopyAssert] = Map(1 -> copyAssert1, 2 -> copyAssert2, 3 -> copyAssert3)
 
     //    method
-    val assertResult = fabutRepositoryAssert.assertDbSnapshotWithAfterState(beforeIds, afterIds, beforeEntities, afterEntities)(new FabutReportBuilder)
+    val assertResult = fabutRepositoryAssert().assertDbSnapshotWithAfterState(beforeIds, afterIds, beforeEntities, afterEntities)(new FabutReportBuilder)
 
     //    assert
     assertFalse(assertResult)
   }
 
   @Test
-  def testAssertEntityWithSnapshotTrue {
+  def testAssertEntityWithSnapshotTrue(): Unit = {
     //    setup
     val list: ListBuffer[EntityTierOneType] = ListBuffer()
     list += new EntityTierOneType(TEST, 1)
@@ -401,9 +402,9 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     val properties = Fabut.createExpectedPropertiesMap(property)
     val report = new FabutReportBuilder
 
-    fabutRepositoryAssert.takeSnapshot(Seq())(report)
-    val assertEntityWithSnapshot = fabutRepositoryAssert.assertEntityWithSnapshot(new FabutReportBuilder, entity, properties)
-    val assertDbSnapshot = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    fabutRepositoryAssert().takeSnapshot()(report)
+    val assertEntityWithSnapshot = fabutRepositoryAssert().assertEntityWithSnapshot(new FabutReportBuilder, entity, properties)
+    val assertDbSnapshot = fabutRepositoryAssert().assertDbSnapshot(new FabutReportBuilder)
 
     //    assert
     assertTrue(assertEntityWithSnapshot)
@@ -411,7 +412,7 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
   }
 
   @Test
-  def testAssertEntityWithSnapshotFalse {
+  def testAssertEntityWithSnapshotFalse(): Unit = {
     //    setup
     val list: ListBuffer[EntityTierOneType] = ListBuffer()
     setEntityTierOneTypes(list)
@@ -422,13 +423,12 @@ class FabutRepositoryAssertTest extends AbstractFabutRepositoryAssertTest {
     val property = Fabut.value(EntityTierOneType.PROPERTY, TEST + TEST)
     val properties = Fabut.createExpectedPropertiesMap(property)
 
-    fabutRepositoryAssert.takeSnapshot()(report)
-    val assertEntityWithSnapshot = fabutRepositoryAssert.assertEntityWithSnapshot(new FabutReportBuilder, entity, properties)
-    val assertDbSnapshot = fabutRepositoryAssert.assertDbSnapshot(new FabutReportBuilder)
+    fabutRepositoryAssert().takeSnapshot()(report)
+    val assertEntityWithSnapshot = fabutRepositoryAssert().assertEntityWithSnapshot(new FabutReportBuilder, entity, properties)
+    val assertDbSnapshot = fabutRepositoryAssert().assertDbSnapshot(new FabutReportBuilder)
 
     //    assert
     assertFalse(assertEntityWithSnapshot)
     assertTrue(assertDbSnapshot)
   }
-
 }

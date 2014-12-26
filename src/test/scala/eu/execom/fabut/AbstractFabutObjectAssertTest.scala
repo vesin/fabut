@@ -5,16 +5,16 @@ import eu.execom.fabut.model._
 import org.junit.{After, Assert, Before}
 
 import scala.collection.mutable.ListBuffer
-import scala.reflect.runtime.universe.{typeOf, Type}
+import scala.reflect.runtime.universe.{Type, typeOf}
 
 class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
   private var _fabutObjectAssert: FabutObjectAssert = null
 
   @Before
-  override def fabutBeforeTest(): Unit = _fabutObjectAssert = new FabutObjectAssert(this)
+  override def beforeTest(): Unit = _fabutObjectAssert = new FabutObjectAssert(this)
 
   @After
-  override def fabutAfterTest(): Unit = ()
+  override def afterTest(): Unit = ()
 
   def fabutObjectAssert(): FabutObjectAssert = _fabutObjectAssert
 

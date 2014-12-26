@@ -1,30 +1,30 @@
 package eu.execom.fabut
 
-import eu.execom.fabut.model._
 import eu.execom.fabut.model.TrivialClasses._
+import eu.execom.fabut.model._
 import eu.execom.fabut.model.test._
 import org.junit.{After, Assert, Before}
+
 import scala.collection.mutable.ListBuffer
-import scala.reflect.runtime.universe.{typeOf, Type}
+import scala.reflect.runtime.universe.{Type, typeOf}
 
 class AbstractFabutRepositoryAssertTest extends Assert with IFabutRepositoryTest {
 
-  //mock lists
-   var _entityTierOneTypes: ListBuffer[EntityTierOneType] = ListBuffer()
-   var _entityTierTwoTypes: ListBuffer[EntityTierTwoType] = ListBuffer()
-   val _noDefaultConstructorEntities: ListBuffer[NoDefaultConstructorEntity] = ListBuffer()
+  val _noDefaultConstructorEntities: ListBuffer[NoDefaultConstructorEntity] = ListBuffer()
+  var _entityTierOneTypes: ListBuffer[EntityTierOneType] = ListBuffer()
+  var _entityTierTwoTypes: ListBuffer[EntityTierTwoType] = ListBuffer()
 
   private var _fabutRepositoryAssert: FabutRepositoryAssert = null
 
+  def fabutRepositoryAssert(): FabutRepositoryAssert = _fabutRepositoryAssert
+
   @Before
-  override def fabutBeforeTest() :Unit= _fabutRepositoryAssert = new FabutRepositoryAssert(this, AssertType.REPOSITORY_ASSERT)
+  override def beforeTest(): Unit = _fabutRepositoryAssert = new FabutRepositoryAssert(this, AssertType.REPOSITORY_ASSERT)
 
   @After
-  override def fabutAfterTest() : Unit = ()
+  override def afterTest(): Unit = ()
 
-  def fabutRepositoryAssert() : FabutRepositoryAssert = _fabutRepositoryAssert
-
-  override def entityTypes: List[Type] = {
+  override def entityTypes(): List[Type] = {
 
     val entityTypes: ListBuffer[Type] = ListBuffer()
     entityTypes += typeOf[EntityTierOneType]
@@ -47,15 +47,15 @@ class AbstractFabutRepositoryAssertTest extends Assert with IFabutRepositoryTest
 
   override def findById(entityClass: Type, id: Any) =
     if (typeOf[EntityTierOneType] == entityClass) {
-      _entityTierOneTypes.find(entity => entity.id == id)
+      _entityTierOneTypes.find(entity => entity.id == id).orNull
     } else if (typeOf[EntityTierTwoType] == entityClass) {
-      _entityTierTwoTypes.find(entity => entity.id == id)
+      _entityTierTwoTypes.find(entity => entity.id == id).orNull
     } else {
-     _noDefaultConstructorEntities.find(entity => entity.id == id)
+      _noDefaultConstructorEntities.find(entity => entity.id == id).orNull
     }
 
 
-  override def complexTypes: List[Type] = {
+  override def complexTypes(): List[Type] = {
 
     val complexTypes: ListBuffer[Type] = ListBuffer()
     complexTypes += typeOf[ObjectWithSimpleProperties]
@@ -92,16 +92,17 @@ class AbstractFabutRepositoryAssertTest extends Assert with IFabutRepositoryTest
     complexTypes.toList
   }
 
-  override def ignoredTypes: List[Type] = {
+  override def ignoredTypes(): List[Type] = {
     val ignoredTypes: ListBuffer[Type] = ListBuffer()
     ignoredTypes += typeOf[IgnoredType]
 
     ignoredTypes.toList
   }
 
-  override def customAssertEquals(expectedObject: Any, actualObject: Any) :Unit = Assert.assertEquals(expectedObject, actualObject)
+  override def customAssertEquals(expectedObject: Any, actualObject: Any): Unit = Assert.assertEquals(expectedObject, actualObject)
 
-  def setEntityTierOneTypes(entityTierOneTypes1: ListBuffer[EntityTierOneType]) : Unit = _entityTierOneTypes = entityTierOneTypes1
+  def setEntityTierOneTypes(entityTierOneTypes1: ListBuffer[EntityTierOneType]): Unit = _entityTierOneTypes = entityTierOneTypes1
+
   def setEntityTierTwoTypes(entityTierTwoTypes1: ListBuffer[EntityTierTwoType]): Unit = _entityTierTwoTypes = entityTierTwoTypes1
 
 

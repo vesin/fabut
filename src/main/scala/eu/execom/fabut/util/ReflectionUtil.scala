@@ -14,9 +14,15 @@ import scala.reflect.runtime.universe._
  */
 object ReflectionUtil {
 
-  val classLoaderMirror = runtimeMirror(getClass.getClassLoader)
   val SETTER_POSTFIX = "_$eq"
-  var fabutAssert: FabutObjectAssert = null
+
+  val classLoaderMirror = runtimeMirror(getClass.getClassLoader)
+  private var _fabutAssert: FabutObjectAssert = null
+
+  def initUtils(fabutAssert: FabutObjectAssert):Unit = {
+    _fabutAssert = fabutAssert
+  }
+
 
   /**
    * Gets all the properties with values of given object that need to be asserted.
@@ -33,17 +39,16 @@ object ReflectionUtil {
   def getObjectProperties(objectInstance: Any, classType: Option[Type]): Map[String, Property] =
     if (classType.isDefined) {
       val instanceMirror = classLoaderMirror.reflect(objectInstance)
-      val getterSymbols = extractGetters(classType.get)
 
-      val members = getterSymbols.map { symbol =>
-        val name = symbol.name.toString
+      val getters = extractGetterSymbols(classType.get)
+      val properties = getters.map{getter =>
+        val name = getter.name.toString
         val value = util.Try {
-          reflectField(symbol, instanceMirror).get
+          reflectMethod(getter.asMethod, instanceMirror).get
         }.toOption
         (name, value)
       }.toMap
-
-      members.filter { case (name, value) => value.isDefined}.map { case (name, value) => (name, Property(name, value.get))}
+      properties.filter { case (name, value) => value.isDefined}.map { case (name, value) => (name, Property(name, value.get))}
     } else {
       Map()
     }
@@ -57,17 +62,41 @@ object ReflectionUtil {
    * @return
    * the list of term symbols of all getters for given class
    **/
-  def extractGetters(classType: Type): List[TermSymbol] = {
-    val getters = new ListBuffer[TermSymbol]
-    val classTypes = classType.baseClasses.map(clazz => clazz.typeSignature)
+  def extractGetterSymbols(classType: Type): List[TermSymbol] = {
+    val getters: ListBuffer[TermSymbol] = new ListBuffer()
 
-    classTypes.foreach { clazz =>
-      val termSymbols = clazz.members.collect({ case member if member.isTerm => member.asTerm})
-      val clazzGetters = termSymbols.filter({ member: TermSymbol => member.isGetter && isVariable(member, termSymbols.toList)})
-
-      clazzGetters.foreach({ getter => getters += getter})
-    }
+    val classes = classType.baseClasses.map(clazz => clazz.typeSignature)
+    classes.foreach { clazz =>
+      val publicMethods = clazz.members.collect { case member: MethodSymbol if member.isPublic => member}
+      val vars = clazz.members.collect { case member:TermSymbol if member.isVar => member}
+      vars.foreach{ variable =>
+       if (hasGetter(variable, publicMethods)) {
+         val term = publicMethods.find{ method => method.name.toString.equals(asGetter(variable))}.get
+          getters += term
+       } else {
+         val getter = publicMethods.find{ member => member.name.toString.equals(variable.name.toString.trim)}
+         if(getter.isDefined)
+           getters += getter.get
+         }
+       }
+      }
     getters.toList
+  }
+
+  def asGetter(term: TermSymbol): String = term.name.toString.replaceAll("_", "").trim
+
+  /**
+   * Checks if getter without underscore prefix for given term exists in classes member scope.
+   *
+   * @param term
+   * - term symbol
+   * @param terms
+   * - members of class
+   *
+   * @return <code> true </code> if exists, <code> false </code> otherwise.
+   * */
+  def hasGetter(term: TermSymbol, terms: Iterable[TermSymbol]): Boolean = terms.exists{
+    member =>  member.name.toString.equals(asGetter(term))
   }
 
   /**
@@ -81,7 +110,7 @@ object ReflectionUtil {
    * @return <code> true </code> if a term is variable <code> false </code> if term is immutable value
    **/
   def isVariable(termMember: TermSymbol, termMembers: List[TermSymbol]): Boolean =
-    termMembers.exists(member => member.name.toString.contains(termMember.name.toString.replaceFirst("_", "")) && member.isVar)
+    termMembers.exists(member => member.name.toString.contains(termMember.name.toString) && member.isVar)
 
   /**
    * Reflects a value for given term symbol and instance mirror
@@ -96,6 +125,12 @@ object ReflectionUtil {
    */
   def reflectField(symbol: TermSymbol, instanceMirror: InstanceMirror): Option[Any] = util.Try {
     val field = instanceMirror.reflectMethod(symbol.asMethod)
+    field()
+  }.toOption
+
+
+  def reflectMethod(method: MethodSymbol, instanceMirror: InstanceMirror): Option[Any] = util.Try {
+    val field = instanceMirror.reflectMethod(method)
     field()
   }.toOption
 
@@ -118,7 +153,7 @@ object ReflectionUtil {
     val instanceMirror = classLoaderMirror.reflect(objectInstance)
     val mSymbol = objectType.member(TermName(fieldName + SETTER_POSTFIX)).asMethod
     val methodMirror = instanceMirror.reflectMethod(mSymbol)
-    methodMirror(newFieldValue)
+    methodMirror.apply(newFieldValue)
     true
   } catch {
     case e: IllegalArgumentException => false
@@ -178,8 +213,6 @@ object ReflectionUtil {
     } else {
       None
     }
-    //val entityType = getClassType(entity, getAssertableType(entity)).get
-    // val entityType = getClassType(entity, ENTITY_TYPE).getOrElse(throw new IllegalStateException(s"Undefined class type or not entity ${entity.getClass.getSimpleName}"))
   }
 
 
@@ -200,10 +233,12 @@ object ReflectionUtil {
   def getFieldValueFromGetter(propertyName: String, objectInstance: Any, objectType: Type): Option[Any] = util.Try {
     val instanceMirror = classLoaderMirror.reflect(objectInstance)
     val terms = objectType.members.collect({ case member if member.isTerm => member.asTerm})
-    val idSymbol = terms.find(member => member.name.toString.contains(propertyName) && member.isGetter).get
+    val idSymbol = terms.find(member => member.name.toString.equals(propertyName)).get
     val field = instanceMirror.reflectMethod(idSymbol.asMethod)
     field()
   }.toOption
+
+
 
   /**
    * Returns a type of given object
@@ -234,7 +269,7 @@ object ReflectionUtil {
    */
 
   def getClassType(objectValue: Any, assertableType: AssertableType): Option[Type] = util.Try {
-    fabutAssert.types(assertableType).find(typeName =>
+    _fabutAssert.types(assertableType).find(typeName =>
       typeName.toString == objectValue.getClass.getCanonicalName).get
   }.toOption
 

@@ -283,17 +283,12 @@ class FabutRepositoryAssert(fabutTest: IFabutTest, assertType: AssertType.Value)
     })
 
   def getAfterEntities(entityClassType: Type): Map[Any, Any] = {
-
     val afterEntities: MutableMap[Any, Any] = MutableMap()
     val entities = findAll(entityClassType)
-
-    for (entity <- entities) {
-      val id = getIdValue(entity)
-      if (id.isDefined) {
+    entities.foreach{ entity =>
+      val id =  getIdValue(entity)
+      if(id.isDefined){
         afterEntities += id.get -> entity
-      } else {
-        // TODO should i do smth?
-        //throw new NoSuchElementException(s"Property with name 'id' doesn't exist in $entityClassType")
       }
     }
     afterEntities.toMap

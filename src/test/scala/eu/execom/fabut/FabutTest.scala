@@ -14,7 +14,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
 
   val TEST = "test"
   val TEST_ID = 105
-  val PROPERTY = "_property"
+  val PROPERTY = "property"
 
   @Test
   def testIgnoredVarArgs() = {
@@ -193,7 +193,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     //    method
     Fabut.takeSnapshot()
     _entityTierOneTypes += entityTierOneType
-    Fabut.assertObject(entityTierOneType, value(PROPERTY, TEST), notNull("_id"))
+    Fabut.assertObject(entityTierOneType, value(PROPERTY, TEST), notNull("id"))
 
     Fabut.afterTest()
 
@@ -332,7 +332,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     Fabut.takeSnapshot()
 
     //    method
-    _entityTierOneTypes.head._property = TEST + TEST
+    _entityTierOneTypes.head.property_=(TEST + TEST)
 
     Fabut.assertEntityWithSnapshot(entityTierOneType, Fabut.value(PROPERTY, TEST + TEST))
 
@@ -348,7 +348,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     Fabut.takeSnapshot()
 
     //    method
-    _entityTierOneTypes.head._property = TEST + TEST
+    _entityTierOneTypes.head.property_=(TEST + TEST)
     Fabut.assertEntityWithSnapshot(entityTierOneType, Fabut.value(PROPERTY, TEST + TEST + TEST))
 
     Fabut.afterTest()
@@ -373,7 +373,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
     Fabut.takeSnapshot()
 
     //    method
-    _entityTierOneTypes.head._property = TEST + TEST
+    _entityTierOneTypes.head.property_=(TEST + TEST)
 
     Fabut.assertEntityWithSnapshot(null, Fabut.value(PROPERTY, TEST + TEST))
 

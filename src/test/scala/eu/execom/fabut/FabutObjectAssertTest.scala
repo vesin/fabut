@@ -14,9 +14,9 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
 
   val TEST = "test"
   val DOT = "."
-  val TIER_ONE_TYPE_PROPERTY = "_property"
-  val TIER_TWO_TYPE_PROPERTY = "_property._property"
-  val LIST_PROPERTY = "_property"
+  val TIER_ONE_TYPE_PROPERTY = "property"
+  val TIER_TWO_TYPE_PROPERTY = "property.property"
+  val LIST_PROPERTY = "property"
   val EMPTY_STRING = ""
   val BOOLEAN_PROPERTY = true
 
@@ -44,7 +44,6 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //    method
     val assertResult = fabutObjectAssert().assertObjects(expected, actual, Map())(report)
 
-    // TODO wtf to do with this?
     //    assert
     assertFalse(assertResult)
   }
@@ -289,15 +288,14 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val properties = Map(
       "id" -> Property("id", 900),
       "state" -> Property("state", BOOLEAN_PROPERTY),
-      "complexObject._username" -> Property("complexObject._username", "mika"),
-      "complexObject._age" -> Property("complexObject._age", 22),
-      "complexObject.o.id" -> Property("complexObject.o.id", "3301"),
+      "complexObject.username" -> Property("complexObject.username", "mika"),
+      "complexObject.age" -> Property("complexObject.age", 22l),
+      "complexObject.o._id" -> Property("complexObject.o._id", "3301"),
       "list" -> Property("list", List(e1, e2)))
     val report = new FabutReportBuilder
 
     //	method
     val assertResult = fabutObjectAssert().assertObjectWithProperties(actual, properties)(report)
-
     //	assert
     assertTrue(assertResult)
   }
@@ -569,6 +567,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     //	  method
     val assertResult = fabutObjectAssert().assertObjects(expected, actual, Map())(report)
 
+    println(report.message())
     //	  assert
     assertTrue(assertResult)
   }
@@ -608,7 +607,6 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     assertTrue(assertResult)
   }
 
-  // FIXME case when you forget to add types of elements, check it out
   @Test
   def testAssertObjectsTierTypesRecursiveGraphEqual(): Unit = {
     //	  setup
@@ -780,7 +778,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val eTierOneType = new TierOneType(TEST)
 
     val properties = Map(
-      "_property" -> Property("_property", TEST + TEST))
+      "property" -> Property("property", TEST + TEST))
 
     val report = new FabutReportBuilder
     //    method
@@ -815,7 +813,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val eTierOneType = new TierOneType(TEST + TEST + TEST)
 
     val properties = Map(
-      "_property" -> IgnoredProperty("_property"))
+      "property" -> IgnoredProperty("property"))
 
     val report = new FabutReportBuilder
     //    method
@@ -834,7 +832,7 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val eTierOneType = new TierOneType(TEST + TEST + TEST)
     val eTierTwoType = TierTwoType(eTierOneType)
 
-    val property = Fabut.value("_property", new TierOneType(TEST + TEST))
+    val property = Fabut.value("property", new TierOneType(TEST + TEST))
     val properties = Fabut.createExpectedPropertiesMap(property)
 
     val report = new FabutReportBuilder
@@ -876,8 +874,8 @@ class FabutObjectAssertTest extends AbstractFabutObjectAssertTest {
     val eTierOneType = new TierOneType(TEST + TEST)
     val eTierTwoType = TierTwoType(eTierOneType)
 
-    val property = Fabut.value("_property", new TierOneType(TEST + TEST + TEST))
-    val ignoredProperty = Fabut.ignored("_property")
+    val property = Fabut.value("property", new TierOneType(TEST + TEST + TEST))
+    val ignoredProperty = Fabut.ignored("property")
     val properties = Fabut.createExpectedPropertiesMap(property, ignoredProperty)
 
     val report = new FabutReportBuilder

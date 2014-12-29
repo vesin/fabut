@@ -4,14 +4,13 @@ import eu.execom.fabut.AbstractFabutObjectAssertTest
 import eu.execom.fabut.AssertableType._
 import eu.execom.fabut.graph.NodesList
 import eu.execom.fabut.model.TrivialClasses._
-import eu.execom.fabut.model.{ObjectInsideSimpleProperty, ObjectWithComplexProperty, ObjectWithSimpleProperties, TierOneType}
-import eu.execom.fabut.property.Property
+import eu.execom.fabut.model._
 import eu.execom.fabut.util.ReflectionUtil._
 import org.junit.Assert._
 import org.junit.Test
 
 import scala.reflect.runtime.universe.typeOf
-
+import scala.reflect.runtime.universe._
 class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
 
   val TEST = "test"
@@ -24,13 +23,13 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
 
     //    method
     val actualObjectProperties = getObjectProperties(actualObject, Some(typeOf[ObjectWithComplexProperty]))
-
+    println(actualObjectProperties)
     //	assert
     assertEquals(actualObjectProperties.size, 4)
-    assertEquals(actualObjectProperties("id").asInstanceOf[Property].value, 5)
-    assertEquals(actualObjectProperties("state").asInstanceOf[Property].value, true)
-    assertEquals(actualObjectProperties("complexObject").asInstanceOf[Property].value, complexObject)
-    assertEquals(actualObjectProperties("list").asInstanceOf[Property].value, List(1, 2, 3))
+    assertEquals(actualObjectProperties("id").value, 5)
+    assertEquals(actualObjectProperties("state").value, true)
+    assertEquals(actualObjectProperties("complexObject").value, complexObject)
+    assertEquals(actualObjectProperties("list").value, List(1, 2, 3))
   }
 
   @Test
@@ -67,10 +66,10 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     val actualObject = ObjectInsideSimpleProperty("100")
 
     //	method
-    setField("id", "500", actualObject, typeOf[ObjectInsideSimpleProperty])
+    setField("_id", "500", actualObject, typeOf[ObjectInsideSimpleProperty])
 
     //assert
-    assertEquals(actualObject.id, "500")
+    assertEquals(actualObject._id, "500")
   }
 
   @Test
@@ -169,20 +168,22 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   def testCreateCopyObjectWithComplexProperty {
     //	setup
     val complexObject = ObjectWithSimpleProperties(TEST + TEST, 1, ObjectInsideSimpleProperty(TEST))
-    val originalObject = ObjectWithComplexProperty(2, true, complexObject, List(TEST + 1, TEST + 2, TEST + 3))
+    val originalObject = ObjectWithComplexProperty(3, true, complexObject, List(TEST + 1, TEST + 2, TEST + 3))
 
     //	method
     val copiedObject = createCopy(originalObject).asInstanceOf[ObjectWithComplexProperty]
 
+    println(originalObject)
+    println(copiedObject)
     //    assert
-    assertEquals(2, copiedObject.id)
-    assertEquals(true, copiedObject.state)
-    assertEquals(complexObject, copiedObject.complexObject)
-    assertEquals(complexObject.username, TEST + TEST)
-    assertEquals(complexObject.age, 1)
-    assertEquals(complexObject.o, ObjectInsideSimpleProperty(TEST))
-    assertEquals(complexObject.o.id, TEST)
-    assertEquals(List(TEST + 1, TEST + 2, TEST + 3), copiedObject.list)
+    assertEquals(copiedObject.id, 3)
+    assertEquals(copiedObject.state, true)
+    assertEquals(copiedObject.complexObject, complexObject)
+    assertEquals(copiedObject.complexObject.username, TEST + TEST)
+    assertEquals(copiedObject.complexObject.age, 1)
+    assertEquals(copiedObject.complexObject.o, ObjectInsideSimpleProperty(TEST))
+    assertEquals(copiedObject.complexObject.o._id, TEST)
+    assertEquals(copiedObject.list, List(TEST + 1, TEST + 2, TEST + 3))
   }
 
   @Test
@@ -200,28 +201,4 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     assertEquals(originalObjectA.b.asInstanceOf[B].c.asInstanceOf[A].b.asInstanceOf[B].s, copiedObject.b.asInstanceOf[B].c.asInstanceOf[A].b.asInstanceOf[B].s)
     assertEquals(originalObjectA.s, copiedObject.s)
   }
-
-  //  @Test
-  //  def test {
-  //    val entity = new EntityTierOneType(TEST, 1)
-  //    val e = new ChildClass(TEST, TEST + TEST)
-  //    pullMembers(e)
-  //    val ee = new ParentClass(TEST)
-  //    pullMembers(ee)
-  //    pullMembers(entity)
-  //  }
-  //
-  //  @Test
-  //  def testGetObjectPropertiesAll {
-  //  }
-  //
-  //  @Test
-  //  def testCopyPropertyListPropertyComplexTypesTODO {
-  //
-  //  }
-  //
-  //  @Test
-  //  def testCopyPropertyMapPropertyComplexTypesTODO = {
-  //
-  //  }
 }

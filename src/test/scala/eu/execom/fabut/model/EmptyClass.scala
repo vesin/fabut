@@ -1,5 +1,4 @@
 package eu.execom.fabut.model
 
-class EmptyClass {
+class EmptyClass
 
-}

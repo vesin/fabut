@@ -2,6 +2,7 @@ package eu.execom.fabut
 
 import eu.execom.fabut.AssertableType._
 import eu.execom.fabut.NodeCheckType._
+import eu.execom.fabut.FieldType._
 import eu.execom.fabut.exception.CopyException
 import eu.execom.fabut.graph.NodesList
 import eu.execom.fabut.pair.{AssertPair, SnapshotPair}
@@ -9,7 +10,6 @@ import eu.execom.fabut.property.{IProperty, IgnoredProperty, NotNullProperty, Nu
 import eu.execom.fabut.report.FabutReportBuilder
 import eu.execom.fabut.util.ReflectionUtil._
 import org.junit.Assert
-
 import scala.collection.mutable.{ListBuffer, Map => MutableMap}
 import scala.reflect.runtime.universe.Type
 
@@ -20,7 +20,7 @@ import scala.reflect.runtime.universe.Type
  * specified assert for primitives, if not, tool will perform smart assert on
  * that field.
  */
-class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
+class FabutObjectAssert(fabut: Fabut) extends Assert {
 
   initUtils(this)
 
@@ -28,12 +28,11 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
   private val _parameterSnapshot: ListBuffer[SnapshotPair] = ListBuffer()
 
   private val _types: MutableMap[AssertableType, List[Type]] = MutableMap()
-  _types(COMPLEX_TYPE) = fabutTest.complexTypes()
-  _types(IGNORED_TYPE) = fabutTest.ignoredTypes()
+  _types(COMPLEX_TYPE) = fabut.complexTypes()
+  _types(IGNORED_TYPE) = fabut.ignoredTypes()
   _types(ENTITY_TYPE) = List()
 
   def parameterSnapshot(): List[SnapshotPair] = _parameterSnapshot.toList
-  def initParametersSnapshot(): Unit = _parameterSnapshot.clear()
 
   /**
    * Asserts object with with expected properties, every field of object must have property for it or assert will fail.
@@ -51,8 +50,8 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
   def assertObjectWithProperties(actual: Any, expectedProperties: Map[String, IProperty])(implicit report: FabutReportBuilder): Boolean = getAssertableType(actual) match {
     case IGNORED_TYPE => ASSERTED
     case assertableType =>
-      val actualProperties = getObjectProperties(actual, getClassType(actual, assertableType)).values
-      val result = actualProperties.forall( actualProperty =>
+      val actualProperties = getObjectProperties(actual, getClassType(actual, assertableType),FOR_ASSERT).values
+      val result = actualProperties.forall(actualProperty =>
         if (expectedProperties.contains(actualProperty.path)) {
           assertProperty(actualProperty.path, actualProperty.value, expectedProperties(actualProperty.path), expectedProperties, new NodesList, PROPERTY)
         } else if (hasInnerProperties(actualProperty.path, expectedProperties)) {
@@ -63,7 +62,7 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
         }
       )
       if (result) {
-        this.afterAssertObject(actual, !SUBPROPERTY)
+        afterAssertObject(actual, !SUBPROPERTY)
       }
       result
   }
@@ -89,14 +88,14 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
     val pair = AssertPair(EMPTY_STRING, expected, actual, getAssertableType(actual), !PROPERTY)
 
     val expectedProperties = if (changedProperties.isEmpty) {
-      getObjectProperties(expected, getClassType(expected, getAssertableType(expected)))
+      getObjectProperties(expected, getClassType(expected, getAssertableType(expected)),FOR_ASSERT)
     } else {
       changedProperties
     }
     val assertResult = assertPair(EMPTY_STRING, pair, expectedProperties, new NodesList)
 
     if (assertResult) {
-      afterAssertObject(actual, !SUBPROPERTY)
+      this.afterAssertObject(actual, !SUBPROPERTY)
     }
     assertResult
   }
@@ -122,6 +121,8 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
         ASSERT_FAIL
     })
   }
+
+  def initParametersSnapshot(): Unit = _parameterSnapshot.clear()
 
   /**
    * Asserts object pair
@@ -191,7 +192,7 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
         ok
       case expectedProperty: Property =>
         val pair = AssertPair(propertyName, expectedProperty.value, actualObject, getAssertableType(actualObject), isProperty)
-        val expectedProperties = getObjectProperties(pair.expected, getClassType(pair.expected, pair.assertableType))
+        val expectedProperties = getObjectProperties(pair.expected, getClassType(pair.expected, pair.assertableType),FOR_ASSERT)
         pair.assertableType match {
           case COMPLEX_TYPE =>
             nodesList.nodeCheck(pair) match {
@@ -265,8 +266,7 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    * @return <code> true </code> if objects can be asserted, <code> false </code>
    *         otherwise.
    */
-  def assertEntityPair(propertyName: String, pair: AssertPair, properties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReportBuilder): Boolean =
-    throw new IllegalStateException("Entities are not supported!")
+  def assertEntityPair(propertyName: String, pair: AssertPair, properties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReportBuilder): Boolean = throw new IllegalStateException("Entities are not supported!")
 
   /**
    * Assert subfields of an actual object with ones from expected object, it
@@ -289,7 +289,7 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    */
   def assertSubfields(parentName: String, pair: AssertPair, properties: Map[String, IProperty], nodesList: NodesList)(implicit report: FabutReportBuilder) = {
     val objectType = getClassType(pair.expected, getAssertableType(pair.expected))
-    val subProperties = getObjectProperties(pair.expected, objectType)
+    val subProperties = getObjectProperties(pair.expected, objectType,FOR_ASSERT)
 
     report.increaseDepth(parentName)
     val result = subProperties.forall {
@@ -299,7 +299,6 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
         assertProperty(propertyName, actualObject, expectedProperty, properties, nodesList, PROPERTY)
     }
     report.decreaseDepth()
-
     result
   }
 
@@ -316,7 +315,7 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
    *         if method customAssertEquals throws  { @link AssertionError}.
    */
   def assertPrimitives(pair: AssertPair)(implicit report: FabutReportBuilder) = try {
-    fabutTest.customAssertEquals(pair.expected, pair.actual)
+    fabut.customAssertEquals(pair.expected, pair.actual)
     //report.asserted(pair, pair.path)
     ASSERTED
   } catch {
@@ -355,7 +354,6 @@ class FabutObjectAssert(fabutTest: IFabutTest) extends Assert {
       ASSERT_FAIL
     } else {
       report.increaseDepth(propertyName)
-      // TODO dusko is this nescessary?
       report.assertingListElements(propertyName, position)
       val listPairs = for ((actual, expected) <- actualList zip expectedList) yield (actual, expected)
       val result = listPairs.forall { case (actual, expected) => getAssertableType(actual) match {

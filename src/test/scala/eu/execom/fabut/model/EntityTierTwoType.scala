@@ -14,5 +14,4 @@ case class EntityTierTwoType(prop: String, var _subProperty: EntityTierOneType, 
 
 
   def this() = this("", null, 0)
-
 }

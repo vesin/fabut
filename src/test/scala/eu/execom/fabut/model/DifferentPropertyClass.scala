@@ -12,5 +12,4 @@ class DifferentPropertyClass {
 
   def privatePropertyG_=(newProperty: String) =
     _privatePropertyG = newProperty
-
 }

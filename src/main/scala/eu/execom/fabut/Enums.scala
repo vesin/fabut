@@ -33,3 +33,16 @@ object NodeCheckType extends Enumeration {
 
   val NEW_PAIR, CONTAINS_PAIR = Value
 }
+
+/**
+ * Used to distinct what getters/setters to use when reflecting fields of object
+ *
+ * FOR_COPY - private getters and setters
+ * FOR_ASSERT - public getters
+ * */
+object FieldType extends Enumeration {
+  type FieldType = Value
+
+  val FOR_COPY, FOR_ASSERT = Value
+}
+

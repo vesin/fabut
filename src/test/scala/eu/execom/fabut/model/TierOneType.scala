@@ -3,13 +3,15 @@ package eu.execom.fabut.model
 /**
  * Tier one complex type with only one {@link String} property.
  */
-class TierOneType(private var _property: String = "") extends Type {
+class TierOneType(var _property: String = "") extends Type {
+
+  val PROPERTY: String = "property"
 
   def property: String = _property
 
-  def property_=(property: String):Unit = { _property = property}
-
-  val PROPERTY: String = "property"
+  def property_=(property: String): Unit = {
+    _property = property
+  }
 
   def this() = this("")
 

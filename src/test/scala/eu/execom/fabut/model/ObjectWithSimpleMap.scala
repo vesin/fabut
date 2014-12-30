@@ -1,4 +1,3 @@
 package eu.execom.fabut.model
 
-case class ObjectWithSimpleMap(map: Map[Any, Any]) {
-}
+case class ObjectWithSimpleMap(map: Map[Any, Any])

@@ -7,16 +7,20 @@ import org.junit.{After, Assert, Before}
 import scala.collection.mutable.ListBuffer
 import scala.reflect.runtime.universe.{Type, typeOf}
 
-class AbstractFabutObjectAssertTest extends Assert with IFabutTest {
+class AbstractFabutObjectAssertTest extends Assert with Fabut {
+
   private var _fabutObjectAssert: FabutObjectAssert = null
+  def fabutObjectAssert(): FabutObjectAssert = _fabutObjectAssert
 
   @Before
-  override def beforeTest(): Unit = _fabutObjectAssert = new FabutObjectAssert(this)
+  override def before(): Unit = {
+    _fabutObjectAssert = new FabutObjectAssert(this)
+  }
+
 
   @After
-  override def afterTest(): Unit = ()
+  override def after(): Unit = ()
 
-  def fabutObjectAssert(): FabutObjectAssert = _fabutObjectAssert
 
   override def complexTypes(): List[Type] = {
     val complexTypes: ListBuffer[Type] = ListBuffer()

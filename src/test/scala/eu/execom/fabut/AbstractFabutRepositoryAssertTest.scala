@@ -8,21 +8,18 @@ import org.junit.{After, Assert, Before}
 import scala.collection.mutable.ListBuffer
 import scala.reflect.runtime.universe.{Type, typeOf}
 
-class AbstractFabutRepositoryAssertTest extends Assert with IFabutRepositoryTest {
+class AbstractFabutRepositoryAssertTest extends Assert with FabutRepository {
 
   val _noDefaultConstructorEntities: ListBuffer[NoDefaultConstructorEntity] = ListBuffer()
   var _entityTierOneTypes: ListBuffer[EntityTierOneType] = ListBuffer()
   var _entityTierTwoTypes: ListBuffer[EntityTierTwoType] = ListBuffer()
 
-  private var _fabutRepositoryAssert: FabutRepositoryAssert = null
-
-  def fabutRepositoryAssert(): FabutRepositoryAssert = _fabutRepositoryAssert
 
   @Before
-  override def beforeTest(): Unit = _fabutRepositoryAssert = new FabutRepositoryAssert(this, AssertType.REPOSITORY_ASSERT)
+  override def before(): Unit = beforeTest(this)
 
   @After
-  override def afterTest(): Unit = ()
+  override def after(): Unit = ()
 
   override def entityTypes(): List[Type] = {
 

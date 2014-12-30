@@ -15,5 +15,4 @@ case class ObjectWithSimpleProperties(private var _username: String,private var 
   }
 
   def this() = this("", 0, null)
-
 }

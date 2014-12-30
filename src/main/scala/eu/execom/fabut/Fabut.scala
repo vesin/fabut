@@ -1,38 +1,62 @@
 package eu.execom.fabut
 
 import eu.execom.fabut.AssertType._
-import eu.execom.fabut.property.{IProperty, IgnoredProperty, NotNullProperty, NullProperty, Property}
+import eu.execom.fabut.property._
 import eu.execom.fabut.report.FabutReportBuilder
 import eu.execom.fabut.util.ConversionUtil._
 import eu.execom.fabut.util.ReflectionUtil._
 import junit.framework.AssertionFailedError
 
+import scala.reflect.runtime.universe.Type
+
 /**
  * Set of method for advanced asserting.
- *
  */
-//TODO dusko trait?
-class Fabut
+trait Fabut {
 
-object Fabut {
-
-  val EMPTY_STRING = ""
-  val ASSERT_SUCCESS = true
-  var assertType = UNSUPPORTED_ASSERT
+  var assertType: AssertType = null
   var fabutAssert: FabutRepositoryAssert = null
+
+  /**
+   * Method used for initialization of db and Fabut
+   * */
+  def before():Unit
+
+  /**
+   * Method for after test stream close ups, rollbacks etc.
+   * */
+  def after():Unit
+
+  /**
+   * List of class types that will be treated as complex
+   *
+   * @return list of complex class typesS
+   **/
+  def complexTypes(): List[Type]
+
+  /**
+   * List of class types that Fabut will ignore while asserting
+   *
+   * @return list of ignored class types
+   **/
+  def ignoredTypes(): List[Type]
+
+  /**
+   * Custom implementation of assert function for certain class types
+   **/
+  def customAssertEquals(expectedObject: Any, actualObject: Any)
 
   /**
    * This method needs to be called in @Before method of a test in order for [@link Fabut] to work.
    *
    * @param testInstance
-   * the test instance
+   * - the test instance
    */
-  def beforeTest(testInstance: Any): Unit = {
+  def beforeTest(testInstance: AnyRef): Unit = {
     assertType = getAssertType(testInstance)
-
     fabutAssert = assertType match {
-      case OBJECT_ASSERT => new FabutRepositoryAssert(testInstance.asInstanceOf[IFabutTest], assertType)
-      case REPOSITORY_ASSERT => new FabutRepositoryAssert(testInstance.asInstanceOf[IFabutRepositoryTest], assertType)
+      case OBJECT_ASSERT => new FabutRepositoryAssert(testInstance.asInstanceOf[Fabut], assertType)
+      case REPOSITORY_ASSERT => new FabutRepositoryAssert(testInstance.asInstanceOf[FabutRepository], assertType)
       case UNSUPPORTED_ASSERT => throw new IllegalStateException("This test must implement IFabutAssert or IRepositoryFabutAssert")
       case _ => throw new IllegalStateException("Unsupported assert type: " + assertType)
     }
@@ -362,4 +386,3 @@ object Fabut {
    */
   def isNull(paths: Seq[String]): Seq[NullProperty] = paths.map(path => NullProperty(path)).toSeq
 }
-

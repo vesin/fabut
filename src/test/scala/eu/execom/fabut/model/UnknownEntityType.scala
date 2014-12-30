@@ -1,5 +1,4 @@
 package eu.execom.fabut.model
 
-class UnknownEntityType(id: Integer) extends Type {
+class UnknownEntityType(var id: Integer) extends Type
 
-}

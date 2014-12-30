@@ -1,6 +1,7 @@
 package eu.execom.fabut.util
 
-import eu.execom.fabut.AbstractFabutObjectAssertTest
+import eu.execom.fabut.FieldType._
+import eu.execom.fabut.{AbstractFabutObjectAssertTest}
 import eu.execom.fabut.AssertableType._
 import eu.execom.fabut.graph.NodesList
 import eu.execom.fabut.model.TrivialClasses._
@@ -10,30 +11,30 @@ import org.junit.Assert._
 import org.junit.Test
 
 import scala.reflect.runtime.universe.typeOf
-import scala.reflect.runtime.universe._
+
 class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
 
   val TEST = "test"
+  val TRUE = true
 
   @Test
-  def testGetObjectProperties() = {
+  def testGetObjectProperties(): Unit ={
     //	setup
     val complexObject = ObjectWithSimpleProperties("pera", 40, ObjectInsideSimpleProperty("200"))
-    val actualObject = ObjectWithComplexProperty(5, true, complexObject, List(1, 2, 3))
+    val actualObject = ObjectWithComplexProperty(5, TRUE, complexObject, List(1, 2, 3))
 
     //    method
-    val actualObjectProperties = getObjectProperties(actualObject, Some(typeOf[ObjectWithComplexProperty]))
-    println(actualObjectProperties)
+    val actualObjectProperties = getObjectProperties(actualObject, Some(typeOf[ObjectWithComplexProperty]),FOR_ASSERT)
     //	assert
     assertEquals(actualObjectProperties.size, 4)
     assertEquals(actualObjectProperties("id").value, 5)
-    assertEquals(actualObjectProperties("state").value, true)
+    assertEquals(actualObjectProperties("state").value, TRUE)
     assertEquals(actualObjectProperties("complexObject").value, complexObject)
     assertEquals(actualObjectProperties("list").value, List(1, 2, 3))
   }
 
   @Test
-  def testGetFieldValueFromGetter() = {
+  def testGetFieldValueFromGetter(): Unit = {
     //	setup
     val actualObject = ObjectWithSimpleProperties("pera", 40, ObjectInsideSimpleProperty("200"))
 
@@ -49,19 +50,18 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testGetFieldValueFromGetterWithFail() = {
+  def testGetFieldValueFromGetterWithFail(): Unit = {
     //	setup
     val actualObject = ObjectInsideSimpleProperty("100")
 
     //	method
     val actualUnknownField = getFieldValueFromGetter("_sid", actualObject, getClassType(actualObject, COMPLEX_TYPE).get)
 
-    println(actualUnknownField)
-
+    assertEquals(actualUnknownField,None)
   }
 
   @Test
-  def testSetField() = {
+  def testSetField(): Unit = {
     // setup
     val actualObject = ObjectInsideSimpleProperty("100")
 
@@ -73,10 +73,10 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCreateEmptyCopyFromComplexObject = {
+  def testCreateEmptyCopyFromComplexObject(): Unit ={
     //	setup
     val complexObject = ObjectWithSimpleProperties("pera", 40, ObjectInsideSimpleProperty("200"))
-    val originalObject = ObjectWithComplexProperty(10000, true, complexObject, List(5, 6, 7))
+    val originalObject = ObjectWithComplexProperty(10000, TRUE, complexObject, List(5, 6, 7))
 
     //	method
     val copiedObject = createEmptyCopy(originalObject, typeOf[ObjectWithComplexProperty]).get.asInstanceOf[ObjectWithComplexProperty]
@@ -89,7 +89,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCopyPropertyIsNullProperty {
+  def testCopyPropertyIsNullProperty(): Unit = {
     //    setup
     val nullProperty = null
 
@@ -101,7 +101,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCopyPropertyListPropertyWithPrimitiveTypes {
+  def testCopyPropertyListPropertyWithPrimitiveTypes(): Unit = {
     //    setup
     val listProperty = List(TEST + 1, TEST + 2)
 
@@ -115,7 +115,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCopyPropertyMapPropertyWithPrimitiveTypes {
+  def testCopyPropertyMapPropertyWithPrimitiveTypes(): Unit ={
     //    setup
     val mapProperty = Map(TEST -> (TEST + 1), TEST -> (TEST + 2))
 
@@ -129,9 +129,10 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCopyValue {
+  def testCopyValue() {
     //    setup
     val tierOneTypeEmptyCopy = new TierOneType()
+    val beforeProperty = tierOneTypeEmptyCopy.property
 
     //    method
     val assertResult = copyValueTo("_property", TEST, tierOneTypeEmptyCopy)
@@ -141,9 +142,10 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCopyValueFieldNameDoesntExist {
+  def testCopyValueFieldNameDoesntExist() {
     //    setup
     val tierOneTypeEmptyCopy = new TierOneType()
+    val beforeProperty = tierOneTypeEmptyCopy.property
 
     //    method
     val assertResult = copyValueTo(TEST, TEST, tierOneTypeEmptyCopy)
@@ -153,7 +155,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCreateCopyList {
+  def testCreateCopyList (): Unit ={
     //    setup
     val list = List(1, 2, 3)
 
@@ -165,20 +167,17 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCreateCopyObjectWithComplexProperty {
+  def testCreateCopyObjectWithComplexProperty (): Unit ={
     //	setup
     val complexObject = ObjectWithSimpleProperties(TEST + TEST, 1, ObjectInsideSimpleProperty(TEST))
-    val originalObject = ObjectWithComplexProperty(3, true, complexObject, List(TEST + 1, TEST + 2, TEST + 3))
+    val originalObject = ObjectWithComplexProperty(3, TRUE, complexObject, List(TEST + 1, TEST + 2, TEST + 3))
 
     //	method
     val copiedObject = createCopy(originalObject).asInstanceOf[ObjectWithComplexProperty]
 
-    println(originalObject)
-    println(copiedObject)
     //    assert
     assertEquals(copiedObject.id, 3)
     assertEquals(copiedObject.state, true)
-    assertEquals(copiedObject.complexObject, complexObject)
     assertEquals(copiedObject.complexObject.username, TEST + TEST)
     assertEquals(copiedObject.complexObject.age, 1)
     assertEquals(copiedObject.complexObject.o, ObjectInsideSimpleProperty(TEST))
@@ -187,7 +186,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCreateCopyCyclic {
+  def testCreateCopyCyclic(): Unit = {
     //    setup
     val originalObjectA = new A(null, "mika")
     val originalObjectB = new B(originalObjectA, "pera")

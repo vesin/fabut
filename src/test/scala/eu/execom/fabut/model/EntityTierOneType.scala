@@ -15,5 +15,4 @@ object EntityTierOneType {
   val PROPERTY = "property"
 
   val ID = "id"
-
 }

@@ -6,5 +6,4 @@ class TierTwoTypeWithIgnoredType(private var _property: IgnoredType) extends Typ
 
   def property_=(property: IgnoredType) =
     _property = property
-
 }

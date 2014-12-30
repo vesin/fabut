@@ -15,5 +15,4 @@ object TrivialClasses {
   class D(var e: Any)
 
   class E(var a: Any)
-
 }

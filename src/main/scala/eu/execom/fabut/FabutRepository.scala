@@ -2,7 +2,7 @@ package eu.execom.fabut
 
 import scala.reflect.runtime.universe.Type
 
-trait IFabutRepositoryTest extends IFabutTest {
+trait FabutRepository extends Fabut {
 
   /**
    * Find all objects of specified type.

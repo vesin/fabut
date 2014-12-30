@@ -1,5 +1,4 @@
 package eu.execom.fabut.model
 
-case class ObjectWithSimpleList(lista: List[_]) {
+case class ObjectWithSimpleList(var list: List[_])
 
-}

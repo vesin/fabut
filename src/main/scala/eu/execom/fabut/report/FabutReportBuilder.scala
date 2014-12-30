@@ -166,11 +166,6 @@ case class FabutReportBuilder(newMessage: String = "") {
     addComment(comment, COLLECTION)
   }
 
-  def undefinedClassType(value: Any): Unit = {
-    val comment = s"Undefined class type ${value.getClass.getSimpleName}, you must add it to predefined fabut types}"
-    addComment(comment, FAIL)
-  }
-
   def addComment(comment: String, commentType: CommentType): Unit = {
     val part = new StringBuilder(addIndentation())
 
@@ -186,6 +181,11 @@ case class FabutReportBuilder(newMessage: String = "") {
     for (i <- 0 to assertDepth) part.append(TAB)
     builder.setLength(0)
     part.toString()
+  }
+
+  def undefinedClassType(value: Any): Unit = {
+    val comment = s"Undefined class type ${value.getClass.getSimpleName}, you must add it to predefined fabut types}"
+    addComment(comment, FAIL)
   }
 
   //TODO make successComment and fail comment

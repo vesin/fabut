@@ -66,6 +66,7 @@ trait Fabut {
    * This method needs to be called in @After method of a test in order for [@link Fabut] to work.
    */
   def afterTest(): Unit = {
+
     var ok = true
     val sb = new StringBuilder()
 
@@ -114,8 +115,7 @@ trait Fabut {
    * expected properties for asserting object
    *
    */
-  def assertObject(objectInstance: Any, properties: IProperty*): Unit =
-    assertObject(EMPTY_STRING, objectInstance, properties: _*)
+  def assertObject(objectInstance: Any, properties: IProperty*): Unit = assertObject(EMPTY_STRING, objectInstance, properties: _*)
 
   /**
    * Asserts object with expected properties.
@@ -148,8 +148,7 @@ trait Fabut {
    * property difference between expected and actual
    *
    */
-  def assertObjects(expectedObject: Any, actualObject: Any, expectedChanges: IProperty*): Unit =
-    assertObjects(EMPTY_STRING, expectedObject, actualObject, expectedChanges: _*)
+  def assertObjects(expectedObject: Any, actualObject: Any, expectedChanges: IProperty*): Unit = assertObjects(EMPTY_STRING, expectedObject, actualObject, expectedChanges: _*)
 
   /**
    * Asserts list of expected and array of actual objects.
@@ -183,13 +182,9 @@ trait Fabut {
 
     if (expectedObject == null) {
       report.nullReference()
-    }
-
-    if (actualObject == null) {
+    } else if (actualObject == null) {
       report.nullReference()
-    }
-
-    if (actualObject != null && expectedObject != null) {
+    } else {
 
       val properties: Map[String, IProperty] = expectedChanges match {
         case changes if changes.nonEmpty => createExpectedPropertiesMap(changes: _*)
@@ -211,7 +206,7 @@ trait Fabut {
    * @return properties map
    *
    */
-  def createExpectedPropertiesMap(properties: IProperty*): Map[String, IProperty] = properties.map(property => (property.path(), property)).toMap
+  def createExpectedPropertiesMap(properties: IProperty*): Map[String, IProperty] = properties.map(property => (property.path, property)).toMap
 
   /**
    * Asserts entity with one saved in snapshot.
@@ -239,7 +234,6 @@ trait Fabut {
    * the entity
    */
   def markAsserted(entity: Any): Unit = {
-
     checkValidInit()
     checkIfEntity(entity)
 
@@ -272,8 +266,10 @@ trait Fabut {
    * Checks if Fabut repository or object assert is initialized
    */
   def checkValidInit(): Unit =
-    if (fabutAssert == null)
+    if (fabutAssert == null){
       throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
+    }
+
 
   /**
    * Checks if specified object is entity.
@@ -295,11 +291,10 @@ trait Fabut {
   /**
    * Checks if current test is repository test.
    */
-  def checkIfRepositoryAssert(): Unit = {
+  def checkIfRepositoryAssert(): Unit =
     if (assertType != REPOSITORY_ASSERT) {
       throw new IllegalStateException("Test class must implement IRepositoryFabutAssert")
     }
-  }
 
   /**
    * Ignores the entity.

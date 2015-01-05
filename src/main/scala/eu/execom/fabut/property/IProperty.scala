@@ -8,5 +8,5 @@ trait IProperty {
   /**
    * The name path of the property
    **/
-  def path(): String
+  def path: String
 }

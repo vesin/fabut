@@ -15,6 +15,7 @@ class FabutTest extends AbstractFabutRepositoryAssertTest {
   val TEST_ID = 105
   val PROPERTY = "property"
 
+
   @Test
   def testIgnoredVarArgs() = {
     //    setup

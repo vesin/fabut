@@ -18,7 +18,7 @@ trait IsomorphicGraph {
    * @param expected
    * - expected object
    */
-  def addPair(expected: AnyRef, actual: AnyRef)
+  def addPair(expected: Any, actual: Any)
 
   /**
    * Checks if object graph has specified object node pair. Ordering is important.
@@ -29,7 +29,7 @@ trait IsomorphicGraph {
    * - expected object
    * @return - <code>true</code> if { @link IsomorphicGraph} contains specified pair
    */
-  def containsPair(expected: AnyRef, actual: AnyRef): Boolean
+  def containsPair(expected: Any, actual: Any): Boolean
 
   /**
    * Checks if object graph has specified expected object node pair. Ordering is important.
@@ -38,7 +38,7 @@ trait IsomorphicGraph {
    * - expected object
    * @return - <code> true </code> if `IsomorphicGraph` contains expected object, <code> false </code> otherwise
    */
-  def containsExpected(expected: AnyRef): Boolean
+  def containsExpected(expected: Any): Boolean
 
   /**
    * Get expected object pair node for specified actual object node.Ordering is important.
@@ -47,7 +47,7 @@ trait IsomorphicGraph {
    * - the object
    * @return - expected pair object
    */
-  def expected(actual: AnyRef): Option[AnyRef]
+  def expected(actual: Any): Option[AnyRef]
 
   /**
    * For two specified objects pair check if any or both are contained in node list graph.
@@ -74,22 +74,18 @@ class NodesList extends IsomorphicGraph {
 
   val isomorphicNodes: ListBuffer[IsomorphicNodePair] = new ListBuffer[IsomorphicNodePair]
 
-  override def addPair(expected: AnyRef, actual: AnyRef) =
-    isomorphicNodes += IsomorphicNodePair(expected, actual)
+  override def addPair(expected: Any, actual: Any) = isomorphicNodes += IsomorphicNodePair(expected.asInstanceOf[AnyRef], actual.asInstanceOf[AnyRef])
 
-  override def containsPair(expected: AnyRef, actual: AnyRef) =
-    isomorphicNodes.contains(IsomorphicNodePair(expected, actual))
+  override def containsPair(expected: Any, actual: Any) = isomorphicNodes.contains(IsomorphicNodePair(expected.asInstanceOf[AnyRef], actual.asInstanceOf[AnyRef]))
 
-  override def expected(actual: AnyRef): Option[AnyRef] =
-    isomorphicNodes.find(pair => pair.actual.eq(actual)).map(_.expected)
+  override def expected(actual: Any): Option[AnyRef] = isomorphicNodes.find(pair => pair.actual.eq(actual.asInstanceOf[AnyRef])).map(_.expected)
 
   override def nodeCheck(pair: AssertPair): NodeCheckType =
-    if (containsExpected(pair.expected.asInstanceOf[AnyRef])) {
+    if (containsExpected(pair.expected)) {
       CONTAINS_PAIR
     } else {
       NEW_PAIR
     }
 
-  override def containsExpected(expected: AnyRef) =
-    isomorphicNodes.exists(pair => pair.expected.eq(expected))
+  override def containsExpected(expected: Any) = isomorphicNodes.exists(pair => pair.expected.eq(expected.asInstanceOf[AnyRef]))
 }

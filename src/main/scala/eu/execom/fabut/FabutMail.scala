@@ -3,6 +3,7 @@ package eu.execom.fabut
 import eu.execom.fabut.pair.AssertMail
 import junit.framework.AssertionFailedError
 import org.subethamail.wiser.Wiser
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
@@ -15,7 +16,7 @@ trait FabutMail extends InitFabut {
   var wiserMails = new ListBuffer[AssertMail]
 
   /**
-   *  Needs to be implemented in test
+   * Needs to be implemented in test
    */
   def wiser: Wiser
 
@@ -45,7 +46,7 @@ trait FabutMail extends InitFabut {
   def assertWiserMessages() = {
 
     wiserMails.clear()
-    wiserMails = wiserMails ++ wiser.getMessages.map( x => new AssertMail(x.getMimeMessage.getAllRecipients()(0).toString, x.getMimeMessage.getSubject, false))
+    wiserMails = wiserMails ++ wiser.getMessages.map(x => new AssertMail(x.getMimeMessage.getAllRecipients()(0).toString, x.getMimeMessage.getSubject, false))
 
     for (wiserMail <- wiserMails) {
       for (assertMail <- assertMails) {

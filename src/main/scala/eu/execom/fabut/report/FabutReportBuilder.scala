@@ -51,23 +51,6 @@ case class FabutReportBuilder(newMessage: String = "") {
     failComment(comment)
   }
 
-  def failComment(comment: String): Unit = {
-    val part = new StringBuilder(addIndentation())
-
-    part.append(FAIL)
-    part.append(ARROW)
-    part.append(comment)
-
-    builder.append(part.toString())
-  }
-
-  def addIndentation(): String = {
-    val part = new StringBuilder(builder.toString()).append(NEW_LINE)
-    for (i <- 0 to assertDepth - 1) part.append(TAB)
-    builder.setLength(0)
-    part.toString()
-  }
-
   def noPropertyForField(fieldName: String, field: Any): Unit = {
     val comment = s"There was no property for field:  $fieldName of class:  ${field.getClass.getSimpleName}, with value: $field"
     failComment(comment)
@@ -118,6 +101,21 @@ case class FabutReportBuilder(newMessage: String = "") {
     successComment(comment, COLLECTION)
   }
 
+  def successComment(comment: String, commentType: CommentType*): Unit = {
+    val part = new StringBuilder(addIndentation())
+
+    if (commentType.nonEmpty) {
+      part.append(commentType.head)
+    } else {
+      part.append(SUCCESS)
+    }
+
+    part.append(ARROW)
+    part.append(comment)
+
+    builder.append(part.toString())
+  }
+
   def noEntityInSnapshot(entity: Any): Unit = {
     val comment = s"Entity $entity doesn't exist in DB any more but is not asserted in test."
     failComment(comment)
@@ -133,24 +131,26 @@ case class FabutReportBuilder(newMessage: String = "") {
     failComment(comment)
   }
 
-  def asserted(pair: AssertPair, propertyName: String): Unit = {
-    val comment = s"$propertyName: expected: ${pair.expected} and was: ${pair.actual}"
-    successComment(comment)
-  }
-
-  def successComment(comment: String, commentType: CommentType*): Unit = {
+  def failComment(comment: String): Unit = {
     val part = new StringBuilder(addIndentation())
 
-    if (commentType.nonEmpty) {
-      part.append(commentType.head)
-    } else {
-      part.append(SUCCESS)
-    }
-
+    part.append(FAIL)
     part.append(ARROW)
     part.append(comment)
 
     builder.append(part.toString())
+  }
+
+  def addIndentation(): String = {
+    val part = new StringBuilder(builder.toString()).append(NEW_LINE)
+    for (i <- 0 to assertDepth - 1) part.append(TAB)
+    builder.setLength(0)
+    part.toString()
+  }
+
+  def asserted(pair: AssertPair, propertyName: String): Unit = {
+    val comment = s"$propertyName: expected: ${pair.expected} and was: ${pair.actual}"
+    successComment(comment)
   }
 
   def assertFail(pair: AssertPair, propertyName: String): Unit = {

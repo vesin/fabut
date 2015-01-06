@@ -11,7 +11,7 @@ import scala.reflect.runtime.universe.Type
 /**
  * Set of method for advanced asserting.
  */
-trait Fabut extends InitFabut{
+trait Fabut extends InitFabut {
 
   var assertType: AssertType = null
   var fabutAssert: FabutRepositoryAssert = null
@@ -112,6 +112,17 @@ trait Fabut extends InitFabut{
   }
 
   /**
+   * Turns Seq of properties to Map
+   *
+   * @param properties
+   * Seq of properties
+   *
+   * @return properties map
+   *
+   */
+  def createExpectedPropertiesMap(properties: IProperty*): Map[String, IProperty] = properties.map(property => (property.path, property)).toMap
+
+  /**
    * Asserts two objects
    *
    * @param expectedObject
@@ -123,19 +134,6 @@ trait Fabut extends InitFabut{
    *
    */
   def assertObjects(expectedObject: Any, actualObject: Any, expectedChanges: IProperty*): Unit = assertObjects(EMPTY_STRING, expectedObject, actualObject, expectedChanges: _*)
-
-  /**
-   * Asserts list of expected and array of actual objects.
-   *
-   * @param expected
-   * the expected list
-   * @param actuals
-   * the actual array
-   */
-  def assertList(expected: List[_], actuals: Any*): Unit = {
-    checkValidInit()
-    assertObjects(EMPTY_STRING, expected, actuals.toList)
-  }
 
   /**
    * Asserts two objects
@@ -171,23 +169,17 @@ trait Fabut extends InitFabut{
   }
 
   /**
-   * Turns Seq of properties to Map
+   * Asserts list of expected and array of actual objects.
    *
-   * @param properties
-   * Seq of properties
-   *
-   * @return properties map
-   *
+   * @param expected
+   * the expected list
+   * @param actuals
+   * the actual array
    */
-  def createExpectedPropertiesMap(properties: IProperty*): Map[String, IProperty] = properties.map(property => (property.path, property)).toMap
-
-  /**
-   * Checks if Fabut repository or object assert is initialized
-   */
-  def checkValidInit(): Unit =
-    if (fabutAssert == null) {
-      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
-    }
+  def assertList(expected: List[_], actuals: Any*): Unit = {
+    checkValidInit()
+    assertObjects(EMPTY_STRING, expected, actuals.toList)
+  }
 
   /**
    * Asserts entity with one saved in snapshot.
@@ -207,6 +199,31 @@ trait Fabut extends InitFabut{
       throw new AssertionFailedError(report.message())
     }
   }
+
+  /**
+   * Marks object as asserted.
+   *
+   * @param entity
+   * the entity
+   */
+  def markAsserted(entity: Any): Unit = {
+    checkValidInit()
+    checkIfEntity(entity)
+
+    val report = new FabutReportBuilder
+    val entityType = getClassType(entity, AssertableType.ENTITY_TYPE)
+    if (!fabutAssert.markAsAsserted(report, entity, entityType)) {
+      throw new AssertionFailedError(report.message())
+    }
+  }
+
+  /**
+   * Checks if Fabut repository or object assert is initialized
+   */
+  def checkValidInit(): Unit =
+    if (fabutAssert == null) {
+      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
+    }
 
   /**
    * Checks if specified object is entity.
@@ -233,23 +250,6 @@ trait Fabut extends InitFabut{
     if (assertType != REPOSITORY_ASSERT) {
       throw new IllegalStateException("Test class must implement IRepositoryFabutAssert")
     }
-
-  /**
-   * Marks object as asserted.
-   *
-   * @param entity
-   * the entity
-   */
-  def markAsserted(entity: Any): Unit = {
-    checkValidInit()
-    checkIfEntity(entity)
-
-    val report = new FabutReportBuilder
-    val entityType = getClassType(entity, AssertableType.ENTITY_TYPE)
-    if (!fabutAssert.markAsAsserted(report, entity, entityType)) {
-      throw new AssertionFailedError(report.message())
-    }
-  }
 
   /**
    *

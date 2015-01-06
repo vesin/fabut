@@ -4,7 +4,7 @@ import eu.execom.fabut.AssertableType._
 
 import scala.reflect.runtime.universe.Type
 
-trait FabutRepository extends Fabut with InitFabut{
+trait FabutRepository extends Fabut with InitFabut {
 
   /**
    * Find all objects of specified type.
@@ -40,7 +40,7 @@ trait FabutRepository extends Fabut with InitFabut{
     fabutAssert.types(ENTITY_TYPE) = entityTypes()
   }
 
-  override def afterTest():Unit  = {
+  override def afterTest(): Unit = {
     super.afterTest()
   }
 }

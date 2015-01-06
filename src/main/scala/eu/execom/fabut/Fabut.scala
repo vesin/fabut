@@ -3,7 +3,6 @@ package eu.execom.fabut
 import eu.execom.fabut.AssertType._
 import eu.execom.fabut.property._
 import eu.execom.fabut.report.FabutReportBuilder
-import eu.execom.fabut.util.ConversionUtil._
 import eu.execom.fabut.util.ReflectionUtil._
 import junit.framework.AssertionFailedError
 
@@ -19,13 +18,13 @@ trait Fabut {
 
   /**
    * Method used for initialization of db and Fabut
-   * */
-  def before():Unit
+   **/
+  def before(): Unit
 
   /**
    * Method for after test stream close ups, rollbacks etc.
-   * */
-  def after():Unit
+   **/
+  def after(): Unit
 
   /**
    * List of class types that will be treated as complex
@@ -48,25 +47,16 @@ trait Fabut {
 
   /**
    * This method needs to be called in @Before method of a test in order for [@link Fabut] to work.
-   *
-   * @param testInstance
-   * - the test instance
    */
-  def beforeTest(testInstance: AnyRef): Unit = {
-    assertType = getAssertType(testInstance)
-    fabutAssert = assertType match {
-      case OBJECT_ASSERT => new FabutRepositoryAssert(testInstance.asInstanceOf[Fabut], assertType)
-      case REPOSITORY_ASSERT => new FabutRepositoryAssert(testInstance.asInstanceOf[FabutRepository], assertType)
-      case UNSUPPORTED_ASSERT => throw new IllegalStateException("This test must implement IFabutAssert or IRepositoryFabutAssert")
-      case _ => throw new IllegalStateException("Unsupported assert type: " + assertType)
-    }
+  def beforeTest(): Unit = {
+    assertType = AssertType.OBJECT_ASSERT
+    fabutAssert = new FabutRepositoryAssert(this, assertType)
   }
 
   /**
    * This method needs to be called in @After method of a test in order for [@link Fabut] to work.
    */
   def afterTest(): Unit = {
-
     var ok = true
     val sb = new StringBuilder()
 
@@ -95,15 +85,11 @@ trait Fabut {
   def takeSnapshot(parameters: Any*): Unit = {
     checkValidInit()
 
-    if (assertType == UNSUPPORTED_ASSERT) {
-      throw new IllegalArgumentException("Test must implement IRepositoryFabutAssert")
-    }
-
     val report = new FabutReportBuilder
+
     if (!fabutAssert.takeSnapshot(parameters: _*)(report)) {
       throw new AssertionFailedError(report.message())
     }
-
   }
 
   /**
@@ -177,7 +163,6 @@ trait Fabut {
    *
    */
   def assertObjects(message: String, expectedObject: Any, actualObject: Any, expectedChanges: IProperty*): Unit = {
-
     val report = new FabutReportBuilder()
 
     if (expectedObject == null) {
@@ -209,6 +194,14 @@ trait Fabut {
   def createExpectedPropertiesMap(properties: IProperty*): Map[String, IProperty] = properties.map(property => (property.path, property)).toMap
 
   /**
+   * Checks if Fabut repository or object assert is initialized
+   */
+  def checkValidInit(): Unit =
+    if (fabutAssert == null) {
+      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
+    }
+
+  /**
    * Asserts entity with one saved in snapshot.
    *
    * @param entity
@@ -226,6 +219,32 @@ trait Fabut {
       throw new AssertionFailedError(report.message())
     }
   }
+
+  /**
+   * Checks if specified object is entity.
+   *
+   * @param entity
+   * the entity
+   */
+  def checkIfEntity(entity: Any): Unit = {
+    checkIfRepositoryAssert()
+
+    if (entity == null) {
+      throw new NullPointerException("assertEntityWithSnapshot cannot take null entity!")
+    }
+
+    if (!getClassType(entity, AssertableType.ENTITY_TYPE).isDefined) {
+      throw new IllegalStateException(entity.getClass.getSimpleName + " is not registered as entity type")
+    }
+  }
+
+  /**
+   * Checks if current test is repository test.
+   */
+  def checkIfRepositoryAssert(): Unit =
+    if (assertType != REPOSITORY_ASSERT) {
+      throw new IllegalStateException("Test class must implement IRepositoryFabutAssert")
+    }
 
   /**
    * Marks object as asserted.
@@ -259,42 +278,7 @@ trait Fabut {
     if (!fabutAssert.assertEntityAsDeleted(report, entity)) {
       throw new AssertionFailedError(report.message())
     }
-
   }
-
-  /**
-   * Checks if Fabut repository or object assert is initialized
-   */
-  def checkValidInit(): Unit =
-    if (fabutAssert == null){
-      throw new IllegalArgumentException("Fabut.beforeTest must be called before the test")
-    }
-
-
-  /**
-   * Checks if specified object is entity.
-   *
-   * @param entity
-   * the entity
-   */
-  def checkIfEntity(entity: Any): Unit = {
-    checkIfRepositoryAssert()
-
-    if (entity == null) {
-      throw new NullPointerException("assertEntityWithSnapshot cannot take null entity!")
-    }
-    if (!getClassType(entity, AssertableType.ENTITY_TYPE).isDefined) {
-      throw new IllegalStateException(entity.getClass.getSimpleName + " is not registered as entity type")
-    }
-  }
-
-  /**
-   * Checks if current test is repository test.
-   */
-  def checkIfRepositoryAssert(): Unit =
-    if (assertType != REPOSITORY_ASSERT) {
-      throw new IllegalStateException("Test class must implement IRepositoryFabutAssert")
-    }
 
   /**
    * Ignores the entity.

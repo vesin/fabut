@@ -14,9 +14,8 @@ class AbstractFabutRepositoryAssertTest extends Assert with FabutRepository {
   var _entityTierOneTypes: ListBuffer[EntityTierOneType] = ListBuffer()
   var _entityTierTwoTypes: ListBuffer[EntityTierTwoType] = ListBuffer()
 
-
   @Before
-  override def before(): Unit = beforeTest(this)
+  override def before(): Unit = beforeTest()
 
   @After
   override def after(): Unit = ()
@@ -85,7 +84,6 @@ class AbstractFabutRepositoryAssertTest extends Assert with FabutRepository {
     complexTypes += typeOf[Teacher]
     complexTypes += typeOf[FakeEntity]
 
-
     complexTypes.toList
   }
 
@@ -101,6 +99,4 @@ class AbstractFabutRepositoryAssertTest extends Assert with FabutRepository {
   def setEntityTierOneTypes(entityTierOneTypes1: ListBuffer[EntityTierOneType]): Unit = _entityTierOneTypes = entityTierOneTypes1
 
   def setEntityTierTwoTypes(entityTierTwoTypes1: ListBuffer[EntityTierTwoType]): Unit = _entityTierTwoTypes = entityTierTwoTypes1
-
-
 }

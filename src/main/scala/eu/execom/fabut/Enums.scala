@@ -19,8 +19,7 @@ object AssertType extends Enumeration {
 object CommentType extends Enumeration {
   type CommentType = Value
 
-  //TODO consider using other signs.
-  val FAIL = Value("x")
+  val FAIL = Value("x ")
   val SUCCESS = Value("✓")
   val COLLECTION = Value("#")
 }
@@ -39,7 +38,7 @@ object NodeCheckType extends Enumeration {
  *
  * FOR_COPY - private getters and setters
  * FOR_ASSERT - public getters
- * */
+ **/
 object FieldType extends Enumeration {
   type FieldType = Value
 

@@ -1,8 +1,8 @@
 package eu.execom.fabut.util
 
-import eu.execom.fabut.FieldType._
-import eu.execom.fabut.{AbstractFabutObjectAssertTest}
+import eu.execom.fabut.AbstractFabutObjectAssertTest
 import eu.execom.fabut.AssertableType._
+import eu.execom.fabut.FieldType._
 import eu.execom.fabut.graph.NodesList
 import eu.execom.fabut.model.TrivialClasses._
 import eu.execom.fabut.model._
@@ -18,13 +18,13 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   val TRUE = true
 
   @Test
-  def testGetObjectProperties(): Unit ={
+  def testGetObjectProperties(): Unit = {
     //	setup
     val complexObject = ObjectWithSimpleProperties("pera", 40, ObjectInsideSimpleProperty("200"))
     val actualObject = ObjectWithComplexProperty(5, TRUE, complexObject, List(1, 2, 3))
 
     //    method
-    val actualObjectProperties = getObjectProperties(actualObject, Some(typeOf[ObjectWithComplexProperty]),FOR_ASSERT)
+    val actualObjectProperties = getObjectProperties(actualObject, Some(typeOf[ObjectWithComplexProperty]), FOR_ASSERT)
     //	assert
     assertEquals(actualObjectProperties.size, 4)
     assertEquals(actualObjectProperties("id").value, 5)
@@ -57,7 +57,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
     //	method
     val actualUnknownField = getFieldValueFromGetter("_sid", actualObject, getClassType(actualObject, COMPLEX_TYPE).get)
 
-    assertEquals(actualUnknownField,None)
+    assertEquals(actualUnknownField, None)
   }
 
   @Test
@@ -73,7 +73,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCreateEmptyCopyFromComplexObject(): Unit ={
+  def testCreateEmptyCopyFromComplexObject(): Unit = {
     //	setup
     val complexObject = ObjectWithSimpleProperties("pera", 40, ObjectInsideSimpleProperty("200"))
     val originalObject = ObjectWithComplexProperty(10000, TRUE, complexObject, List(5, 6, 7))
@@ -115,7 +115,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCopyPropertyMapPropertyWithPrimitiveTypes(): Unit ={
+  def testCopyPropertyMapPropertyWithPrimitiveTypes(): Unit = {
     //    setup
     val mapProperty = Map(TEST -> (TEST + 1), TEST -> (TEST + 2))
 
@@ -155,7 +155,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCreateCopyList (): Unit ={
+  def testCreateCopyList(): Unit = {
     //    setup
     val list = List(1, 2, 3)
 
@@ -167,7 +167,7 @@ class ReflectionUtilTest extends AbstractFabutObjectAssertTest {
   }
 
   @Test
-  def testCreateCopyObjectWithComplexProperty (): Unit ={
+  def testCreateCopyObjectWithComplexProperty(): Unit = {
     //	setup
     val complexObject = ObjectWithSimpleProperties(TEST + TEST, 1, ObjectInsideSimpleProperty(TEST))
     val originalObject = ObjectWithComplexProperty(3, TRUE, complexObject, List(TEST + 1, TEST + 2, TEST + 3))

@@ -37,8 +37,8 @@ object ReflectionUtil {
   def getObjectProperties(objectInstance: Any, classType: Option[Type], fieldType: FieldType): Map[String, Property] =
     if (classType.isDefined) {
       val instanceMirror = classLoaderMirror.reflect(objectInstance)
-      val getters  = fieldType match {
-        case FOR_COPY =>  extractFields(classType.get)
+      val getters = fieldType match {
+        case FOR_COPY => extractFields(classType.get)
         case FOR_ASSERT => extractGetterSymbols(classType.get)
       }
       val properties = getters.map { getter =>
@@ -70,7 +70,7 @@ object ReflectionUtil {
         if (hasCustomGetter(variable, publicMethods)) {
           getters += publicMethods.find { method => method.name.toString == asGetter(variable)}.get
         } else {
-          val getter = publicMethods.find { member => member.name.toString == variable.name.toString.trim }
+          val getter = publicMethods.find { member => member.name.toString == variable.name.toString.trim}
           if (getter.isDefined) {
             getters += getter.get
           }
@@ -110,7 +110,7 @@ object ReflectionUtil {
    * @return
    * - name for field as custom getter
    **/
-  def asGetter(term: TermSymbol): String = term.name.toString.dropWhile( char => char == '_').trim
+  def asGetter(term: TermSymbol): String = term.name.toString.dropWhile(char => char == '_').trim
 
   /**
    * Checks if getter without underscore prefix for given term exists in classes member scope.
@@ -163,7 +163,7 @@ object ReflectionUtil {
    *
    * @return
    * - value from invoking the method
-   * */
+   **/
   def reflectMethod(method: MethodSymbol, instanceMirror: InstanceMirror): Option[Any] = util.Try {
     val field = instanceMirror.reflectMethod(method)
     field()
@@ -184,16 +184,16 @@ object ReflectionUtil {
    *
    * @return <code> true </code> if change of value succeded, <code> false </code> otherwise.
    */
-  def setField(fieldName: String, newFieldValue: Any, objectInstance: Any, classType: Type):Boolean = try {
+  def setField(fieldName: String, newFieldValue: Any, objectInstance: Any, classType: Type): Boolean = try {
     val instanceMirror = classLoaderMirror.reflect(objectInstance)
-    val mSymbol = classType.member(TermName(fieldName+SETTER_POSTFIX)).asMethod
+    val mSymbol = classType.member(TermName(fieldName + SETTER_POSTFIX)).asMethod
     val fieldMirror = instanceMirror.reflectMethod(mSymbol)
-        fieldMirror(newFieldValue)
-        true
-      } catch {
-        case e: ScalaReflectionException => false
-        case e: AssertionError => false
-        case e: NoSuchElementException => false
+    fieldMirror(newFieldValue)
+    true
+  } catch {
+    case e: ScalaReflectionException => false
+    case e: AssertionError => false
+    case e: NoSuchElementException => false
   }
 
   /**
@@ -214,7 +214,7 @@ object ReflectionUtil {
   def createEmptyCopy(objectInstance: Any, objectType: Type): Option[Any] = {
     val classSymbol = objectType.typeSymbol.asClass
     val classMirror = classLoaderMirror.reflectClass(classSymbol)
-    val constructorsList = objectType.decl(termNames.CONSTRUCTOR).asTerm.alternatives.collect{
+    val constructorsList = objectType.decl(termNames.CONSTRUCTOR).asTerm.alternatives.collect {
       case constructor: MethodSymbol if constructor.paramLists.head.size == 1 || constructor.paramLists.head.size == 0 => constructor
     }.sortBy(constructor => constructor.paramLists.head.size)
 
@@ -239,8 +239,8 @@ object ReflectionUtil {
    * the value of id property
    **/
   def getIdValue(entity: Any): Option[Any] = getClassType(entity, getAssertableType(entity)) match {
-      case Some(entityType) => getFieldValueFromGetter(ID, entity, entityType)
-      case _ => None
+    case Some(entityType) => getFieldValueFromGetter(ID, entity, entityType)
+    case _ => None
   }
 
   /**
@@ -315,7 +315,7 @@ object ReflectionUtil {
   def createObjectCopy(objectInstance: Any, nodesList: NodesList): Option[Any] = {
     var inList = true
 
-    val copy = nodesList.expected(objectInstance).getOrElse{
+    val copy = nodesList.expected(objectInstance).getOrElse {
       inList = false
       createEmptyCopy(objectInstance, getClassType(objectInstance, getAssertableType(objectInstance)).get)
         .getOrElse(throw new CopyException(objectInstance.getClass.getSimpleName))
@@ -323,7 +323,7 @@ object ReflectionUtil {
 
     if (!inList) {
       nodesList.addPair(copy, objectInstance)
-      val fieldsForCopy = getObjectProperties(objectInstance, getClassType(objectInstance, getAssertableType(objectInstance)),FOR_COPY)
+      val fieldsForCopy = getObjectProperties(objectInstance, getClassType(objectInstance, getAssertableType(objectInstance)), FOR_COPY)
 
       fieldsForCopy.foreach { field =>
         val copiedProperty = copyProperty(field._2.value, nodesList)
@@ -378,7 +378,7 @@ object ReflectionUtil {
    * @return
    * the copied map
    **/
-  def copyMap(mapForCopy: Map[_, _]): Map[Any, Any] = mapForCopy.map{ case (key, value) => (key, copyProperty(value, new NodesList))}
+  def copyMap(mapForCopy: Map[_, _]): Map[Any, Any] = mapForCopy.map { case (key, value) => (key, copyProperty(value, new NodesList))}
 
   /**
    * Checks if object is of complex type

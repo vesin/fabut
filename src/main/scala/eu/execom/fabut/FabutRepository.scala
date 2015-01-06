@@ -1,9 +1,10 @@
 package eu.execom.fabut
 
+import eu.execom.fabut.AssertableType._
+
 import scala.reflect.runtime.universe.Type
 
 trait FabutRepository extends Fabut {
-
   /**
    * Find all objects of specified type.
    *
@@ -30,4 +31,11 @@ trait FabutRepository extends Fabut {
    * @return { @link List } with existing entity types.
    */
   def entityTypes(): List[Type]
+
+  override def beforeTest(): Unit = {
+    assertType = AssertType.REPOSITORY_ASSERT
+    fabutAssert = new FabutRepositoryAssert(this, assertType)
+    fabutAssert.types(ENTITY_TYPE) = entityTypes()
+  }
+
 }

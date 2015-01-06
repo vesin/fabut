@@ -10,6 +10,7 @@ import scala.reflect.runtime.universe.{Type, typeOf}
 class AbstractFabutObjectAssertTest extends Assert with Fabut {
 
   private var _fabutObjectAssert: FabutObjectAssert = null
+
   def fabutObjectAssert(): FabutObjectAssert = _fabutObjectAssert
 
   @Before
@@ -17,10 +18,8 @@ class AbstractFabutObjectAssertTest extends Assert with Fabut {
     _fabutObjectAssert = new FabutObjectAssert(this)
   }
 
-
   @After
-  override def after(): Unit = ()
-
+  override def after(): Unit = {}
 
   override def complexTypes(): List[Type] = {
     val complexTypes: ListBuffer[Type] = ListBuffer()
@@ -57,7 +56,6 @@ class AbstractFabutObjectAssertTest extends Assert with Fabut {
     val ignoredTypes: ListBuffer[Type] = ListBuffer()
 
     ignoredTypes += typeOf[IgnoredType]
-
     ignoredTypes.toList
   }
 

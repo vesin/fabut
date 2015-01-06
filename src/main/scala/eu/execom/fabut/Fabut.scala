@@ -11,20 +11,10 @@ import scala.reflect.runtime.universe.Type
 /**
  * Set of method for advanced asserting.
  */
-trait Fabut {
+trait Fabut extends InitFabut{
 
   var assertType: AssertType = null
   var fabutAssert: FabutRepositoryAssert = null
-
-  /**
-   * Method used for initialization of db and Fabut
-   **/
-  def before(): Unit
-
-  /**
-   * Method for after test stream close ups, rollbacks etc.
-   **/
-  def after(): Unit
 
   /**
    * List of class types that will be treated as complex
@@ -45,18 +35,16 @@ trait Fabut {
    **/
   def customAssertEquals(expectedObject: Any, actualObject: Any)
 
-  /**
-   * This method needs to be called in @Before method of a test in order for [@link Fabut] to work.
-   */
-  def beforeTest(): Unit = {
+
+  override def beforeTest(): Unit = {
+    super.beforeTest()
     assertType = AssertType.OBJECT_ASSERT
     fabutAssert = new FabutRepositoryAssert(this, assertType)
   }
 
-  /**
-   * This method needs to be called in @After method of a test in order for [@link Fabut] to work.
-   */
-  def afterTest(): Unit = {
+
+  override def afterTest(): Unit = {
+    super.afterTest()
     var ok = true
     val sb = new StringBuilder()
 

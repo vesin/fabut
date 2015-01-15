@@ -33,7 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <commons.version>3.1</commons.version>
         <junit.version>4.10</junit.version>
-        <scala.version>2.11.4</scala.version>
+        <scala.version>2.11.5</scala.version>
     </properties>
 
     <dependencies>

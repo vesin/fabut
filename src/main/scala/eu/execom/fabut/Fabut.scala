@@ -33,7 +33,7 @@ trait Fabut extends InitFabut {
   /**
    * Custom implementation of assert function for certain class types
    **/
-  def customAssertEquals(expectedObject: Any, actualObject: Any):Unit
+  def customAssertEquals(expectedObject: Any, actualObject: Any)
 
 
   override def beforeTest(): Unit = {

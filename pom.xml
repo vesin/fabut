@@ -13,22 +13,22 @@
 		<name>Execom</name>
 		<url>www.execom.eu</url>
 	</organization>
-	<url>https://github.com/vesin/testutil</url>
+	<url>https://github.com/nolah/fabut</url>
 	<issueManagement>
-		<url>https://github.com/vesin/testutil/issues</url>
+		<url>https://github.com/nolah/fabut/issues</url>
 		<system>Fabut git hub issue tracker</system>
 	</issueManagement>
 	<scm>
-		<url>https://github.com/vesin/testutil</url>
-		<connection>scm:git:git://github.com/vesin/testutil.git</connection>
-		<developerConnection>scm:git:git@github.com:vesin/testutil.git</developerConnection>
+		<url>https://github.com/nolah/fabut</url>
+		<connection>scm:git:git://github.com/nolah/fabut.git</connection>
+		<developerConnection>scm:git:git@github.com:nolah/fabut.git</developerConnection>
 	</scm>
 
 	<properties>
 
 		<!-- tell the compiler we can use 1.6 -->
-		<maven.compiler.source>1.6</maven.compiler.source>
-		<maven.compiler.target>1.6</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -66,9 +66,21 @@
 	<distributionManagement>
 		<repository>
 			<id>repo</id>
-			<url>file:../vesin-repo/repo</url>
+			<url>file:../fabut-repo/repo/repo</url>
 		</repository>
 	</distributionManagement>
+
+	<profiles>
+		<profile>
+			<id>disable-java8-doclint</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+			<properties>
+				<additionalparam>-Xdoclint:none</additionalparam>
+			</properties>
+		</profile>
+	</profiles>
 
 	<build>
 		<plugins>
